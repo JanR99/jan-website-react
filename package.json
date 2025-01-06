@@ -2,7 +2,7 @@
   "name": "jan-website-react",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://JanR99.github.io/jan-website-react",
+  "homepage": "https://jan-website.de",
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^18.3.1",
