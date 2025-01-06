@@ -14,6 +14,13 @@ function Destination() {
         `${destination}4-min.jpg`
     ];
 
+    // Split the images into chunks of 2 for easy rendering
+    const chunkSize = 2;
+    const imageChunks = [];
+    for (let i = 0; i < images.length; i += chunkSize) {
+        imageChunks.push(images.slice(i, i + chunkSize));
+    }
+
     return (
         <div>
             {/* Header */}
@@ -28,26 +35,18 @@ function Destination() {
                 </Link>
             </div>
 
-            {/* Image container */}
-            <div className="container">
-                {images.slice(0, 2).map((image, index) => (
-                    <div className="img-container" key={index}>
-                        <a target="_blank" href={`/Bilder/Urlaub-normal/${image.replace('-min', '')}`} rel="noopener noreferrer">
-                            <img src={`/Bilder/Urlaub-thumbnail/${image}`} alt={destination} />
-                        </a>
-                    </div>
-                ))}
-            </div>
-
-            <div className="container">
-                {images.slice(2, 4).map((image, index) => (
-                    <div className="img-container" key={index}>
-                        <a target="_blank" href={`/Bilder/Urlaub-normal/${image.replace('-min', '')}`} rel="noopener noreferrer">
-                            <img src={`/Bilder/Urlaub-thumbnail/${image}`} alt={destination} />
-                        </a>
-                    </div>
-                ))}
-            </div>
+            {/* Image containers */}
+            {imageChunks.map((chunk, chunkIndex) => (
+                <div className="container" key={chunkIndex}>
+                    {chunk.map((image, index) => (
+                        <div className="img-container" key={index}>
+                            <a target="_blank" href={`/Bilder/Urlaub-normal/${image.replace('-min', '')}`} rel="noopener noreferrer">
+                                <img src={`/Bilder/Urlaub-thumbnail/${image}`} alt={destination} />
+                            </a>
+                        </div>
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }
