@@ -1,10 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import './App.css'; // Import your CSS file
-import Cookbook from './components/Cookbook'; // Import Cookbook component
-import Links from './components/Links'; // Import Links component
-import Home from './components/Home'; // Import Home component
-import Destination from './components/Destination'; // Import Destination component
+import './App.css';
+import Cookbook from './components/Cookbook';
+import Links from './components/Links';
+import Home from './components/Home';
+import Destination from './components/Destination';
+import Asiatisch from './components/Asiatisch';
+import Recipe from './components/Recipe';
+
 
 function App() {
     return (
@@ -28,8 +31,9 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/links" element={<Links />} />
-                    {/* Update the destination route to accept a dynamic parameter */}
                     <Route path="/destination/:destination" element={<Destination />} />
+                    <Route path="/cookbook/asiatisch" element={<Asiatisch />} />
+                    <Route path="/recipe/:recipeTitle" element={<Recipe />} />
                 </Routes>
             </div>
         </Router>
