@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/jan-website-react/static/css/main.b200a656.css",
-    "main.js": "/jan-website-react/static/js/main.72ac3eb9.js",
-    "static/js/488.3ca504c4.chunk.js": "/jan-website-react/static/js/488.3ca504c4.chunk.js",
-    "index.html": "/jan-website-react/index.html",
-    "main.b200a656.css.map": "/jan-website-react/static/css/main.b200a656.css.map",
-    "main.72ac3eb9.js.map": "/jan-website-react/static/js/main.72ac3eb9.js.map",
-    "488.3ca504c4.chunk.js.map": "/jan-website-react/static/js/488.3ca504c4.chunk.js.map"
+    "main.css": "/static/css/main.b200a656.css",
+    "main.js": "/static/js/main.1ad1761a.js",
+    "static/js/488.3ca504c4.chunk.js": "/static/js/488.3ca504c4.chunk.js",
+    "index.html": "/index.html",
+    "main.b200a656.css.map": "/static/css/main.b200a656.css.map",
+    "main.1ad1761a.js.map": "/static/js/main.1ad1761a.js.map",
+    "488.3ca504c4.chunk.js.map": "/static/js/488.3ca504c4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b200a656.css",
-    "static/js/main.72ac3eb9.js"
+    "static/js/main.1ad1761a.js"
   ]
 }
