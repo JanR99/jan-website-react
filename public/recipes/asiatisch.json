@@ -2,7 +2,6 @@
   {
     "title": "Japanisches Curry",
     "image": "JapaneseCurry.jpg",
-    "recipeLink": "../Rezepte/Asiatisch/Japanese_Curry.html",
     "ingredients": [
       "1 Tasse Reis",
       "1 1/2 Tassen Wasser",
@@ -25,7 +24,6 @@
   {
     "title": "Aloo Masala",
     "image": "AlooMasala.jpg",
-    "recipeLink": "../Rezepte/Asiatisch/AlooMasala.html",
     "ingredients": [
       "1 EL Butter",
       "2 große Zwiebeln",
@@ -55,7 +53,6 @@
   {
     "title": "Egg Fried Rice",
     "image": "EggFriedRice.jpg",
-    "recipeLink": "../Rezepte/Asiatisch/Egg_Fried_Rice.html",
     "ingredients": [
       "1 Tasse Reis",
       "1,5 Tassen Wasser",
@@ -78,7 +75,6 @@
   {
     "title": "Paneer Butter Masala",
     "image": "PaneerButterMasala.jpg",
-    "recipeLink": "../Rezepte/Asiatisch/PaneerButterMasala.html",
     "ingredients": [
       "Soße:",
       "2 EL Öl",
@@ -118,7 +114,6 @@
   {
     "title": "Rotes Thai Curry",
     "image": "RotesThaiCurry.jpg",
-    "recipeLink": "../Rezepte/Asiatisch/RotesThaiCurry.html",
     "ingredients": [
       "1 Tasse Reis",
       "1,5 Tassen Wasser",
