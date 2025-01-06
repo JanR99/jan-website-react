@@ -22,6 +22,10 @@ function Recipe() {
             .catch(error => console.error('Error loading recipe:', error));
     }, [category, recipeTitle]);
 
+    if (!recipe) {
+        return <div></div>; // This is needed. Otherwise, it throws an error.
+    }
+
     return (
         <div>
             <header>
