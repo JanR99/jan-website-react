@@ -1,35 +1,48 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 
-function Cookbook() {
+function Category() {
+    const { category } = useParams();  // Use useParams to get the category from the URL
+    const [recipes, setRecipes] = useState([]);
+
+    // Fetch recipes from the JSON file based on the category
+    useEffect(() => {
+        if (category) {
+            fetch(`/recipes/${category}.json`)
+                .then(response => response.json())
+                .then(data => setRecipes(data))
+                .catch(error => console.error('Error loading recipes:', error));
+        }
+    }, [category]);
+
     return (
         <div>
             <header>
-                <h1 className="header">Mein Kochbuch</h1>
+                <h1 className="header">{category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Category'} Rezepte</h1>
             </header>
 
-            {/* Main navigation */}
-            <div className="top">
-                <Link to="/" className="button-link">Jans Website</Link>
-                <Link to="/cookbook" className="button-link">Mein Kochbuch</Link>
-                <Link to="/links" className="button-link">Links</Link>
-            </div>
+            {/* Render recipes */}
+            <div className="container">
+                {recipes.map((recipe, index) => {
+                    // Check if image already has an extension, if not, add '.jpg'
+                    const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
 
-            {/* Categories Section */}
-            <header className="categories">
-                <h2 style={{ fontSize: '40px' }}>Food Categories</h2>
-            </header>
-
-            <div className="top">
-                <Link to="/cookbook/asiatisch" className="button-link">Asiatisch</Link>
-                <Link to="/cookbook/kartoffel" className="button-link">Kartoffelrezepte</Link>
-                <Link to="/cookbook/nachspeisen" className="button-link">Nachspeisen</Link>
-                <Link to="/cookbook/pasta" className="button-link">Pasta</Link>
-                <Link to="/cookbook/teigwaren" className="button-link">Teigwaren</Link>
+                    return (
+                        <div className="img-cookbook" key={index}>
+                            <figcaption>{recipe.title}</figcaption>
+                            <Link to={`/recipe/${recipe.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                                <img
+                                    src={`../Bilder/Essen-thumbnail/${imageSrc}`}
+                                    alt={recipe.title}
+                                />
+                            </Link>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
 }
 
-export default Cookbook;
+export default Category;
