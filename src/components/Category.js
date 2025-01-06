@@ -3,17 +3,15 @@ import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 
 function Category() {
-    const { category } = useParams();  // Use useParams to get the category from the URL
+    const { category } = useParams();
     const [recipes, setRecipes] = useState([]);
 
-    // Fetch recipes from the JSON file based on the category
+    // Fetch recipes based on the category
     useEffect(() => {
-        if (category) {
-            fetch(`/recipes/${category}.json`)
-                .then(response => response.json())
-                .then(data => setRecipes(data))
-                .catch(error => console.error('Error loading recipes:', error));
-        }
+        fetch(`/recipes/${category}.json`)
+            .then(response => response.json())
+            .then(data => setRecipes(data))
+            .catch(error => console.error('Error loading recipes:', error));
     }, [category]);
 
     return (
@@ -31,7 +29,7 @@ function Category() {
                     return (
                         <div className="img-cookbook" key={index}>
                             <figcaption>{recipe.title}</figcaption>
-                            <Link to={`/recipe/${recipe.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                            <Link to={`/cookbook/${category}/${recipe.title.toLowerCase().replace(/\s+/g, '-')}`}>
                                 <img
                                     src={`../Bilder/Essen-thumbnail/${imageSrc}`}
                                     alt={recipe.title}

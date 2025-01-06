@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function Recipe() {
-    const { recipeTitle } = useParams(); // Get the recipe title from the URL
+    const { category, recipeTitle } = useParams(); // Get category and recipeTitle from the URL
     const [recipe, setRecipe] = useState(null);
 
     useEffect(() => {
+        // Dynamically fetch the correct JSON file based on the category
+        const jsonFile = `/recipes/${category}.json`; // Build the correct JSON file path
+
         // Fetch the JSON file from the public folder
-        fetch('/recipes/asiatisch.json')
+        fetch(jsonFile)
             .then(response => response.json())
             .then(data => {
                 // Find the recipe based on the title
@@ -17,11 +20,7 @@ function Recipe() {
                 setRecipe(foundRecipe);
             })
             .catch(error => console.error('Error loading recipe:', error));
-    }, [recipeTitle]);
-
-    if (!recipe) {
-        return <div>Loading...</div>; // Display loading message if recipe is not found
-    }
+    }, [category, recipeTitle]);
 
     return (
         <div>
@@ -63,9 +62,9 @@ function Recipe() {
             <p className="zubereitung">
                 {recipe.preparation && recipe.preparation.map((step, index) => (
                     <span key={index}>
-            {index + 1}. {step}
+                        {index + 1}. {step}
                         <br />
-          </span>
+                    </span>
                 ))}
             </p>
         </div>

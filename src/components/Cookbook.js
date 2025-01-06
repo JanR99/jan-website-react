@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../App.css'; // Assuming the CSS file is the same
+import '../App.css';
 
 function Cookbook() {
     return (

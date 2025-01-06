@@ -5,9 +5,8 @@ import Cookbook from './components/Cookbook';
 import Links from './components/Links';
 import Home from './components/Home';
 import Destination from './components/Destination';
-import Asiatisch from './components/Asiatisch';
+import Category from './components/Category'; // Import the new component
 import Recipe from './components/Recipe';
-
 
 function App() {
     return (
@@ -32,8 +31,8 @@ function App() {
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/links" element={<Links />} />
                     <Route path="/destination/:destination" element={<Destination />} />
-                    <Route path="/cookbook/asiatisch" element={<Asiatisch />} />
-                    <Route path="/recipe/:recipeTitle" element={<Recipe />} />
+                    <Route path="/cookbook/:category" element={<Category />} />  {/* Dynamic category route */}
+                    <Route path="/cookbook/:category/:recipeTitle" element={<Recipe />} />
                 </Routes>
             </div>
         </Router>
