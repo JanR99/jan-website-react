@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams} from 'react-router-dom';
 import '../App.css'; // Assuming the CSS file is the same
 
 function Destination() {
@@ -27,13 +27,6 @@ function Destination() {
             <header>
                 <h1 className="header">{destination.charAt(0).toUpperCase() + destination.slice(1)}</h1>
             </header>
-
-            {/* Back button */}
-            <div className="back">
-                <Link to="/">
-                    <button>Zurück</button>
-                </Link>
-            </div>
 
             {/* Image containers */}
             {imageChunks.map((chunk, chunkIndex) => (
