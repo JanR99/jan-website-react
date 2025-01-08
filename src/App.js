@@ -2,7 +2,6 @@ import React from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import Cookbook from './components/Cookbook';
-import Links from './components/Links';
 import Home from './components/Home';
 import Destination from './components/Destination';
 import Category from './components/Category';
@@ -21,14 +20,12 @@ function App() {
                 <div className="top">
                     <Link to="/" className="button-link">Jans Website</Link>
                     <Link to="/cookbook" className="button-link">Mein Kochbuch</Link>
-                    <Link to="/links" className="button-link">Links</Link>
                 </div>
 
                 {/* Routes to display other pages */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
-                    <Route path="/links" element={<Links />} />
                     <Route path="/destination/:destination" element={<Destination />} />
                     <Route path="/cookbook/:category" element={<Category />} />
                     <Route path="/cookbook/:category/:recipeTitle" element={<Recipe />} />

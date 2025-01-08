@@ -9,11 +9,6 @@ function Cookbook() {
                 <h1 className="header">Mein Kochbuch</h1>
             </header>
 
-            {/* Categories Section */}
-            <header className="categories">
-                <h2 style={{ fontSize: '40px' }}>Food Categories</h2>
-            </header>
-
             <div className="top">
                 <Link to="/cookbook/asiatisch" className="button-link">Asiatisch</Link>
                 <Link to="/cookbook/kartoffel" className="button-link">Kartoffelrezepte</Link>

@@ -200,3 +200,25 @@ button:hover {
   0 0 50px #e7b4b4,
   0 0 200px #e7b4b4;
 }
+
+@media (max-width: 768px) {
+  .button-link {
+    font-size: 16px; /* Reduce font size for better readability */
+    padding: 15px 20px; /* Adjust padding for smaller buttons */
+    margin: 5px; /* Reduce margin to avoid overlap */
+  }
+
+  .top {
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center; /* Center-align buttons */
+  }
+
+  .header {
+    font-size: 22px; /* Smaller font size for mobile */
+    margin: 10px 0; /* Reduce top and bottom margin */
+    padding: 0 10px; /* Add some padding for better spacing */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+    overflow: hidden; /* Hide overflow if text is too long */
+    text-overflow: ellipsis; /* Add ellipsis if the text overflows */
+  }
+}
