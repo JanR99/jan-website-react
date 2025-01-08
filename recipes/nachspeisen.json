@@ -17,5 +17,22 @@
       "Anschließend ein Mal wenden, bis er goldbraun gebraten ist.",
       "Servieren mit z.B. Nutella, Puderzucker"
     ]
+  },
+  {
+    "title": "Milchreis (kalorienarm)",
+    "image": "Milchreis.jpg",
+    "ingredients":[
+      "200g Milchreis/Risottoreis",
+      "750ml Milch",
+      "6 EL Erythrit",
+      "Salz"
+    ],
+    "preparation": [
+      "Die Milch in einen Topf erhitzen bis sie anfängt zu schäumen.",
+      "Währenddessen den Reis gut waschen und Beiseitestellen.",
+      "Wenn die Milch anfängt zu schäumen, den Herd auf niedrige Hitze stellen und den Reis einmischen.",
+      "Immer Mal den Reis umrühren und das ganze für 20-30 Minuten kochen lassen.",
+      "Am Ende den Milchreis mit Erythrit süßen und eine Prise Salz untermischen."
+    ]
   }
 ]
