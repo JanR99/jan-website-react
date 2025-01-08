@@ -1,11 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import Cookbook from './components/Cookbook';
 import Links from './components/Links';
 import Home from './components/Home';
 import Destination from './components/Destination';
-import Category from './components/Category'; // Import the new component
+import Category from './components/Category';
 import Recipe from './components/Recipe';
 
 function App() {
@@ -19,7 +19,6 @@ function App() {
 
                 {/* Navigation Bar */}
                 <div className="top">
-                    {/* Use Link instead of buttons with onClick */}
                     <Link to="/" className="button-link">Jans Website</Link>
                     <Link to="/cookbook" className="button-link">Mein Kochbuch</Link>
                     <Link to="/links" className="button-link">Links</Link>
@@ -31,7 +30,7 @@ function App() {
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/links" element={<Links />} />
                     <Route path="/destination/:destination" element={<Destination />} />
-                    <Route path="/cookbook/:category" element={<Category />} />  {/* Dynamic category route */}
+                    <Route path="/cookbook/:category" element={<Category />} />
                     <Route path="/cookbook/:category/:recipeTitle" element={<Recipe />} />
                 </Routes>
             </div>
