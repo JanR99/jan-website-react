@@ -150,6 +150,13 @@ h2 {
   margin: 20px 100px 100px;
 }
 
+.zubereitung span {
+  display: block;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  border-left: 3px solid rgba(0, 0, 0, 0.5);
+}
+
 .cookbook-h3 {
   font-size: 24px;
   color: #000000;
@@ -259,9 +266,9 @@ button:hover, .button-link:hover {
   }
 
   .zubereitung {
-    margin: 20px 10px 50px; /* Adjust margins for better fit */
+    margin: 20px 10px 50px;
     padding: 15px;
-    width: calc(100% - 20px); /* Ensure it uses almost the full width */
-    font-size: 18px; /* Slightly smaller font size for readability */
+    width: calc(100% - 40px);
+    font-size: 18px;
   }
 }
