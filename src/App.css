@@ -221,4 +221,18 @@ button:hover {
     overflow: hidden; /* Hide overflow if text is too long */
     text-overflow: ellipsis; /* Add ellipsis if the text overflows */
   }
+  .back {
+    width: auto; /* Allow the width to adjust based on content */
+    max-width: 90%; /* Ensure it doesn't take up more than 90% of the screen */
+    margin: 0 auto 50px; /* Adjust bottom margin for smaller screens */
+  }
+
+  button {
+    font-size: 14px; /* Smaller font size for mobile */
+    padding: 10px 15px; /* Adjust padding for smaller buttons */
+    max-width: 200px; /* Limit button width on small screens */
+    width: 100%; /* Ensure button stretches to fit parent container */
+  }
+
 }
+
