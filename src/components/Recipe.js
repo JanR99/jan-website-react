@@ -54,10 +54,15 @@ function Recipe() {
             {/* Ingredients Section */}
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
-                {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
-                    <p key={index}>{ingredient}</p>
-                ))}
+                <ul className="ingredients-list">
+                    {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
+                        <li key={index} className="ingredient-item">
+                            <span className="ingredient-icon">🍴</span> {ingredient}
+                        </li>
+                    ))}
+                </ul>
             </div>
+
 
             {/* Preparation Section */}
             <header>
