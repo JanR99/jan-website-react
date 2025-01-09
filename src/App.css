@@ -257,4 +257,11 @@ button:hover, .button-link:hover {
     max-width: 200px;
     width: 100%;
   }
+
+  .zubereitung {
+    margin: 20px 10px 50px; /* Adjust margins for better fit */
+    padding: 15px;
+    width: calc(100% - 20px); /* Ensure it uses almost the full width */
+    font-size: 18px; /* Slightly smaller font size for readability */
+  }
 }
