@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 
 function Recipe() {
@@ -34,69 +35,10 @@ function Recipe() {
     };
 
     const handlePortionInputBlur = () => {
-        if (portions === '' || portions <= 0) {
-            setPortions(2); // Reset to default if input is invalid
+        if (portions <= 0) {
+            setPortions(2);
         }
     };
-
-    const adjustIngredient = (ingredient) => {
-        // Extract quantity and unit if available
-        const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/); // Matches numbers and optional units
-        if (match) {
-            const quantity = parseFloat(match[1]);
-            const unitAndName = match[3] || ''; // Everything after the quantity
-            const adjustedQuantity = (quantity * portions) / 2; // Adjust quantity based on portions
-            return `${adjustedQuantity} ${unitAndName}`.trim();
-        }
-        return ingredient; // Return ingredient as-is if no quantity is found
-    };
-
-    const renderIngredients = () => {
-        if (!recipe.ingredients) return null;
-
-        return recipe.ingredients.map((ingredient, index) => {
-            // Check if the ingredient is a section header (e.g., ends with a colon ":")
-            const isSectionHeader = ingredient.endsWith(":");
-
-            return isSectionHeader ? (
-                <li key={index} className="ingredient-section">
-                    <strong>{ingredient}</strong>
-                </li>
-            ) : (
-                <li key={index} className="ingredient-item">
-                    <span className="ingredient-icon">🍴</span> {adjustIngredient(ingredient)}
-                </li>
-            );
-        });
-    };
-
-    const renderPreparationSteps = () => {
-        if (!recipe.preparation) return null;
-
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-        return recipe.preparation.map((step, index) => {
-            const parts = step.split(urlRegex); // Split the step into text and URL parts
-
-            return (
-                <span key={index}>
-                {index + 1}.{" "}
-                    {parts.map((part, i) =>
-                        urlRegex.test(part) ? (
-                            <a key={i} href={part} target="_blank" rel="noopener noreferrer">
-                                {part}
-                            </a>
-                        ) : (
-                            part
-                        )
-                    )}
-                    <br />
-            </span>
-            );
-        });
-    };
-
-
 
     if (!recipe) {
         return <div></div>; // This is needed. Otherwise, it throws an error.
@@ -140,20 +82,18 @@ function Recipe() {
                 />
             </div>
 
-
             {/* Ingredients Section */}
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
-                <ul className="ingredients-list">{renderIngredients()}</ul>
+                <ul className="ingredients-list">{renderIngredients(recipe, (ingredient) => adjustIngredient(ingredient, portions))}</ul>
             </div>
-
 
             {/* Preparation Section */}
             <header>
                 <h2>Zubereitung</h2>
             </header>
             <p className="zubereitung">
-                {renderPreparationSteps()}
+                {renderPreparationSteps(recipe)}
             </p>
         </div>
     );
