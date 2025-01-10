@@ -51,6 +51,53 @@ function Recipe() {
         return ingredient; // Return ingredient as-is if no quantity is found
     };
 
+    const renderIngredients = () => {
+        if (!recipe.ingredients) return null;
+
+        return recipe.ingredients.map((ingredient, index) => {
+            // Check if the ingredient is a section header (e.g., ends with a colon ":")
+            const isSectionHeader = ingredient.endsWith(":");
+
+            return isSectionHeader ? (
+                <li key={index} className="ingredient-section">
+                    <strong>{ingredient}</strong>
+                </li>
+            ) : (
+                <li key={index} className="ingredient-item">
+                    <span className="ingredient-icon">🍴</span> {adjustIngredient(ingredient)}
+                </li>
+            );
+        });
+    };
+
+    const renderPreparationSteps = () => {
+        if (!recipe.preparation) return null;
+
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+        return recipe.preparation.map((step, index) => {
+            const parts = step.split(urlRegex); // Split the step into text and URL parts
+
+            return (
+                <span key={index}>
+                {index + 1}.{" "}
+                    {parts.map((part, i) =>
+                        urlRegex.test(part) ? (
+                            <a key={i} href={part} target="_blank" rel="noopener noreferrer">
+                                {part}
+                            </a>
+                        ) : (
+                            part
+                        )
+                    )}
+                    <br />
+            </span>
+            );
+        });
+    };
+
+
+
     if (!recipe) {
         return <div></div>; // This is needed. Otherwise, it throws an error.
     }
@@ -97,50 +144,16 @@ function Recipe() {
             {/* Ingredients Section */}
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
-                <ul className="ingredients-list">
-                    {recipe.ingredients && recipe.ingredients.map((ingredient, index) => {
-                        // Check if the ingredient is a section header (e.g., ends with a colon ":")
-                        const isSectionHeader = ingredient.endsWith(":");
-
-                        return isSectionHeader ? (
-                            <li key={index} className="ingredient-section">
-                                <strong>{ingredient}</strong>
-                            </li>
-                        ) : (
-                            <li key={index} className="ingredient-item">
-                                <span className="ingredient-icon">🍴</span> {adjustIngredient(ingredient)}
-                            </li>
-                        );
-                    })}
-                </ul>
+                <ul className="ingredients-list">{renderIngredients()}</ul>
             </div>
+
 
             {/* Preparation Section */}
             <header>
                 <h2>Zubereitung</h2>
             </header>
             <p className="zubereitung">
-                {recipe.preparation && recipe.preparation.map((step, index) => {
-                    // Check if the step contains a URL
-                    const urlRegex = /(https?:\/\/[^\s]+)/g;
-                    const parts = step.split(urlRegex); // Split the step into text and URL parts
-
-                    return (
-                        <span key={index}>
-                            {index + 1}.{" "}
-                            {parts.map((part, i) =>
-                                urlRegex.test(part) ? (
-                                    <a key={i} href={part} target="_blank" rel="noopener noreferrer">
-                                        {part}
-                                    </a>
-                                ) : (
-                                    part
-                                )
-                            )}
-                            <br />
-                        </span>
-                    );
-                })}
+                {renderPreparationSteps()}
             </p>
         </div>
     );
