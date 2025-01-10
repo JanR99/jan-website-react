@@ -63,18 +63,32 @@ function Recipe() {
                 </ul>
             </div>
 
-
             {/* Preparation Section */}
             <header>
                 <h2>Zubereitung</h2>
             </header>
             <p className="zubereitung">
-                {recipe.preparation && recipe.preparation.map((step, index) => (
-                    <span key={index}>
-                        {index + 1}. {step}
-                        <br />
-                    </span>
-                ))}
+                {recipe.preparation && recipe.preparation.map((step, index) => {
+                    // Check if the step contains a URL
+                    const urlRegex = /(https?:\/\/[^\s]+)/g;
+                    const parts = step.split(urlRegex); // Split the step into text and URL parts
+
+                    return (
+                        <span key={index}>
+                            {index + 1}.{" "}
+                            {parts.map((part, i) =>
+                                urlRegex.test(part) ? (
+                                    <a key={i} href={part} target="_blank" rel="noopener noreferrer">
+                                        {part}
+                                    </a>
+                                ) : (
+                                    part
+                                )
+                            )}
+                            <br />
+                        </span>
+                    );
+                })}
             </p>
         </div>
     );
