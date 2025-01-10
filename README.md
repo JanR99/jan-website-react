@@ -1,4 +1,4 @@
-# This iy my Website
+# This is my Website
 
 The website is written in React.
 
