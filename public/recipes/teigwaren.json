@@ -49,8 +49,8 @@
     "image": "Pizza.jpg",
     "ingredients": [
       "Teig:",
-      "500g Mehl",
-      "300ml Wasser",
+      "250 Mehl",
+      "150ml Wasser",
       "4g Trockenhefe",
       "2 TL Salz",
       "Soße:",
@@ -63,7 +63,7 @@
       "Belag",
       "1 Mozzarellaball",
       "200g Streukäse",
-      "0,5 Zwiebel"
+      "0.5 Zwiebel"
     ],
     "preparation": [
       "Das Mehl in eine Schüssel geben, Trockenhefe und Salz dazu mischen. Das Wasser darüber kippen und den Teig ordentlich kneten. Den Teig abgedeckt für mindestens eine Stunde bei Zimmertemperatur stehen lassen.",
@@ -113,7 +113,7 @@
       "6 Wraps",
       "250g Streukäse",
       "100ml Salsasoße",
-      "1,5 Zwiebeln",
+      "1 Zwiebel",
       "Öl"
     ],
     "preparation": [

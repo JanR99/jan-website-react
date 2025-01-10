@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 function Recipe() {
     const { category, recipeTitle } = useParams(); // Get category and recipeTitle from the URL
     const [recipe, setRecipe] = useState(null);
+    const [portions, setPortions] = useState(2); // Default portions to 2
 
     useEffect(() => {
         // Dynamically fetch the correct JSON file based on the category
@@ -21,6 +22,25 @@ function Recipe() {
             })
             .catch(error => console.error('Error loading recipe:', error));
     }, [category, recipeTitle]);
+
+    const handlePortionChange = (e) => {
+        const value = parseInt(e.target.value, 10);
+        if (!isNaN(value) && value > 0) {
+            setPortions(value);
+        }
+    };
+
+    const adjustIngredient = (ingredient) => {
+        // Extract quantity and unit if available
+        const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/); // Matches numbers and optional units
+        if (match) {
+            const quantity = parseFloat(match[1]);
+            const unitAndName = match[3] || ''; // Everything after the quantity
+            const adjustedQuantity = (quantity * portions) / 2; // Adjust quantity based on portions
+            return `${adjustedQuantity} ${unitAndName}`.trim();
+        }
+        return ingredient; // Return ingredient as-is if no quantity is found
+    };
 
     if (!recipe) {
         return <div></div>; // This is needed. Otherwise, it throws an error.
@@ -51,6 +71,18 @@ function Recipe() {
                 </div>
             </div>
 
+            {/* Portion Selector */}
+            <div className="portion-selector">
+                <label htmlFor="portions">Portionen:</label>
+                <input
+                    id="portions"
+                    type="number"
+                    value={portions}
+                    onChange={handlePortionChange}
+                    min="1"
+                />
+            </div>
+
             {/* Ingredients Section */}
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
@@ -65,13 +97,12 @@ function Recipe() {
                             </li>
                         ) : (
                             <li key={index} className="ingredient-item">
-                                <span className="ingredient-icon">🍴</span> {ingredient}
+                                <span className="ingredient-icon">🍴</span> {adjustIngredient(ingredient)}
                             </li>
                         );
                     })}
                 </ul>
             </div>
-
 
             {/* Preparation Section */}
             <header>
