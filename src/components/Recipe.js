@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 
-function Recipe() {
+export default function Recipe() {
     const { category, recipeTitle } = useParams(); // Get category and recipeTitle from the URL
     const [recipe, setRecipe] = useState(null);
     const [portions, setPortions] = useState(2); // Default portions to 2
@@ -98,5 +98,3 @@ function Recipe() {
         </div>
     );
 }
-
-export default Recipe;

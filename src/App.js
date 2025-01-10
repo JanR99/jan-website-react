@@ -7,7 +7,7 @@ import Destination from './components/Destination';
 import Category from './components/Category';
 import Recipe from './components/Recipe';
 
-function App() {
+export default function App() {
     return (
         <Router>
             <div>
@@ -34,5 +34,3 @@ function App() {
         </Router>
     );
 }
-
-export default App;

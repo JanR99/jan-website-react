@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css'; // Assuming the CSS file is the same
 
-function Home() {
+export default function Home() {
     return (
         <div>
             <div className="container">
@@ -45,5 +45,3 @@ function Home() {
         </div>
     );
 }
-
-export default Home;
