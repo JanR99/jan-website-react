@@ -24,10 +24,18 @@ function Recipe() {
             .catch(error => console.error('Error loading recipe:', error));
     }, [category, recipeTitle]);
 
-    const handlePortionChange = (e) => {
-        const value = parseInt(e.target.value, 10);
-        if (!isNaN(value) && value > 0) {
-            setPortions(value);
+    const handlePortionInputChange = (e) => {
+        const value = e.target.value.trim();
+        if (/^\d+$/.test(value)) {
+            setPortions(parseInt(value, 10));
+        } else if (value === '') {
+            setPortions('');
+        }
+    };
+
+    const handlePortionInputBlur = () => {
+        if (portions === '' || portions <= 0) {
+            setPortions(2); // Reset to default if input is invalid
         }
     };
 
@@ -77,12 +85,14 @@ function Recipe() {
                 <label htmlFor="portions">Portionen:</label>
                 <input
                     id="portions"
-                    type="number"
+                    type="text"
                     value={portions}
-                    onChange={handlePortionChange}
-                    min="1"
+                    onChange={handlePortionInputChange}
+                    onBlur={handlePortionInputBlur}
+                    placeholder="Portionenanzahl"
                 />
             </div>
+
 
             {/* Ingredients Section */}
             <div className="zutaten">
