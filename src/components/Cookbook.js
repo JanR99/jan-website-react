@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
 
-function Cookbook() {
+export default function Cookbook() {
     return (
         <div>
             <header>
@@ -19,5 +19,3 @@ function Cookbook() {
         </div>
     );
 }
-
-export default Cookbook;

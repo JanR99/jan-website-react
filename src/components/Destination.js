@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams} from 'react-router-dom';
 import '../App.css'; // Assuming the CSS file is the same
 
-function Destination() {
+export default function Destination() {
     // Get the destination from the URL parameter
     const { destination } = useParams();
 
@@ -43,5 +43,3 @@ function Destination() {
         </div>
     );
 }
-
-export default Destination;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 
-function Category() {
+export default function Category() {
     const { category } = useParams();
     const [recipes, setRecipes] = useState([]);
 
@@ -42,5 +42,3 @@ function Category() {
         </div>
     );
 }
-
-export default Category;
