@@ -120,4 +120,11 @@
         width: calc(100% - 40px);
         font-size: 18px;
     }
+
+    .portion-selector input {
+        width: 100%;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
+    }
 }
