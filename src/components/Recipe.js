@@ -55,13 +55,23 @@ function Recipe() {
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
                 <ul className="ingredients-list">
-                    {recipe.ingredients && recipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="ingredient-item">
-                            <span className="ingredient-icon">🍴</span> {ingredient}
-                        </li>
-                    ))}
+                    {recipe.ingredients && recipe.ingredients.map((ingredient, index) => {
+                        // Check if the ingredient is a section header (e.g., ends with a colon ":")
+                        const isSectionHeader = ingredient.endsWith(":");
+
+                        return isSectionHeader ? (
+                            <li key={index} className="ingredient-section">
+                                <strong>{ingredient}</strong>
+                            </li>
+                        ) : (
+                            <li key={index} className="ingredient-item">
+                                <span className="ingredient-icon">🍴</span> {ingredient}
+                            </li>
+                        );
+                    })}
                 </ul>
             </div>
+
 
             {/* Preparation Section */}
             <header>
