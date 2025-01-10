@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import '../styles/Recipe.css';
 
 function Recipe() {
     const { category, recipeTitle } = useParams(); // Get category and recipeTitle from the URL
