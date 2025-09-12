@@ -199,9 +199,9 @@
     "ingredients": [
       "1 Tasse Weizenmehl",
       "2 Tassen Weißkohl, fein gehackt",
-      "3/4 Tasse Wasser oder Dashi-Brühe für mehr Geschmack",
+      "0.75 Tasse Wasser oder Dashi-Brühe für mehr Geschmack",
       "2 große Eier",
-      "1/2 Tasse fein geschnittene Frühlingszwiebeln",
+      "0.5 Tasse fein geschnittene Frühlingszwiebeln",
       "Okonomiyaki-Sauce",
       "Japanische Mayonnaise",
       "Bonitoflocken (Katsuobushi)",
@@ -222,7 +222,7 @@
     "ingredients": [
       "2 Packungen Udon",
       "100g Japanese Golden Curry",
-      "1 1/2 Tassen Wasser",
+      "1.5 Tassen Wasser",
       "1 Zwiebel",
       "5 Knoblauchzehen",
       "3 Karotten",
@@ -237,6 +237,35 @@
       "Das Sonnenblumenhack nach Packungsanleitung in einer Schüsselwasser ziehen lassen. Zwiebeln, Knoblauch und Karotten schälen und klein schneiden. Mit wenig Öl alles nacheinander im Topf anschwitzen. Danach das Sonnenblumenhack anbraten.",
       "Mit Wasser alles ablöschen und das 'Golden Curry' dazu geben, dann die Hitze klein stellen und dabei alles einrühren. Das Paneer in Würfel schneiden und im Curry köcheln lassen. Mit Salz und Pfeffer abschmecken.",
       "Die Udon nach Packungsanleitung kochen und dann mit dem gut angebratenen Hack zum Curry geben. Mit Parmesan garnieren und いただきます!"
+    ]
+  },
+  {
+    "title": "Char Koay Teow",
+    "image": "CharKoayTeow.jpg",
+    "ingredients": [
+      "300g flache Reisnudeln",
+      "8 Stück Medium Garnelen",
+      "0.5 Becher Sprossen",
+      "4 Stängel Thai Schnittlauch",
+      "2 Eier",
+      "4 Knoblauchzehen",
+      "4 rote Chillies",
+      "Soße für Stir Frying:",
+      "1 EL Austernsoße",
+      "1 TL Zucker",
+      "1 EL Fischsoße",
+      "1 EL dunkle Sojasoße",
+      "0.25 TL weißer Pfeffer",
+      "2 EL helle Sojasoße",
+      "Erdnüsse"
+    ],
+    "preparation": [
+      "Bereite alle Zutaten vor, bevor Sie den Herd einschalten. Reisnudeln in Wasser einlegen und alles schneiden. Das Rezept reicht für 2 Portionen, braten Sie also jeweils nur eine Portion.",
+      "Geben Sie etwas Öl in den Wok, aber nur sparsam. Gehackten Knoblauch und Garnelen bei starker Hitze hinzufügen und unter Rühren braten, bis es duftet (bis 10 zählen).",
+      "Hitze reduzieren und Reisnudeln sowie vorbereitete Soße hinzufügen. Im Zickzack rühren und 3 bis 5 Mal langsam unter Rühren braten, um die Nudeln zu garen.",
+      "Nudeln zur Seite schieben, Ei aufschlagen und Eiweiß stocken lassen.",
+      "Schnittlauch und Sojasprossen hinzufügen. Im Zickzack braten, bis alles trocken ist und duftet.",
+      "Anrichten mit gehackten Erdnüssen und heiß servieren. Eine Prise Pfeffer macht einen großen Unterschied ~ Pearly, George Town."
     ]
   }
 ]
