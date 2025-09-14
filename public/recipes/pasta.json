@@ -143,5 +143,33 @@
       "Das ganze muss jetzt für ca. 15-20 Minuten kochen und dabei sollte man immer mal umrühren",
       "Am Ende das Risotto noch mit Parmesan andicken und mit den Gewürzen abschmecken."
     ]
+  },
+  {
+    "title": "Grillgemüse Pasta",
+    "image": "GrillgemüsePasta.jpg",
+    "ingredients": [
+      "250g Penne",
+      "1 Zwiebeln",
+      "1 Knoblauchknolle",
+      "3 große Tomaten",
+      "1 Paprika",
+      "Oregano",
+      "Parmesan",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Basilikum",
+      "Öl"
+    ],
+    "preparation": [
+      "Backofen auf 180 Grad Ober- und Unterhitze vorheizen.",
+      "Die Nudeln kochen.",
+      "Zwiebeln schälen und in Scheiben schneiden. Die Tomaten und die Paprika zu Mund großen Stück schneiden und mit dem Knoblauch auf ein Backblech legen.",
+      "Alles gut mit Öl bestreichen. Der ungeschälte Knoblauch muss sehr feucht mit Öl sein.",
+      "30 min im Ofen dunkelbraun bis fast schwarz backen.",
+      "Danach quetscht man die Knoblauchknolle aus und gibt sie mit dem anderen Gemüse in einen Mixer. Nach dem Pürieren gibt man etwas Nudelwasser hinzu bis die gewünschte Konsistenz erreicht ist.",
+      "Die Mischung wird dann in eine Pfanne oder Topf gegeben und das Ganze wird dann gewürzt.",
+      "Nun gibt man nur noch die Penne hinzu und garniert mit Basilikum."
+    ]
   }
 ]
