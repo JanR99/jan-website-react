@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
+import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper.jsx';
 import '../styles/Recipe.css';
 
 export default function Recipe() {
-    const { category, recipeTitle } = useParams(); // Get category and recipeTitle from the URL
+    const { category, recipeTitle } = useParams();
     const [recipe, setRecipe] = useState(null);
     const [portions, setPortions] = useState(2); // Default portions to 2
 
