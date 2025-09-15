@@ -1,5 +1,4 @@
 export const adjustIngredient = (ingredient, portions) => {
-    // Extract quantity and unit if available
     const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/); // Matches numbers and optional units
     if (match) {
         const quantity = parseFloat(match[1]);

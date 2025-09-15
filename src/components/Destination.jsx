@@ -1,12 +1,10 @@
 import React from 'react';
 import { useParams} from 'react-router-dom';
-import '../App.css'; // Assuming the CSS file is the same
+import '../App.css';
 
 export default function Destination() {
-    // Get the destination from the URL parameter
     const { destination } = useParams();
 
-    // Define the image paths dynamically based on the destination
     const images = [
         `${destination}1-min.jpg`,
         `${destination}2-min.jpg`,
