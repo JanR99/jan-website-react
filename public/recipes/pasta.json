@@ -212,5 +212,26 @@
       "Den Boden der Lasagneform mit der Tomatensoße bestreichen. Dann Schichtweise Lasagneblätter und Bechamelsauße. Hierbei soll die letzte Schicht Tomatensoße sein, auf welche dann der Streukäse gegeben wird.",
       "Die Lasagne 30-40 min backen bis der Käse goldbraun geworden ist."
     ]
+  },
+  {
+    "title": "Spinat Risotto",
+    "image": "SpinatRisotto.jpg",
+    "ingredients": [
+      "400ml Gemüsebrühe",
+      "1 Zwiebeln",
+      "1 Knoblauchzehen",
+      "2 EL Olivenöl",
+      "150g Risotto Reis",
+      "1 EL Butter",
+      "100g Blattspinat",
+      "100ml Sahne",
+      "50g Parmesan"
+    ],
+    "preparation": [
+      "Die Brühe aufkochen lassen. Inzwischen die Zwiebeln halbieren, schälen und in feine Würfel schneiden.",
+      "In einem Topf das Öl heiß werden lassen und die Zwiebeln darin sanft anbraten, ohne dass sie braun werden. Dann den Reis zugeben und 1 Minute unter Rühren mitbraten. Die ganze Brühe dazu gießen. Salzen und kräftig durchrühren. Aufkochen lassen und den Deckel auf den Topf legen. Hitze auf geringste Stufe zurückstellen und das Risotto ca. 15 Minuten lang ungerührt vor sich hin köcheln lassen.",
+      "In der Zwischenzeit Knoblauch schälen und durch die Presse drücken. Im jetzt leeren Kochtopf, in dem vorher die Brühe gewesen ist, die Butter schmelzen. Den Knoblauch darin kurz anbraten und den Spinat samt Sahne dazu geben. Leicht salzen und zugedeckt so lange köcheln lassen, bis der Spinat aufgetaut und die Sahne fast eingekocht ist.",
+      "Nun das Risotto kontrollieren, das jetzt ein nicht zu suppiger Brei mit angenehm festen Reiskörnern sein sollte. Ist es noch zu flüssig, kurz ohne Deckel weiter kochen lassen - aber dabei nicht rühren. Dann den Rahmspinat und Parmesan dazugeben und jetzt kräftig rühren. Heiß servieren."
+    ]
   }
 ]
