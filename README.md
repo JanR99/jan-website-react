@@ -1,19 +1,15 @@
-# This is my Website
+# Cooking Recipes Website
 
-The website is written in React.
+This is a simple website that lets you explore and view different cooking recipes.  
+It is built using [React](https://react.dev/) with [Vite](https://vitejs.dev/).
 
-# Getting Started with Create React App
+## Getting Started
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+To run the project locally:
 
-## Available Scripts
+```bash
+# Install dependencies
+npm install
 
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Start development server
+npm run dev
