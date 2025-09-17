@@ -171,5 +171,46 @@
       "Die Mischung wird dann in eine Pfanne oder Topf gegeben und das Ganze wird dann gewürzt.",
       "Nun gibt man nur noch die Penne hinzu und garniert mit Basilikum."
     ]
+  },
+  {
+    "title": "Lasagne",
+    "image": "Lasagne.jpg",
+    "ingredients": [
+      "1 Packung dm-Sonnenblumenhack",
+      "1 Zwiebeln",
+      "5 Knoblauchzehen",
+      "1 Dose passierte Tomaten",
+      "1 EL Tomatenmark",
+      "Schuss Rotwein",
+      "12 Lasagneplatten",
+      "200g geriebener Käse",
+      "1 Karotte",
+      "1 Selleriestange",
+      "Oregano",
+      "Parmesan",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Basilikum",
+      "Öl",
+      "Zutaten Bechamelsauce:",
+      "150ml Milch",
+      "150g Butter",
+      "150g Mehl",
+      "Muskat",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "dm Sonnenblumenhack wie auf der Verpackung beschrieben quellen lassen. Karotte, Zwiebel, Selleriestange und Knoblauch kleinschneiden. Zwiebel in Öl anbraten, Knoblauch hinzugeben und anbraten.",
+      "Gequollenes Hack hinzugeben und alles schon mal mit Salz und Pfeffer würzen.",
+      "Karotten und Sellerie dazugeben und mit anbraten.",
+      "Mit Rotwein ablöschen und passierte Tomaten dazugeben. Außerdem das Tomatenmark einrühren.",
+      "Die Tomatensoße mit Salz, Pfeffer, Oregano, Thymian und Basilikum würzen. Daumenregel beim Würzen: Alle grünen Gewürze sollen die Oberfläche der Tomatensoße bedecken, dann umrühren und zwischenkosten.",
+      "Ofen auf 200°C Ober-/Unterhitze vorheizen.",
+      "Für die Bechamelsauce: Butter in kleinen Kopf geben und bei mittelhoher Hitze braun werden lassen. Mehl dazugeben und richtig umrühren. Die Konsistenz mit Milch anpassen, sodass die Masse richtig schön dickflüssig wird. Alles mit Salz, Pfeffer und Muskat würzen und etwas Parmesan mit hineinrühren.",
+      "Den Boden der Lasagneform mit der Tomatensoße bestreichen. Dann Schichtweise Lasagneblätter und Bechamelsauße. Hierbei soll die letzte Schicht Tomatensoße sein, auf welche dann der Streukäse gegeben wird.",
+      "Die Lasagne 30-40 min backen bis der Käse goldbraun geworden ist."
+    ]
   }
 ]
