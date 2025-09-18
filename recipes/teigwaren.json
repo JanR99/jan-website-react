@@ -211,5 +211,26 @@
       "Joghurt mit gepressten Knoblauch vermengen und mit Salz und Pfeffer abschmecken.",
       "Alles in den Wrap rein und falten. Bei Bedarf können diese zum verschließen noch einmal kurz angebraten werden."
     ]
+  },
+  {
+    "title": "Quiche",
+    "image": "Quiche.jpg",
+    "ingredients": [
+      "1 Stange Blätterteig",
+      "700g Zuccini",
+      "1 große Zwiebel",
+      "2 EL Öl",
+      "3 Eier",
+      "200g Schmand",
+      "100g Streukäse",
+      "Salz",
+      "Peffer"
+    ],
+    "preparation": [
+      "Backofen auf 180 Grad (Umluft 160 Grad) vorheizen. Quicheform (Ø 28cm) einfetten und mit Mehl bestäuben.",
+      "Für den Mürbeteig Mehl, Butter, Ei, Salz und 2 Esslöffel Wasser zu einem Teig verkneten. Die Arbeitsfläche mit Mehl bestäuben. Den Teig mit einem Nudelholz ausrollen und in die Form legen, andrücken, sodass ein Rand von etwa 3cm entsteht.",
+      "Für den Belag Gemüse waschen, schälen und würfeln. Zwiebel würfeln. Öl in eine Pfanne geben, die Zwiebeln leicht andünsten. Dann das ganze Gemüse hinzufügen. Auf mittlerer Hitze mehrere Minuten leicht anbraten.",
+      "Währenddessen Eier verquirlen, dann Schmand, Käse und Gewürze hinzugeben und unterrühren. Gebratenes Gemüse auf den vorgebackenen Teig geben. Dann die Eier-Schmandmischung darüber geben und verteilen. Die Quiche 30-40 Minuten goldbraun backen. Die Quiche ergibt ca. 10 Stücke."
+    ]
   }
 ]
