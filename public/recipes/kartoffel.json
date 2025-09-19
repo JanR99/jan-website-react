@@ -89,5 +89,25 @@
       "Die gekochten Gnocchi in der Pfanne noch einmal kurz anbraten und bei bedarf noch geschnittene Zwiebeln oder Tomaten dazugeben-",
       "Am Ende das Pesto dazu geben und langsam mit Wasser verflüssigen bis zur gewünschten Konsistenz."
     ]
+  },
+  {
+    "title": "Tortilla",
+    "image": "ToBeContinued.png",
+    "ingredients": [
+      "1.2g Kartoffeln (vorwiegend festkochend",
+      "2 Zwiebeln",
+      "6 Eier",
+      "1 TL Salz",
+      "Sonnenblumenöl",
+      "Olivenöl"
+    ],
+    "preparation": [
+      "Die Kartoffeln und Zwiebeln schälen und in sehr dünne Scheiben schneiden.",
+      "Die Eier kurz verquirlen und einen halben Teelöffel Salz unterrühren.",
+      "Nun die Kartoffel-Zwiebel Mischung in die Eier rühren.",
+      "Olivenöl in eine Pfanne geben, erhitzen und die Mischung hineingießen.",
+      "Bei mittlerer Temperatur alles circa 12 Minuten braten lassen. Wenn die Tortilla beginnt von außen nach innen fest zu werden, einen ausreichend großen Teller auf die Pfanne legen und die Tortilla stürzen, bzw. wenden und vorsichtig umgekehrt wieder in die Pfanne gleiten lassen und weitere 5 bis 6 Minuten braten.",
+      "Die fertige spanische Tortilla aus der Pfanne auf einen Teller gleiten lassen."
+    ]
   }
 ]
