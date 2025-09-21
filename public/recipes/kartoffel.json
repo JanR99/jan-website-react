@@ -109,5 +109,25 @@
       "Bei mittlerer Temperatur alles circa 12 Minuten braten lassen. Wenn die Tortilla beginnt von außen nach innen fest zu werden, einen ausreichend großen Teller auf die Pfanne legen und die Tortilla stürzen, bzw. wenden und vorsichtig umgekehrt wieder in die Pfanne gleiten lassen und weitere 5 bis 6 Minuten braten.",
       "Die fertige spanische Tortilla aus der Pfanne auf einen Teller gleiten lassen."
     ]
+  },
+  {
+    "title": "Schnitzel",
+    "image": "Schnitzel.jpg",
+    "ingredients": [
+      "2 Veggie-Schnitzel",
+      "1 kleine Dose Erbsen",
+      "2 Handvoll Kartoffeln",
+      "Salz",
+      "Pfeffer",
+      "Öl",
+      "Preiselbeeren"
+    ],
+    "preparation": [
+      "Einen Topf mit Salzwasser zum kochen bringen. Das Wasser muss nach Ostseewasser schmecken!",
+      "Die Kartoffeln schälen und wenn man möchte noch klein schneiden. Wenn man kleinere Stücke nimmt ca. 15 Minuten kochen, bei großen ca. 25 Minuten.",
+      "Die Veggie-Schnitzel in etwas Öl bei mittlerer Hitze von beiden Seiten braun anbraten und am Ende mit etwas Salz und Pfeffer würzen.",
+      "Die Erbsen einfach bei mittlerer Hitze kurz in einem kleinen Topf anbraten und diese auch ein wenig salzen.",
+      "Wenn alles fertig ist, kann man das Essen bei Bedarf noch mit ein wenig Preiselbeeren verfeinern."
+    ]
   }
 ]
