@@ -162,7 +162,8 @@
       "Mische Wasser, Austernsoße, Sojasoße, Mirin, Sesamöl in einer Schüssel. Koche die Portionen Ramennudeln nach Anleitung.",
       "Brate Knoblauch und Frühlingszwiebeln mit Sesamsamen und schwarzen Pfeffer kurz in Öl an und gib die Mischung in der Schüssel zum kurzen Erhitzen dazu.",
       "Gib die Mischung dann direkt in die Servierschüsseln und darauf dann die Ramen. Nun kann mit Toppings nach belieben garniert werden.",
-      "Am Ende werden die Eier getrennt und jeweils das Eigelb wird roh auf die Ramen getoppt. Das Eiweiß kann angebraten, eingerollt und auch als Topping auf den Haufen drauf. Danach ready and go crazy!"
+      "Am Ende werden die Eier getrennt und jeweils das Eigelb wird roh auf die Ramen getoppt. Das Eiweiß kann angebraten, eingerollt und auch als Topping auf den Haufen drauf.",
+      "Vor dem Essen wird alles direkt in der Schüssel noch komplett umgerührt."
     ]
   },
   {
@@ -172,6 +173,7 @@
       "3 TL Öl",
       "0.5 TL Kreuzkümmel",
       "1 Zwiebel",
+      "3 Knoblauchzehen",
       "1 TL Ingwer-Knoblauch-Paste",
       "2 grüne Chillies",
       "2 große Tomaten",
@@ -183,14 +185,14 @@
       "1 Paneer"
     ],
     "preparation": [
-      "Den Paneer zerbröseln und beiseite stellen. Es muss nicht fein zerbröselt werden. Eine grobe Bröselung mit einigen Paneerstückchen ist völlig ausreichend.",
-      "Zwiebeln, Tomaten und grüne Chilischoten fein hacken. Beiseite stellen. Auch die Gewürzpulver herausnehmen und beiseite stellen.",
-      "Erhitze das Öl einer Pfanne. Lass das Öl bei mittlerer bis niedriger Hitze heiß werden.Füge Kreuzkümmelsamen hinzu. Lass sie knistern und ihre Farbe ändern. Sobald sie gebräunt sind, füge Zwiebeln hinzu.",
-      "Vermische alles gut und brate die Zwiebeln an. Wenn die Zwiebeln glasig werden, füge Ingwer-Knoblauch-Paste und gehackte grüne Chilischoten hinzu.Einige Sekunden lang anbraten, bis der rohe Geruch von Ingwer und Knoblauch verflogen ist.",
-      "Dann die Tomaten hinzufügen und bei mittlerer bis niedriger Hitze anbraten, bis sie weich sind. Sie können eine Prise Salz hinzufügen, damit die Tomaten schneller gar werden.",
-      "Nun alle trockenen Gewürzpulver hinzufügen – Kurkuma, rotes Chilipulver, Korianderpulver und Garam Masala-Pulver.Vermischen Sie die Gewürzpulver gut und braten Sie sie 5 bis 6 Sekunden lang bei niedriger bis mittlerer Hitze an.",
+      "Den Paneer zerbröseln und beiseite stellen. Es muss nicht fein zerbröselt werden.",
+      "Zwiebeln, Knoblauch, Tomaten und Chilischoten fein hacken. Beiseite stellen.",
+      "Erhitze das Öl einer Pfanne. Lass das Öl bei mittlerer bis niedriger Hitze heiß werden. Füge Kreuzkümmelsamen hinzu. Lass sie knistern und ihre Farbe ändern. Sobald sie gebräunt sind, füge Zwiebeln und Knoblauch hinzu.",
+      "Vermische alles gut. Wenn die Zwiebeln glasig werden, füge Ingwer-Knoblauch-Paste und gehackte Chilischoten hinzu. Einige Sekunden lang anbraten, bis der rohe Geruch von Ingwer und Knoblauch verflogen ist.",
+      "Dann die Tomaten hinzufügen und bei mittlerer bis niedriger Hitze anbraten, bis sie weich sind. Die Tomaten ein wenig salzen",
+      "Nun alle trockenen Gewürzpulver hinzufügen. Vermische die Gewürzpulver gut und brate sie 5 bis 6 Sekunden lang bei niedriger bis mittlerer Hitze an.",
       "Fügen Sie dann den zerbröckelten Paneer hinzu. Vermischen Sie alles gründlich und lassen Sie es 1 Minute lang bei niedriger Hitze kochen. Kochen Sie den Paneer nicht zu lange, da er sonst hart wird und seine Weichheit verliert.",
-      "Servieren Sie Paneer Bhurji heiß mit geröstetem Brot oder Reis. Sie können es auch mit Roti, einfachem Paratha oder als Füllung in Burritos oder Wraps servieren."
+      "Serviere den Paneer Bhurji heiß mit geröstetem Brot oder Reis."
     ]
   },
   {
@@ -201,15 +203,16 @@
       "2 Tassen Weißkohl, fein gehackt",
       "0.75 Tasse Wasser oder Dashi-Brühe für mehr Geschmack",
       "2 große Eier",
+      "3 Knoblauchzehen",
       "0.5 Tasse fein geschnittene Frühlingszwiebeln",
       "Okonomiyaki-Sauce",
       "Japanische Mayonnaise",
-      "Bonitoflocken (Katsuobushi)",
+      "Bonitoflocken (optional)",
       "Salz und Pfeffer nach Geschmack",
       "Öl zum Braten"
     ],
     "preparation": [
-      "In einer großen Schüssel das Mehl mit Wasser oder Dashi-Brühe verrühren, bis ein glatter Teig entsteht. Eier, eine Prise Salz und Pfeffer hinzufügen und gut vermischen.",
+      "In einer großen Schüssel das Mehl mit Wasser oder Dashi-Brühe verrühren, bis ein glatter Teig entsteht. Eier, eine Prise Salz, Pfeffer und gehackten Knoblauch hinzufügen und gut vermischen.",
       "Den gehackten Weißkohl und die Frühlingszwiebeln unter den Teig mischen, bis alles gleichmäßig verteilt ist.",
       "Eine große Pfanne oder einen flachen Grill bei mittlerer Hitze erhitzen und leicht ölen. Für jedes Okonomiyaki etwa eine Tasse der Mischung in die Pfanne geben und zu einem runden Pfannkuchen formen.",
       "Das Okonomiyaki bei mittlerer Hitze etwa 4-5 Minuten braten, bis die Unterseite goldbraun und knusprig ist. Vorsichtig wenden und die andere Seite weitere 4-5 Minuten braten, bis auch diese goldbraun ist.",
@@ -225,18 +228,15 @@
       "1.5 Tassen Wasser",
       "1 Zwiebel",
       "5 Knoblauchzehen",
-      "3 Karotten",
       "1 Packung dm-Sonnenblumenhack",
-      "1 Paneer",
       "Salz",
       "Pfeffer",
-      "Öl",
-      "Parmesan"
+      "Öl"
     ],
     "preparation": [
-      "Das Sonnenblumenhack nach Packungsanleitung in einer Schüsselwasser ziehen lassen. Zwiebeln, Knoblauch und Karotten schälen und klein schneiden. Mit wenig Öl alles nacheinander im Topf anschwitzen. Danach das Sonnenblumenhack anbraten.",
-      "Mit Wasser alles ablöschen und das 'Golden Curry' dazu geben, dann die Hitze klein stellen und dabei alles einrühren. Das Paneer in Würfel schneiden und im Curry köcheln lassen. Mit Salz und Pfeffer abschmecken.",
-      "Die Udon nach Packungsanleitung kochen und dann mit dem gut angebratenen Hack zum Curry geben. Mit Parmesan garnieren und いただきます!"
+      "Das Sonnenblumenhack nach Packungsanleitung in einer Schüssel Wasser ziehen lassen. Zwiebeln und Knoblauch schälen und klein schneiden. Mit wenig Öl alles nacheinander im Topf anschwitzen. Danach das Sonnenblumenhack anbraten.",
+      "Mit Wasser alles ablöschen und das 'Golden Curry' dazu geben, dann die Hitze klein stellen und dabei alles einrühren. Mit etwas Salz und Pfeffer abschmecken.",
+      "Die Udon nach Packungsanleitung kochen und dann mit dem gut angebratenen Hack zum Curry geben. いただきます!"
     ]
   },
   {
@@ -260,8 +260,8 @@
       "Erdnüsse"
     ],
     "preparation": [
-      "Bereite alle Zutaten vor, bevor Sie den Herd einschalten. Reisnudeln in Wasser einlegen und alles schneiden. Das Rezept reicht für 2 Portionen, braten Sie also jeweils nur eine Portion.",
-      "Geben Sie etwas Öl in den Wok, aber nur sparsam. Gehackten Knoblauch und Garnelen bei starker Hitze hinzufügen und unter Rühren braten, bis es duftet (bis 10 zählen).",
+      "Bereite alle Zutaten vor, bevor der Herd eingeschaltet wird. Reisnudeln in Wasser einlegen und alles schneiden. Höchstens immer eine Portion für 2 auf einmal anbraten.",
+      "Geben Sie etwas Öl in den Wok. Gehackten Knoblauch und Garnelen bei starker Hitze hinzufügen und unter Rühren braten, bis es duftet (bis 10 zählen).",
       "Hitze reduzieren und Reisnudeln sowie vorbereitete Soße hinzufügen. Im Zickzack rühren und 3 bis 5 Mal langsam unter Rühren braten, um die Nudeln zu garen.",
       "Nudeln zur Seite schieben, Ei aufschlagen und Eiweiß stocken lassen.",
       "Schnittlauch und Sojasprossen hinzufügen. Im Zickzack braten, bis alles trocken ist und duftet.",
