@@ -15,6 +15,7 @@ export default function Cookbook() {
                 <Link to="/cookbook/nachspeisen" className="button-link">Nachspeisen</Link>
                 <Link to="/cookbook/pasta" className="button-link">Pasta</Link>
                 <Link to="/cookbook/teigwaren" className="button-link">Teigwaren</Link>
+                <Link to="/cookbook/aromenkick" className="button-link">Aromenkick</Link>
             </div>
         </div>
     );
