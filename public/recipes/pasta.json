@@ -148,7 +148,7 @@
     "title": "Grillgemüse Pasta",
     "image": "GrillgemüsePasta.jpg",
     "ingredients": [
-      "250g Penne",
+      "250g Nudeln",
       "1 Zwiebeln",
       "1 Knoblauchknolle",
       "3 große Tomaten",
@@ -162,14 +162,16 @@
       "Öl"
     ],
     "preparation": [
-      "Backofen auf 180 Grad Ober- und Unterhitze vorheizen.",
+      "Backofen auf 180 Grad Heißluft vorheizen.",
       "Die Nudeln kochen.",
-      "Zwiebeln schälen und in Scheiben schneiden. Die Tomaten und die Paprika zu Mund großen Stück schneiden und mit dem Knoblauch auf ein Backblech legen.",
+      "Den Kopf der Knoblauchknolle abschneiden und ihn mit der offen Seite nach oben auf ein Backblech legen",
+      "Die Tomaten, Zwiebeln und die Paprika grob schneiden und um den Knoblauch drum herum legen.",
       "Alles gut mit Öl bestreichen. Der ungeschälte Knoblauch muss sehr feucht mit Öl sein.",
       "30 min im Ofen dunkelbraun bis fast schwarz backen.",
-      "Danach quetscht man die Knoblauchknolle aus und gibt sie mit dem anderen Gemüse in einen Mixer. Nach dem Pürieren gibt man etwas Nudelwasser hinzu bis die gewünschte Konsistenz erreicht ist.",
+      "Danach quetscht man die Knoblauchknolle aus (Vorsichtig der Knoblauch ist sehr heiß) und gibt sie mit dem anderen Gemüse in einen Mixer.",
+      "Nach dem Pürieren gibt man etwas Nudelwasser hinzu bis die gewünschte Konsistenz erreicht ist.",
       "Die Mischung wird dann in eine Pfanne oder Topf gegeben und das Ganze wird dann gewürzt.",
-      "Nun gibt man nur noch die Penne hinzu und garniert mit Basilikum."
+      "Nun gibt man nur noch die Nudeln hinzu und garniert mit Basilikum."
     ]
   },
   {
@@ -207,7 +209,7 @@
       "Karotten und Sellerie dazugeben und mit anbraten.",
       "Mit Rotwein ablöschen und passierte Tomaten dazugeben. Außerdem das Tomatenmark einrühren.",
       "Die Tomatensoße mit Salz, Pfeffer, Oregano, Thymian und Basilikum würzen. Daumenregel beim Würzen: Alle grünen Gewürze sollen die Oberfläche der Tomatensoße bedecken, dann umrühren und zwischenkosten.",
-      "Ofen auf 200°C Ober-/Unterhitze vorheizen.",
+      "Ofen auf 180°C Heißluft vorheizen.",
       "Für die Bechamelsauce: Butter in kleinen Kopf geben und bei mittelhoher Hitze braun werden lassen. Mehl dazugeben und richtig umrühren. Die Konsistenz mit Milch anpassen, sodass die Masse richtig schön dickflüssig wird. Alles mit Salz, Pfeffer und Muskat würzen und etwas Parmesan mit hineinrühren.",
       "Den Boden der Lasagneform mit der Tomatensoße bestreichen. Dann Schichtweise Lasagneblätter und Bechamelsauße. Hierbei soll die letzte Schicht Tomatensoße sein, auf welche dann der Streukäse gegeben wird.",
       "Die Lasagne 30-40 min backen bis der Käse goldbraun geworden ist."
@@ -219,19 +221,20 @@
     "ingredients": [
       "400ml Gemüsebrühe",
       "1 Zwiebeln",
-      "1 Knoblauchzehen",
       "2 EL Olivenöl",
       "150g Risotto Reis",
       "1 EL Butter",
-      "100g Blattspinat",
-      "100ml Sahne",
-      "50g Parmesan"
+      "200g Blattspinat",
+      "50g Parmesan",
+      "Salz",
+      "Pfeffer",
+      "Muskatnuss"
     ],
     "preparation": [
       "Die Brühe aufkochen lassen. Inzwischen die Zwiebeln halbieren, schälen und in feine Würfel schneiden.",
-      "In einem Topf das Öl heiß werden lassen und die Zwiebeln darin sanft anbraten, ohne dass sie braun werden. Dann den Reis zugeben und 1 Minute unter Rühren mitbraten. Die ganze Brühe dazu gießen. Salzen und kräftig durchrühren. Aufkochen lassen und den Deckel auf den Topf legen. Hitze auf geringste Stufe zurückstellen und das Risotto ca. 15 Minuten lang ungerührt vor sich hin köcheln lassen.",
-      "In der Zwischenzeit Knoblauch schälen und durch die Presse drücken. Im jetzt leeren Kochtopf, in dem vorher die Brühe gewesen ist, die Butter schmelzen. Den Knoblauch darin kurz anbraten und den Spinat samt Sahne dazu geben. Leicht salzen und zugedeckt so lange köcheln lassen, bis der Spinat aufgetaut und die Sahne fast eingekocht ist.",
-      "Nun das Risotto kontrollieren, das jetzt ein nicht zu suppiger Brei mit angenehm festen Reiskörnern sein sollte. Ist es noch zu flüssig, kurz ohne Deckel weiter kochen lassen - aber dabei nicht rühren. Dann den Rahmspinat und Parmesan dazugeben und jetzt kräftig rühren. Heiß servieren."
+      "In einem Topf das Öl heiß werden lassen und die Zwiebeln darin anbraten, ohne dass sie braun werden. Dann den Reis zugeben und 1 Minute unter Rühren mitbraten. Die ganze Brühe dazu gießen. Salzen und kräftig durchrühren. Aufkochen lassen und den Deckel auf den Topf legen. Hitze auf geringste Stufe zurückstellen und das Risotto ca. 15 Minuten lang ungerührt vor sich hin köcheln lassen.",
+      "Den Spinat mit etwas Öl in einem Topf warm machen und mit den Gewürzen ein wenig würzen",
+      "Nun das Risotto kontrollieren, das jetzt ein nicht zu suppiger Brei mit angenehm festen Reiskörnern sein sollte. Ist es noch zu flüssig, kurz ohne Deckel weiter kochen lassen - aber dabei nicht rühren. Dann den Sprinat und Parmesan dazugeben und jetzt kräftig rühren. Heiß servieren."
     ]
   }
 ]
