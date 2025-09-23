@@ -2,6 +2,7 @@
   {
     "title": "Japanisches Curry",
     "image": "JapaneseCurry.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1 Tasse Reis",
       "1 1/2 Tassen Wasser",
@@ -24,6 +25,7 @@
   {
     "title": "Aloo Masala",
     "image": "AlooMasala.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1 EL Butter",
       "2 große Zwiebeln",
@@ -53,6 +55,7 @@
   {
     "title": "Egg Fried Rice",
     "image": "EggFriedRice.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1 Tasse Reis",
       "1,5 Tassen Wasser",
@@ -75,6 +78,7 @@
   {
     "title": "Paneer Butter Masala",
     "image": "PaneerButterMasala.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "Soße:",
       "2 EL Öl",
@@ -114,6 +118,7 @@
   {
     "title": "Rotes Thai Curry",
     "image": "RotesThaiCurry.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1 Tasse Reis",
       "1.5 Tassen Wasser",
@@ -135,6 +140,7 @@
   {
     "title": "Abura Soba",
     "image": "AburaSoba.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "Soße:",
       "1 TL Wasser",
@@ -169,6 +175,7 @@
   {
     "title": "Paneer Bhurji",
     "image": "PaneerBhurji.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "3 TL Öl",
       "0.5 TL Kreuzkümmel",
@@ -198,6 +205,7 @@
   {
     "title": "Okonomiyaki",
     "image": "Okonomiyaki.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1 Tasse Weizenmehl",
       "2 Tassen Weißkohl, fein gehackt",
@@ -222,6 +230,7 @@
   {
     "title": "Japanisches Udon-Curry",
     "image": "JapanischesUdonCurry.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "2 Packungen Udon",
       "100g Japanese Golden Curry",
@@ -242,6 +251,7 @@
   {
     "title": "Char Koay Teow",
     "image": "CharKoayTeow.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "300g flache Reisnudeln",
       "8 Stück Medium Garnelen",
@@ -271,6 +281,7 @@
   {
     "title": "Curry Kapitan",
     "image": "CurryKapitan.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1000g Hähnchenbrust",
       "Wasser, um das Hähnchen zu kochen",
