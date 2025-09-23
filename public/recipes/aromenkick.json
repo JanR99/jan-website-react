@@ -2,9 +2,10 @@
   {
     "title": "Knoblauchöl",
     "image": "Knoblauchöl.jpg",
+    "defaultPortions": 1,
     "ingredients": [
-      "4 Knoblauchknollen",
-      "2 Liter Olivenöl"
+      "2 Knoblauchknollen",
+      "1 Liter Olivenöl"
     ],
     "preparation": [
       "Knoblauch schälen und pressen.",

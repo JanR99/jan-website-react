@@ -6,21 +6,21 @@ import '../styles/Recipe.css';
 export default function Recipe() {
     const { category, recipeTitle } = useParams();
     const [recipe, setRecipe] = useState(null);
-    const [portions, setPortions] = useState(2); // Default portions to 2
+    const [portions, setPortions] = useState(null);
 
     useEffect(() => {
-        // Dynamically fetch the correct JSON file based on the category
-        const jsonFile = `/recipes/${category}.json`; // Build the correct JSON file path
+        const jsonFile = `/recipes/${category}.json`;
 
-        // Fetch the JSON file from the public folder
         fetch(jsonFile)
             .then(response => response.json())
             .then(data => {
-                // Find the recipe based on the title
                 const foundRecipe = data.find(
                     (r) => r.title.toLowerCase().replace(/\s+/g, '-') === recipeTitle.toLowerCase().replace(/\s+/g, '-')
                 );
-                setRecipe(foundRecipe);
+                if (foundRecipe) {
+                    setRecipe(foundRecipe);
+                    setPortions(foundRecipe.defaultPortions || 2); // Use defaultPortions from JSON, fallback to 2
+                }
             })
             .catch(error => console.error('Error loading recipe:', error));
     }, [category, recipeTitle]);
@@ -85,7 +85,11 @@ export default function Recipe() {
             {/* Ingredients Section */}
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
-                <ul className="ingredients-list">{renderIngredients(recipe, (ingredient) => adjustIngredient(ingredient, portions))}</ul>
+                <ul className="ingredients-list">
+                    {renderIngredients(recipe, (ingredient) =>
+                        adjustIngredient(ingredient, portions, recipe.defaultPortions)
+                    )}
+                </ul>
             </div>
 
             {/* Preparation Section */}

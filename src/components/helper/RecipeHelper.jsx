@@ -1,12 +1,12 @@
-export const adjustIngredient = (ingredient, portions) => {
-    const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/); // Matches numbers and optional units
+export const adjustIngredient = (ingredient, portions, defaultPortions = 2) => {
+    const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/);
     if (match) {
         const quantity = parseFloat(match[1]);
-        const unitAndName = match[3] || ''; // Everything after the quantity
-        const adjustedQuantity = (quantity * portions) / 2; // Adjust quantity based on portions
+        const unitAndName = match[3] || '';
+        const adjustedQuantity = (quantity * portions) / defaultPortions;
         return `${adjustedQuantity} ${unitAndName}`.trim();
     }
-    return ingredient; // Return ingredient as-is if no quantity is found
+    return ingredient;
 };
 
 export const renderIngredients = (recipe, adjustIngredient) => {
