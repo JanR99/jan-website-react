@@ -2,6 +2,7 @@
   {
     "title": "Gnocchi Tomatensoße",
     "image": "GnocchiTomatensoße.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
       "250g Mehl",
@@ -30,6 +31,7 @@
   {
     "title": "Griechische Pfanne",
     "image": "GriechischePfanne.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1kg Kartoffeln",
       "2 Paprikas",
@@ -49,6 +51,7 @@
   {
     "title": "Kartoffelbrei mit Ei",
     "image": "KartoffelbreiMitEi.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "1kg Kartoffeln",
       "6 Eier",
@@ -68,6 +71,7 @@
   {
     "title": "Gnocchi mit Basilikumpesto",
     "image": "GnocciBasilikumPesto.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
       "250g Mehl",
@@ -93,6 +97,7 @@
   {
     "title": "Tortilla",
     "image": "ToBeContinued.png",
+    "defaultPortions": 3,
     "ingredients": [
       "1.2g Kartoffeln (vorwiegend festkochend",
       "2 Zwiebeln",
@@ -113,6 +118,7 @@
   {
     "title": "Schnitzel",
     "image": "Schnitzel.jpg",
+    "defaultPortions": 2,
     "ingredients": [
       "2 Veggie-Schnitzel",
       "1 kleine Dose Erbsen",
