@@ -309,5 +309,33 @@
       "Füge Zwiebeln, Zucker, Salz, Limettensaft und zuletzt Kokoscreme hinzufügen und 1 Minute lang kochen lassen. Die Gewürze überprüfen. Die Hitze ausschalten.",
       "Hinweis: Kann 1 Tag im Voraus zubereitet werden, ohne die letzten 5 Zutaten. Diese beim Aufwärmen am nächsten Tag hinzufügen. Außerdem sollen die frischen Zutaten für 10 min in Wasser eingelegt werden, so werden sie wieder frischer ~ Pearly Kee."
     ]
+  },
+  {
+    "title": "Onigiri",
+    "image": "Onigiri.jpg",
+    "defaultPortions": 4,
+    "ingredients": [
+      "Für die Füllung:",
+      "180g Thunfisch",
+      "2 El Mayonnaise",
+      "1 Zwiebel",
+      "2 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Onigiri:",
+      "2 kleine Tassen Sushireis",
+      "6 große Nori Blätter",
+      "1 El Mirin",
+      "Wasser",
+      "Sojasoße"
+    ],
+    "preparation": [
+      "Als erstes den Reis sehr gut waschen bis das Wasser beim waschen nicht mehr trüb wird. Das kann bis zu 7-8 Waschgänge dauern.",
+      "Danach den Reis wie auf der Verpackung beschrieben (meistens mit einem Verhältnis von 1 zu 1,5) kochen. Ich füge gerne noch einen Schuss Sojasoße zum kochen hinzu.",
+      "Währenddessen den Thunfisch mit einer Gabel zerkleinern, die Mayonaisse und die klein geschnittene Zwiebel/Knoblauch zusammen mischen und gut würzen.",
+      "Wenn der Reis fertig gekocht ist, Mirin dazugeben und ordentlich umrühren und dann den Reis noch mal 5 Minuten zugedeckt stehen lassen.",
+      "Am Ende muss man nur noch die Onigiri formen, die Füllung in die Mitte machen und mit den kleiner geschnittenen Nori-Blättern umhüllen.",
+      "Es gibt extra Onigiri-Formen, aber man kann es auch mit den Händen machen. Immer die Hände nass machen, wenn mach den Reis berühren muss!"
+    ]
   }
 ]
