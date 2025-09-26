@@ -14,5 +14,25 @@
       "Danach den Knoblauch entfernen, sonst wird das Öl bitter. Hinweis: Knoblauchöl in eine separate Schüssel über ein Sieb füllen und dann ohne Knoblauch wieder zurück in die Flasche. Etwas Knoblauchreste sind nicht schlimm.",
       "Das Öl schmeckt zu fast allen Gerichten gut und man sollte es nach dem Kochen benutzen, also nicht mitkochen."
     ]
+  },
+  {
+    "title": "Burgersauce",
+    "image": "ToBeContinued.png",
+    "defaultPortions": 1,
+    "ingredients": [
+      "1 Knoblauchzehe",
+      "2 Gewürzgurken",
+      "2 EL Mayonnaise",
+      "1 EL Ketchup",
+      "0.5 EL mittelscharfer Senf",
+      "1 Schuss weißer Essig",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "Knoblauch schälen und pressen.",
+      "Gewürzgurken fein schneiden.",
+      "Alle Zutaten in einer Schüssel vermengen und mit Salz und Pfeffer abschmecken."
+    ]
   }
 ]
