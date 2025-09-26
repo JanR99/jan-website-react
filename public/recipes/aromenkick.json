@@ -18,21 +18,22 @@
   {
     "title": "Burgersauce",
     "image": "ToBeContinued.png",
-    "defaultPortions": 1,
+    "defaultPortions": 2,
     "ingredients": [
       "1 Knoblauchzehe",
-      "2 Gewürzgurken",
+      "1 Gewürzgurken",
       "2 EL Mayonnaise",
       "1 EL Ketchup",
       "0.5 EL mittelscharfer Senf",
-      "1 Schuss weißer Essig",
+      "1 Schuss Weißweinessig",
       "Salz",
       "Pfeffer"
     ],
     "preparation": [
-      "Knoblauch schälen und pressen.",
-      "Gewürzgurken fein schneiden.",
-      "Alle Zutaten in einer Schüssel vermengen und mit Salz und Pfeffer abschmecken."
+      "Den Knoblauch schälen und pressen.",
+      "Die Gewürzgurken sehr klein schneiden.",
+      "Alle Zutaten in einer Schüssel vermengen und mit Salz und Pfeffer abschmecken. Dabei sollte die Soße durch den Weißweinessig nicht zu flüssig werden.",
+      "Am besten die Soße für ein paar Stunden ziehen lassen, aber man kann sie auch sofort benutzen."
     ]
   }
 ]
