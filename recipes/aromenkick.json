@@ -3,6 +3,7 @@
     "title": "Knoblauchöl",
     "image": "Knoblauchöl.jpg",
     "defaultPortions": 1,
+    "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "2 Knoblauchknollen",
       "1 Liter Olivenöl"
@@ -19,6 +20,7 @@
     "title": "Burgersauce",
     "image": "ToBeContinued.png",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "1 Knoblauchzehe",
       "1 Gewürzgurken",
