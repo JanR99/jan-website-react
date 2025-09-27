@@ -3,6 +3,7 @@
     "title": "Gnocchi Tomatensoße",
     "image": "GnocchiTomatensoße.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
       "250g Mehl",
@@ -13,7 +14,7 @@
       "1 Dose passierte Tomaten",
       "3 Knoblauchzehen",
       "Tomatenmark",
-      "Parmesan",
+      "Parmesan (optional)",
       "Oregano",
       "Thymian",
       "Basilikum",
@@ -32,6 +33,7 @@
     "title": "Griechische Pfanne",
     "image": "GriechischePfanne.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "1kg Kartoffeln",
       "2 Paprikas",
@@ -52,6 +54,7 @@
     "title": "Kartoffelbrei mit Ei",
     "image": "KartoffelbreiMitEi.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "1kg Kartoffeln",
       "6 Eier",
@@ -72,6 +75,7 @@
     "title": "Gnocchi mit Basilikumpesto",
     "image": "GnocciBasilikumPesto.jpg",
     "defaultPortions": 2,
+    "tags": [],
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
       "250g Mehl",
@@ -98,6 +102,7 @@
     "title": "Tortilla",
     "image": "Tortilla.jpg",
     "defaultPortions": 3,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "1.2g Kartoffeln (vorwiegend festkochend",
       "2 Zwiebeln",
@@ -119,6 +124,7 @@
     "title": "Schnitzel",
     "image": "Schnitzel.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "2 Veggie-Schnitzel",
       "1 kleine Dose Erbsen",
