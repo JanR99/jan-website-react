@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import '../App.css';
+import '../styles/Category.css'
 
 // Helper to filter recipes
 const filterRecipes = (recipes, filter) => {
@@ -44,21 +45,21 @@ export default function Category() {
             </header>
 
             {/* Filter Buttons */}
-            <div className="top">
+            <div className="filter-buttons">
                 <button
-                    className={`button-link ${filter === "alle" ? "active" : ""}`}
+                    className={`filter-button ${filter === "alle" ? "active" : ""}`}
                     onClick={() => setFilter("alle")}
                 >
                     Alle
                 </button>
                 <button
-                    className={`button-link ${filter === "vegetarisch" ? "active" : ""}`}
+                    className={`filter-button ${filter === "vegetarisch" ? "active" : ""}`}
                     onClick={() => setFilter("vegetarisch")}
                 >
                     Vegetarisch
                 </button>
                 <button
-                    className={`button-link ${filter === "vegan" ? "active" : ""}`}
+                    className={`filter-button ${filter === "vegan" ? "active" : ""}`}
                     onClick={() => setFilter("vegan")}
                 >
                     Vegan
