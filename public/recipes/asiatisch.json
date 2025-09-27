@@ -239,7 +239,7 @@
     "title": "Japanisches Udon-Curry",
     "image": "JapanischesUdonCurry.jpg",
     "defaultPortions": 2,
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["vegetarisch"],
     "ingredients": [
       "2 Packungen Udon",
       "100g Japanese Golden Curry",
@@ -261,7 +261,7 @@
     "title": "Char Koay Teow",
     "image": "CharKoayTeow.jpg",
     "defaultPortions": 2,
-    "tags": ["vegetarisch"],
+    "tags": [],
     "ingredients": [
       "300g flache Reisnudeln",
       "8 Stück Medium Garnelen",
