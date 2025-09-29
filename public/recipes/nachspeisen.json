@@ -3,6 +3,7 @@
     "title": "Pancakes",
     "image": "Pancakes.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "150g Mehl",
       "1 El Zucker",
@@ -23,6 +24,7 @@
     "title": "Milchreis (kalorienarm)",
     "image": "Milchreis.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients":[
       "200g Milchreis/Risottoreis",
       "750ml Milch",

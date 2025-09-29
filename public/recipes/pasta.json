@@ -3,6 +3,7 @@
     "title": "Camembert Sahne Soße",
     "image": "CamembertSahneSoße.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
       "200ml Sahne",
@@ -22,6 +23,7 @@
     "title": "Feta Nudeln",
     "image": "FetaNudeln.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
       "200g Feta oder Hirtenkäse",
@@ -43,6 +45,7 @@
     "title": "Mühlenhack Nudeln",
     "image": "Muehlenhack.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
       "200ml Schlagsahne",
@@ -62,6 +65,7 @@
     "title": "Pilz Sahne Nudeln",
     "image": "PilzSahneSoße.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
       "200ml Schlagsahne",
@@ -81,6 +85,7 @@
     "title": "Spinat Lasagne",
     "image": "Spinatlasagne.jpg",
     "defaultPortions": 4,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "450g Spinat",
       "300g Frischkäse",
@@ -104,6 +109,7 @@
     "title": "Spinatnudeln",
     "image": "Spinatnudeln.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
       "400g Spinat",
@@ -123,6 +129,7 @@
     "title": "Tomatenrisotto",
     "image": "Tomatenrisotto.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "150g Risottoreis",
       "3 große Tomaten",
@@ -131,7 +138,7 @@
       "100ml Rotwein",
       "400ml Gemüsebrühe",
       "1 EL Tomatenmark",
-      "Parmesan",
+      "Parmesan (optional)",
       "Salz",
       "Pfeffer",
       "Thymian",
@@ -155,6 +162,7 @@
     "title": "Grillgemüse Pasta",
     "image": "GrillgemüsePasta.jpg",
     "defaultPortions": 2,
+    "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "250g Nudeln",
       "1 Zwiebeln",
@@ -162,7 +170,7 @@
       "3 große Tomaten",
       "1 Paprika",
       "Oregano",
-      "Parmesan",
+      "Parmesan (optional)",
       "Salz",
       "Pfeffer",
       "Thymian",
@@ -186,6 +194,7 @@
     "title": "Lasagne",
     "image": "Lasagne.jpg",
     "defaultPortions": 4,
+    "tags": ["vegetarisch"],
     "ingredients": [
       "1 Packung dm-Sonnenblumenhack",
       "1 Zwiebeln",
@@ -198,7 +207,7 @@
       "1 Karotte",
       "1 Selleriestange",
       "Oregano",
-      "Parmesan",
+      "Parmesan (optional)",
       "Salz",
       "Pfeffer",
       "Thymian",
@@ -228,6 +237,7 @@
     "title": "Spinat Risotto",
     "image": "SpinatRisotto.jpg",
     "defaultPortions": 2,
+    "tags": [],
     "ingredients": [
       "400ml Gemüsebrühe",
       "1 Zwiebeln",
