@@ -26,8 +26,8 @@
     "defaultPortions": 2,
     "tags": ["vegetarisch"],
     "ingredients":[
-      "200g Milchreis/Risottoreis",
-      "750ml Milch",
+      "200 g Milchreis/Risottoreis",
+      "750 ml Milch",
       "6 EL Erythrit",
       "Salz"
     ],
@@ -37,6 +37,35 @@
       "Wenn die Milch anfängt zu schäumen, den Herd auf niedrige Hitze stellen und den Reis einmischen.",
       "Immer Mal den Reis umrühren und das ganze für 20-30 Minuten kochen lassen.",
       "Am Ende den Milchreis mit Erythrit süßen und eine Prise Salz untermischen."
+    ]
+  },
+  {
+    "title": "Baozi 包子",
+    "image": "Baozi.jpg",
+    "defaultPortions": 2,
+    "tags": ["vegetarisch"],
+    "ingredients":[
+      "Für den Teig:",
+      "300 g Mehl",
+      "150 ml Wasser",
+      "6 g Hefe",
+      "0.5 TL Salz",
+      "2 TL Zucker",
+      "Für die Füllung:",
+      "Nutella || Red Bean Paste || Marmelade"
+    ],
+    "preparation": [
+      "Für den Teig in einer Schüssel Mehl, Salz, Hefe und Zucker vermengen.",
+      "Mit Wasser verrühren, zu den trockenen Zutaten geben und mit der Hand auf der Arbeitsfläche oder der Küchenmaschine mit Teighaken 10 Minuten zu einem sehr glatten, weichen, aber nicht klebrigen Teig verkneten.",
+      "Teig zu gleich großen Kugeln (28 g pro Kugel) formen, mit einem feuchten Tuch abdecken und an einem warmen Ort 45-90 Minuten gehen lassen, bis sich das Volumen in etwa verdoppelt hat.",
+      "Den Teig über Nacht in den Kühlschrank stellen.",
+      "Nacheinander ausrollen, dabei die Teigkugeln, die gerade nicht bearbeitet werden unter einem feuchten Tuch lagern, damit sie nicht austrocknen.",
+      "Dazu Teiglinge auf einer gut bemehlten Arbeitsfläche leicht flach drücken. Mit einer Hand mit einem Nudelholz vorsichtig von außen nach innen und wieder zurück rollen, mit der anderen Hand anschließend drehen. Der Teig sollte innen dicker sein als außen.",
+      "Wiederholen, bis die Wrapper auf etwa 10 cm Durchmesser ausgerollt sind.",
+      "Je Teigling etwa 2 EL Füllung in die Mitte geben und rundherum einfalten (siehe dazu Videos in Youtube)",
+      "Baozi auf kleine Backpapierstücke legen und in Dämpfkörben verteilen. Dabei etwa 1 cm Platz zwischen jedem Dumpling lassen.",
+      "Kaltes Wasser in den Topf geben, Dämpfer platzieren und aufkochen. Sobald das Wasser kocht, Timer auf 15 Minuten stellen.",
+      "Baozi anschließend schmausen, Mànmàn chī - 慢慢吃!"
     ]
   }
 ]
