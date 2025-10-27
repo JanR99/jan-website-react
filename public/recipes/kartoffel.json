@@ -141,5 +141,31 @@
       "Die Erbsen einfach bei mittlerer Hitze kurz in einem kleinen Topf anbraten und diese auch ein wenig salzen.",
       "Wenn alles fertig ist, kann man das Essen bei Bedarf noch mit ein wenig Preiselbeeren verfeinern."
     ]
+  },
+  {
+    "title": "Kürbissuppe",
+    "image": "Kürbissuppe.jpg",
+    "defaultPortions": 4,
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Hokkaido Kürbis",
+      "4 mittelgroße Kartoffeln",
+      "2 Karotten",
+      "2 EL Frischkäse",
+      "2 Zwiebeln",
+      "3 Knoblauchzehen",
+      "250 ml Wasser",
+      "Salz",
+      "Peffer",
+      "Curry",
+      "Muskat"
+    ],
+    "preparation": [
+      "Die Kerne und Fäden aus dem Hokkaido Kürbis entfernen. Kürbis mit Schale, Kartoffeln und Karotten klein schneiden.",
+      "Zwiebeln und Knoblauch anbraten und kleingeschnittenes Gemüse hinzugeben und anbraten lassen.",
+      "Mit Wasser ablöschen und Angebratenes vom Boden kratzen für die Röstaromen.",
+      "Alles Pürieren und so viel Wasser zugeben bis gewünschte Konsistenz erreicht ist.",
+      "Die Suppe würzen und Frischkäse zugeben."
+    ]
   }
 ]
