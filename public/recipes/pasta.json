@@ -256,5 +256,35 @@
       "Den Spinat mit etwas Öl in einem Topf warm machen und mit den Gewürzen ein wenig würzen",
       "Nun das Risotto kontrollieren, das jetzt ein nicht zu suppiger Brei mit angenehm festen Reiskörnern sein sollte. Ist es noch zu flüssig, kurz ohne Deckel weiter kochen lassen - aber dabei nicht rühren. Dann den Sprinat und Parmesan dazugeben und jetzt kräftig rühren. Heiß servieren."
     ]
+  },
+  {
+    "title": "Kürbis Walnuss Pasta",
+    "image": "KürbisNudeln.jpg",
+    "defaultPortions": 2,
+    "tags": [],
+    "ingredients": [
+      "0.5 Hokkaido Kürbis",
+      "250 g Nudeln",
+      "2 Zwiebeln",
+      "5 Knoblauchzehen",
+      "50 g Walnüsse",
+      "1 Paprika",
+      "1 EL Olivenöl",
+      "1 EL Kürbiskernöl",
+      "1 EL Frischkäse",
+      "2 EL Mehl",
+      "Salz",
+      "Pfeffer",
+      "Curry"
+    ],
+    "preparation": [
+      "Ofen vorheizen auf 180 Grad Heißluft.",
+      "Den Kürbis in Streifen schneiden und 15-20 min im Ofen braten",
+      "Zwiebeln und Knoblauch mit beiden Ölen anbraten. Gleichzeitig Nudeln kochen.",
+      "Paprika anbraten und Kürbis dazugeben. Alles gut umrühren und den Frischkäse zugeben.",
+      "Mehl und Nudelwasser schubweise dazugeben bis gewünscht Konsistenz erreicht.",
+      "Walnüsse etwas hacken und in einer separaten Pfanne ohne Öl rösten.",
+      "Pasta würzen und mit Walnüssen garnieren."
+    ]
   }
 ]
