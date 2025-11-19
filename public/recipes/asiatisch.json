@@ -349,5 +349,49 @@
       "Am Ende muss man nur noch die Onigiri formen, die Füllung in die Mitte machen und mit den kleiner geschnittenen Nori-Blättern umhüllen.",
       "Es gibt extra Onigiri-Formen, aber man kann es auch mit den Händen machen. Immer die Hände nass machen, wenn mach den Reis berühren muss!"
     ]
+  },
+  {
+    "title": "SoToTa",
+    "image": "SoToTa.jpg",
+    "defaultPortions": 2,
+    "tags": [],
+    "ingredients": [
+      "Für die Soße:",
+      "1 EL Sojasoße",
+      "1 El dunkle Sojasoße",
+      "1 EL Fischsoße",
+      "1 EL etwas Süßes wie Honig/Ahornsirup",
+      "1 EL Austernsoße",
+      "1 EL Tomatenmark",
+      "0.5 EL Tamarind Soße",
+      "1 El Sesamöl",
+      "Zum anbraten:",
+      "4 Eier",
+      "1 Bündel Lauchzwiebeln",
+      "1 Dose Edamame",
+      "1 Karotte",
+      "2 Chillis",
+      "7 Knoblauchzehen",
+      "2 Becher Reis",
+      "1 Packung Veggie Hack",
+      "1 EL Gemüsebrühe",
+      "Limettensaft",
+      "Sesam",
+      "Pfeffer",
+      "Paprikapulver"
+    ],
+    "preparation": [
+      "Reis waschen und kochen.",
+      "Lauchzwiebeln und Chillis schneiden. Den grünen Teil der Lauchzwiebel beiseite legen und den restlichen Teil mit den Chilis in Sesamöl anbraten.",
+      "Veggie Hack mit Gemüsebrühe quellen lassen und ebenfalls anbraten. Mit Paprikapulver und Pfeffer würzen.",
+      "Den Knoblauch klein hacken und mit anbraten",
+      "Karotten in dünne Streifen schneiden und zusammen mit den Edamame dazu geben.",
+      "Eine kleine Kuhle in der Mitte der Pfanne machen und dort die Eier anbraten",
+      "Den Tomatenmark dazugeben, alles ordentlich mischen und dann mit den gesamten Soßen ablöschen",
+      "Ordentlich umrühren und alles für ein paar Minuten kochen lassen.",
+      "Am Ende mit Limettensaft und Pfeffer abschmecken und etwas Sesam zugeben.",
+      "Tipp: Eier können auch als Spiegeleier gemacht werden und am Ende einfach oben drauf gegeben!",
+      "PS: Der Name ist eine Eigenkreation aus Soja, Tomatenmark und Tamago (卵), was Ei auf Japanisch bedeutet."
+    ]
   }
 ]
