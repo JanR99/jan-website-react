@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import '../App.css';
-import '../styles/Category.css'
+import '../styles/Category.css';
+
+interface Recipe {
+    title: string;
+    image: string;
+    tags?: string[];
+}
 
 // Helper to filter recipes
-const filterRecipes = (recipes, filter) => {
+const filterRecipes = (recipes: Recipe[], filter: string): Recipe[] => {
     if (filter === "alle") return recipes;
 
     if (filter === "vegetarisch") {
@@ -18,16 +24,18 @@ const filterRecipes = (recipes, filter) => {
     return recipes;
 };
 
-export default function Category() {
-    const { category } = useParams();
-    const [recipes, setRecipes] = useState([]);
+const Category: React.FC = () => {
+    const { category } = useParams<{ category?: string }>();
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [filter, setFilter] = useState("alle");
 
     // Fetch recipes based on the category
     useEffect(() => {
+        if (!category) return;
+
         fetch(`/recipes/${category}.json`)
             .then(response => response.json())
-            .then(data => setRecipes(data))
+            .then((data: Recipe[]) => setRecipes(data))
             .catch(error => console.error('Error loading recipes:', error));
     }, [category]);
 
@@ -46,33 +54,21 @@ export default function Category() {
 
             {/* Filter Buttons */}
             <div className="filter-buttons">
-                <button
-                    className={`filter-button ${filter === "alle" ? "active" : ""}`}
-                    onClick={() => setFilter("alle")}
-                >
-                    Alle
-                </button>
-                <button
-                    className={`filter-button ${filter === "vegetarisch" ? "active" : ""}`}
-                    onClick={() => setFilter("vegetarisch")}
-                >
-                    Vegetarisch
-                </button>
-                <button
-                    className={`filter-button ${filter === "vegan" ? "active" : ""}`}
-                    onClick={() => setFilter("vegan")}
-                >
-                    Vegan
-                </button>
+                {["alle", "vegetarisch", "vegan"].map(f => (
+                    <button
+                        key={f}
+                        className={`filter-button ${filter === f ? "active" : ""}`}
+                        onClick={() => setFilter(f)}
+                    >
+                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                    </button>
+                ))}
             </div>
 
             {/* Render recipes */}
             <div className="container">
                 {filteredRecipes.map((recipe, index) => {
-                    // Check if image already has an extension, if not, add '.jpg'
-                    const imageSrc = recipe.image.includes('.')
-                        ? recipe.image
-                        : `${recipe.image}.jpg`;
+                    const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
 
                     return (
                         <div className="img-cookbook" key={index}>
@@ -93,4 +89,6 @@ export default function Category() {
             </div>
         </div>
     );
-}
+};
+
+export default Category;

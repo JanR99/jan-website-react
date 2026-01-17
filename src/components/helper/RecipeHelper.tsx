@@ -1,6 +1,12 @@
-export const adjustIngredient = (ingredient, portions, defaultPortions = 2) => {
+import React from 'react';
+
+export const adjustIngredient = (
+    ingredient: string,
+    portions: number | "",
+    defaultPortions: number = 2
+): string => {
     const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/);
-    if (match) {
+    if (match && typeof portions === "number") {
         const quantity = parseFloat(match[1]);
         const unitAndName = match[3] || '';
         const adjustedQuantity = (quantity * portions) / defaultPortions;
@@ -9,11 +15,13 @@ export const adjustIngredient = (ingredient, portions, defaultPortions = 2) => {
     return ingredient;
 };
 
-export const renderIngredients = (recipe, adjustIngredient) => {
+export const renderIngredients = (
+    recipe: { ingredients?: string[] },
+    adjustFn: (ingredient: string) => string
+) => {
     if (!recipe.ingredients) return null;
 
     return recipe.ingredients.map((ingredient, index) => {
-        // Check if the ingredient is a section header (e.g., ends with a colon ":")
         const isSectionHeader = ingredient.endsWith(":");
 
         return isSectionHeader ? (
@@ -22,23 +30,25 @@ export const renderIngredients = (recipe, adjustIngredient) => {
             </li>
         ) : (
             <li key={index} className="ingredient-item">
-                <span className="ingredient-icon">🍴</span> {adjustIngredient(ingredient)}
+                <span className="ingredient-icon">🍴</span> {adjustFn(ingredient)}
             </li>
         );
     });
 };
 
-export const renderPreparationSteps = (recipe) => {
+export const renderPreparationSteps = (
+    recipe: { preparation?: string[] }
+) => {
     if (!recipe.preparation) return null;
 
     const urlRegex = /(https?:\/\/[^\s]+)/g;
 
     return recipe.preparation.map((step, index) => {
-        const parts = step.split(urlRegex); // Split the step into text and URL parts
+        const parts = step.split(urlRegex);
 
         return (
             <span key={index}>
-                {index + 1}.{" "}
+        {index + 1}.{" "}
                 {parts.map((part, i) =>
                     urlRegex.test(part) ? (
                         <a key={i} href={part} target="_blank" rel="noopener noreferrer">
@@ -49,7 +59,7 @@ export const renderPreparationSteps = (recipe) => {
                     )
                 )}
                 <br />
-            </span>
+      </span>
         );
     });
 };

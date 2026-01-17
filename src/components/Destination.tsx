@@ -1,20 +1,28 @@
 import React from 'react';
-import { useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import '../App.css';
 
-export default function Destination() {
-    const { destination } = useParams();
+interface DestinationParams {
+    destination?: string;
+}
+
+const Destination: React.FC = () => {
+    const { destination } = useParams<DestinationParams>();
+
+    if (!destination) {
+        return <p>Destination not found.</p>;
+    }
 
     const images = [
         `${destination}1-min.jpg`,
         `${destination}2-min.jpg`,
         `${destination}3-min.jpg`,
-        `${destination}4-min.jpg`
+        `${destination}4-min.jpg`,
     ];
 
-    // Split the images into chunks of 2 for easy rendering
+    // Split images into chunks of 2 for easy rendering
     const chunkSize = 2;
-    const imageChunks = [];
+    const imageChunks: string[][] = [];
     for (let i = 0; i < images.length; i += chunkSize) {
         imageChunks.push(images.slice(i, i + chunkSize));
     }
@@ -31,8 +39,15 @@ export default function Destination() {
                 <div className="container" key={chunkIndex}>
                     {chunk.map((image, index) => (
                         <div className="img-container" key={index}>
-                            <a target="_blank" href={`/Bilder/Urlaub-normal/${image.replace('-min', '')}`} rel="noopener noreferrer">
-                                <img src={`/Bilder/Urlaub-thumbnail/${image}`} alt={destination} />
+                            <a
+                                href={`/Bilder/Urlaub-normal/${image.replace('-min', '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <img
+                                    src={`/Bilder/Urlaub-thumbnail/${image}`}
+                                    alt={destination}
+                                />
                             </a>
                         </div>
                     ))}
@@ -40,4 +55,6 @@ export default function Destination() {
             ))}
         </div>
     );
-}
+};
+
+export default Destination;
