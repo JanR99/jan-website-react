@@ -1,13 +1,13 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
-import Cookbook from './components/Cookbook.jsx';
-import Home from './components/Home.jsx';
-import Destination from './components/Destination.jsx';
-import Category from './components/Category.jsx';
-import Recipe from './components/Recipe.jsx';
+import Cookbook from './components/Cookbook';
+import Home from './components/Home';
+import Destination from './components/Destination';
+import Category from './components/Category';
+import Recipe from './components/Recipe';
 
-export default function App() {
+const App: React.FC = () => {
     return (
         <Router>
             <div>
@@ -17,12 +17,12 @@ export default function App() {
                 </header>
 
                 {/* Navigation Bar */}
-                <div className="top">
+                <nav className="top">
                     <Link to="/" className="button-link">Jans Website</Link>
                     <Link to="/cookbook" className="button-link">Mein Kochbuch</Link>
-                </div>
+                </nav>
 
-                {/* Routes to display other pages */}
+                {/* Routes */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
@@ -34,3 +34,4 @@ export default function App() {
         </Router>
     );
 }
+export default App;
