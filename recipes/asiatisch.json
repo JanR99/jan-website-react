@@ -322,9 +322,9 @@
     ]
   },
   {
-    "title": "Onigiri",
+    "title": "Thunfisch-Onigiri",
     "image": "Onigiri.jpg",
-    "defaultPortions": 4,
+    "defaultPortions": 2,
     "tags": [],
     "ingredients": [
       "Für die Füllung:",
@@ -392,6 +392,44 @@
       "Am Ende mit Limettensaft und Pfeffer abschmecken und etwas Sesam zugeben.",
       "Tipp: Eier können auch als Spiegeleier gemacht werden und am Ende einfach oben drauf gegeben!",
       "PS: Der Name ist eine Eigenkreation aus Soja, Tomatenmark und Tamago (卵), was Ei auf Japanisch bedeutet."
+    ]
+  },
+  {
+    "title": "Austernpilz-Onigiri",
+    "image": "AusternpilzOnigiri.jpeg",
+    "defaultPortions": 2,
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Für die Füllung:",
+      "200 g Austernpilze",
+      "2 El Mayonnaise",
+      "1 kleine Zwiebel",
+      "2 Knoblauchzehen",
+      "1 Prise Salz",
+      "1 TL Pfeffer",
+      "1 TL geräucherte Paprika",
+      "1 TL Knoblauchpulver",
+      "0.5 TL Kreuzkümmel",
+      "2 EL Olivenöl",
+      "Onigiri:",
+      "2 kleine Tassen Sushireis",
+      "1 El Mirin",
+      "Wasser",
+      "Für das Anbraten:",
+      "2 EL helle Sojasoße",
+      "1 EL Mirin",
+      "2 EL LEE KUM KEE Pilzesoße"
+    ],
+    "preparation": [
+      "Als erstes den Reis sehr gut waschen bis das Wasser beim waschen nicht mehr trüb wird. Das kann bis zu 7-8 Waschgänge dauern.",
+      "Danach den Reis wie auf der Verpackung beschrieben (meistens mit einem Verhältnis von 1 zu 1,5) kochen.",
+      "Währenddessen die Austernpilze in kleine Teile rupfen. Zwiebel und Knoblauch klein schneiden und mit Gewürzen, sowie Olivenöl in die Austerpilze mischen.",
+      "Die marinierten Austerpilze nun auf einem Backblech verteilen und bei 180 Grad Heißluft 10 bis 15 min im Ofen gold braun braten.",
+      "Wenn die Austernpilze fertig sind, mit der Mayonaisse vermischen.",
+      "Wenn der Reis fertig gekocht ist, Mirin dazugeben und ordentlich umrühren und dann den Reis noch mal mind. 5 Minuten zugedeckt stehen lassen.",
+      "Am Ende muss man nur noch die Onigiri formen und die Füllung in die Mitte machen.",
+      "Es gibt extra Onigiri-Formen, aber man kann es auch mit den Händen machen. Immer die Hände nass machen, wenn mach den Reis berühren muss!",
+      "Alle Zutaten für das Anbraten vermengen und die geformten Onigiri beidseitig bestreichen und anbraten. Fertig ist die Umami-Bombe!"
     ]
   }
 ]
