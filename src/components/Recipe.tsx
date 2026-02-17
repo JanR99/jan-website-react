@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 
@@ -21,6 +21,11 @@ const Recipe: React.FC = () => {
     const { category, recipeTitle } = useParams<RecipeParams>();
     const [recipe, setRecipe] = useState<RecipeData | null>(null);
     const [portions, setPortions] = useState<number | "">(null);
+    const navigate = useNavigate();
+
+    const handleBack = () => {
+        navigate(`/cookbook/${category}`);
+    };
 
     useEffect(() => {
         if (!category || !recipeTitle) return;
@@ -70,7 +75,7 @@ const Recipe: React.FC = () => {
 
             {/* Back Button */}
             <div className="back">
-                <button className="button-85" onClick={() => window.history.back()}>
+                <button className="button-85" onClick={handleBack}>
                     Zurück
                 </button>
             </div>
