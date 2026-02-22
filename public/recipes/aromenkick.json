@@ -3,6 +3,7 @@
     "title": "Knoblauchöl",
     "image": "Knoblauchöl.jpg",
     "defaultPortions": 1,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "2 Knoblauchknollen",
@@ -20,6 +21,7 @@
     "title": "Burgersauce",
     "image": "BurgerSauce.jpg",
     "defaultPortions": 2,
+    "cuisine": "amerikanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Knoblauchzehe",

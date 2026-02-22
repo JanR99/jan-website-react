@@ -3,6 +3,7 @@
     "title": "Camembert Sahne Soße",
     "image": "CamembertSahneSoße.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
@@ -23,6 +24,7 @@
     "title": "Feta Nudeln",
     "image": "FetaNudeln.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
@@ -45,6 +47,7 @@
     "title": "Mühlenhack Nudeln",
     "image": "Muehlenhack.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
@@ -65,6 +68,7 @@
     "title": "Pilz Sahne Nudeln",
     "image": "PilzSahneSoße.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
@@ -85,6 +89,7 @@
     "title": "Spinat Lasagne",
     "image": "Spinatlasagne.jpg",
     "defaultPortions": 4,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "450g Spinat",
@@ -109,6 +114,7 @@
     "title": "Spinatnudeln",
     "image": "Spinatnudeln.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250g Nudeln",
@@ -129,6 +135,7 @@
     "title": "Tomatenrisotto",
     "image": "Tomatenrisotto.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "150g Risottoreis",
@@ -162,6 +169,7 @@
     "title": "Grillgemüse Pasta",
     "image": "GrillgemüsePasta.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "250g Nudeln",
@@ -194,6 +202,7 @@
     "title": "Lasagne",
     "image": "Lasagne.jpg",
     "defaultPortions": 4,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Packung dm-Sonnenblumenhack",
@@ -237,6 +246,7 @@
     "title": "Spinat Risotto",
     "image": "SpinatRisotto.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": [],
     "ingredients": [
       "400ml Gemüsebrühe",
@@ -261,6 +271,7 @@
     "title": "Kürbis Walnuss Pasta",
     "image": "KürbisNudeln.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": [],
     "ingredients": [
       "0.5 Hokkaido Kürbis",

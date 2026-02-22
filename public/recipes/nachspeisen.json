@@ -3,6 +3,7 @@
     "title": "Pancakes",
     "image": "Pancakes.jpg",
     "defaultPortions": 2,
+    "cuisine": "amerikanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "150g Mehl",
@@ -24,6 +25,7 @@
     "title": "Milchreis (kalorienarm)",
     "image": "Milchreis.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients":[
       "200 g Milchreis/Risottoreis",
@@ -43,6 +45,7 @@
     "title": "Baozi 包子",
     "image": "Baozi.jpg",
     "defaultPortions": 2,
+    "cuisine": "chinesisch",
     "tags": ["vegetarisch"],
     "ingredients":[
       "Für den Teig:",
@@ -73,6 +76,7 @@
     "image": "Bananenbrot.jpg",
     "defaultPortions": 4,
     "tags": ["vegetarisch"],
+    "cuisine": "deutsch",
     "ingredients": [
       "2 überreife Bananen",
       "60 g Butter",
@@ -95,6 +99,7 @@
     "title": "Mango Sticky Rice ~ khao niew mamuang",
     "image": "MangoStickyRice.jpeg",
     "defaultPortions": 4,
+    "cuisine": "thailändisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "250 g Klebereis",
