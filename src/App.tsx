@@ -4,7 +4,7 @@ import './App.css';
 import Cookbook from './components/Cookbook';
 import Home from './components/Home';
 import Destination from './components/Destination';
-import Recipe from './components/Recipe';
+import RecipePage from './components/RecipePage';
 
 const App: React.FC = () => {
     return (
@@ -26,7 +26,7 @@ const App: React.FC = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/destination/:destination" element={<Destination />} />
-                    <Route path="/cookbook/:recipeTitle" element={<Recipe />} />
+                    <Route path="/cookbook/:recipeTitle" element={<RecipePage />} />
                 </Routes>
             </div>
         </Router>
