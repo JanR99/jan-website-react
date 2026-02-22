@@ -4,7 +4,6 @@ import './App.css';
 import Cookbook from './components/Cookbook';
 import Home from './components/Home';
 import Destination from './components/Destination';
-import Category from './components/Category';
 import Recipe from './components/Recipe';
 
 const App: React.FC = () => {
@@ -27,8 +26,7 @@ const App: React.FC = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/destination/:destination" element={<Destination />} />
-                    <Route path="/cookbook/:category" element={<Category />} />
-                    <Route path="/cookbook/:category/:recipeTitle" element={<Recipe />} />
+                    <Route path="/cookbook/:recipeTitle" element={<Recipe />} />
                 </Routes>
             </div>
         </Router>
