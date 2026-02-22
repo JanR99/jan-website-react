@@ -1,36 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 
 interface RecipeData {
     title: string;
     image: string;
-    defaultPortions?: number;
-    ingredients: any[]; // Adjust type according to your JSON structure
+    defaultPortions: number;
+    ingredients: any[];
     preparation: string[];
+    cuisine: string;
     tags?: string[];
 }
 
-interface RecipeParams {
-    category?: string;
-    recipeTitle?: string;
-}
-
 const Recipe: React.FC = () => {
-    const { category, recipeTitle } = useParams<RecipeParams>();
-    const [recipe, setRecipe] = useState<RecipeData | null>(null);
-    const [portions, setPortions] = useState<number | "">(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const passedRecipe = (location.state as { recipe?: RecipeData })?.recipe;
+    const recipeTitle = passedRecipe?.title;
+    const [recipe, setRecipe] = useState<RecipeData | null>(passedRecipe ?? null);
+    const [portions, setPortions] = useState<number>(passedRecipe?.defaultPortions ?? 2);
 
     const handleBack = () => {
-        navigate(`/cookbook/${category}`);
+        navigate(`/cookbook`);
     };
 
     useEffect(() => {
-        if (!category || !recipeTitle) return;
-
-        const jsonFile = `/recipes/${category}.json`;
+        if (recipe == null || recipeTitle == null) return;
+        const jsonFile = `/recipes/recipes.json`;
 
         fetch(jsonFile)
             .then(response => response.json())
@@ -47,20 +44,18 @@ const Recipe: React.FC = () => {
                 }
             })
             .catch(error => console.error('Error loading recipe:', error));
-    }, [category, recipeTitle]);
+    }, [recipeTitle]);
 
     const handlePortionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.trim();
-        if (/^\d+$/.test(value)) {
-            setPortions(parseInt(value, 10));
-        } else if (value === '') {
-            setPortions('');
+        if (/^\d*$/.test(value)) {
+            setPortions(value === '' ? 0 : parseInt(value, 10));
         }
     };
 
     const handlePortionInputBlur = () => {
-        if (portions === "" || portions <= 0) {
-            setPortions(recipe?.defaultPortions ?? 2);
+        if (!portions || portions <= 0) {
+            setPortions(1);
         }
     };
 
