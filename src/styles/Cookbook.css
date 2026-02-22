@@ -34,3 +34,29 @@
     background-color: #e7b4b4;
     color: #050801;
 }
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    color: #000000;
+    margin-bottom: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
