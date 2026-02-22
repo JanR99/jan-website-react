@@ -89,26 +89,32 @@ const Cookbook: React.FC = () => {
 
             {/* Render recipes */}
             <div className="container">
-                {filteredRecipes.map((recipe, index) => {
-                    const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
+                {filteredRecipes.length > 0 ? (
+                    filteredRecipes.map((recipe, index) => {
+                        const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
 
-                    return (
-                        <div className="img-cookbook" key={index}>
-                            <figcaption>{recipe.title}</figcaption>
-                            <Link
-                                to={`/cookbook/${recipe.title
-                                    .toLowerCase()
-                                    .replace(/\s+/g, "-")}`}
-                                state={{ recipe }}
-                            >
-                                <img
-                                    src={`../Bilder/Essen-thumbnail/${imageSrc}`}
-                                    alt={recipe.title}
-                                />
-                            </Link>
-                        </div>
-                    );
-                })}
+                        return (
+                            <div className="img-cookbook" key={index}>
+                                <figcaption>{recipe.title}</figcaption>
+                                <Link
+                                    to={`/cookbook/${recipe.title
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "-")}`}
+                                    state={{ recipe }}
+                                >
+                                    <img
+                                        src={`../Bilder/Essen-thumbnail/${imageSrc}`}
+                                        alt={recipe.title}
+                                    />
+                                </Link>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <p style={{ textAlign: "center", fontWeight: "bold", marginTop: "20px" }}>
+                        Es gibt leider noch keine Rezepte mit diesen Filtern.
+                    </p>
+                )}
             </div>
         </div>
     );
