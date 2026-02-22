@@ -3,6 +3,7 @@
     "title": "Baguette",
     "image": "Baguette.jpg",
     "defaultPortions": 4,
+    "cuisine": "französisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "400g Mehl (Type 00)",
@@ -24,6 +25,7 @@
     "title": "Burger",
     "image": "Burger.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Burger:",
@@ -52,6 +54,7 @@
     "title": "Pizza",
     "image": "Pizza.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Teig:",
@@ -81,6 +84,7 @@
     "title": "Pizzataschen",
     "image": "Pizzataschen.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Teig:",
@@ -117,6 +121,7 @@
     "title": "Quesadilla",
     "image": "Quesadilla.jpg",
     "defaultPortions": 2,
+    "cuisine": "mexikanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "6 Wraps",
@@ -135,6 +140,7 @@
     "title": "Eiwrap",
     "image": "Eiwrap.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "2 High Protein Wraps",
@@ -158,6 +164,7 @@
     "title": "Roti Chanai",
     "image": "RotiChanai.jpg",
     "defaultPortions": 2,
+    "cuisine": "malaiisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Zutaten A:",
@@ -189,6 +196,7 @@
     "title": "Falafel Wrap",
     "image": "FalafelWrap.jpg",
     "defaultPortions": 2,
+    "cuisine": "libanesisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Zutaten Falafel:",
@@ -232,6 +240,7 @@
     "title": "Quiche",
     "image": "Quiche.jpg",
     "defaultPortions": 4,
+    "cuisine": "französisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Stange Blätterteig",

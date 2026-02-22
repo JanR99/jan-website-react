@@ -3,6 +3,7 @@
     "title": "Japanisches Curry",
     "image": "JapaneseCurry.jpg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "1 Tasse Reis",
@@ -27,6 +28,7 @@
     "title": "Aloo Masala",
     "image": "AlooMasala.jpg",
     "defaultPortions": 2,
+    "cuisine": "indisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 EL Butter",
@@ -58,6 +60,7 @@
     "title": "Egg Fried Rice",
     "image": "EggFriedRice.jpg",
     "defaultPortions": 2,
+    "cuisine": "thailändisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Tasse Reis",
@@ -82,6 +85,7 @@
     "title": "Paneer Butter Masala",
     "image": "PaneerButterMasala.jpg",
     "defaultPortions": 2,
+    "cuisine": "indisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Soße:",
@@ -123,6 +127,7 @@
     "title": "Rotes Thai Curry",
     "image": "RotesThaiCurry.jpg",
     "defaultPortions": 2,
+    "cuisine": "thailändisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "1 Tasse Reis",
@@ -146,6 +151,7 @@
     "title": "Abura Soba",
     "image": "AburaSoba.jpg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": [],
     "ingredients": [
       "Soße:",
@@ -182,6 +188,7 @@
     "title": "Paneer Bhurji",
     "image": "PaneerBhurji.jpg",
     "defaultPortions": 2,
+    "cuisine": "indisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "3 TL Öl",
@@ -213,6 +220,7 @@
     "title": "Okonomiyaki",
     "image": "Okonomiyaki.jpg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Tasse Weizenmehl",
@@ -239,6 +247,7 @@
     "title": "Japanisches Udon-Curry",
     "image": "JapanischesUdonCurry.jpg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "2 Packungen Udon",
@@ -261,6 +270,7 @@
     "title": "Char Koay Teow",
     "image": "CharKoayTeow.jpg",
     "defaultPortions": 2,
+    "cuisine": "malaiisch",
     "tags": [],
     "ingredients": [
       "300g flache Reisnudeln",
@@ -292,6 +302,7 @@
     "title": "Curry Kapitan",
     "image": "CurryKapitan.jpg",
     "defaultPortions": 2,
+    "cuisine": "malaiisch",
     "tags": [],
     "ingredients": [
       "1000g Hähnchenbrust",
@@ -325,6 +336,7 @@
     "title": "Thunfisch-Onigiri",
     "image": "Onigiri.jpg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": [],
     "ingredients": [
       "Für die Füllung:",
@@ -354,6 +366,7 @@
     "title": "SoToTa",
     "image": "SoToTa.jpg",
     "defaultPortions": 2,
+    "cuisine": "thailändisch",
     "tags": [],
     "ingredients": [
       "Für die Soße:",
@@ -398,6 +411,7 @@
     "title": "Austernpilz-Onigiri",
     "image": "AusternpilzOnigiri.jpeg",
     "defaultPortions": 2,
+    "cuisine": "japanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "Für die Füllung:",

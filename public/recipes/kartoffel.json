@@ -3,6 +3,7 @@
     "title": "Gnocchi Tomatensoße",
     "image": "GnocchiTomatensoße.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
@@ -33,6 +34,7 @@
     "title": "Griechische Pfanne",
     "image": "GriechischePfanne.jpg",
     "defaultPortions": 2,
+    "cuisine": "griechisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1kg Kartoffeln",
@@ -54,6 +56,7 @@
     "title": "Kartoffelbrei mit Ei",
     "image": "KartoffelbreiMitEi.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1kg Kartoffeln",
@@ -75,6 +78,7 @@
     "title": "Gnocchi mit Basilikumpesto",
     "image": "GnocciBasilikumPesto.jpg",
     "defaultPortions": 2,
+    "cuisine": "italienisch",
     "tags": [],
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
@@ -102,6 +106,7 @@
     "title": "Tortilla",
     "image": "Tortilla.jpg",
     "defaultPortions": 3,
+    "cuisine": "mexikanisch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1.2 kg Kartoffeln (vorwiegend festkochend",
@@ -124,6 +129,7 @@
     "title": "Schnitzel",
     "image": "Schnitzel.jpg",
     "defaultPortions": 2,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch", "vegan"],
     "ingredients": [
       "2 Veggie-Schnitzel",
@@ -146,6 +152,7 @@
     "title": "Kürbissuppe",
     "image": "Kürbissuppe.jpg",
     "defaultPortions": 4,
+    "cuisine": "deutsch",
     "tags": ["vegetarisch"],
     "ingredients": [
       "1 Hokkaido Kürbis",
