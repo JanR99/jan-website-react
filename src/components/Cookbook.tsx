@@ -28,8 +28,12 @@ const Cookbook: React.FC = () => {
     const cuisines: string[] = [
         "alle",
         ...Array.from(
-            new Set(recipes.map(r => r.cuisine).filter((c): c is string => Boolean(c)))
-        )
+            new Set(
+                recipes
+                    .map(r => r.cuisine)
+                    .filter((c): c is string => Boolean(c))
+            )
+        ).sort((a, b) => a.localeCompare(b))
     ];
     const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter);
 
