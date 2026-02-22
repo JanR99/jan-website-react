@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
@@ -16,35 +16,12 @@ interface RecipeData {
 const Recipe: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const passedRecipe = (location.state as { recipe?: RecipeData })?.recipe;
-    const recipeTitle = passedRecipe?.title;
-    const [recipe, setRecipe] = useState<RecipeData | null>(passedRecipe ?? null);
-    const [portions, setPortions] = useState<number>(passedRecipe?.defaultPortions ?? 2);
+    const recipe = (location.state as { recipe?: RecipeData })?.recipe;
+    const [portions, setPortions] = useState<number>(recipe?.defaultPortions ?? 2);
 
     const handleBack = () => {
         navigate(`/cookbook`);
     };
-
-    useEffect(() => {
-        if (recipe == null || recipeTitle == null) return;
-        const jsonFile = `/recipes/recipes.json`;
-
-        fetch(jsonFile)
-            .then(response => response.json())
-            .then((data: RecipeData[]) => {
-                const foundRecipe = data.find(
-                    (r) =>
-                        r.title.toLowerCase().replace(/\s+/g, '-') ===
-                        recipeTitle.toLowerCase().replace(/\s+/g, '-')
-                );
-
-                if (foundRecipe) {
-                    setRecipe(foundRecipe);
-                    setPortions(foundRecipe.defaultPortions ?? 2);
-                }
-            })
-            .catch(error => console.error('Error loading recipe:', error));
-    }, [recipeTitle]);
 
     const handlePortionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.trim();
