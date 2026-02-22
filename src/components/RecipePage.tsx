@@ -2,21 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
+import {Recipe} from "../types/Recipe";
 
-interface RecipeData {
-    title: string;
-    image: string;
-    defaultPortions: number;
-    ingredients: any[];
-    preparation: string[];
-    cuisine: string;
-    tags?: string[];
-}
-
-const Recipe: React.FC = () => {
+const RecipePage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const recipe = (location.state as { recipe?: RecipeData })?.recipe;
+    const recipe = (location.state as { recipe?: Recipe })?.recipe;
     const [portions, setPortions] = useState<number>(recipe?.defaultPortions ?? 2);
 
     const handleBack = () => {
@@ -102,4 +93,4 @@ const Recipe: React.FC = () => {
     );
 };
 
-export default Recipe;
+export default RecipePage;

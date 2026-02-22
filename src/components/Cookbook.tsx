@@ -2,14 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
 import '../styles/Cookbook.css'
-
-interface Recipe {
-    title: string;
-    image: string;
-    tags?: string[];
-    cuisine?: string;
-    category: string;
-}
+import {Recipe} from "../types/Recipe";
 
 // Helper to filter recipes
 const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string) => {
