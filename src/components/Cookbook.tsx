@@ -56,30 +56,34 @@ const Cookbook: React.FC = () => {
             </header>
 
             <div className="filter-container">
-                {/* Diet Filters */}
-                <div className="filter-group">
-                    {["alle", "vegetarisch", "vegan"].map(f => (
-                        <span
-                            key={f}
-                            className={`filter-pill ${dietFilter === f ? "active" : ""}`}
-                            onClick={() => setDietFilter(f)}
-                        >
-                            {f.charAt(0).toUpperCase() + f.slice(1)}
-                        </span>
-                    ))}
+                <div className="filter-section">
+                    <span className="filter-label">Ernährung:</span>
+                    <div className="filter-group">
+                        {["alle", "vegetarisch", "vegan"].map(f => (
+                            <span
+                                key={f}
+                                className={`filter-pill ${dietFilter === f ? "active" : ""}`}
+                                onClick={() => setDietFilter(f)}
+                            >
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                </span>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Cuisine Filters */}
-                <div className="filter-group">
-                    {cuisines.map(c => (
-                        <span
-                            key={c}
-                            className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
-                            onClick={() => setCuisineFilter(c)}
-                        >
-                            {c.charAt(0).toUpperCase() + c.slice(1)}
-                        </span>
-                    ))}
+                <div className="filter-section">
+                    <span className="filter-label">Küche:</span>
+                    <div className="filter-group">
+                        {cuisines.map(c => (
+                            <span
+                                key={c}
+                                className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
+                                onClick={() => setCuisineFilter(c)}
+                            >
+                    {c.charAt(0).toUpperCase() + c.slice(1)}
+                </span>
+                        ))}
+                    </div>
                 </div>
             </div>
 
