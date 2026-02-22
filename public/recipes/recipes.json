@@ -1,0 +1,1353 @@
+[
+  {
+    "title": "Knoblauchöl",
+    "image": "Knoblauchöl.jpg",
+    "defaultPortions": 1,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "2 Knoblauchknollen",
+      "1 Liter Olivenöl"
+    ],
+    "preparation": [
+      "Knoblauch schälen und pressen.",
+      "Etwas Olivenöl aus der Flasche abfüllen, damit der Knoblauch rein passt. Dann gepressten Knoblauch in die Olivenölflasche füllen.",
+      "Das Knoblauchöl mindestens eine Woche, höchstens 2 Wochen stehen lassen und jeden Tag gut durchschütteln.",
+      "Danach den Knoblauch entfernen, sonst wird das Öl bitter. Hinweis: Knoblauchöl in eine separate Schüssel über ein Sieb füllen und dann ohne Knoblauch wieder zurück in die Flasche. Etwas Knoblauchreste sind nicht schlimm.",
+      "Das Öl schmeckt zu fast allen Gerichten gut und man sollte es nach dem Kochen benutzen, also nicht mitkochen."
+    ]
+  },
+  {
+    "title": "Burgersauce",
+    "image": "BurgerSauce.jpg",
+    "defaultPortions": 2,
+    "cuisine": "amerikanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Knoblauchzehe",
+      "1 Gewürzgurken",
+      "2 EL Mayonnaise",
+      "1 EL Ketchup",
+      "0.5 EL mittelscharfer Senf",
+      "1 Schuss Weißweinessig",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "Den Knoblauch schälen und pressen.",
+      "Die Gewürzgurken sehr klein schneiden.",
+      "Alle Zutaten in einer Schüssel vermengen und mit Salz und Pfeffer abschmecken. Dabei sollte die Soße durch den Weißweinessig nicht zu flüssig werden.",
+      "Am besten die Soße für ein paar Stunden ziehen lassen, aber man kann sie auch sofort benutzen."
+    ]
+  },
+  {
+    "title": "Japanisches Curry",
+    "image": "JapaneseCurry.jpg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "1 Tasse Reis",
+      "1 1/2 Tassen Wasser",
+      "100g Japanese Golden Curry",
+      "3 Karotten",
+      "750g Kartoffeln",
+      "1 Zwiebel",
+      "5 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Zwiebeln, Knoblauch, Karotten und Kartoffeln schälen und klein schneiden. Mit wenig Öl alles nacheinander im Topf anschwitzen. Danach Salzwasser ausgießen bis alles leicht bedeckt ist und für 15 Minuten köcheln lassen.",
+      "Den Reis waschen und dann mit dem Wasser und einer Prise Salz zum Kochen bringen und dann bei kleiner Hitze noch für 15 Minuten köcheln lassen. Zwischendurch umrühren.",
+      "Das 'Golden Curry' in den Topf zu dem Gemüse geben, die Hitze klein stellen und dabei alles einrühren und noch einmal für 5 Minuten köcheln lassen. Mit Salz und Pfeffer abschmecken.",
+      "Den gekochten Reis auf den Teller packen und das Curry über den Reis gießen."
+    ]
+  },
+  {
+    "title": "Aloo Masala",
+    "image": "AlooMasala.jpg",
+    "defaultPortions": 2,
+    "cuisine": "indisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 EL Butter",
+      "2 große Zwiebeln",
+      "5cm Stück Ingwer",
+      "6 Knoblauchzehen",
+      "400g Kartoffeln",
+      "250ml Milch",
+      "150ml Sahne",
+      "15 Cashews",
+      "3 Gewürznelken",
+      "2 grüne Kardamoms",
+      "1 TL Salz",
+      "1 TL Chilipaprikapulver",
+      "1 TL Garam Masala",
+      "1 TL Korianderpulver",
+      "1 TL Kurkuma",
+      "1 TL Bockshornkleeblätter"
+    ],
+    "preparation": [
+      "Die Cashews in einer Pfanne ohne Öl anrösten und dann in eine Schüssel legen.",
+      "Die Kartoffeln schälen und in kleine Würfel schneiden und dann in Salzwasser weich kochen lassen.",
+      "Die Butter in der gleichen Pfanne auflösen lassen und dann die in Scheiben geschnittenen Zwiebeln braun braten lassen. Den grob geschnittenen Ingwer und Knoblauchzehen dazu geben und alles weiter braten lassen. Alle Gewürze, außer die Bockshornkleeblätter und die Cashews dazu geben und permanent umrühren. Nach ein 1-2 Minuten das Gemisch mit der Milch ablöschen.",
+      "Die Masse zu einer feinen Masse pürieren und dann die gekochten Kartoffeln und die Sahne dazu geben und noch einmal für ein paar Minuten auf kleiner Hitze kochen lassen. Am Ende noch die Bockshornkleeblätter in der Hand reiben und darüber geben.",
+      "Das Aloo Masala mit Reis und/oder Naan anrichten."
+    ]
+  },
+  {
+    "title": "Egg Fried Rice",
+    "image": "EggFriedRice.jpg",
+    "defaultPortions": 2,
+    "cuisine": "thailändisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Tasse Reis",
+      "1,5 Tassen Wasser",
+      "6 Eier",
+      "3 Karotten",
+      "1 Dose Erbsen",
+      "2 Zwiebeln",
+      "7 Knoblauchzehen",
+      "Sojasoße",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Den Reis waschen und danach mit dem Wasser und Salz zum Kochen bringen und danach für ca. 15 Minuten auf kleiner Hitze köcheln lassen. Am Ende den Reis mit Butter würzen.",
+      "Aus den Eiern Rührei machen und diese aus der Pfanne nehmen.",
+      "Die Zwiebeln und den Knoblauch mit Öl anbraten. Danach die Karotten und Erbsen dazugeben. Am Ende den gekochten Reis einrühren und das Rührei dazugeben. Mit Salz, Sojasoße und Pfeffer würzen und ein wenig anbraten lassen."
+    ]
+  },
+  {
+    "title": "Paneer Butter Masala",
+    "image": "PaneerButterMasala.jpg",
+    "defaultPortions": 2,
+    "cuisine": "indisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Soße:",
+      "2 EL Öl",
+      "1 EL Butter",
+      "2 Grüne Kardamom",
+      "2 Gewürznelken",
+      "1 TL Knoblauch-Ingwer-Paste",
+      "4 Knoblauchzehen",
+      "2 große Zwiebeln",
+      "3 große Tomaten oder eine Dose passierte Tomaten",
+      "15 Cashews",
+      "1 Prise Salz",
+      "Für das Paneer Butter Masala:",
+      "1 EL Butter",
+      "2 EL Öl",
+      "1 Lorbeerblatt",
+      "1 TL Salz",
+      "1 TL Chili-Paprika-Pulver",
+      "1 TL Garam Masala",
+      "1 TL Korianderpulver",
+      "1 TL Kurkuma",
+      "0.5 TL Kreuzkümmel",
+      "1 TL Steak-seasoning oder Pfeffer",
+      "3 EL Sahne",
+      "1 TL Bockshornkleeblätter"
+    ],
+    "preparation": [
+      "Öl in einer Pfanne erhitzen. Grüne Kardamomen, Nelken, Ingwer (oder die Paste) und Knoblauch fein gehackt anbraten und gut umrühren. Dann die grob geschnittenen Zwiebeln dazu geben und gläsrig köcheln.",
+      "Dann Tomaten und eine Prise Salz hinzugeben. 3 Minuten lang anbraten. Abdecken und kochen, bis die Zwiebel und Tomaten weich und breiig werden.",
+      "In einen Mixer geben und pürieren, bis kaum Stücke zu entdecken sind. Wenn es nicht glatt ist, filtern Sie es durch ein Sieb in eine andere Schüssel. Bei Bedarf noch mit einem Schuss Wasser verdünnen.",
+      "Butter und Öl in der gleichen Pfanne erhitzen und bei niedriger Stufe das Lorbeerblatt und die Gewürze dazugeben. Vorsicht, die Bockshornkleeblätter noch nicht.",
+      "Alles unter stetigem Rühren leicht anbraten.",
+      "Das gemischte Zwiebel-Tomaten-Püree einrühren. Vorsicht, falls das Öl in der Pfanne zu heiß ist, könnte es zum Spritzen kommen.",
+      "Alles gut zusammen rühren und dann abgedeckt für 5-10 Minuten auf niedriger Stufe weiter köcheln lassen. Am Ende mit Sahne abschmecken und die Bockshornkleeblätter in der Hand zerreiben und über die Masse bröseln."
+    ]
+  },
+  {
+    "title": "Rotes Thai Curry",
+    "image": "RotesThaiCurry.jpg",
+    "defaultPortions": 2,
+    "cuisine": "thailändisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "1 Tasse Reis",
+      "1.5 Tassen Wasser",
+      "50g rote Thai Curry Paste",
+      "400ml Kokosmilch",
+      "1 Brokkoli",
+      "2 Karotten",
+      "1 Zwiebel",
+      "5 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Den Reis mit dem Wasser zum Kochen bringen, ein wenig mit Salz würzen und sobald er kocht noch ca. 15 Minuten bei niedriger Temperatur köcheln lassen. Zwischendurch umrühren, damit der Reis nicht anbrennt.",
+      "Die Zwiebel und den Knoblauch in einer Pfanne mit Öl anbraten. Dann den Brokkoli und die klein geschnittenen Karotten dazugeben und noch einmal leicht anbraten. Das alles mit ein wenig Wasser ablöschen und darauf die Paste einrühren. Die Kokosmilch dazugeben und für ca. 10 Minuten köcheln lassen. Falls die Masse zu dickflüssig ist, noch ein wenig mit Wasser verdünnen."
+    ]
+  },
+  {
+    "title": "Abura Soba",
+    "image": "AburaSoba.jpg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": [],
+    "ingredients": [
+      "Soße:",
+      "1 TL Wasser",
+      "4 TL Austernsoße",
+      "4 TL Sojasoße",
+      "2 TL Mirin",
+      "2 TL Sesamöl",
+      "2 Prisen Hühnerbrühepulver",
+      "2 Knoblauchzehen",
+      "0.5 EL Sesamsamen",
+      "1 Prise gemahlener schwarzer Pfeffer",
+      "3 EL fein geschnittene Lauchzwiebeln",
+      "0.5 TL Zucker",
+      "Abura Soba Toppings:",
+      "2 Portionen Ramen Nudeln",
+      "3 EL fein geschnittene Lauchzwiebeln",
+      "1 Packung gebackener Tofu",
+      "2 Eier",
+      "1 Handvoll Bambussprossen",
+      "2 Knoblauchzehen",
+      "Mais",
+      "Röstzwiebeln"
+    ],
+    "preparation": [
+      "Mische Wasser, Austernsoße, Sojasoße, Mirin, Sesamöl in einer Schüssel. Koche die Portionen Ramennudeln nach Anleitung.",
+      "Brate Knoblauch und Frühlingszwiebeln mit Sesamsamen und schwarzen Pfeffer kurz in Öl an und gib die Mischung in der Schüssel zum kurzen Erhitzen dazu.",
+      "Gib die Mischung dann direkt in die Servierschüsseln und darauf dann die Ramen. Nun kann mit Toppings nach belieben garniert werden.",
+      "Am Ende werden die Eier getrennt und jeweils das Eigelb wird roh auf die Ramen getoppt. Das Eiweiß kann angebraten, eingerollt und auch als Topping auf den Haufen drauf.",
+      "Vor dem Essen wird alles direkt in der Schüssel noch komplett umgerührt."
+    ]
+  },
+  {
+    "title": "Paneer Bhurji",
+    "image": "PaneerBhurji.jpg",
+    "defaultPortions": 2,
+    "cuisine": "indisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "3 TL Öl",
+      "0.5 TL Kreuzkümmel",
+      "1 Zwiebel",
+      "3 Knoblauchzehen",
+      "1 TL Ingwer-Knoblauch-Paste",
+      "2 grüne Chillies",
+      "2 große Tomaten",
+      "0.25 TL Kurkuma",
+      "0.5 TL Chillipulver",
+      "0.5 TL Korianterpulver",
+      "0.5 TL Garam Masala",
+      "Salz",
+      "1 Paneer"
+    ],
+    "preparation": [
+      "Den Paneer zerbröseln und beiseite stellen. Es muss nicht fein zerbröselt werden.",
+      "Zwiebeln, Knoblauch, Tomaten und Chilischoten fein hacken. Beiseite stellen.",
+      "Erhitze das Öl einer Pfanne. Lass das Öl bei mittlerer bis niedriger Hitze heiß werden. Füge Kreuzkümmelsamen hinzu. Lass sie knistern und ihre Farbe ändern. Sobald sie gebräunt sind, füge Zwiebeln und Knoblauch hinzu.",
+      "Vermische alles gut. Wenn die Zwiebeln glasig werden, füge Ingwer-Knoblauch-Paste und gehackte Chilischoten hinzu. Einige Sekunden lang anbraten, bis der rohe Geruch von Ingwer und Knoblauch verflogen ist.",
+      "Dann die Tomaten hinzufügen und bei mittlerer bis niedriger Hitze anbraten, bis sie weich sind. Die Tomaten ein wenig salzen",
+      "Nun alle trockenen Gewürzpulver hinzufügen. Vermische die Gewürzpulver gut und brate sie 5 bis 6 Sekunden lang bei niedriger bis mittlerer Hitze an.",
+      "Fügen Sie dann den zerbröckelten Paneer hinzu. Vermischen Sie alles gründlich und lassen Sie es 1 Minute lang bei niedriger Hitze kochen. Kochen Sie den Paneer nicht zu lange, da er sonst hart wird und seine Weichheit verliert.",
+      "Serviere den Paneer Bhurji heiß mit geröstetem Brot oder Reis."
+    ]
+  },
+  {
+    "title": "Okonomiyaki",
+    "image": "Okonomiyaki.jpg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Tasse Weizenmehl",
+      "2 Tassen Weißkohl, fein gehackt",
+      "0.75 Tasse Wasser oder Dashi-Brühe für mehr Geschmack",
+      "2 große Eier",
+      "3 Knoblauchzehen",
+      "0.5 Tasse fein geschnittene Frühlingszwiebeln",
+      "Okonomiyaki-Sauce",
+      "Japanische Mayonnaise",
+      "Bonitoflocken (optional)",
+      "Salz und Pfeffer nach Geschmack",
+      "Öl zum Braten"
+    ],
+    "preparation": [
+      "In einer großen Schüssel das Mehl mit Wasser oder Dashi-Brühe verrühren, bis ein glatter Teig entsteht. Eier, eine Prise Salz, Pfeffer und gehackten Knoblauch hinzufügen und gut vermischen.",
+      "Den gehackten Weißkohl und die Frühlingszwiebeln unter den Teig mischen, bis alles gleichmäßig verteilt ist.",
+      "Eine große Pfanne oder einen flachen Grill bei mittlerer Hitze erhitzen und leicht ölen. Für jedes Okonomiyaki etwa eine Tasse der Mischung in die Pfanne geben und zu einem runden Pfannkuchen formen.",
+      "Das Okonomiyaki bei mittlerer Hitze etwa 4-5 Minuten braten, bis die Unterseite goldbraun und knusprig ist. Vorsichtig wenden und die andere Seite weitere 4-5 Minuten braten, bis auch diese goldbraun ist.",
+      "Das fertige Okonomiyaki auf einen Teller geben und mit Okonomiyaki-Sauce und japanischer Mayonnaise beträufeln. Mit Bonitoflocken bestreuen und sofort servieren."
+    ]
+  },
+  {
+    "title": "Japanisches Udon-Curry",
+    "image": "JapanischesUdonCurry.jpg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "2 Packungen Udon",
+      "100g Japanese Golden Curry",
+      "1.5 Tassen Wasser",
+      "1 Zwiebel",
+      "5 Knoblauchzehen",
+      "1 Packung dm-Sonnenblumenhack",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Das Sonnenblumenhack nach Packungsanleitung in einer Schüssel Wasser ziehen lassen. Zwiebeln und Knoblauch schälen und klein schneiden. Mit wenig Öl alles nacheinander im Topf anschwitzen. Danach das Sonnenblumenhack anbraten.",
+      "Mit Wasser alles ablöschen und das 'Golden Curry' dazu geben, dann die Hitze klein stellen und dabei alles einrühren. Mit etwas Salz und Pfeffer abschmecken.",
+      "Die Udon nach Packungsanleitung kochen und dann mit dem gut angebratenen Hack zum Curry geben. いただきます!"
+    ]
+  },
+  {
+    "title": "Char Koay Teow",
+    "image": "CharKoayTeow.jpg",
+    "defaultPortions": 2,
+    "cuisine": "malaiisch",
+    "tags": [],
+    "ingredients": [
+      "300g flache Reisnudeln",
+      "8 Stück Medium Garnelen",
+      "0.5 Becher Sprossen",
+      "4 Stängel Thai Schnittlauch",
+      "2 Eier",
+      "4 Knoblauchzehen",
+      "4 rote Chillies",
+      "Soße für Stir Frying:",
+      "1 EL Austernsoße",
+      "1 TL Zucker",
+      "1 EL Fischsoße",
+      "1 EL dunkle Sojasoße",
+      "0.25 TL weißer Pfeffer",
+      "2 EL helle Sojasoße",
+      "Erdnüsse"
+    ],
+    "preparation": [
+      "Bereite alle Zutaten vor, bevor der Herd eingeschaltet wird. Reisnudeln in Wasser einlegen und alles schneiden. Höchstens immer eine Portion für 2 auf einmal anbraten.",
+      "Geben Sie etwas Öl in den Wok. Gehackten Knoblauch und Garnelen bei starker Hitze hinzufügen und unter Rühren braten, bis es duftet (bis 10 zählen).",
+      "Hitze reduzieren und Reisnudeln sowie vorbereitete Soße hinzufügen. Im Zickzack rühren und 3 bis 5 Mal langsam unter Rühren braten, um die Nudeln zu garen.",
+      "Nudeln zur Seite schieben, Ei aufschlagen und Eiweiß stocken lassen.",
+      "Schnittlauch und Sojasprossen hinzufügen. Im Zickzack braten, bis alles trocken ist und duftet.",
+      "Anrichten mit gehackten Erdnüssen und heiß servieren. Eine Prise Pfeffer macht einen großen Unterschied ~ Pearly, George Town."
+    ]
+  },
+  {
+    "title": "Curry Kapitan",
+    "image": "CurryKapitan.jpg",
+    "defaultPortions": 2,
+    "cuisine": "malaiisch",
+    "tags": [],
+    "ingredients": [
+      "1000g Hähnchenbrust",
+      "Wasser, um das Hähnchen zu kochen",
+      "3 EL Öl",
+      "150g fein gehackte Zwiebel",
+      "90g Kokoscreme",
+      "3 EL Limettensaft",
+      "0.5 EL Salz",
+      "1 EL Zucker",
+      "Zutaten Curry Paste:",
+      "3 Stängel Zitronengras",
+      "3 Macadamia",
+      "45g rote Chillies, entkernt und in Stücke geschnitten",
+      "25g frischer Kurkuma, gewaschen und geschnitten",
+      "35g Galangal, sehr fein geschnitten",
+      "15g Knoblauch",
+      "3 getrocknete Chillies"
+    ],
+    "preparation": [
+      "Zuerst die Zutaten für die Currypaste vorbereiten. Alle geschnittenen Zutaten und Wasser (1/3 der Höhe) in einen Zerkleinerer geben. Alle Zutaten fein zerkleinern.",
+      "Die Currypaste in einer Pfanne bei mittlerer Hitze trocken anbraten. Die Hitze reduzieren und 2 bis 3 EL Speiseöl hinzufügen, bis es aromatisch duftet.",
+      "Die Hähnchenstücke mit der Hautseite nach unten hinzufügen und 1 Minute lang anbraten. Nach 1 Minute die Hautseite wenden und erneut anbraten.",
+      "Wasser hinzufügen, bis das Hähnchenfleisch bedeckt ist. Auf hohe Hitze stellen, bis es kocht. 1 Minute lang kochen lassen, dann die Hitze reduzieren. Das Hähnchenfleisch 10 Minuten lang köcheln lassen.",
+      "Den Deckel öffnen, damit das Wasser verdampft, bis 1/3 des Hähnchenfleisches sichtbar ist.",
+      "Füge Zwiebeln, Zucker, Salz, Limettensaft und zuletzt Kokoscreme hinzufügen und 1 Minute lang kochen lassen. Die Gewürze überprüfen. Die Hitze ausschalten.",
+      "Hinweis: Kann 1 Tag im Voraus zubereitet werden, ohne die letzten 5 Zutaten. Diese beim Aufwärmen am nächsten Tag hinzufügen. Außerdem sollen die frischen Zutaten für 10 min in Wasser eingelegt werden, so werden sie wieder frischer ~ Pearly Kee."
+    ]
+  },
+  {
+    "title": "Thunfisch-Onigiri",
+    "image": "Onigiri.jpg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": [],
+    "ingredients": [
+      "Für die Füllung:",
+      "180g Thunfisch",
+      "2 El Mayonnaise",
+      "1 Zwiebel",
+      "2 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Onigiri:",
+      "2 kleine Tassen Sushireis",
+      "6 große Nori Blätter",
+      "1 El Mirin",
+      "Wasser",
+      "Sojasoße"
+    ],
+    "preparation": [
+      "Als erstes den Reis sehr gut waschen bis das Wasser beim waschen nicht mehr trüb wird. Das kann bis zu 7-8 Waschgänge dauern.",
+      "Danach den Reis wie auf der Verpackung beschrieben (meistens mit einem Verhältnis von 1 zu 1,5) kochen. Ich füge gerne noch einen Schuss Sojasoße zum kochen hinzu.",
+      "Währenddessen den Thunfisch mit einer Gabel zerkleinern, die Mayonaisse und die klein geschnittene Zwiebel/Knoblauch zusammen mischen und gut würzen.",
+      "Wenn der Reis fertig gekocht ist, Mirin dazugeben und ordentlich umrühren und dann den Reis noch mal 5 Minuten zugedeckt stehen lassen.",
+      "Am Ende muss man nur noch die Onigiri formen, die Füllung in die Mitte machen und mit den kleiner geschnittenen Nori-Blättern umhüllen.",
+      "Es gibt extra Onigiri-Formen, aber man kann es auch mit den Händen machen. Immer die Hände nass machen, wenn mach den Reis berühren muss!"
+    ]
+  },
+  {
+    "title": "SoToTa",
+    "image": "SoToTa.jpg",
+    "defaultPortions": 2,
+    "cuisine": "thailändisch",
+    "tags": [],
+    "ingredients": [
+      "Für die Soße:",
+      "1 EL Sojasoße",
+      "1 El dunkle Sojasoße",
+      "1 EL Fischsoße",
+      "1 EL etwas Süßes wie Honig/Ahornsirup",
+      "1 EL Austernsoße",
+      "1 EL Tomatenmark",
+      "0.5 EL Tamarind Soße",
+      "1 El Sesamöl",
+      "Zum anbraten:",
+      "4 Eier",
+      "1 Bündel Lauchzwiebeln",
+      "1 Dose Edamame",
+      "1 Karotte",
+      "2 Chillis",
+      "7 Knoblauchzehen",
+      "2 Becher Reis",
+      "1 Packung Veggie Hack",
+      "1 EL Gemüsebrühe",
+      "Limettensaft",
+      "Sesam",
+      "Pfeffer",
+      "Paprikapulver"
+    ],
+    "preparation": [
+      "Reis waschen und kochen.",
+      "Lauchzwiebeln und Chillis schneiden. Den grünen Teil der Lauchzwiebel beiseite legen und den restlichen Teil mit den Chilis in Sesamöl anbraten.",
+      "Veggie Hack mit Gemüsebrühe quellen lassen und ebenfalls anbraten. Mit Paprikapulver und Pfeffer würzen.",
+      "Den Knoblauch klein hacken und mit anbraten",
+      "Karotten in dünne Streifen schneiden und zusammen mit den Edamame dazu geben.",
+      "Eine kleine Kuhle in der Mitte der Pfanne machen und dort die Eier anbraten",
+      "Den Tomatenmark dazugeben, alles ordentlich mischen und dann mit den gesamten Soßen ablöschen",
+      "Ordentlich umrühren und alles für ein paar Minuten kochen lassen.",
+      "Am Ende mit Limettensaft und Pfeffer abschmecken und etwas Sesam zugeben.",
+      "Tipp: Eier können auch als Spiegeleier gemacht werden und am Ende einfach oben drauf gegeben!",
+      "PS: Der Name ist eine Eigenkreation aus Soja, Tomatenmark und Tamago (卵), was Ei auf Japanisch bedeutet."
+    ]
+  },
+  {
+    "title": "Austernpilz-Onigiri",
+    "image": "AusternpilzOnigiri.jpeg",
+    "defaultPortions": 2,
+    "cuisine": "japanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Für die Füllung:",
+      "200 g Austernpilze",
+      "2 El Mayonnaise",
+      "1 kleine Zwiebel",
+      "2 Knoblauchzehen",
+      "1 Prise Salz",
+      "1 TL Pfeffer",
+      "1 TL geräucherte Paprika",
+      "1 TL Knoblauchpulver",
+      "0.5 TL Kreuzkümmel",
+      "2 EL Olivenöl",
+      "Onigiri:",
+      "2 kleine Tassen Sushireis",
+      "1 El Mirin",
+      "Wasser",
+      "Für das Anbraten:",
+      "2 EL helle Sojasoße",
+      "1 EL Mirin",
+      "2 EL LEE KUM KEE Pilzesoße"
+    ],
+    "preparation": [
+      "Als erstes den Reis sehr gut waschen bis das Wasser beim waschen nicht mehr trüb wird. Das kann bis zu 7-8 Waschgänge dauern.",
+      "Danach den Reis wie auf der Verpackung beschrieben (meistens mit einem Verhältnis von 1 zu 1,5) kochen.",
+      "Währenddessen die Austernpilze in kleine Teile rupfen. Zwiebel und Knoblauch klein schneiden und mit Gewürzen, sowie Olivenöl in die Austerpilze mischen.",
+      "Die marinierten Austerpilze nun auf einem Backblech verteilen und bei 180 Grad Heißluft 10 bis 15 min im Ofen gold braun braten.",
+      "Wenn die Austernpilze fertig sind, mit der Mayonaisse vermischen.",
+      "Wenn der Reis fertig gekocht ist, Mirin dazugeben und ordentlich umrühren und dann den Reis noch mal mind. 5 Minuten zugedeckt stehen lassen.",
+      "Am Ende muss man nur noch die Onigiri formen und die Füllung in die Mitte machen.",
+      "Es gibt extra Onigiri-Formen, aber man kann es auch mit den Händen machen. Immer die Hände nass machen, wenn mach den Reis berühren muss!",
+      "Alle Zutaten für das Anbraten vermengen und die geformten Onigiri beidseitig bestreichen und anbraten. Fertig ist die Umami-Bombe!"
+    ]
+  },
+  {
+    "title": "Gnocchi Tomatensoße",
+    "image": "GnocchiTomatensoße.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "500g Kartoffeln (am besten mehlige)",
+      "250g Mehl",
+      "50g Hartweizengrieß",
+      "Salz",
+      "Muskatnuss",
+      "1 Zwiebel",
+      "1 Dose passierte Tomaten",
+      "3 Knoblauchzehen",
+      "Tomatenmark",
+      "Parmesan (optional)",
+      "Oregano",
+      "Thymian",
+      "Basilikum",
+      "Pfeffer",
+      "etwas Öl"
+    ],
+    "preparation": [
+      "Die Kartoffeln für etwa 20-25 Minuten mit viel Salz in einem Topf weich kochen.",
+      "Währenddessen die Zwiebeln und den klein geschnittenen Knoblauch in einer Pfanne anbraten, die Hitze danach reduzieren und die Tomaten dazu geben. Das Ganze köcheln lassen und mit allen oben genannten Gewürzen abschmecken. Mit dem Tomatenmark etwas andicken.",
+      "Die Kartoffeln in kaltem Wasser kurz abkühlen lassen und dann die Schale abmachen. Danach die Kartoffeln klein quetschen und mit den restlichen Zutaten in einer Schüssel verkneten, bis ein glatter Teig entsteht. Sollte der Teig etwas zu klebrig sein, noch etwas Mehl hinzufügen und zu einer Kugel formen.",
+      "Den fertigen Teig in dicke Nudeln rollen und diese dann in kleine Teile zerteilen. Dabei können die Teile geformt werden, wie man will. Diese dann in einem Topf mit etwas Salz nochmal kochen, bis diese an der Oberfläche schwimmen.",
+      "Die gekochten Gnocchi in die Soße geben und noch einmal gut unterrühren. Das fertige Essen noch mit Parmesan verfeinern und servieren."
+    ]
+  },
+  {
+    "title": "Griechische Pfanne",
+    "image": "GriechischePfanne.jpg",
+    "defaultPortions": 2,
+    "cuisine": "griechisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1kg Kartoffeln",
+      "2 Paprikas",
+      "200g Feta",
+      "1 Zwiebel",
+      "4 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Öl"
+    ],
+    "preparation": [
+      "Einen großen Topf mit Wasser füllen und mit viel Salz zum Kochen bringen. Die geschälten und klein geschnittenen Kartoffeln dazugeben und für ca. 10-15 Minuten kochen lassen. Wichtig ist, dass diese nicht zu weich werden, weil sie sonst später in der Pfanne matschig werden.",
+      "Die in Scheiben geschnittene Zwiebel und den klein gehackten Knoblauch mit Öl in der Pfanne anbraten. Die klein geschnittenen Paprikas dazugeben und anbraten lassen. Danach die gekochten Kartoffeln dazugeben und vermengen. Zum Schluss noch den Fetakäse einrühren und schmelzen lassen und dabei alles mit Salz, Pfeffer und Thymian würzen."
+    ]
+  },
+  {
+    "title": "Kartoffelbrei mit Ei",
+    "image": "KartoffelbreiMitEi.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1kg Kartoffeln",
+      "6 Eier",
+      "150ml Milch",
+      "100g Butter",
+      "Salz",
+      "Pfeffer",
+      "Muskatnuss",
+      "Öl"
+    ],
+    "preparation": [
+      "Die Kartoffeln schälen und klein schneiden. Einen Topf mit Wasser und viel Salz zum Kochen bringen. Die Kartoffeln in den Topf geben und für 10-15 Minuten kochen lassen.",
+      "Während die Kartoffeln kochen, die Eier in eine Schüssel geben und mit Salz und Pfeffer gut würzen. Öl in eine Pfanne geben und die Eier in der Pfanne zu Rührei anbraten.",
+      "Wenn die Kartoffeln gekocht sind, mit der Butter und der Milch in eine Schüssel geben und alles zerpressen. Den Kartoffelbrei mit Pfeffer und Muskatnuss abschmecken und mit dem Rührei servieren."
+    ]
+  },
+  {
+    "title": "Gnocchi mit Basilikumpesto",
+    "image": "GnocciBasilikumPesto.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [],
+    "ingredients": [
+      "500g Kartoffeln (am besten mehlige)",
+      "250g Mehl",
+      "50g Hartweizengrieß",
+      "100g Parmesan",
+      "1 Bund Basilikum",
+      "25g Pinienkerne",
+      "Olivenöl",
+      "3 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Muskat"
+    ],
+    "preparation": [
+      "Die Kartoffeln für etwa 20-25 Minuten mit viel Salz in einem Topf weich kochen.",
+      "Währenddessen Parmesan, Basilikum, Pinienkerne und Knoblauch mit einem Stabmixer pürieren und mit etwas Olivenöl und Wasser zu einer dicken Konsistenz bringen.",
+      "Die Kartoffeln in kaltem Wasser kurz abkühlen lassen und dann die Schale abmachen. Danach die Kartoffeln klein quetschen und mit den restlichen Zutaten in einer Schüssel verkneten, bis ein glatter Teig entsteht. Sollte der Teig etwas zu klebrig sein, noch etwas Mehl hinzufügen und zu einer Kugel formen.",
+      "Den fertigen Teig in dicke Nudeln rollen und diese dann in kleine Teile zerteilen. Dabei können die Teile geformt werden, wie man will. Diese dann in einem Topf mit etwas Salz nochmal kochen, bis diese an der Oberfläche schwimmen.",
+      "Die gekochten Gnocchi in der Pfanne noch einmal kurz anbraten und bei bedarf noch geschnittene Zwiebeln oder Tomaten dazugeben-",
+      "Am Ende das Pesto dazu geben und langsam mit Wasser verflüssigen bis zur gewünschten Konsistenz."
+    ]
+  },
+  {
+    "title": "Tortilla",
+    "image": "Tortilla.jpg",
+    "defaultPortions": 3,
+    "cuisine": "mexikanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1.2 kg Kartoffeln (vorwiegend festkochend",
+      "2 Zwiebeln",
+      "6 Eier",
+      "Salz",
+      "Sonnenblumenöl",
+      "Olivenöl"
+    ],
+    "preparation": [
+      "Die Kartoffeln und Zwiebeln schälen und in sehr dünne Scheiben schneiden.",
+      "Die Eier kurz verquirlen und einen halben Teelöffel Salz unterrühren.",
+      "Nun die Kartoffel-Zwiebel Mischung in die Eier rühren.",
+      "Olivenöl in eine Pfanne geben, erhitzen und die Mischung hineingießen.",
+      "Bei kleiner bis mittlerer Temperatur alles circa 12 Minuten braten lassen. Wenn die Tortilla beginnt von außen nach innen fest zu werden, einen ausreichend großen Teller auf die Pfanne legen und die Tortilla stürzen, bzw. wenden und vorsichtig umgekehrt wieder in die Pfanne gleiten lassen und weitere 5 bis 6 Minuten braten.",
+      "Die fertige spanische Tortilla aus der Pfanne auf einen Teller gleiten lassen."
+    ]
+  },
+  {
+    "title": "Schnitzel",
+    "image": "Schnitzel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "2 Veggie-Schnitzel",
+      "1 kleine Dose Erbsen",
+      "2 Handvoll Kartoffeln",
+      "Salz",
+      "Pfeffer",
+      "Öl",
+      "Preiselbeeren"
+    ],
+    "preparation": [
+      "Einen Topf mit Salzwasser zum kochen bringen. Das Wasser muss nach Ostseewasser schmecken!",
+      "Die Kartoffeln schälen und wenn man möchte noch klein schneiden. Wenn man kleinere Stücke nimmt ca. 15 Minuten kochen, bei großen ca. 25 Minuten.",
+      "Die Veggie-Schnitzel in etwas Öl bei mittlerer Hitze von beiden Seiten braun anbraten und am Ende mit etwas Salz und Pfeffer würzen.",
+      "Die Erbsen einfach bei mittlerer Hitze kurz in einem kleinen Topf anbraten und diese auch ein wenig salzen.",
+      "Wenn alles fertig ist, kann man das Essen bei Bedarf noch mit ein wenig Preiselbeeren verfeinern."
+    ]
+  },
+  {
+    "title": "Kürbissuppe",
+    "image": "Kürbissuppe.jpg",
+    "defaultPortions": 4,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Hokkaido Kürbis",
+      "4 mittelgroße Kartoffeln",
+      "2 Karotten",
+      "2 EL Frischkäse",
+      "2 Zwiebeln",
+      "3 Knoblauchzehen",
+      "250 ml Wasser",
+      "Salz",
+      "Peffer",
+      "Curry",
+      "Muskat"
+    ],
+    "preparation": [
+      "Die Kerne und Fäden aus dem Hokkaido Kürbis entfernen. Kürbis mit Schale, Kartoffeln und Karotten klein schneiden.",
+      "Zwiebeln und Knoblauch anbraten und kleingeschnittenes Gemüse hinzugeben und anbraten lassen.",
+      "Mit Wasser ablöschen und Angebratenes vom Boden kratzen für die Röstaromen.",
+      "Alles Pürieren und so viel Wasser zugeben bis gewünschte Konsistenz erreicht ist.",
+      "Die Suppe würzen und Frischkäse zugeben."
+    ]
+  },
+  {
+    "title": "Pancakes",
+    "image": "Pancakes.jpg",
+    "defaultPortions": 2,
+    "cuisine": "amerikanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "150g Mehl",
+      "1 El Zucker",
+      "1 Tl Backpulver",
+      "2 Eier",
+      "Salz",
+      "150 ml Milch"
+    ],
+    "preparation": [
+      "Mehl, Zucker, Backpulver, Eier, Salz und Milch in einer Schüssel vermengen.",
+      "Jetzt ein wenig Öl in einer Pfanne erhitzen. Dann den Pfannkuchenteig portionsweise (etwa 2 - 3 Esslöffel reichen)\n  hineingeben und zu einem großen, drei Zentimeter dicken Kreis formen.",
+      "Bei mittlerer Hitzestufe wird der Teig nun so lange gebraten, bis die untere Seite golden und braun ist.",
+      "Anschließend ein Mal wenden, bis er goldbraun gebraten ist.",
+      "Servieren mit z.B. Nutella, Puderzucker"
+    ]
+  },
+  {
+    "title": "Milchreis (kalorienarm)",
+    "image": "Milchreis.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients":[
+      "200 g Milchreis/Risottoreis",
+      "750 ml Milch",
+      "6 EL Erythrit",
+      "Salz"
+    ],
+    "preparation": [
+      "Die Milch in einen Topf erhitzen bis sie anfängt zu schäumen.",
+      "Währenddessen den Reis gut waschen und Beiseitestellen.",
+      "Wenn die Milch anfängt zu schäumen, den Herd auf niedrige Hitze stellen und den Reis einmischen.",
+      "Immer Mal den Reis umrühren und das ganze für 20-30 Minuten kochen lassen.",
+      "Am Ende den Milchreis mit Erythrit süßen und eine Prise Salz untermischen."
+    ]
+  },
+  {
+    "title": "Baozi 包子",
+    "image": "Baozi.jpg",
+    "defaultPortions": 2,
+    "cuisine": "chinesisch",
+    "tags": ["vegetarisch"],
+    "ingredients":[
+      "Für den Teig:",
+      "300 g Mehl",
+      "150 ml Wasser",
+      "6 g Hefe",
+      "0.5 TL Salz",
+      "2 TL Zucker",
+      "Für die Füllung:",
+      "Nutella || Red Bean Paste || Marmelade"
+    ],
+    "preparation": [
+      "Für den Teig in einer Schüssel Mehl, Salz, Hefe und Zucker vermengen.",
+      "Mit Wasser verrühren, zu den trockenen Zutaten geben und mit der Hand auf der Arbeitsfläche oder der Küchenmaschine mit Teighaken 10 Minuten zu einem sehr glatten, weichen, aber nicht klebrigen Teig verkneten.",
+      "Teig zu gleich großen Kugeln (28 g pro Kugel) formen, mit einem feuchten Tuch abdecken und an einem warmen Ort 45-90 Minuten gehen lassen, bis sich das Volumen in etwa verdoppelt hat.",
+      "Den Teig über Nacht in den Kühlschrank stellen.",
+      "Nacheinander ausrollen, dabei die Teigkugeln, die gerade nicht bearbeitet werden unter einem feuchten Tuch lagern, damit sie nicht austrocknen.",
+      "Dazu Teiglinge auf einer gut bemehlten Arbeitsfläche leicht flach drücken. Mit einer Hand mit einem Nudelholz vorsichtig von außen nach innen und wieder zurück rollen, mit der anderen Hand anschließend drehen. Der Teig sollte innen dicker sein als außen.",
+      "Wiederholen, bis die Wrapper auf etwa 10 cm Durchmesser ausgerollt sind.",
+      "Je Teigling etwa 2 EL Füllung in die Mitte geben und rundherum einfalten (siehe dazu Videos in Youtube)",
+      "Baozi auf kleine Backpapierstücke legen und in Dämpfkörben verteilen. Dabei etwa 1 cm Platz zwischen jedem Dumpling lassen.",
+      "Kaltes Wasser in den Topf geben, Dämpfer platzieren und aufkochen. Sobald das Wasser kocht, Timer auf 15 Minuten stellen.",
+      "Baozi anschließend schmausen, Mànmàn chī - 慢慢吃!"
+    ]
+  },
+  {
+    "title": "Bananenbrot",
+    "image": "Bananenbrot.jpg",
+    "defaultPortions": 4,
+    "tags": ["vegetarisch"],
+    "cuisine": "deutsch",
+    "ingredients": [
+      "2 überreife Bananen",
+      "60 g Butter",
+      "100 g Zucker",
+      "1 Pck. Vanillezucker",
+      "2 Eier",
+      "80 ml Jogurt",
+      "200g Weizenmehl",
+      "1 TL Natron",
+      "1 Prise Salz"
+    ],
+    "preparation": [
+      "Den Backofen auf 175 °C Ober-/Unterhitze vorheizen. Eine Kastenform fetten und mit Mehl bestäuben.",
+      "Die Bananen fein stampfen, sodass daraus ein Püree entsteht.",
+      "Zucker, Butter, Vanillezucker, Eier, Jogurt, Mehl, Natron und Salz dazugeben und mit Schneebesen umrühren bis fast keine Klumpen mehr zu sehen sind.",
+      "Die Teigmasse in die Kastenform füllen und ca. 1 Stunde auf mittlerer Schiene backen. Am besten nach 50 Minuten die erste Stäbchenprobe machen. Den Kuchen nach dem Backen etwa 10 Minuten in der Form kühlen lassen."
+    ]
+  },
+  {
+    "title": "Mango Sticky Rice ~ khao niew mamuang",
+    "image": "MangoStickyRice.jpeg",
+    "defaultPortions": 4,
+    "cuisine": "thailändisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250 g Klebereis",
+      "250 ml Kokosnusscream",
+      "60 g Palmzucker oder Zucker",
+      "1 TL Salz",
+      "2 große, reife und süße Mangos",
+      "1 TL Sesam"
+    ],
+    "preparation": [
+      "Lege den Reis über Nacht in Wasser ein. Wenn man es eilig hat, dann den Reis für 40 min im heißem Wasser einlegen.)",
+      "Gieße das Wasser ab und wasche den Reis gründlich.",
+      "Lege den löchrigen Einsatz des Reissteamers mit einem Tuch aus und gib den Reis hinein.",
+      "Stelle den Reiskocher auf Modus 'Steam' bzw. erhitze das Wasser und dünste den Reis bei mittlerer Hitze für 30 min.",
+      "Wenn der Reis fertig ist, sollte die Konsistenz klebrig sein, sodass man den Reis zu einem Ball rollen kann.",
+      "Während der Reis gesteamed wird, erhitze die Kokosnusscream, Salz und den Zucker langsam und rühre alle konstant. (zu stark erhitze Kokusnusscream gerinnt.)",
+      "Lasse das Ganze kochen bis sich der Zucker auflöst.",
+      "Den heißen Reis in eine große Schüssel geben und die Kokosnusscream-Mischung einrühren (etwas Kokosnusscream fürs Servieren aufheben). Rühre mit einem Löffel, um sicher zu gehen, dass alle Körner gut bedeckt sind.",
+      "Lass den Reis bedeckt für 20 bis 30 min stehen bzw. bis die Kokosnusscream-Mischung vollständig aufgesaugt wurde. (Dabei sollte der Reis nicht zu breiig werden.)",
+      "Der Sticky Rice kann grundsätzlich 2 h vorher gemacht werden und darf bei Raumtemperatur stehen gelassen werden.",
+      "Kurz vorm Servieren, können die Mangos vorbereitet werden. Jeder hat seine Wege, also lasst euerer Kreativität freien Lauf! Ein üblicher Weg den Kern zu entfernen ist, die Mango entlang des Kerns auf beiden langen Seiten aufzuschneiden.",
+      "Serviere alles bei Raumtemperatur. Gieße noch etwas der Kokosnusscream-Soße über den Sticky Rice und bestreue alles mit Sesam. Richte die Mangostücke um den Reis an.",
+      "Der fertige Mango Sticky Rice kann bei Raumtemperatur für 6 bis 8 h bedeckt stehen gelassen werden."
+
+    ]
+  },
+  {
+    "title": "Camembert Sahne Soße",
+    "image": "CamembertSahneSoße.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250g Nudeln",
+      "200ml Sahne",
+      "1 Camembert",
+      "1 Zwiebel",
+      "Salz",
+      "Pfeffer",
+      "Muskatnuss",
+      "Öl"
+    ],
+    "preparation": [
+      "Die Nudeln mit einem Esslöffel Salz zum Kochen bringen und für ca. 10 Minuten kochen lassen.",
+      "Die klein geschnittene Zwiebel in einer Pfanne mit Öl anbraten. Danach die Sahne dazugeben und diese noch ein wenig aufkochen lassen. Den Camembert in kleine Teile schneiden und in die Soße einrühren, bis dieser sich fast komplett aufgelöst hat. Am Ende die Soße noch mit Salz, Pfeffer und Muskatnuss abschmecken und die gekochten Nudeln dazugeben."
+    ]
+  },
+  {
+    "title": "Feta Nudeln",
+    "image": "FetaNudeln.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250g Nudeln",
+      "200g Feta oder Hirtenkäse",
+      "1 Dose passierte Tomaten",
+      "1 Zwiebel",
+      "3 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Oregano",
+      "Basilikum",
+      "Öl"
+    ],
+    "preparation": [
+      "Einen Topf mit Wasser und einem Esslöffel Salz zum Kochen bringen und dann die Nudeln für ca. 10 Minuten kochen lassen.",
+      "Die klein geschnittene Zwiebel mit ein wenig Öl in einer Pfanne anbraten und dann den klein geschnittenen Knoblauch dazugeben. Darauf alles mit den passierten Tomaten ablöschen und den Herd ein wenig runterstellen. Den Käse dazu mischen und schmelzen lassen. Falls die Konsistenz noch zu dickflüssig ist, ein wenig Nudelwasser dazu geben. Am Ende mit Salz, Pfeffer, Oregano und Basilikum abschmecken und die Nudeln in die Soße geben."
+    ]
+  },
+  {
+    "title": "Mühlenhack Nudeln",
+    "image": "Muehlenhack.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250g Nudeln",
+      "200ml Schlagsahne",
+      "180g Veganes Mühlenhack",
+      "1 Zwiebel",
+      "3 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Einen Topf mit Wasser und einem Esslöffel Salz zum Kochen bringen und dann die Nudeln für ca. 10 Minuten kochen lassen.",
+      "Die klein geschnittene Zwiebel mit ein wenig Öl in einer Pfanne anbraten und dann den klein geschnittenen Knoblauch und das Mühlenhack dazugeben. Wenn alles gut angebraten ist, mit der Sahne ablöschen und mit Salz und Pfeffer abschmecken. Am Ende die gekochten Nudeln noch in die Soße mischen."
+    ]
+  },
+  {
+    "title": "Pilz Sahne Nudeln",
+    "image": "PilzSahneSoße.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250g Nudeln",
+      "200ml Schlagsahne",
+      "200g Pilze",
+      "1 Zwiebel",
+      "2 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Einen Topf mit Wasser und einem Esslöffel Salz zum Kochen bringen und dann die Nudeln für ca. 10 Minuten kochen lassen.",
+      "Die klein geschnittene Zwiebel mit ein wenig Öl in einer Pfanne anbraten und dann den klein geschnittenen Knoblauch und die in Scheiben geschnittenen Pilze dazugeben. Alles gut anbraten lassen und dann mit der Sahne ablöschen. Mit Salz und Pfeffer würzen und bei Bedarf mit ein wenig Mehl andicken. Am Ende die gekochten Nudeln unter die Soße mischen."
+    ]
+  },
+  {
+    "title": "Spinat Lasagne",
+    "image": "Spinatlasagne.jpg",
+    "defaultPortions": 4,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "450g Spinat",
+      "300g Frischkäse",
+      "200g Sahne",
+      "2 Zwiebeln",
+      "250g Krümmelkäse",
+      "12 Lasagneblätter",
+      "Parmesan",
+      "Muskat",
+      "Salz",
+      "Pfeffer",
+      "Öl"
+    ],
+    "preparation": [
+      "Die Zwiebeln mit etwas Öl in einer Pfanne anbraten, die Hitze wieder reduzieren und den Spinat dazugeben. Das Ganze mit der Sahne und danach mit dem Frischkäse ablöschen und gut umrühren. Am Ende die ganze Soße mit den oben genannten Gewürzen abschmecken.",
+      "Nun die Soße, Parmesan und die Lasagneblätter in ca. 3-4 Schichten in einer Auflaufform aufschichten und am Ende den Käse darüber geben.",
+      "Die Spinatlasagne im vorgeheizten Ofen bei 180 Grad Umluft oder 200 Grad Ober- und Unterhitze für 30-40 Minuten backen lassen."
+    ]
+  },
+  {
+    "title": "Spinatnudeln",
+    "image": "Spinatnudeln.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "250g Nudeln",
+      "400g Spinat",
+      "1 Zwiebel",
+      "200ml Schlagsahne",
+      "Salz",
+      "Pfeffer",
+      "Muskatnuss"
+    ],
+    "preparation": [
+      "Die Nudeln mit einem Esslöffel Salz für ca. 10 Minuten kochen lassen.",
+      "Den Spinat in einem Topf auftauen lassen und sobald dieser flüssig ist, die klein geschnittene Zwiebel dazugeben und mit der Sahne andicken und noch einmal aufkochen lassen.",
+      "Die Soße mit Salz, Pfeffer und Muskatnuss würzen und danach die Nudeln zu der Soße geben."
+    ]
+  },
+  {
+    "title": "Tomatenrisotto",
+    "image": "Tomatenrisotto.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "150g Risottoreis",
+      "3 große Tomaten",
+      "1 kleine Zwiebel",
+      "4 Knoblauchzehen",
+      "100ml Rotwein",
+      "400ml Gemüsebrühe",
+      "1 EL Tomatenmark",
+      "Parmesan (optional)",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Oregano",
+      "Basilikum",
+      "Öl"
+    ],
+    "preparation": [
+      "Als erstes den Reis ordentlich waschen und dann kurz beiseite Stellen.",
+      "Zwiebel und Knoblauch fein hacken und in einer Pfanne mit Öl anbraten.",
+      "Nach ca. 3 Minuten den gewaschenen Reis dazu geben und noch einmal kurz anbraten.",
+      "Dabei die Tomaten klein schneiden und dann in die Pfanne dazu geben.",
+      "Danach wird alles mit dem Rotwein abgelöscht und man lässt es soweit reduzieren, bis fast keine Flüßigkeit mehr vorhanden ist.",
+      "Jetzt den Tomatenmark dazu geben und unterrühren.",
+      "Darauf wird das ganze mit der Gemüsebrühe abgelöscht. Wenn man es sich schneller machen möchte, kann man die Gemüsebrühe vorher schon heiß machen.",
+      "Das ganze muss jetzt für ca. 15-20 Minuten kochen und dabei sollte man immer mal umrühren",
+      "Am Ende das Risotto noch mit Parmesan andicken und mit den Gewürzen abschmecken."
+    ]
+  },
+  {
+    "title": "Grillgemüse Pasta",
+    "image": "GrillgemüsePasta.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "250g Nudeln",
+      "1 Zwiebeln",
+      "1 Knoblauchknolle",
+      "3 große Tomaten",
+      "1 Paprika",
+      "Oregano",
+      "Parmesan (optional)",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Basilikum",
+      "Öl"
+    ],
+    "preparation": [
+      "Backofen auf 180 Grad Heißluft vorheizen.",
+      "Die Nudeln kochen.",
+      "Den Kopf der Knoblauchknolle abschneiden und ihn mit der offen Seite nach oben auf ein Backblech legen",
+      "Die Tomaten, Zwiebeln und die Paprika grob schneiden und um den Knoblauch drum herum legen.",
+      "Alles gut mit Öl bestreichen. Der ungeschälte Knoblauch muss sehr feucht mit Öl sein.",
+      "30 min im Ofen dunkelbraun bis fast schwarz backen.",
+      "Danach quetscht man die Knoblauchknolle aus (Vorsichtig der Knoblauch ist sehr heiß) und gibt sie mit dem anderen Gemüse in einen Mixer.",
+      "Nach dem Pürieren gibt man etwas Nudelwasser hinzu bis die gewünschte Konsistenz erreicht ist.",
+      "Die Mischung wird dann in eine Pfanne oder Topf gegeben und das Ganze wird dann gewürzt.",
+      "Nun gibt man nur noch die Nudeln hinzu und garniert mit Basilikum."
+    ]
+  },
+  {
+    "title": "Lasagne",
+    "image": "Lasagne.jpg",
+    "defaultPortions": 4,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Packung dm-Sonnenblumenhack",
+      "1 Zwiebeln",
+      "5 Knoblauchzehen",
+      "1 Dose passierte Tomaten",
+      "1 EL Tomatenmark",
+      "Schuss Rotwein",
+      "12 Lasagneplatten",
+      "200g geriebener Käse",
+      "1 Karotte",
+      "1 Selleriestange",
+      "Oregano",
+      "Parmesan (optional)",
+      "Salz",
+      "Pfeffer",
+      "Thymian",
+      "Basilikum",
+      "Öl",
+      "Zutaten Bechamelsauce:",
+      "150ml Milch",
+      "150g Butter",
+      "150g Mehl",
+      "Muskat",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "dm Sonnenblumenhack wie auf der Verpackung beschrieben quellen lassen. Karotte, Zwiebel, Selleriestange und Knoblauch kleinschneiden. Zwiebel in Öl anbraten, Knoblauch hinzugeben und anbraten.",
+      "Gequollenes Hack hinzugeben und alles schon mal mit Salz und Pfeffer würzen.",
+      "Karotten und Sellerie dazugeben und mit anbraten.",
+      "Mit Rotwein ablöschen und passierte Tomaten dazugeben. Außerdem das Tomatenmark einrühren.",
+      "Die Tomatensoße mit Salz, Pfeffer, Oregano, Thymian und Basilikum würzen. Daumenregel beim Würzen: Alle grünen Gewürze sollen die Oberfläche der Tomatensoße bedecken, dann umrühren und zwischenkosten.",
+      "Ofen auf 180°C Heißluft vorheizen.",
+      "Für die Bechamelsauce: Butter in kleinen Kopf geben und bei mittelhoher Hitze braun werden lassen. Mehl dazugeben und richtig umrühren. Die Konsistenz mit Milch anpassen, sodass die Masse richtig schön dickflüssig wird. Alles mit Salz, Pfeffer und Muskat würzen und etwas Parmesan mit hineinrühren.",
+      "Den Boden der Lasagneform mit der Tomatensoße bestreichen. Dann Schichtweise Lasagneblätter und Bechamelsauße. Hierbei soll die letzte Schicht Tomatensoße sein, auf welche dann der Streukäse gegeben wird.",
+      "Die Lasagne 30-40 min backen bis der Käse goldbraun geworden ist."
+    ]
+  },
+  {
+    "title": "Spinat Risotto",
+    "image": "SpinatRisotto.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [],
+    "ingredients": [
+      "400ml Gemüsebrühe",
+      "1 Zwiebeln",
+      "2 EL Olivenöl",
+      "150g Risotto Reis",
+      "1 EL Butter",
+      "200g Blattspinat",
+      "50g Parmesan",
+      "Salz",
+      "Pfeffer",
+      "Muskatnuss"
+    ],
+    "preparation": [
+      "Die Brühe aufkochen lassen. Inzwischen die Zwiebeln halbieren, schälen und in feine Würfel schneiden.",
+      "In einem Topf das Öl heiß werden lassen und die Zwiebeln darin anbraten, ohne dass sie braun werden. Dann den Reis zugeben und 1 Minute unter Rühren mitbraten. Die ganze Brühe dazu gießen. Salzen und kräftig durchrühren. Aufkochen lassen und den Deckel auf den Topf legen. Hitze auf geringste Stufe zurückstellen und das Risotto ca. 15 Minuten lang ungerührt vor sich hin köcheln lassen.",
+      "Den Spinat mit etwas Öl in einem Topf warm machen und mit den Gewürzen ein wenig würzen",
+      "Nun das Risotto kontrollieren, das jetzt ein nicht zu suppiger Brei mit angenehm festen Reiskörnern sein sollte. Ist es noch zu flüssig, kurz ohne Deckel weiter kochen lassen - aber dabei nicht rühren. Dann den Sprinat und Parmesan dazugeben und jetzt kräftig rühren. Heiß servieren."
+    ]
+  },
+  {
+    "title": "Kürbis Walnuss Pasta",
+    "image": "KürbisNudeln.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [],
+    "ingredients": [
+      "0.5 Hokkaido Kürbis",
+      "250 g Nudeln",
+      "2 Zwiebeln",
+      "5 Knoblauchzehen",
+      "50 g Walnüsse",
+      "1 Paprika",
+      "1 EL Olivenöl",
+      "1 EL Kürbiskernöl",
+      "1 EL Frischkäse",
+      "2 EL Mehl",
+      "Salz",
+      "Pfeffer",
+      "Curry"
+    ],
+    "preparation": [
+      "Ofen vorheizen auf 180 Grad Heißluft.",
+      "Den Kürbis in Streifen schneiden und 15-20 min im Ofen braten",
+      "Zwiebeln und Knoblauch mit beiden Ölen anbraten. Gleichzeitig Nudeln kochen.",
+      "Paprika anbraten und Kürbis dazugeben. Alles gut umrühren und den Frischkäse zugeben.",
+      "Mehl und Nudelwasser schubweise dazugeben bis gewünscht Konsistenz erreicht.",
+      "Walnüsse etwas hacken und in einer separaten Pfanne ohne Öl rösten.",
+      "Pasta würzen und mit Walnüssen garnieren."
+    ]
+  },
+  {
+    "title": "Baguette",
+    "image": "Baguette.jpg",
+    "defaultPortions": 4,
+    "cuisine": "französisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "400g Mehl (Type 00)",
+      "1 TL Zucker",
+      "1 TL Salz",
+      "10g frische Hefe",
+      "270ml lauwarmes Wasser",
+      "etwas Mehl zur Teigverarbeitung"
+    ],
+    "preparation": [
+      "Mehl mit Zucker und Salz in einer Schüssel vermischen. Hefe hinein bröckeln. 270ml lauwarmes Wasser zugeben und mit einem Kochlöffel miteinander verrühren.",
+      "Der Teig ist sehr weich und sollte daher abgedeckt mindestens 2 Stunden ruhen, damit sich das Aroma entfaltet.",
+      "Teig auf eine stark bemehlte Arbeitsfläche geben und mit leicht angefeuchteten Händen zu mehreren langen Schlangen falten.",
+      "Zugedeckt auf der Arbeitsfläche 30 Minuten ruhen lassen.",
+      "Ein Blech mit Backpapier vorbereiten. Auf das Backpapier etwas Mehl streuen. Auf das Backblech setzen und die Fladen mit etwas Mehl bestreuen. Zugedeckt 30 Minuten ruhen lassen. Backofen auf 240 Grad (Umluft: 220 Grad) vorheizen. Ca. 22 Minuten backen und auf einem Kuchengitter auskühlen lassen."
+    ]
+  },
+  {
+    "title": "Burger",
+    "image": "Burger.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Burger:",
+      "2 Burgerbrot",
+      "2 Patties",
+      "2 Käsescheiben",
+      "Salat",
+      "Zwiebel",
+      "Tomate",
+      "Soße:",
+      "4 TL Mayonnaise",
+      "2 TL Ketchup",
+      "1 TL Senf",
+      "2 Knoblauchzehen",
+      "1 saure Gurke",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "Mayonnaise, Ketchup und Senf in eine Schüssel geben. Dazu die klein geschnittenen Knoblauchzehen und saure Gurke geben und mit Salz und Pfeffer verfeinern.",
+      "Die Burgerbrötchen in den Toaster stecken und währenddessen die Patties in der Pfanne anbraten und am Ende den Käse darauf schmelzen lassen.",
+      "Die Soße auf beide Seiten der Brötchen verteilen. Salat, Zwiebeln und Tomaten darüber legen und am Ende das fertige Patty darauf legen."
+    ]
+  },
+  {
+    "title": "Pizza",
+    "image": "Pizza.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Teig:",
+      "250 Mehl",
+      "150ml Wasser",
+      "2g Trockenhefe",
+      "2 TL Salz",
+      "Soße:",
+      "0.25 Dose passierte Tomaten",
+      "2 Knoblauchzehen",
+      "Salz",
+      "Pfeffer",
+      "Oregano",
+      "Basilikum",
+      "Belag",
+      "2 Mozzarellaball",
+      "0.5 Zwiebel"
+    ],
+    "preparation": [
+      "Das Mehl in eine Schüssel geben, Trockenhefe und Salz dazu mischen. Das Wasser darüber kippen und den Teig ordentlich kneten. Den Teig abgedeckt für mindestens eine Stunde bei Zimmertemperatur stehen lassen.",
+      "Die passierten Tomaten in eine Schüssel geben, den klein gehackten Knoblauch dazugeben und mit Salz, Pfeffer, Oregano und Basilikum würzen.",
+      "Den fertigen Teig ausrollen und mit der Tomatensoße, Käse und klein gehackten Zwiebeln belegen.",
+      "Den Pizzaofen auf Stufe 2,5 für 10 Minuten vorheizen. Die Pizza in den Ofen legen und für 4 Minuten backen. Danach den Pizzaofen ausmachen und vor einer neuen Pizza kurz für 1-2 Minuten abkühlen lassen."
+    ]
+  },
+  {
+    "title": "Pizzataschen",
+    "image": "Pizzataschen.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Teig:",
+      "300g Mehl",
+      "180ml Milch",
+      "50g Butter",
+      "1 TL Backpulver",
+      "1 TL Trockenhefe",
+      "1 TL Salz",
+      "etwas Öl",
+      "Füllung:",
+      "200g Krümmelkäse",
+      "1 Zwiebel",
+      "1 Dose passierte Tomaten",
+      "3 Knoblauchzehen",
+      "Tomatenmark",
+      "Oregano",
+      "Thymian",
+      "Basilikum",
+      "Salz",
+      "Pfeffer",
+      "etwas Öl"
+    ],
+    "preparation": [
+      "Die Butter weich werden lassen (z.B. in der Mikrowelle).",
+      "Die restlichen Zutaten mit der geschmolzenen Butter in einer Schüssel verkneten, bis ein glatter Teig entsteht. Sollte der Teig etwas zu klebrig sein, noch etwas Mehl hinzufügen und zu einer Kugel formen.",
+      "Den Teig abgedeckt bei Zimmertemperatur für etwa 2 Stunden stehen lassen.",
+      "Währenddessen die Zwiebeln und den klein geschnittenen Knoblauch in einer Pfanne anbraten, die Hitze danach reduzieren und die Tomaten dazugeben. Das Ganze köcheln lassen und mit allen oben genannten Gewürzen abschmecken. Mit dem Tomatenmark etwas andicken.",
+      "Den Teig in 6 kleinere Stücke teilen, diese ausrollen und mit der Soße und dem Käse füllen.",
+      "Die Teiglinge vorsichtig verschließen und mit etwas Öl auf kleiner Hitze abgedeckt in einer Pfanne anbraten."
+    ]
+  },
+  {
+    "title": "Quesadilla",
+    "image": "Quesadilla.jpg",
+    "defaultPortions": 2,
+    "cuisine": "mexikanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "6 Wraps",
+      "250g Streukäse",
+      "100ml Salsasoße",
+      "1 Zwiebel",
+      "Öl"
+    ],
+    "preparation": [
+      "Generell wird immer nur eine Hälfte des Wraps befüllt, damit dieser am Ende zusammengefaltet werden kann.",
+      "2-3 Teelöffel Salsasoße auf dem Wrap verteilen und diesen mit den klein geschnittenen Zwiebelstücken und Streukäse befüllen.",
+      "Eine Pfanne mit einem wenig Öl heiß werden lassen und dann die zusammengefalteten Wraps in die Pfanne geben bis diese goldbraun sind und danach noch einmal von der anderen Seite anbraten lassen. Am besten dabei den Deckel auf der Pfanne lassen, damit der Käse besser schmilzt."
+    ]
+  },
+  {
+    "title": "Eiwrap",
+    "image": "Eiwrap.jpg",
+    "defaultPortions": 2,
+    "cuisine": "deutsch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "2 High Protein Wraps",
+      "50g Frischkäse",
+      "2 Eier",
+      "8 Gurkenscheiben",
+      "Öl",
+      "Salz",
+      "Pfeffer",
+      "geräuchertes Paprikapulver"
+    ],
+    "preparation": [
+      "Eine Pfanne vorheizen, ein wenig Öl dazu geben und dann zwei Spiegeleier in der Pfanne machen.",
+      "Währenddessen die Wraps mit dem Frischkäse bestreichen und die Spiegeleier dann einmal wenden.",
+      "Den Wrap mit den gewürzen verfeinern und die Gurkenscheiben in eine Reihe legen.",
+      "Die fertigen Spiegeleier auf die Gurken legen, den Wrap zusammenrollen und am Ende noch einmal kurz in die Pfanne legen, damit diese verschließen.",
+      "PS: Hier ein Video wie man Wraps verschließt: https://www.youtube.com/watch?v=j5Sm_umARa0"
+    ]
+  },
+  {
+    "title": "Roti Chanai",
+    "image": "RotiChanai.jpg",
+    "defaultPortions": 2,
+    "cuisine": "malaiisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Zutaten A:",
+      "320g Mehl",
+      "1 EL weiche Butter",
+      "2 EL geschlagenes Ei",
+      "Zutaten B, gut gemischt:",
+      "150 ml warmes Wasser",
+      "0.5 TL Salz",
+      "2 TL Zucker",
+      "Zutaten C:",
+      "Öl"
+    ],
+    "preparation": [
+      "In einer großen Schüssel die Zutaten A gut vermischen. Die Zutaten B hinzufügen und gut vermischen.",
+      "Nach und nach 3 Mal Wasser hinzufügen und nach dem Hinzufügen des Wassers mindestens 10 Mal kneten.",
+      "Sobald der Teig geschmeidig ist, zu einer Wurst formen (Konsistenz: weich und nicht klebrig. Wenn er klebrig ist, wurde er nicht ausreichend geknetet).",
+      "Zu 4 bis 6 Kugeln (Größe von Tennisbällen) formen. Mindestens 1 Stunde oder über Nacht im Kühlschrank ruhen lassen.",
+      "Die Kugeln mit Öl einreiben. Vor dem Backen 1 Stunde ruhen lassen.",
+      "Ausrollen und Kochen Zubereitung:Zum Ausrollen der Roti-Kugeln verwenden Sie: 1) eine Marmorplatte oder 2) eine Tischplatte.",
+      "Ölen Sie die Arbeitsfläche ein. Rollen Sie den Teig flach aus, ohne ihn zu zerreißen. Während Sie den Teig ausrollen, ölen Sie Ihre Finger mit Öl oder weicher Butter ein.",
+      "Dehnen und ruhen lassen, wie gezeigt.",
+      "Zeit zum Falten: Etwas Öl auf den großen Pfannkuchen träufeln, um Schichten zu bilden. Ein Drittel zur Mitte hin falten und das andere Drittel ebenfalls zur Mitte hin falten. Dies auf beiden Seiten wiederholen. So erhält man einen flachen, 9-fach gefalteten quadratischen Pfannkuchen.",
+      "Erhitzen Sie eine Bratpfanne und braten Sie den Fladen auf beiden Seiten an. Geben Sie etwas geschmolzene Butter oder Öl auf die Seiten. Braten Sie beide Seiten, indem Sie mit einem Schöpflöffel darauf drücken. Durch das Drücken wird der Roti braun und gar.",
+      "Nehmen Sie ihn heraus, sobald er auf beiden Seiten braun ist und drücken Sie mit beiden Händen auf den Roti, damit er zerbricht und sich in Schichten trennt.~ Pearly Kee"
+    ]
+  },
+  {
+    "title": "Falafel Wrap",
+    "image": "FalafelWrap.jpg",
+    "defaultPortions": 2,
+    "cuisine": "libanesisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "Zutaten Falafel:",
+      "600 ml Wasser",
+      "125g getrocknete Kichererbsen",
+      "0.5 Bund Koriander",
+      "0.5 Bund Petersilie",
+      "20g Mehl",
+      "5 Knoblauchzehen",
+      "1 kleine rote Zwiebel",
+      "1 TL Koriander",
+      "1 TL Kreuzkümmel",
+      "1 TL schwarzer Pfeffer",
+      "1.5 TL Salz",
+      "Öl zum Backen",
+      "Zutaten Wraps:",
+      "2 Wraps",
+      "2 Essiggurken",
+      "1 EL Zitronensaft",
+      "etwas Petersilie",
+      "Schuss Öl",
+      "Salz",
+      "Pfeffer",
+      "3 EL Joghurt",
+      "1 Knoblauchzehe"
+    ],
+    "preparation": [
+      "Die getrocknete Kichererbsen mit dem Wasser in eine Schüssel geben und über nacht einweichen lassen.",
+      "Nachdem die Kichererbsen aufgequollen sind, gießt Du sie in einem Sieb ab, wäschst sie kurz ab und lässt sie abtropfen. Die Kichererbsen müssen im Anschluss nicht gekocht werden.",
+      "Die rote Zwiebel und die Knoblauchzehen schälst Du und würfelst sie in grobe Stücke. Den Koriander und Petersilie wäschst Du und trocknest sie ab. Dann pürierst Du diese Gemüsezutaten mit den Kichererbsen sehr fein.",
+      "Alles in eine Schüssel geben und dazu kommt das Mehl und etwas Backpulver sowie die Gewürze.",
+      "Nun vermengst Du alles gut mit den Händen zu einer Masse. Dann muss die Masse, um stabil und formbar zu werden, für mindestens 30 Minuten, gerne auch mehrere Stunden im Kühlschrank ruhen.",
+      "Die Falafeln zu Bällchen formen und für den Ofen die Falafel mit Öl bepinseln, 2x15 Minuten bei 180°C Heißluft auf mittlerer Schiene backen.",
+      "Die Essiggurken in Würfel schneiden.",
+      "Für die Salatsoße Öl, Zitronensaft, Salz, Pfeffer und Petersilie vermengen.",
+      "Joghurt mit gepressten Knoblauch vermengen und mit Salz und Pfeffer abschmecken.",
+      "Alles in den Wrap rein und falten. Bei Bedarf können diese zum verschließen noch einmal kurz angebraten werden."
+    ]
+  },
+  {
+    "title": "Quiche",
+    "image": "Quiche.jpg",
+    "defaultPortions": 4,
+    "cuisine": "französisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "1 Stange Blätterteig",
+      "700g Zuccini",
+      "1 große Zwiebel",
+      "2 EL Öl",
+      "3 Eier",
+      "200g Schmand",
+      "100g Streukäse",
+      "Salz",
+      "Peffer"
+    ],
+    "preparation": [
+      "Backofen auf 180 Grad (Umluft 160 Grad) vorheizen. Quicheform (Ø 28cm) einfetten und mit Mehl bestäuben.",
+      "Für den Mürbeteig Mehl, Butter, Ei, Salz und 2 Esslöffel Wasser zu einem Teig verkneten. Die Arbeitsfläche mit Mehl bestäuben. Den Teig mit einem Nudelholz ausrollen und in die Form legen, andrücken, sodass ein Rand von etwa 3cm entsteht.",
+      "Für den Belag Gemüse waschen, schälen und würfeln. Zwiebel würfeln. Öl in eine Pfanne geben, die Zwiebeln leicht andünsten. Dann das ganze Gemüse hinzufügen. Auf mittlerer Hitze mehrere Minuten leicht anbraten.",
+      "Währenddessen Eier verquirlen, dann Schmand, Käse und Gewürze hinzugeben und unterrühren. Gebratenes Gemüse auf den vorgebackenen Teig geben. Dann die Eier-Schmandmischung darüber geben und verteilen. Die Quiche 30-40 Minuten goldbraun backen. Die Quiche ergibt ca. 10 Stücke."
+    ]
+  }
+]
