@@ -1349,5 +1349,41 @@
       "Für den Belag Gemüse waschen, schälen und würfeln. Zwiebel würfeln. Öl in eine Pfanne geben, die Zwiebeln leicht andünsten. Dann das ganze Gemüse hinzufügen. Auf mittlerer Hitze mehrere Minuten leicht anbraten.",
       "Währenddessen Eier verquirlen, dann Schmand, Käse und Gewürze hinzugeben und unterrühren. Gebratenes Gemüse auf den vorgebackenen Teig geben. Dann die Eier-Schmandmischung darüber geben und verteilen. Die Quiche 30-40 Minuten goldbraun backen. Die Quiche ergibt ca. 10 Stücke."
     ]
+  },
+  {
+    "title": "Shish Andaz",
+    "image": "ShishAndaz.jpeg",
+    "defaultPortions": 4,
+    "cuisine": "persisch",
+    "tags": ["vegetarisch", "vegan"],
+    "ingredients": [
+      "3 Auberginen",
+      "2 TL Salz",
+      "4 TL Olivenöl",
+      "1 große Zwiebel",
+      "300 g Walnüsse",
+      "1 TL Zimt",
+      "0.5 TL Pfeffer",
+      "0.5 TL Korkuma",
+      "2 EL Tomatenmark",
+      "3 EL Granatapfelmolasse",
+      "200 g Eiswürfel",
+      "1 EL Salz",
+      "Reis"
+    ],
+    "preparation": [
+      "Die Auberginen in Streifen schälen, dann in 2 cm große Würfel schneiden und in eine große Schüssel geben.",
+      "Mit Salz bestreuen und mit den Händen gut vermengen, damit sich das Salz gleichmäßig verteilt. Die Auberginen 20 min stehen lassen, damit sie Wasser verlieren.",
+      "Erhitze 2 Esslöffel Olivenöl in einem großen Topf bei mittlerer bis geringer Hitze. Schäle und hacke die Zwiebel fein und brate sie im Öl an, bis sie glasig sind.",
+      "In der Zwischenzeit die Walnüsse in eine Küchenmaschine geben und zu Pulver zermahlen.",
+      "Die gemahlenen Walnüsse zu den Zwiebeln geben und 1–2 Minuten lang anbraten, bis sie aromatisch duften. Zimt, Pfeffer und Kurkuma hinzufügen und eine Minute lang erhitzen.",
+      "Tomatenmark, Granatapfelmelasse und einen Esslöffel Salz hinzufügen, gut umrühren und eine weitere Minute lang kochen lassen.",
+      "Dann 500 ml kaltes Wasser zusammen mit den Eiswürfeln hinzufügen. Zum Kochen bringen, die Hitze reduzieren und zugedeckt 30 Minuten lang köcheln lassen, bis der Eintopf eingedickt ist und das Öl aus den Walnüssen auf der Oberfläche schwimmt.",
+      "Reis kochen.",
+      "In der Zwischenzeit weitere 2 Esslöffel Öl in einer großen Pfanne bei mittlerer Hitze erhitzen. Die Auberginenstücke mit den Händen ausdrücken, um weitere Flüssigkeitsrückstände zu entfernen.",
+      "Diese dann goldbraun braten, dabei gelegentlich umrühren und bei Bedarf mehr Öl hinzufügen.",
+      "Nach den 30 min die Auberginenstücke zum Eintopf geben, vorsichtig unterrühren und zugedeckt weitere 10 Minuten kochen lassen.",
+      "Den Eintopf auf Schüsseln verteilen und mit frisch gedämpftem Reis servieren."
+    ]
   }
 ]
