@@ -62,28 +62,32 @@ const Cookbook: React.FC = () => {
                 </h1>
             </header>
 
-            {/* Filter Buttons */}
-            <div className="filter-buttons">
-                {["alle", "vegetarisch", "vegan"].map(f => (
-                    <button
-                        key={f}
-                        className={`filter-button ${dietFilter === f ? "active" : ""}`}
-                        onClick={() => setDietFilter(f)}
-                    >
-                        {f.charAt(0).toUpperCase() + f.slice(1)}
-                    </button>
-                ))}
-            </div>
-            <div className="filter-buttons">
-                {cuisines.map(c => (
-                    <button
-                        key={c}
-                        className={`filter-button ${cuisineFilter === c ? "active" : ""}`}
-                        onClick={() => setCuisineFilter(c)}
-                    >
-                        {c.charAt(0).toUpperCase() + c.slice(1)}
-                    </button>
-                ))}
+            <div className="filter-container">
+                {/* Diet Filters */}
+                <div className="filter-group">
+                    {["alle", "vegetarisch", "vegan"].map(f => (
+                        <span
+                            key={f}
+                            className={`filter-pill ${dietFilter === f ? "active" : ""}`}
+                            onClick={() => setDietFilter(f)}
+                        >
+                            {f.charAt(0).toUpperCase() + f.slice(1)}
+                        </span>
+                    ))}
+                </div>
+
+                {/* Cuisine Filters */}
+                <div className="filter-group">
+                    {cuisines.map(c => (
+                        <span
+                            key={c}
+                            className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
+                            onClick={() => setCuisineFilter(c)}
+                        >
+                            {c.charAt(0).toUpperCase() + c.slice(1)}
+                        </span>
+                    ))}
+                </div>
             </div>
 
             {/* Render recipes */}
