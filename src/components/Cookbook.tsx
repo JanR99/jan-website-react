@@ -23,6 +23,7 @@ const Cookbook: React.FC = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [dietFilter, setDietFilter] = useState("alle");
     const [cuisineFilter, setCuisineFilter] = useState("alle");
+    const [showTopButton, setShowTopButton] = useState(false);
 
     const cuisines: string[] = [
         "alle",
@@ -45,7 +46,19 @@ const Cookbook: React.FC = () => {
         };
 
         fetchAll().then();
+
+        const handleScroll = () => {
+            setShowTopButton(window.scrollY > 300);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
     }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div>
@@ -116,6 +129,17 @@ const Cookbook: React.FC = () => {
                     </p>
                 )}
             </div>
+
+            {/* Back to Top Button */}
+            {showTopButton && (
+                <button
+                    onClick={scrollToTop}
+                    className="button-link back-to-top"
+                    aria-label="Scroll to top"
+                >
+                    ↑ Top
+                </button>
+            )}
         </div>
     );
 };
