@@ -1,31 +1,150 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
+import '../styles/Cookbook.css'
+import {Recipe} from "../types/Recipe";
 
-const categories = [
-    'asiatisch',
-    'kartoffel',
-    'nachspeisen',
-    'pasta',
-    'teigwaren',
-    'aromenkick',
-];
+// Helper to filter recipes
+const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string) => {
+    return recipes.filter(r => {
+        const matchesDiet =
+            diet === "alle" ||
+            (diet === "vegan" && r.tags?.includes("vegan")) ||
+            (diet === "vegetarisch" &&
+                (r.tags?.includes("vegetarisch") || r.tags?.includes("vegan")));
+
+        const matchesCuisine =
+            cuisine === "alle" || r.cuisine === cuisine;
+        return matchesDiet && matchesCuisine;
+    });
+};
 
 const Cookbook: React.FC = () => {
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [dietFilter, setDietFilter] = useState("alle");
+    const [cuisineFilter, setCuisineFilter] = useState("alle");
+    const [showTopButton, setShowTopButton] = useState(false);
+
+    const cuisines: string[] = [
+        "alle",
+        ...Array.from(
+            new Set(
+                recipes
+                    .map(r => r.cuisine)
+                    .filter((c): c is string => Boolean(c))
+            )
+        ).sort((a, b) => a.localeCompare(b))
+    ];
+    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter);
+
+    useEffect(() => {
+        const fetchAll = async () => {
+            try {
+                const data: Recipe[] = await fetch("/recipes/recipes.json")
+                    .then(res => res.json());
+
+                setRecipes(data);
+            } catch (err) {
+                console.error("Error loading recipes:", err);
+            }
+        };
+
+        fetchAll().then();
+
+        const handleScroll = () => {
+            setShowTopButton(window.scrollY > 300);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
-        <main>
+        <div>
             <header>
-                <h1 className="header">Mein Kochbuch</h1>
+                <h1 className="header">
+                    Alle Rezepte
+                </h1>
             </header>
 
-            <nav className="top">
-                {categories.map((cat) => (
-                    <Link key={cat} to={`/cookbook/${cat}`} className="button-link">
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </Link>
-                ))}
-            </nav>
-        </main>
+            <div className="filter-container">
+                <div className="filter-section">
+                    <span className="filter-label">Ernährung:</span>
+                    <div className="filter-group">
+                        {["alle", "vegetarisch", "vegan"].map(f => (
+                            <span
+                                key={f}
+                                className={`filter-pill ${dietFilter === f ? "active" : ""}`}
+                                onClick={() => setDietFilter(f)}
+                            >
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="filter-section">
+                    <span className="filter-label">Küche:</span>
+                    <div className="filter-group">
+                        {cuisines.map(c => (
+                            <span
+                                key={c}
+                                className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
+                                onClick={() => setCuisineFilter(c)}
+                            >
+                    {c.charAt(0).toUpperCase() + c.slice(1)}
+                </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Render recipes */}
+            <div className="container">
+                {filteredRecipes.length > 0 ? (
+                    filteredRecipes.map((recipe, index) => {
+                        const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
+
+                        return (
+                            <div className="img-cookbook" key={index}>
+                                <figcaption>{recipe.title}</figcaption>
+                                <Link
+                                    to={`/cookbook/${recipe.title
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "-")}`}
+                                    state={{ recipe }}
+                                >
+                                    <img
+                                        src={`../Bilder/Essen-thumbnail/${imageSrc}`}
+                                        alt={recipe.title}
+                                    />
+                                </Link>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <p style={{ textAlign: "center", fontWeight: "bold", marginTop: "20px" }}>
+                        Es gibt leider noch keine Rezepte mit diesen Filtern.
+                    </p>
+                )}
+            </div>
+
+            {/* Back to Top Button */}
+            {showTopButton && (
+                <button
+                    onClick={scrollToTop}
+                    className="button-link back-to-top"
+                    aria-label="Scroll to top"
+                >
+                    ↑ Top
+                </button>
+            )}
+        </div>
     );
 };
 
