@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 import {Recipe} from "../types/Recipe";
+import Navbar from "./Navbar";
 
 const RecipePage: React.FC = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const recipe = (location.state as { recipe?: Recipe })?.recipe;
     const [portions, setPortions] = useState<number>(recipe?.defaultPortions ?? 2);
-
-    const handleBack = () => {
-        navigate(`/cookbook`);
-    };
 
     const handlePortionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.trim();
@@ -32,16 +28,13 @@ const RecipePage: React.FC = () => {
     let defaultPortions = recipe.defaultPortions ?? 2;
     return (
         <div>
-            <header>
-                <h1 className="header">{recipe.title}</h1>
-            </header>
-
-            {/* Back Button */}
-            <div className="back">
-                <button className="button-85" onClick={handleBack}>
-                    Zurück
-                </button>
-            </div>
+            {/* Navigation Bar */}
+            <Navbar
+                title={recipe.title}
+                links={[
+                    { to: "/cookbook", label: "zum Kochbuch" },
+                ]}
+            />
 
             {/* Recipe Image */}
             <div className="container-cookbook">

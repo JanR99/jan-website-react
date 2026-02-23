@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
+import Navbar from "./Navbar";
 
 interface DestinationItem {
     name: string;
@@ -27,6 +28,15 @@ const Home: React.FC = () => {
 
     return (
         <div>
+            {/* Navigation Bar */}
+            <Navbar
+                title="Willkommen auf meiner Website"
+                links={[
+                    { to: "/", label: "Jans Website" },
+                    { to: "/cookbook", label: "Mein Kochbuch" }
+                ]}
+            />
+
             {destinationChunks.map((chunk, chunkIndex) => (
                 <div className="container" key={chunkIndex}>
                     {chunk.map((dest) => (
