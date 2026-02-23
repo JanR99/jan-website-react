@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import '../App.css';
 import '../styles/Cookbook.css'
 import {Recipe} from "../types/Recipe";
+import Navbar from "./Navbar";
 
 // Helper to filter recipes
 const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string) => {
@@ -66,11 +67,13 @@ const Cookbook: React.FC = () => {
 
     return (
         <div>
-            <header>
-                <h1 className="header">
-                    Alle Rezepte
-                </h1>
-            </header>
+            {/* Navigation Bar */}
+            <Navbar
+                title="Mein Kochbuch"
+                links={[
+                    { to: "/", label: "Jans Website" },
+                ]}
+            />
 
             <div className="filter-container">
                 <div className="filter-section">

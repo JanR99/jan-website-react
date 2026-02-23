@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import '../App.css';
+import Navbar from "./Navbar";
 
 interface DestinationParams {
     destination?: string;
@@ -29,10 +30,13 @@ const Destination: React.FC = () => {
 
     return (
         <div>
-            {/* Header */}
-            <header>
-                <h1 className="header">{destination.charAt(0).toUpperCase() + destination.slice(1)}</h1>
-            </header>
+            {/* Navigation Bar */}
+            <Navbar
+                title={destination.charAt(0).toUpperCase() + destination.slice(1)}
+                links={[
+                    { to: "/", label: "Jans Website" },
+                ]}
+            />
 
             {/* Image containers */}
             {imageChunks.map((chunk, chunkIndex) => (

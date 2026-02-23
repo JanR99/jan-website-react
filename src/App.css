@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  padding: 0;
+  padding-top: 40px;
   background-color: darkorange;
   background-size: 400% 400%;
   animation: gradient 100s ease infinite;
@@ -163,6 +163,18 @@ button:hover, .button-link:hover {
   align-items: center;
   font-size: 20px;
   flex-grow: 1;
+}
+
+.logo-link {
+  top: 1px;
+  left: 1px;
+  z-index: 9999;
+}
+
+.logo {
+  height: 200px;
+  width: auto;
+  display: block;
 }
 
 @media (max-width: 768px) {
