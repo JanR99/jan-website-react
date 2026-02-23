@@ -47,3 +47,18 @@
     margin-top: 20px;
     width: 90%;
 }
+
+@media (max-width: 768px) {
+
+    .logo-fixed {
+        left: -10px;
+        top: -50px;
+        height: 80px;
+        width: auto;
+    }
+
+    .hero-header h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+}
