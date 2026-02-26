@@ -71,7 +71,7 @@ const Cookbook: React.FC = () => {
             <Navbar
                 title="Mein Kochbuch"
                 links={[
-                    { to: "/", label: "Jans Website" },
+                    { to: "/", label: "Home" },
                 ]}
             />
 

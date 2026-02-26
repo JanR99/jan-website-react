@@ -32,7 +32,6 @@ const Home: React.FC = () => {
             <Navbar
                 title="Willkommen auf meiner Website"
                 links={[
-                    { to: "/", label: "Jans Website" },
                     { to: "/cookbook", label: "Mein Kochbuch" }
                 ]}
             />
