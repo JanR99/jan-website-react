@@ -34,7 +34,7 @@ const Destination: React.FC = () => {
             <Navbar
                 title={destination.charAt(0).toUpperCase() + destination.slice(1)}
                 links={[
-                    { to: "/", label: "Jans Website" },
+                    { to: "/", label: "Home" },
                 ]}
             />
 
