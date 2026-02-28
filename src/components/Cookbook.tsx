@@ -16,10 +16,9 @@ const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string, ingredi
 
         const matchesIngredientSearch = ingredientSearch
             ? ingredientSearch.toLowerCase().split(',').map(s => s.trim()).every(searchTerm => {
-                return r.ingredients?.some(ingredient => {
-                    const pattern = new RegExp(`\\b${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-                    return pattern.test(ingredient);
-                });
+                return r.ingredients?.some(ingredient =>
+                    ingredient.toLowerCase().includes(searchTerm)
+                );
             })
             : true;
 
