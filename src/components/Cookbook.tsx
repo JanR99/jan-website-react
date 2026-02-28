@@ -32,7 +32,13 @@ const Cookbook: React.FC = () => {
     const [dietFilter, setDietFilter] = useState("alle");
     const [cuisineFilter, setCuisineFilter] = useState("alle");
     const [ingredientSearch, setIngredientSearch] = useState("");
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [showTopButton, setShowTopButton] = useState(false);
+
+    const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>(() => {
+        const stored = localStorage.getItem("favoriteRecipes");
+        return stored ? JSON.parse(stored) : [];
+    });
 
     const cuisines: string[] = [
         "alle",
@@ -45,7 +51,8 @@ const Cookbook: React.FC = () => {
         ).sort((a, b) => a.localeCompare(b))
     ];
 
-    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter, ingredientSearch);
+    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter, ingredientSearch)
+        .filter(r => !showFavoritesOnly || favoriteRecipes.includes(r.title));
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -71,6 +78,19 @@ const Cookbook: React.FC = () => {
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const toggleFavorite = (title: string) => {
+        setFavoriteRecipes(prev => {
+            let updated: string[];
+            if (prev.includes(title)) {
+                updated = prev.filter(t => t !== title);
+            } else {
+                updated = [...prev, title];
+            }
+            localStorage.setItem("favoriteRecipes", JSON.stringify(updated));
+            return updated;
+        });
     };
 
     return (
@@ -125,6 +145,19 @@ const Cookbook: React.FC = () => {
                         onChange={e => setIngredientSearch(e.target.value)}
                     />
                 </div>
+
+                {/* Favorites Section */}
+                <div className="filter-section">
+                    <span className="filter-label">Favoriten:</span>
+                    <div className="filter-group">
+                    <span
+                        className={`filter-pill ${showFavoritesOnly ? "active" : ""}`}
+                        onClick={() => setShowFavoritesOnly(prev => !prev)}
+                    >
+                        {showFavoritesOnly ? "Nur Favoriten" : "Alle"}
+                    </span>
+                    </div>
+                </div>
             </div>
 
             {/* Render recipes */}
@@ -147,6 +180,12 @@ const Cookbook: React.FC = () => {
                                         alt={recipe.title}
                                     />
                                 </Link>
+                                <button
+                                    className="favorite-button"
+                                    onClick={() => toggleFavorite(recipe.title)}
+                                >
+                                    {favoriteRecipes.includes(recipe.title) ? '★' : '☆'}
+                                </button>
                             </div>
                         );
                     })
