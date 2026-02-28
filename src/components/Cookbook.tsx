@@ -1,22 +1,29 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
-import '../styles/Cookbook.css'
-import {Recipe} from "../types/Recipe";
+import '../styles/Cookbook.css';
+import { Recipe } from "../types/Recipe";
 import Navbar from "./Navbar";
 
-// Helper to filter recipes
-const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string) => {
+const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string, ingredientSearch: string) => {
     return recipes.filter(r => {
         const matchesDiet =
             diet === "alle" ||
             (diet === "vegan" && r.tags?.includes("vegan")) ||
-            (diet === "vegetarisch" &&
-                (r.tags?.includes("vegetarisch") || r.tags?.includes("vegan")));
+            (diet === "vegetarisch" && (r.tags?.includes("vegetarisch") || r.tags?.includes("vegan")));
 
-        const matchesCuisine =
-            cuisine === "alle" || r.cuisine === cuisine;
-        return matchesDiet && matchesCuisine;
+        const matchesCuisine = cuisine === "alle" || r.cuisine === cuisine;
+
+        const matchesIngredientSearch = ingredientSearch
+            ? ingredientSearch.toLowerCase().split(',').map(s => s.trim()).every(searchTerm => {
+                return r.ingredients?.some(ingredient => {
+                    const pattern = new RegExp(`\\b${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                    return pattern.test(ingredient);
+                });
+            })
+            : true;
+
+        return matchesDiet && matchesCuisine && matchesIngredientSearch;
     });
 };
 
@@ -24,6 +31,7 @@ const Cookbook: React.FC = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [dietFilter, setDietFilter] = useState("alle");
     const [cuisineFilter, setCuisineFilter] = useState("alle");
+    const [ingredientSearch, setIngredientSearch] = useState("");
     const [showTopButton, setShowTopButton] = useState(false);
 
     const cuisines: string[] = [
@@ -36,13 +44,13 @@ const Cookbook: React.FC = () => {
             )
         ).sort((a, b) => a.localeCompare(b))
     ];
-    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter);
+
+    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter, ingredientSearch);
 
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const data: Recipe[] = await fetch("/recipes/recipes.json")
-                    .then(res => res.json());
+                const data: Recipe[] = await fetch("/recipes/recipes.json").then(res => res.json());
 
                 setRecipes(data);
             } catch (err) {
@@ -67,7 +75,6 @@ const Cookbook: React.FC = () => {
 
     return (
         <div>
-            {/* Navigation Bar */}
             <Navbar
                 title="Mein Kochbuch"
                 links={[
@@ -76,6 +83,7 @@ const Cookbook: React.FC = () => {
             />
 
             <div className="filter-container">
+                {/* Diet Filter */}
                 <div className="filter-section">
                     <span className="filter-label">Ernährung:</span>
                     <div className="filter-group">
@@ -85,12 +93,13 @@ const Cookbook: React.FC = () => {
                                 className={`filter-pill ${dietFilter === f ? "active" : ""}`}
                                 onClick={() => setDietFilter(f)}
                             >
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                </span>
+                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                            </span>
                         ))}
                     </div>
                 </div>
 
+                {/* Cuisine Filter */}
                 <div className="filter-section">
                     <span className="filter-label">Küche:</span>
                     <div className="filter-group">
@@ -100,10 +109,21 @@ const Cookbook: React.FC = () => {
                                 className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
                                 onClick={() => setCuisineFilter(c)}
                             >
-                    {c.charAt(0).toUpperCase() + c.slice(1)}
-                </span>
+                                {c.charAt(0).toUpperCase() + c.slice(1)}
+                            </span>
                         ))}
                     </div>
+                </div>
+
+                {/* Ingredients Search */}
+                <div className="filter-section">
+                    <span className="filter-label">Zutaten:</span>
+                    <input
+                        type="text"
+                        placeholder="Zutaten eingeben, z.B. 'Tomate, Käse'"
+                        value={ingredientSearch}
+                        onChange={e => setIngredientSearch(e.target.value)}
+                    />
                 </div>
             </div>
 
