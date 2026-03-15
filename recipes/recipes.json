@@ -1385,5 +1385,61 @@
       "Nach den 30 min die Auberginenstücke zum Eintopf geben, vorsichtig unterrühren und zugedeckt weitere 10 Minuten kochen lassen.",
       "Den Eintopf auf Schüsseln verteilen und mit frisch gedämpftem Reis servieren."
     ]
+  },
+  {
+    "title": "Basilikum Pesto",
+    "image": "BasilikumPesto.jpeg",
+    "defaultPortions": 4,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "50 g Basilikum",
+      "50 g Pinienkerne",
+      "50 g Pecorino Romano (oder vegetarischer Hartkäse)",
+      "70 ml Olivenöl",
+      "2 Knoblauchzehen",
+      "1 Schuss Zitronensaft",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "Pinienkerne ohne Fett anrösten.",
+      "Basilikumblätter zupfen und Knoblauch schälen.",
+      "Pecorino Romano klein schneiden.",
+      "In hohen Rührbecher die Basilikumblätter, Pecorino Romano, Olivenöl, die gerösteten Pinienkerne, den Knoblauch , Salz und Pfeffer mit Pürierstab fein pürieren."
+    ]
+  },
+  {
+    "title": "Taco Cup",
+    "image": "TacoCup.jpeg",
+    "defaultPortions": 3,
+    "cuisine": "mexikanisch",
+    "tags": ["vegetarisch"],
+    "ingredients": [
+      "6 kleine Wraps",
+      "1 Packung Veggie Hack von dm",
+      "1 EL Gemüsebrühe",
+      "1 Paprika",
+      "1 EL Tomatenmark",
+      "1 Packung Streukäse",
+      "1 große Zwiebel",
+      "5 Knoblauchzehen",
+      "Olivenöl",
+      "Paprikapulver",
+      "Salz",
+      "Pfeffer"
+    ],
+    "preparation": [
+      "Veggie Hack nach Anweisung mit Gemüsebrühe quellen lassen.",
+      "Zwiebel und Knoblauch klein schneiden und in Pfanne mit Olivenöl anbraten.",
+      "Veggie Hack mit in Pfanne geben und gut anbraten lassen.",
+      "Alles gut mit Salz, Pfeffer und Paprikapulver würzen.",
+      "Tomatenmark mit in Pfanne geben und vor dem Umrühren kurz anbraten lassen (Tomatenmark ist dadurch weniger sauer).",
+      "Paprika klein schneiden, dazugeben und anbraten lassen.",
+      "Die Wraps jeweils an den gegenüberliegenden Seiten zwei mal etwas einschneiden, damit man die Wraps zu einer Schale falten kann.",
+      "Um die aufeinanderliegenden Seiten festzukleben nutze eine Mehl-Wasser-Mischung.",
+      "Gebe die Hack-Gemüse-Mischung in die Wrapschalen hinzu und bestreue sie mit Streukäse.",
+      "Alle Taco Wraps kommen nun auf ein Blech bei 250 Grad Oberhitze für ca. 5-10 min in den Ofen, bis der Käse braun ist."
+    ]
   }
 ]
