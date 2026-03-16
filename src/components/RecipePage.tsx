@@ -41,6 +41,7 @@ const RecipePage: React.FC = () => {
                     <>
                         {parts[0]}
                         <Link
+                            className="ingredient-link"
                             to={`/cookbook/${slug}`}
                             state={{
                                 recipe: recipes.find(r => r.title === relatedTitle)
