@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link, useLocation} from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 import {Recipe} from "../types/Recipe";
@@ -9,6 +9,13 @@ const RecipePage: React.FC = () => {
     const location = useLocation();
     const recipe = (location.state as { recipe?: Recipe })?.recipe;
     const [portions, setPortions] = useState<number>(recipe?.defaultPortions ?? 2);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+    useEffect(() => {
+        fetch("/recipes/recipes.json")
+            .then(res => res.json())
+            .then(data => setRecipes(data));
+    }, []);
 
     const handlePortionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.trim();
@@ -21,6 +28,33 @@ const RecipePage: React.FC = () => {
         if (!portions || portions <= 0) {
             setPortions(1);
         }
+    };
+
+    const renderIngredientWithLinks = (ingredient: string) => {
+        if (!recipe || !recipe.relatedRecipes) return ingredient;
+
+        for (const relatedTitle of recipe.relatedRecipes) {
+            if (ingredient.includes(relatedTitle)) {
+                const slug = relatedTitle.toLowerCase().replace(/\s+/g, "-");
+                const parts = ingredient.split(relatedTitle);
+                return (
+                    <>
+                        {parts[0]}
+                        <Link
+                            to={`/cookbook/${slug}`}
+                            state={{
+                                recipe: recipes.find(r => r.title === relatedTitle)
+                            }}
+                        >
+                            {relatedTitle}
+                        </Link>
+                        {parts[1]}
+                    </>
+                );
+            }
+        }
+
+        return ingredient;
     };
 
     if (!recipe) return <div>Loading recipe...</div>;
@@ -69,9 +103,10 @@ const RecipePage: React.FC = () => {
             <div className="zutaten">
                 <h3 className="cookbook-h3">Zutaten</h3>
                 <ul className="ingredients-list">
-                    {renderIngredients(recipe, ingredient =>
-                        adjustIngredient(ingredient, portions, defaultPortions)
-                    )}
+                    {renderIngredients(recipe, ingredient => {
+                        const adjusted = adjustIngredient(ingredient, portions, defaultPortions);
+                        return renderIngredientWithLinks(adjusted);
+                    })}
                 </ul>
             </div>
 
