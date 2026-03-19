@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 
 export const adjustIngredient = (
     ingredient: string,
@@ -17,7 +17,7 @@ export const adjustIngredient = (
 
 export const renderIngredients = (
     recipe: { ingredients?: string[] },
-    adjustFn: (ingredient: string) => string
+    adjustFn: (ingredient: string) => ReactNode
 ) => {
     if (!recipe.ingredients) return null;
 
