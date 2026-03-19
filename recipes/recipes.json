@@ -1148,8 +1148,8 @@
     "tags": ["vegetarisch"],
     "ingredients": [
       "Teig:",
-      "250 Mehl",
-      "150ml Wasser",
+      "250 g Mehl",
+      "150 ml Wasser",
       "2g Trockenhefe",
       "2 TL Salz",
       "Soße:",
@@ -1159,8 +1159,8 @@
       "Pfeffer",
       "Oregano",
       "Basilikum",
-      "Belag",
-      "2 Mozzarellaball",
+      "Belag:",
+      "1 Mozzarellaball",
       "0.5 Zwiebel"
     ],
     "preparation": [
@@ -1440,6 +1440,30 @@
       "Um die aufeinanderliegenden Seiten festzukleben nutze eine Mehl-Wasser-Mischung.",
       "Gebe die Hack-Gemüse-Mischung in die Wrapschalen hinzu und bestreue sie mit Streukäse.",
       "Alle Taco Wraps kommen nun auf ein Blech bei 250 Grad Oberhitze für ca. 5-10 min in den Ofen, bis der Käse braun ist."
+    ]
+  },
+  {
+    "title": "Basilikum Pesto Pizza",
+    "image": "PizzaBasilikum.jpeg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": ["vegetarisch"],
+    "relatedRecipes": ["Basilikum Pesto"],
+    "ingredients": [
+      "Teig:",
+      "250 Mehl",
+      "150ml Wasser",
+      "2g Trockenhefe",
+      "2 TL Salz",
+      "Basilikum Pesto",
+      "Streukäse",
+      "Parmesan"
+    ],
+    "preparation": [
+      "Das Mehl in eine Schüssel geben, Trockenhefe und Salz dazu mischen. Das Wasser darüber kippen und den Teig ordentlich kneten. Den Teig abgedeckt für mindestens eine Stunde bei Zimmertemperatur stehen lassen.",
+      "Die passierten Tomaten in eine Schüssel geben, den klein gehackten Knoblauch dazugeben und mit Salz, Pfeffer, Oregano und Basilikum würzen.",
+      "Den fertigen Teig ausrollen und mit Basilikumpesto bestreichen. Anschließend mit Streukäse und geriebenen Parmesan bestreuen.",
+      "Den Pizzaofen auf Stufe 2,5 für 10 Minuten vorheizen. Die Pizza in den Ofen legen und für 4 Minuten backen. Danach den Pizzaofen ausmachen und vor einer neuen Pizza kurz für 1-2 Minuten abkühlen lassen."
     ]
   }
 ]
