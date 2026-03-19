@@ -6,4 +6,5 @@ export interface Recipe {
     preparation?: string[];
     cuisine?: string;
     tags?: string[];
+    relatedRecipes?: string[];
 }

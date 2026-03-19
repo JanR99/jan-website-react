@@ -113,6 +113,15 @@
     border-bottom: 1px solid #ddd;
 }
 
+.ingredient-link {
+    color: #555;
+    text-decoration: underline;
+}
+
+.ingredient-link:hover {
+    color: #333;
+}
+
 @media (max-width: 768px) {
     .zubereitung {
         margin: 20px 10px 50px;
