@@ -1465,5 +1465,42 @@
       "Den fertigen Teig ausrollen und mit Basilikumpesto bestreichen. Anschließend mit Streukäse und geriebenen Parmesan bestreuen.",
       "Den Pizzaofen auf Stufe 2,5 für 10 Minuten vorheizen. Die Pizza in den Ofen legen und für 4 Minuten backen. Danach den Pizzaofen ausmachen und vor einer neuen Pizza kurz für 1-2 Minuten abkühlen lassen."
     ]
+  },
+  {
+    "title": "Tonkotsu Ramen",
+    "image": "TonkotsuRamen.jpeg",
+    "defaultPortions": 6,
+    "cuisine": "japanisch",
+    "tags": [],
+    "ingredients": [
+      "Zutaten Brühe:",
+      "2.4 kg Schweineknochen",
+      "240 g Schweinerückenfett",
+      "Zutaten Tare:",
+      "50 ml Mirin",
+      "50 ml Sake",
+      "200 ml Sojasoße",
+      "1 handvoll getrocknete Sardellen",
+      "3 kleine Stück Kombu",
+      "300 ml Wasser",
+      "1 EL Sesamöl",
+      "1 handvoll Bonitoflocken (optional)"
+    ],
+    "preparation": [
+      "Knochen 6–24 Stunden in kaltem Wasser einweichen.",
+      "Mit frischem Wasser bedecken, aufkochen und 20 Minuten köcheln lassen. Knochen abgießen und gründlich reinigen.",
+      "Mit frischem Wasser und Rückenspeck erneut aufsetzen.",
+      "Stark aufkochen und dann 12–18 Stunden bei mittel bis mittel-niedriger Stufe kochen.",
+      "Wasser nachfüllen, wenn zu viel verdunstet und gelegentlich umrühren.",
+      "Kombu in dem Wasser mindestens 3 Stunden einweichen.",
+      "Sesamöl erhitzen und die Sardellen in kleinen Stücken kurz anrösten.",
+      "Kombu + Wasser zugeben, erhitzen und nicht zum kochen bringen und dann Kombu entfernen.",
+      "Bonitoflocken zugeben, 10 Minuten ziehen lassen, abseihen.",
+      "Mirin + Sake 5 Minuten kochen, Sojasauce zugeben.",
+      "Fischbrühe mit Sojabasis mischen.",
+      "2 El Tare mit ca 6-8 kleine Kellen Brühe in eine Schüssel geben.",
+      "Gekochte Ramen dazugeben und toppen worauf man Lust hat.",
+      "Toppingbeispiele: Knoblauch, Frühlingszwiebeln, Sprossen, Eier, Bonitoflocken, Tofu..."
+    ]
   }
 ]
