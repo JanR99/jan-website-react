@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useParams} from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderPreparationSteps } from './helper/RecipeHelper';
 import '../styles/Recipe.css';
 import {Recipe} from "../types/Recipe";
@@ -7,15 +7,26 @@ import Navbar from "./Navbar";
 
 const RecipePage: React.FC = () => {
     const location = useLocation();
-    const recipe = (location.state as { recipe?: Recipe })?.recipe;
-    const [portions, setPortions] = useState<number>(recipe?.defaultPortions ?? 2);
+    const { recipeTitle } = useParams<{ recipeTitle: string }>();
+    const recipeFromState = (location.state as { recipe?: Recipe })?.recipe;
     const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [portions, setPortions] = useState<number>(recipeFromState?.defaultPortions ?? 2);
 
     useEffect(() => {
         fetch("/recipes/recipes.json")
             .then(res => res.json())
             .then(data => setRecipes(data));
     }, []);
+
+    const recipe = recipeFromState ?? recipes.find(r =>
+        r.title.toLowerCase().replace(/\s+/g, "-") === recipeTitle
+    );
+
+    useEffect(() => {
+        if (recipe && !recipeFromState) {
+            setPortions(recipe.defaultPortions ?? 2);
+        }
+    }, [recipe]);
 
     const handlePortionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.trim();
