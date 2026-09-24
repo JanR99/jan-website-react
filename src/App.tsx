@@ -5,11 +5,13 @@ import Cookbook from './components/Cookbook';
 import Home from './components/Home';
 import Destination from './components/Destination';
 import RecipePage from './components/RecipePage';
+import CookieConsent from './components/CookieConsent';
 
 const App: React.FC = () => {
     return (
         <Router>
             <div>
+                <CookieConsent />
                 {/* Routes */}
                 <Routes>
                     <Route path="/" element={<Home />} />
