@@ -3,6 +3,7 @@ package de.jan.user;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 import de.jan.objectify.DatastoreEntity;
 
 @Entity
@@ -10,6 +11,8 @@ public class User implements DatastoreEntity {
 
     @Id
     private Key<User> key;
+
+    @Index
     private String email;
     private String password;
 
