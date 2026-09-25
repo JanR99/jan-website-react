@@ -22,6 +22,9 @@ public class User implements DatastoreEntity {
 
     private String lastname;
 
+    @JsonIgnore
+    private boolean admin = false;
+
     public User() {
 
     }
@@ -72,5 +75,13 @@ public class User implements DatastoreEntity {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 }

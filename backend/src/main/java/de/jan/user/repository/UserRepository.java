@@ -44,6 +44,12 @@ public class UserRepository {
         }
     }
 
+    public User setAdminStatus(String targetEmail, boolean isAdmin) {
+        User target = getByEmail(targetEmail);
+        target.setAdmin(isAdmin);
+        return userDAO.save(target);
+    }
+
     public User save(User user) {
         if (user.getEmail() == null || user.getHashedPassword() == null) {
             throw new EntityStateException("Email or password is null");

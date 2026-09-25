@@ -2,11 +2,15 @@ package de.jan.controller;
 
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
+import de.jan.controller.requests.SetAdminStatusRequest;
 import de.jan.controller.response.LoginResponse;
+import de.jan.security.AuthUtils;
+import de.jan.security.Authorization;
 import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
 import de.jan.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +49,16 @@ public class UserController {
     ) {
         User user = userRepository.getByEmail(email);
         return ResponseEntity.ok(UserDTO.from(user));
+    }
+
+    @PostMapping("/setAdminStatus")
+    public ResponseEntity<UserDTO> setAdminStatus(
+            HttpServletRequest request,
+            @RequestBody SetAdminStatusRequest body
+    ) {
+        String callerEmail = AuthUtils.getCurrentEmail(request);
+        Authorization.isAdmin(userRepository.getByEmail(callerEmail));
+        User updatedUser = userRepository.setAdminStatus(body.getTargetEmail(), body.isAdmin());
+        return ResponseEntity.ok(UserDTO.from(updatedUser));
     }
 }

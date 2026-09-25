@@ -12,7 +12,8 @@ import java.util.Set;
 public class JwtFilterConfig {
 
     private final Set<String> safeRoutes = Set.of(
-            "/api/users/getUserByEmail"
+            "/api/users/getUserByEmail",
+            "/api/users/setAdminStatus"
     );
 
     @Bean
