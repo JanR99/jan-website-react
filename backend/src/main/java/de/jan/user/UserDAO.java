@@ -12,6 +12,6 @@ public class UserDAO extends BaseDAO<User> {
     }
 
     public List<User> getByEmail(String email) {
-        return super.findByFiler(Map.of("email", email));
+        return super.findByFilter(Map.of("email", email));
     }
 }

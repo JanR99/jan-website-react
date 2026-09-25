@@ -1,6 +1,6 @@
 package de.jan.objectify;
 
-import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Query;
 
 import java.util.List;
 import java.util.Map;
@@ -20,9 +20,11 @@ public class BaseDAO<T extends DatastoreEntity> {
         return entity;
     }
 
-    public List<T> findByFiler(Map<String, Object> filterMap) {
-        LoadType<T> loadType = ofy().load().type(clazz);
-        filterMap.forEach(loadType::filter);
-        return loadType.list();
+    public List<T> findByFilter(Map<String, Object> filterMap) {
+        Query<T> query = ofy().load().type(clazz);
+        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
+            query = query.filter(entry.getKey(), entry.getValue());
+        }
+        return query.list();
     }
 }
