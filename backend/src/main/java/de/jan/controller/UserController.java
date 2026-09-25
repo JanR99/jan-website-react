@@ -2,6 +2,8 @@ package de.jan.controller;
 
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
+import de.jan.controller.response.LoginResponse;
+import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
 import de.jan.user.repository.UserRepository;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -27,11 +31,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(
+    public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest request
     ) {
         User user = userRepository.login(request);
-        return ResponseEntity.ok(UserDTO.from(user));
+        String token = jwtService.generateToken(user.getEmail());
+        return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
     }
 
     @GetMapping("getUserByEmail")
