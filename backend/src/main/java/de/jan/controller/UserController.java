@@ -1,5 +1,6 @@
 package de.jan.controller;
 
+import de.jan.controller.requests.RegisterRequest;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,9 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(
-            @RequestBody User user
+            @RequestBody RegisterRequest request
     ) {
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.register(request);
         return ResponseEntity.ok(savedUser);
     }
 

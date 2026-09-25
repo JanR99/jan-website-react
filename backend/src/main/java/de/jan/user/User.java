@@ -1,5 +1,6 @@
 package de.jan.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -14,17 +15,23 @@ public class User implements DatastoreEntity {
     @Index
     private String email;
 
-    private String password;
+    @JsonIgnore
+    private String hashedPassword;
 
     private String firstname;
 
     private String lastname;
 
-    public User() {}
+    public User() {
 
-    public User(String email, String password) {
+    }
+
+    public User(String email, String password, String firstname, String lastname) {
+        this();
         this.email = email;
-        this.password = password;
+        this.hashedPassword = password;
+        this.firstname = firstname;
+        this.lastname = lastname;
     }
 
     public Long getId() {
@@ -43,12 +50,12 @@ public class User implements DatastoreEntity {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getHashedPassword() {
+        return hashedPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
     }
 
     public String getFirstname() {
