@@ -1,6 +1,5 @@
 package de.jan.user;
 
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -10,7 +9,7 @@ import de.jan.objectify.DatastoreEntity;
 public class User implements DatastoreEntity {
 
     @Id
-    private Key<User> key;
+    private Long id;
 
     @Index
     private String email;
@@ -28,12 +27,12 @@ public class User implements DatastoreEntity {
         this.password = password;
     }
 
-    public Key<User> getUserKey() {
-        return key;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setUserKey(Key<User> key) {
-        this.key = key;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
