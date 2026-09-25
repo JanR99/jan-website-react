@@ -1,10 +1,12 @@
 package de.jan.config;
 
-import com.googlecode.objectify.Objectify;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.user.User;
-import org.springframework.context.annotation.Bean;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -16,11 +18,12 @@ public class ObjectifyConfig {
         User.class
     );
 
-    @Bean
-    public Objectify ofy() {
+    @PostConstruct
+    public void init() {
+        Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+        ObjectifyService.init(new ObjectifyFactory(datastore));
         for (Class<? extends DatastoreEntity> objectifyEntityClass : datastoreEntities) {
             ObjectifyService.register(objectifyEntityClass);
         }
-        return ObjectifyService.ofy();
     }
 }
