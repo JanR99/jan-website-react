@@ -1,5 +1,6 @@
 package de.jan.controller;
 
+import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
@@ -23,6 +24,14 @@ public class UserController {
     ) {
         User savedUser = userRepository.register(request);
         return ResponseEntity.ok(UserDTO.from(savedUser));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(
+            @RequestBody LoginRequest request
+    ) {
+        User user = userRepository.login(request);
+        return ResponseEntity.ok(UserDTO.from(user));
     }
 
     @GetMapping("getUserByEmail")

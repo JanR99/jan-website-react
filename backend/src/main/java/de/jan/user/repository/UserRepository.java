@@ -1,5 +1,6 @@
 package de.jan.user.repository;
 
+import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
@@ -25,6 +26,22 @@ public class UserRepository {
         String hashedPassword = passwordEncoder.encode(req.getPassword());
         User user = new User(req.getEmail(), hashedPassword, req.getFirstname(), req.getLastname());
         return save(user);
+    }
+
+    public User login(LoginRequest request) {
+        String credentialsMessage = "Invalid credentials";
+        if (request.getEmail() == null || request.getPassword() == null) {
+            throw new EntityStateException("Email or password is null");
+        }
+        try {
+            User user = getByEmail(request.getEmail());
+            if (!passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
+                throw new EntityStateException(credentialsMessage);
+            }
+            return user;
+        } catch (EntityNotFoundException e) {
+            throw new EntityStateException(credentialsMessage);
+        }
     }
 
     public User save(User user) {
