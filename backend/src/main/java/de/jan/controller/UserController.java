@@ -2,6 +2,7 @@ package de.jan.controller;
 
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.user.User;
+import de.jan.user.UserDTO;
 import de.jan.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +18,18 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(
+    public ResponseEntity<UserDTO> register(
             @RequestBody RegisterRequest request
     ) {
         User savedUser = userRepository.register(request);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(UserDTO.from(savedUser));
     }
 
     @GetMapping("getUserByEmail")
-    public ResponseEntity<User> getUserByEmail(
+    public ResponseEntity<UserDTO> getUserByEmail(
             @RequestParam("email") String email
     ) {
         User user = userRepository.getByEmail(email);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserDTO.from(user));
     }
 }
