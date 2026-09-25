@@ -1,53 +1,67 @@
+#!/usr/bin/env bash
 # start-dev.sh
 # start Firestore-Emulator (Datastore-Mode) and then Spring-Boot-App.
 
-$ErrorActionPreference = "Stop"
+set -euo pipefail
 
 # --- Config ---
-$EmulatorPort = "8081"
-$ProjectId    = "jan-website"
-$BackendDir   = "backend"
+EMULATOR_PORT="8081"
+PROJECT_ID="jan-website-dev"   # any placeholder name works for the emulator
+BACKEND_DIR="backend"
 
-Write-Host "Starte Firestore-Emulator (Datastore-Modus) auf Port $EmulatorPort ..." -ForegroundColor Cyan
+# --- Load .env file (if present) ---
+ENV_FILE=".env"
+if [ -f "$ENV_FILE" ]; then
+    echo "Loading environment variables from ${ENV_FILE} ..."
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Trim whitespace
+        line="$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 
-# start Emulator in own window
-$emulatorProcess = Start-Process powershell -ArgumentList @(
-    "-NoExit",
-    "-Command",
-    "gcloud emulators firestore start --database-mode=datastore-mode --host-port=localhost:$EmulatorPort"
-) -PassThru
+        # Skip empty lines and comments
+        [ -z "$line" ] && continue
+        case "$line" in \#*) continue ;; esac
 
-Write-Host "Warte kurz, bis der Emulator hochgefahren ist ..." -ForegroundColor Cyan
-Start-Sleep -Seconds 6
+        key="${line%%=*}"
+        value="${line#*=}"
+        key="$(echo "$key" | sed 's/[[:space:]]*$//')"
+        value="$(echo "$value" | sed 's/^[[:space:]]*//')"
 
-# env-Variables
-$env:DATASTORE_EMULATOR_HOST = "localhost:$EmulatorPort"
-$env:GOOGLE_CLOUD_PROJECT    = $ProjectId
+        export "$key=$value"
+        echo "  $key set"
+    done < "$ENV_FILE"
+else
+    echo "No .env file found (${ENV_FILE}) - skipping. See .env.example."
+fi
 
-Write-Host "DATASTORE_EMULATOR_HOST = $env:DATASTORE_EMULATOR_HOST" -ForegroundColor Green
-Write-Host "GOOGLE_CLOUD_PROJECT    = $env:GOOGLE_CLOUD_PROJECT" -ForegroundColor Green
+# --- Start Firestore emulator (Datastore mode) in the background ---
+echo "Starting Firestore emulator (Datastore mode) on port ${EMULATOR_PORT} ..."
 
-# --- JDK 21 (Spring Boot 3.x only uses Java 21) ---
-$AdoptiumRoot = "C:\Program Files\Eclipse Adoptium"
-$Jdk21Dir = Get-ChildItem -Path $AdoptiumRoot -Directory -Filter "jdk-21*" -ErrorAction SilentlyContinue |
-            Select-Object -First 1
+gcloud emulators firestore start \
+    --database-mode=datastore-mode \
+    --host-port="localhost:${EMULATOR_PORT}" \
+    > emulator.log 2>&1 &
 
-if (-not $Jdk21Dir) {
-    Write-Host "ERROR: No 'jdk-21*'-Folder under '$AdoptiumRoot' found." -ForegroundColor Red
-    exit 1
+EMULATOR_PID=$!
+
+# Clean up when the script exits (also on Ctrl+C)
+cleanup() {
+    echo ""
+    echo "Stopping emulator (PID ${EMULATOR_PID}) ..."
+    kill "${EMULATOR_PID}" 2>/dev/null || true
 }
+trap cleanup EXIT
 
-$env:JAVA_HOME = $Jdk21Dir.FullName
-$env:Path = "$env:JAVA_HOME\bin;" + $env:Path
+echo "Waiting for the emulator to start up ..."
+sleep 6
 
-Write-Host "JAVA_HOME = $env:JAVA_HOME" -ForegroundColor Green
-& "$env:JAVA_HOME\bin\java.exe" -version
+# --- Env variables for the emulator connection ---
+export DATASTORE_EMULATOR_HOST="localhost:${EMULATOR_PORT}"
+export GOOGLE_CLOUD_PROJECT="${PROJECT_ID}"
 
-Write-Host "Start Spring-Boot-App in '$BackendDir' ..." -ForegroundColor Cyan
-Push-Location $BackendDir
-try {
-    mvn spring-boot:run
-}
-finally {
-    Pop-Location
-}
+echo "DATASTORE_EMULATOR_HOST = ${DATASTORE_EMULATOR_HOST}"
+echo "GOOGLE_CLOUD_PROJECT    = ${GOOGLE_CLOUD_PROJECT}"
+
+# --- Start the Spring Boot app ---
+echo "Starting Spring Boot app in '${BACKEND_DIR}' ..."
+cd "${BACKEND_DIR}"
+mvn spring-boot:run
