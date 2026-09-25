@@ -25,7 +25,7 @@ public class UserController {
 
     @GetMapping("getUserByEmail")
     public ResponseEntity<User> getUserByEmail(
-            @RequestParam String email
+            @RequestParam("email") String email
     ) {
         User user = userRepository.getByEmail(email);
         return ResponseEntity.ok(user);
