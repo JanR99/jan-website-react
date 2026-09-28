@@ -20,6 +20,12 @@ public class CorsConfig {
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:8888",
+                "http://localhost:5173",
+                "https://jan-website.de"
+        ));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         source.registerCorsConfiguration("/v3/**", config);
