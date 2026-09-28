@@ -1,7 +1,6 @@
 // @ts-ignore
 import SwaggerClient from "swagger-client";
 
-// @ts-ignore
 const APP_PATH = import.meta.env.VITE_API_BASE_URL ?? `${self.location.protocol}//${self.location.host}`;
 const DISCOVERY_URL = `${APP_PATH}/v3/api-docs`;
 
