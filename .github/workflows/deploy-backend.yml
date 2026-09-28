@@ -35,4 +35,4 @@ jobs:
             --source=. \
             --region=europe-west1 \
             --allow-unauthenticated \
-            --set-env-vars="^@^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}@BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}@JWT_SECRET=${{ secrets.JWT_SECRET }}"
+            --set-env-vars="^#^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}#BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}#JWT_SECRET=${{ secrets.JWT_SECRET }}"
