@@ -87,6 +87,38 @@ class APIClient {
             )
         );
     }
+
+    setToken(token: string | null) {
+        this.token = token;
+    }
+
+    getToken() {
+        return this.token;
+    }
+
+    clearToken() {
+        this.token = null;
+    }
+
+    async getOperation(tag: string, operationId: string) {
+        const apis = await this.apis;
+
+        if (!apis[tag]?.[operationId]) {
+            throw new Error(
+                `Operation ${tag}.${operationId} not found in OpenAPI specification`
+            );
+        }
+
+        return apis[tag][operationId];
+    }
+
+    async getHttpMethod(tag: string, operationId: string) {
+        return (await this.getOperation(tag, operationId)).httpMethod;
+    }
+
+    async getPath(tag: string, operationId: string) {
+        return (await this.getOperation(tag, operationId)).path;
+    }
 }
 
 export const apiClient = new APIClient();
