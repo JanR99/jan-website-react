@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - backend-inital-branch
     paths:
       - 'backend/**'
       - 'pom.xml'
