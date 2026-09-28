@@ -1,0 +1,8 @@
+.git
+.github
+node_modules
+dist
+.env
+*.log
+github-actions-key.json
+*-key.json
