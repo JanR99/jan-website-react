@@ -10,10 +10,13 @@ import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
 import de.jan.user.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "user")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -21,11 +24,17 @@ public class UserController {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
+    private static final String REGISTER = "register";
+    private static final String LOGIN = "login";
+    private static final String GET_USER_BY_EMAIL = "getUserByEmail";
+    private static final String SET_ADMIN_STATUS = "setAdminStatus";
+
     public UserController(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
 
+    @Operation(operationId = REGISTER)
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(
             @RequestBody RegisterRequest request
@@ -34,6 +43,7 @@ public class UserController {
         return ResponseEntity.ok(UserDTO.from(savedUser));
     }
 
+    @Operation(operationId = LOGIN)
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
             @RequestBody LoginRequest request
@@ -43,6 +53,7 @@ public class UserController {
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
     }
 
+    @Operation(operationId = GET_USER_BY_EMAIL)
     @GetMapping("getUserByEmail")
     public ResponseEntity<UserDTO> getUserByEmail(
             @RequestParam("email") String email
@@ -51,6 +62,7 @@ public class UserController {
         return ResponseEntity.ok(UserDTO.from(user));
     }
 
+    @Operation(operationId = SET_ADMIN_STATUS)
     @PostMapping("/setAdminStatus")
     public ResponseEntity<UserDTO> setAdminStatus(
             HttpServletRequest request,
