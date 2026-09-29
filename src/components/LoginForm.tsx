@@ -29,7 +29,7 @@ export default function LoginForm() {
             setMessage(
                 result.error === "invalid-credentials"
                     ? "E-Mail oder Passwort ist falsch."
-                    : "Die Anmeldung ist gerade nicht verfügbar. Bitte versuche es später erneut."
+                    : result.error
             );
         }
         setPassword("");

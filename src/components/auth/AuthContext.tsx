@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import {UserDTO} from "../../types/entities.ts";
-import {LoginRequest, LoginResponse} from "../../types/userController.ts";
+import {LoginRequest, LoginResponse, RegisterRequest} from "../../types/userController.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -19,6 +19,7 @@ export type LoginResult =
 interface AuthContextValue {
     user: UserDTO | null;
     login: (request: LoginRequest) => Promise<LoginResult>;
+    register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
 }
 
@@ -75,6 +76,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const register = useCallback(async (request: RegisterRequest): Promise<LoginResult> => {
+        try {
+            await UserController.register(request);
+        } catch (error) {
+            const status = (error as { status?: number })?.status;
+            if (status === 400) {
+                return { ok: false, error: "invalid-credentials" };
+            }
+            return { ok: false, error: "unavailable" };
+        }
+        return login({ email: request.email, password: request.password });
+    }, [login]);
+
     const logout = useCallback(() => {
         apiClient.clearToken();
         saveSession(null);
@@ -82,8 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const value = useMemo<AuthContextValue>(
-        () => ({ user: session?.user ?? null, login, logout }),
-        [session, login, logout]
+        () => ({ user: session?.user ?? null, login, register, logout }),
+        [session, login, register, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
