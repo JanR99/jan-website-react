@@ -45,6 +45,12 @@ export default function AccountMenu() {
         setBusy(true);
         setMessage(null);
 
+        if (tab === "register" && (!firstname.trim() || !lastname.trim())) {
+            setMessage("Vorname und Nachname dürfen nicht leer sein.");
+            setBusy(false);
+            return;
+        }
+
         const result =
             tab === "login"
                 ? await login({ email, password })
@@ -143,6 +149,7 @@ export default function AccountMenu() {
                                                 value={firstname}
                                                 onChange={(e) => setFirstname(e.target.value)}
                                                 autoComplete="given-name"
+                                                required
                                             />
                                         </label>
                                         <label>
@@ -152,6 +159,7 @@ export default function AccountMenu() {
                                                 value={lastname}
                                                 onChange={(e) => setLastname(e.target.value)}
                                                 autoComplete="family-name"
+                                                required
                                             />
                                         </label>
                                     </>

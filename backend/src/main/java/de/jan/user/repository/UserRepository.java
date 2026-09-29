@@ -10,9 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class UserRepository {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
@@ -23,6 +26,14 @@ public class UserRepository {
     }
 
     public User register(RegisterRequest req) {
+        if (req.getEmail() == null || !EMAIL_PATTERN.matcher(req.getEmail()).matches()) {
+            throw new EntityStateException("Invalid email address");
+        }
+
+        if (req.getPassword() == null || req.getPassword().length() < 8) {
+            throw new EntityStateException("Invalid password");
+        }
+
         String hashedPassword = passwordEncoder.encode(req.getPassword());
         User user = new User(req.getEmail(), hashedPassword, req.getFirstname(), req.getLastname());
         return save(user);
