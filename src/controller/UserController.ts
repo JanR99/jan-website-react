@@ -6,38 +6,28 @@ import {
 
 export default class UserController {
 
-    static register(req: RegisterRequest) {
-        return apiClient.then((apis: any) => {
-            return apis.user.register({
-                requestBody: req,
-            });
+    static async register(req: RegisterRequest) {
+        const apis = await apiClient;
+        return apis.user.register.execute({}, { requestBody: req });
+    }
+
+    static async login(req: LoginRequest) {
+        const apis = await apiClient;
+        return apis.user.login.execute({}, { requestBody: req });
+    }
+
+    static async getUserByEmail(email: string) {
+        const apis = await apiClient;
+        return apis.user.getUserByEmail.execute({
+            email,
         });
     }
 
-    static login(req: LoginRequest) {
-        return apiClient.then((apis: any) => {
-            return apis.user.login({
-                requestBody: req,
-            });
-        });
-    }
-
-    static getUserByEmail(email: string) {
-        return apiClient.then((apis: any) => {
-            return apis.user.getUserByEmail({
-                email,
-            });
-        });
-    }
-
-    static setAdminStatus(targetEmail: string, isAdmin: boolean) {
-        return apiClient.then((apis: any) => {
-            return apis.user.setAdminStatus({
-                requestBody: {
-                    targetEmail,
-                    admin: isAdmin,
-                },
-            });
-        });
+    static async setAdminStatus(targetEmail: string, isAdmin: boolean) {
+        const apis = await apiClient;
+        return apis.user.setAdminStatus.execute(
+            {},
+            { requestBody: { targetEmail, admin: isAdmin } }
+        );
     }
 }
