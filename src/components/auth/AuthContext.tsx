@@ -23,7 +23,7 @@ interface AuthContextValue {
     logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 // sessionStorage keeps the login across page reloads, but not across browser sessions.
 // Every access is wrapped in try/catch because storage can be unavailable (e.g. private mode).
