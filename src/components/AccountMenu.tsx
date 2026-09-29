@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useAuth } from "./auth/AuthContext.tsx";
+import { handleApiError } from "../controller/util/ErrorHandler.ts";
 import "../styles/AccountMenu.css";
 
 type Tab = "login" | "register";
@@ -51,10 +52,16 @@ export default function AccountMenu() {
             return;
         }
 
-        const result =
-            tab === "login"
-                ? await login({ email, password })
-                : await register({ email, password, firstname, lastname });
+        let result: { ok: boolean; error?: string };
+
+        try {
+            result =
+                tab === "login"
+                    ? await login({ email, password })
+                    : await register({ email, password, firstname, lastname });
+        } catch (error: any) {
+            result = { ok: false, error: handleApiError(error) };
+        }
 
         if (result.ok) {
             setOpen(false);
@@ -63,7 +70,7 @@ export default function AccountMenu() {
             setFirstname("");
             setLastname("");
         } else {
-            setMessage(result.error);
+            setMessage(result.error || "Register/Login error happened");
         }
         setBusy(false);
     }

@@ -48,33 +48,6 @@ function saveSession(session: Session | null) {
     }
 }
 
-function errorHandling(error: any) {
-    const err = error as {
-        response?: {
-            data?: string | { message?: string };
-        };
-    };
-
-    const errorBody = err.response?.data;
-
-    if (typeof errorBody === "string") {
-        return { ok: false, error: errorBody };
-    }
-
-    if (
-        errorBody &&
-        typeof errorBody === "object" &&
-        "message" in errorBody
-    ) {
-        return {
-            ok: false,
-            error: String((errorBody as { message: unknown }).message),
-        };
-    }
-
-    return { ok: false, error: "Gerade nicht verfügbar. Bitte später erneut versuchen." };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(() => {
         const restored = loadSession();
@@ -83,26 +56,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
-        try {
-            const response = await UserController.login(request);
-            const body = (response.body ?? response.obj) as LoginResponse;
+        const response = await UserController.login(request);
+        const body = (response.body ?? response.obj) as LoginResponse;
 
-            apiClient.setToken(body.token);
-            const next: Session = { token: body.token, user: body.user };
-            saveSession(next);
-            setSession(next);
-            return { ok: true };
-        } catch (error) {
-            return errorHandling(error);
-        }
+        apiClient.setToken(body.token);
+        const next: Session = { token: body.token, user: body.user };
+        saveSession(next);
+        setSession(next);
+        return { ok: true };
     }, []);
 
     const register = useCallback(async (request: RegisterRequest): Promise<LoginResult> => {
-        try {
-            await UserController.register(request);
-        } catch (error) {
-            return errorHandling(error);
-        }
+        await UserController.register(request);
 
         return login({ email: request.email, password: request.password });
     }, [login]);
