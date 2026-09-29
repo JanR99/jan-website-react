@@ -13,8 +13,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    token: string;
-    user: UserDTO;
+    body: {
+        token: string;
+        user: UserDTO;
+    }
 }
 
 export interface SetAdminStatusRequest {

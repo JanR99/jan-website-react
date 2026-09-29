@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import {UserDTO} from "../../types/entities.ts";
-import {LoginRequest, LoginResponse, RegisterRequest} from "../../types/userController.ts";
+import {LoginRequest, RegisterRequest} from "../../types/userController.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -57,10 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
         const response = await UserController.login(request);
-        const body = (response.body ?? response.obj) as LoginResponse;
-
-        apiClient.setToken(body.token);
-        const next: Session = { token: body.token, user: body.user };
+        apiClient.setToken(response.body.token);
+        const next: Session = { token: response.body.token, user: response.body.user };
         saveSession(next);
         setSession(next);
         return { ok: true };
