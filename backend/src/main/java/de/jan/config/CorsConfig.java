@@ -15,16 +15,16 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8888", "https://jan-website.de"));
+
+        config.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:*",
+                "http://192.168.*.*:*",
+                "https://jan-website.de"
+        ));
+
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
-
-        config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8888",
-                "http://localhost:5173",
-                "https://jan-website.de"
-        ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);

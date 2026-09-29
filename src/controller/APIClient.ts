@@ -1,7 +1,14 @@
 // @ts-ignore
 import SwaggerClient from "swagger-client";
 
-const APP_PATH = import.meta.env.VITE_API_BASE_URL ?? `${self.location.protocol}//${self.location.host}`;
+function resolveApiBase(): string {
+    if (import.meta.env.DEV) {
+        return `${window.location.protocol}//${window.location.hostname}:8080`;
+    }
+    return import.meta.env.VITE_API_BASE_URL;
+}
+
+const APP_PATH = resolveApiBase();
 const DISCOVERY_URL = `${APP_PATH}/v3/api-docs`;
 
 class APIClient {
