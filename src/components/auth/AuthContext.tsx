@@ -14,7 +14,7 @@ interface Session {
 
 export type LoginResult =
     | { ok: true }
-    | { ok: false; error: "invalid-credentials" | "unavailable" };
+    | { ok: false; error: string };
 
 interface AuthContextValue {
     user: UserDTO | null;
@@ -48,6 +48,33 @@ function saveSession(session: Session | null) {
     }
 }
 
+function errorHandling(error: any) {
+    const err = error as {
+        response?: {
+            data?: string | { message?: string };
+        };
+    };
+
+    const errorBody = err.response?.data;
+
+    if (typeof errorBody === "string") {
+        return { ok: false, error: errorBody };
+    }
+
+    if (
+        errorBody &&
+        typeof errorBody === "object" &&
+        "message" in errorBody
+    ) {
+        return {
+            ok: false,
+            error: String((errorBody as { message: unknown }).message),
+        };
+    }
+
+    return { ok: false, error: "Gerade nicht verfügbar. Bitte später erneut versuchen." };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(() => {
         const restored = loadSession();
@@ -66,13 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setSession(next);
             return { ok: true };
         } catch (error) {
-            // swagger-client rejects non-2xx answers with an error that carries the HTTP status.
-            // No status at all means the backend could not be reached (or the spec failed to load).
-            const status = (error as { status?: number })?.status;
-            if (status === 400 || status === 401) {
-                return { ok: false, error: "invalid-credentials" };
-            }
-            return { ok: false, error: "unavailable" };
+            return errorHandling(error);
         }
     }, []);
 
@@ -80,12 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await UserController.register(request);
         } catch (error) {
-            const status = (error as { status?: number })?.status;
-            if (status === 400) {
-                return { ok: false, error: "invalid-credentials" };
-            }
-            return { ok: false, error: "unavailable" };
+            return errorHandling(error);
         }
+
         return login({ email: request.email, password: request.password });
     }, [login]);
 

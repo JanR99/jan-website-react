@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public class UserRepository {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final int PASSWORD_MIN_LENGTH = 8;
 
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
@@ -27,11 +28,15 @@ public class UserRepository {
 
     public User register(RegisterRequest req) {
         if (req.getEmail() == null || !EMAIL_PATTERN.matcher(req.getEmail()).matches()) {
-            throw new EntityStateException("Invalid email address");
+            throw new EntityStateException("Invalid email address format");
         }
 
-        if (req.getPassword() == null || req.getPassword().length() < 8) {
-            throw new EntityStateException("Invalid password");
+        if (req.getPassword() == null || req.getPassword().length() < PASSWORD_MIN_LENGTH) {
+            throw new EntityStateException("Invalid password: passwords need to be at least " + PASSWORD_MIN_LENGTH + " characters long");
+        }
+
+        if (!userDAO.getByEmail(req.getEmail()).isEmpty()) {
+            throw new EntityStateException("User with this email already exists");
         }
 
         String hashedPassword = passwordEncoder.encode(req.getPassword());

@@ -63,13 +63,7 @@ export default function AccountMenu() {
             setFirstname("");
             setLastname("");
         } else {
-            setMessage(
-                result.error === "invalid-credentials"
-                    ? tab === "login"
-                        ? "E-Mail oder Passwort ist falsch."
-                        : "Registrierung fehlgeschlagen. Bitte Angaben prüfen."
-                    : "Gerade nicht verfügbar. Bitte später erneut versuchen."
-            );
+            setMessage(result.error);
         }
         setBusy(false);
     }
