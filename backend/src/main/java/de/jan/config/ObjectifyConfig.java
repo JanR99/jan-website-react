@@ -7,6 +7,7 @@ import com.googlecode.objectify.ObjectifyService;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
+import de.jan.recipe.RecipeSeedMarker;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
@@ -21,7 +22,8 @@ public class ObjectifyConfig {
         User.class,
         PasswordResetToken.class,
         Recipe.class,
-        RecipeImage.class
+        RecipeImage.class,
+        RecipeSeedMarker.class
     );
 
     @PostConstruct

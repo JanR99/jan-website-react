@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.text.Collator;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -78,13 +79,17 @@ public class RecipeRepository {
         return recipeDAO.exists(id);
     }
 
-    public boolean isEmpty() {
-        return recipeDAO.count() == 0;
+    public Recipe create(RecipeRequest request) {
+        return create(request, recipeDAO.getAll());
     }
 
-    public Recipe create(RecipeRequest request) {
+    /**
+     * Like create(request), but checks the title against the given recipes instead of loading
+     * all of them again, for importing many recipes at once.
+     */
+    public Recipe create(RecipeRequest request, Collection<Recipe> existing) {
         Recipe recipe = new Recipe();
-        apply(recipe, request);
+        apply(recipe, request, existing);
         Recipe saved = recipeDAO.save(recipe);
         invalidateCache();
         return saved;
@@ -93,7 +98,7 @@ public class RecipeRepository {
     public Recipe update(Long id, RecipeRequest request) {
         Recipe recipe = getById(id);
         String previousImage = recipe.getImage();
-        apply(recipe, request);
+        apply(recipe, request, recipeDAO.getAll());
         Recipe saved = recipeDAO.save(recipe);
         invalidateCache();
         if (!Objects.equals(previousImage, saved.getImage())) {
@@ -131,11 +136,11 @@ public class RecipeRepository {
         cache = null;
     }
 
-    private void apply(Recipe recipe, RecipeRequest request) {
+    private void apply(Recipe recipe, RecipeRequest request, Collection<Recipe> existing) {
         String title = collapse(request.getTitle());
         requireText(title, "Title", TITLE_MAX_LENGTH);
         String slug = slug(title);
-        boolean duplicate = recipeDAO.getAll().stream()
+        boolean duplicate = existing.stream()
                 .anyMatch(other -> !Objects.equals(other.getId(), recipe.getId()) && slug(other.getTitle()).equals(slug));
         if (duplicate) {
             throw new EntityStateException("A recipe with this title already exists");
