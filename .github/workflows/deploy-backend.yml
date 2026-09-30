@@ -1,0 +1,37 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy jan-website-backend \
+            --source=. \
+            --region=europe-west1 \
+            --allow-unauthenticated \
+            --set-env-vars="^#^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}#BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}#JWT_SECRET=${{ secrets.JWT_SECRET }}"

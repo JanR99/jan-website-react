@@ -6,11 +6,13 @@ import Home from './components/Home';
 import Destination from './components/Destination';
 import RecipePage from './components/RecipePage';
 import CookieConsent from './components/CookieConsent';
+import AccountMenu from "./components/AccountMenu.tsx";
 
 const App: React.FC = () => {
     return (
         <Router>
             <div>
+                <AccountMenu />
                 <CookieConsent />
                 {/* Routes */}
                 <Routes>
