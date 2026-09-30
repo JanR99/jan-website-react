@@ -1,21 +1,21 @@
 package de.jan.user;
 
 import de.jan.objectify.BaseDAO;
+import de.jan.objectify.Filter;
 
 import java.util.List;
-import java.util.Map;
 
-public class UserDAO extends BaseDAO<User> {
+public class UserDAO extends BaseDAO<User, Long> {
 
     public UserDAO() {
         super(User.class);
     }
 
     public List<User> getByEmail(String email) {
-        return super.findByFilter(Map.of("email", email));
+        return find(Filter.eq("email", email));
     }
 
     public List<User> getByFavoriteRecipeId(Long recipeId) {
-        return super.findByFilter(Map.of("favoriteRecipeIds", recipeId));
+        return find(Filter.eq("favoriteRecipeIds", recipeId));
     }
 }

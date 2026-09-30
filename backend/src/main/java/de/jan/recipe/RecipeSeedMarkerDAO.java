@@ -1,17 +1,20 @@
 package de.jan.recipe;
 
+import de.jan.objectify.BaseDAO;
+
 import java.util.Date;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+public class RecipeSeedMarkerDAO extends BaseDAO<RecipeSeedMarker, String> {
 
-/** Not a BaseDAO, because the marker has a String id. */
-public class RecipeSeedMarkerDAO {
+    public RecipeSeedMarkerDAO() {
+        super(RecipeSeedMarker.class);
+    }
 
     public boolean isCompleted() {
-        return ofy().load().type(RecipeSeedMarker.class).id(RecipeSeedMarker.ID).now() != null;
+        return exists(RecipeSeedMarker.ID);
     }
 
     public void markCompleted() {
-        ofy().save().entity(new RecipeSeedMarker(new Date())).now();
+        save(new RecipeSeedMarker(new Date()));
     }
 }
