@@ -2,8 +2,10 @@ package de.jan.user.repository;
 
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
+import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.mail.RegistrationMailService;
+import de.jan.role.Permission;
 import de.jan.role.Role;
 import de.jan.role.repository.RoleRepository;
 import de.jan.user.PasswordResetToken;
@@ -13,8 +15,10 @@ import de.jan.user.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Component
@@ -121,6 +125,33 @@ public class UserRepository {
         if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
             throw new EntityStateException("Invalid password: passwords need to be at least " + PASSWORD_MIN_LENGTH + " characters long");
         }
+    }
+
+    public List<User> getAll() {
+        return userDAO.getAll().stream()
+                .sorted(Comparator.comparing(User::getEmail))
+                .toList();
+    }
+
+    /**
+     * Replaces the roles of a user. Nobody can take away their own MANAGE_USERS permission,
+     * so there is always someone left who can manage users.
+     */
+    public User setRoles(User caller, String targetEmail, Set<Long> roleIds) {
+        if (targetEmail == null || targetEmail.isBlank()) {
+            throw new EntityStateException("Email must not be empty");
+        }
+        User target = getByEmail(targetEmail);
+        if (target == null) {
+            throw new EntityNotFoundException("User with email " + targetEmail + " not found");
+        }
+        Set<Long> validated = roleRepository.validateRoleIds(roleIds);
+        if (target.getId().equals(caller.getId())
+                && !roleRepository.permissionsOf(validated).contains(Permission.MANAGE_USERS)) {
+            throw new EntityStateException("You cannot take away your own permission to manage users");
+        }
+        target.setRoleIds(validated);
+        return userDAO.save(target);
     }
 
     public void grantAdminRole(User user) {

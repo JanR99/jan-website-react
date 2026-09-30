@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, Heart, Plane, User } from "lucide-react";
+import { BookOpen, ChefHat, Heart, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
+import UsersRolesSection from "../components/account/UsersRolesSection";
 import type { Permission } from "../types/roles";
 
 export interface NavItem {
@@ -50,6 +51,14 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         description: "Rezepte im Kochbuch anlegen, bearbeiten und löschen.",
         element: <RecipeAdminSection />,
         requires: "MANAGE_RECIPES",
+    },
+    {
+        path: "nutzer",
+        label: "Nutzer & Rollen",
+        icon: ShieldCheck,
+        description: "Rollen mit Rechten festlegen und Nutzern zuweisen.",
+        element: <UsersRolesSection />,
+        requires: "MANAGE_USERS",
     },
 ];
 

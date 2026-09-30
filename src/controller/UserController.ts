@@ -3,7 +3,7 @@ import {
     DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest,
     RegisterRequest, ResetPasswordRequest, UpdateProfileRequest
 } from "../types/userController.ts";
-import { Permission } from "../types/roles.ts";
+import { Permission, SetRolesRequest, UserAdminDTO } from "../types/roles.ts";
 import {UserDTO} from "../types/entities.ts";
 
 export default class UserController {
@@ -50,5 +50,17 @@ export default class UserController {
         return apis.user.getUserByEmail.execute({
             email,
         });
+    }
+
+    static async listUsers(): Promise<UserAdminDTO[]> {
+        const apis = await apiClient;
+        const response: { body: UserAdminDTO[] } = await apis.user.listUsers.execute({});
+        return response.body ?? [];
+    }
+
+    static async setRoles(req: SetRolesRequest): Promise<UserAdminDTO> {
+        const apis = await apiClient;
+        const response: { body: UserAdminDTO } = await apis.user.setRoles.execute({}, { requestBody: req });
+        return response.body;
     }
 }

@@ -5,6 +5,7 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.PasswordResetRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.controller.requests.ResetPasswordRequest;
+import de.jan.controller.requests.SetRolesRequest;
 import de.jan.controller.requests.UpdateProfileRequest;
 import de.jan.controller.response.LoginResponse;
 import de.jan.role.Permission;
@@ -12,6 +13,7 @@ import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.security.JwtService;
 import de.jan.user.User;
+import de.jan.user.UserAdminDTO;
 import de.jan.user.UserDTO;
 import de.jan.user.repository.PasswordResetRepository;
 import de.jan.user.repository.UserRepository;
@@ -34,11 +36,13 @@ public class UserController {
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
     private static final String GET_USER_BY_EMAIL = "getUserByEmail";
+    private static final String SET_ROLES = "setRoles";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
     private static final String UPDATE_PROFILE = "updateProfile";
     private static final String DELETE_ACCOUNT = "deleteAccount";
     private static final String GET_PERMISSIONS = "getPermissions";
+    private static final String LIST_USERS = "listUsers";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -120,5 +124,24 @@ public class UserController {
         Authorization.with(caller).require(Permission.MANAGE_USERS);
         User user = userRepository.getByEmail(email);
         return user == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(UserDTO.from(user));
+    }
+
+    @Operation(operationId = LIST_USERS)
+    @GetMapping("/list")
+    public ResponseEntity<List<UserAdminDTO>> listUsers(
+            @CurrentUser User caller
+    ) {
+        Authorization.with(caller).require(Permission.MANAGE_USERS);
+        return ResponseEntity.ok(userRepository.getAll().stream().map(UserAdminDTO::from).toList());
+    }
+
+    @Operation(operationId = SET_ROLES)
+    @PostMapping("/setRoles")
+    public ResponseEntity<UserAdminDTO> setRoles(
+            @CurrentUser User caller,
+            @RequestBody SetRolesRequest body
+    ) {
+        Authorization.with(caller).require(Permission.MANAGE_USERS);
+        return ResponseEntity.ok(UserAdminDTO.from(userRepository.setRoles(caller, body.getEmail(), body.getRoleIds())));
     }
 }
