@@ -1,6 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.RecipeRequest;
+import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeDTO;
 import de.jan.recipe.repository.RecipeRepository;
 import de.jan.security.Authorization;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -32,10 +34,14 @@ public class RecipeController {
         this.recipeRepository = recipeRepository;
     }
 
+    private RecipeDTO toDTO(Recipe recipe) {
+        return RecipeDTO.from(recipe);
+    }
+
     @Operation(operationId = LIST_RECIPES)
     @GetMapping("/list")
     public ResponseEntity<List<RecipeDTO>> listRecipes() {
-        return ResponseEntity.ok(recipeRepository.getAll().stream().map(RecipeDTO::from).toList());
+        return ResponseEntity.ok(recipeRepository.getAll().stream().map(this::toDTO).toList());
     }
 
     @Operation(operationId = CREATE_RECIPE)
@@ -45,7 +51,7 @@ public class RecipeController {
             @RequestBody RecipeRequest body
     ) {
         Authorization.with(user).isAdmin();
-        return ResponseEntity.ok(RecipeDTO.from(recipeRepository.create(body)));
+        return ResponseEntity.ok(toDTO(recipeRepository.create(body)));
     }
 
     @Operation(operationId = UPDATE_RECIPE)
@@ -56,7 +62,7 @@ public class RecipeController {
             @RequestBody RecipeRequest body
     ) {
         Authorization.with(user).isAdmin();
-        return ResponseEntity.ok(RecipeDTO.from(recipeRepository.update(id, body)));
+        return ResponseEntity.ok(toDTO(recipeRepository.update(id, body)));
     }
 
     @Operation(operationId = DELETE_RECIPE)

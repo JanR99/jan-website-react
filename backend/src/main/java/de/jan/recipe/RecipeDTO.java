@@ -9,7 +9,7 @@ public class RecipeDTO {
     private String image;
     private int defaultPortions;
     private String cuisine;
-    private List<String> tags;
+    private List<RecipeTag> tags;
     private List<String> ingredients;
     private List<String> preparation;
     private List<Long> relatedRecipeIds;
@@ -33,7 +33,7 @@ public class RecipeDTO {
     public String getImage() { return image; }
     public int getDefaultPortions() { return defaultPortions; }
     public String getCuisine() { return cuisine; }
-    public List<String> getTags() { return tags; }
+    public List<RecipeTag> getTags() { return tags; }
     public List<String> getIngredients() { return ingredients; }
     public List<String> getPreparation() { return preparation; }
     public List<Long> getRelatedRecipeIds() { return relatedRecipeIds; }

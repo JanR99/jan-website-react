@@ -1,5 +1,6 @@
 package de.jan.objectify;
 
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.Query;
 
 import java.util.List;
@@ -36,12 +37,20 @@ public class BaseDAO<T extends DatastoreEntity> {
         return ofy().load().type(clazz).list();
     }
 
+    public void delete(Long id) {
+        ofy().delete().type(clazz).id(id).now();
+    }
+
     public void delete(T entity) {
         ofy().delete().entity(entity).now();
     }
 
     public void deleteAll(List<T> entities) {
         ofy().delete().entities(entities).now();
+    }
+
+    public void deleteKeys(List<Key<T>> keys) {
+        ofy().delete().keys(keys).now();
     }
 
     public List<T> findByFilter(Map<String, Object> filterMap) {

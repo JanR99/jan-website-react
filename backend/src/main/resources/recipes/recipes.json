@@ -4,7 +4,7 @@
     "image": "Knoblauchöl.jpg",
     "defaultPortions": 1,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "2 Knoblauchknollen",
       "1 Liter Olivenöl"
@@ -22,7 +22,7 @@
     "image": "BurgerSauce.jpg",
     "defaultPortions": 2,
     "cuisine": "amerikanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Knoblauchzehe",
       "1 Gewürzgurken",
@@ -45,7 +45,7 @@
     "image": "JapaneseCurry.jpg",
     "defaultPortions": 2,
     "cuisine": "japanisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "1 Tasse Reis",
       "1 1/2 Tassen Wasser",
@@ -70,7 +70,7 @@
     "image": "AlooMasala.jpg",
     "defaultPortions": 2,
     "cuisine": "indisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 EL Butter",
       "2 große Zwiebeln",
@@ -102,7 +102,7 @@
     "image": "EggFriedRice.jpg",
     "defaultPortions": 2,
     "cuisine": "thailändisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Tasse Reis",
       "1,5 Tassen Wasser",
@@ -127,7 +127,7 @@
     "image": "PaneerButterMasala.jpg",
     "defaultPortions": 2,
     "cuisine": "indisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Soße:",
       "2 EL Öl",
@@ -169,7 +169,7 @@
     "image": "RotesThaiCurry.jpg",
     "defaultPortions": 2,
     "cuisine": "thailändisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "1 Tasse Reis",
       "1.5 Tassen Wasser",
@@ -230,7 +230,7 @@
     "image": "PaneerBhurji.jpg",
     "defaultPortions": 2,
     "cuisine": "indisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "3 TL Öl",
       "0.5 TL Kreuzkümmel",
@@ -262,7 +262,7 @@
     "image": "Okonomiyaki.jpg",
     "defaultPortions": 2,
     "cuisine": "japanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Tasse Weizenmehl",
       "2 Tassen Weißkohl, fein gehackt",
@@ -289,7 +289,7 @@
     "image": "JapanischesUdonCurry.jpg",
     "defaultPortions": 2,
     "cuisine": "japanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "2 Packungen Udon",
       "100g Japanese Golden Curry",
@@ -453,7 +453,7 @@
     "image": "AusternpilzOnigiri.jpeg",
     "defaultPortions": 2,
     "cuisine": "japanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Für die Füllung:",
       "200 g Austernpilze",
@@ -492,7 +492,7 @@
     "image": "GnocchiTomatensoße.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "500g Kartoffeln (am besten mehlige)",
       "250g Mehl",
@@ -523,7 +523,7 @@
     "image": "GriechischePfanne.jpg",
     "defaultPortions": 2,
     "cuisine": "griechisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1kg Kartoffeln",
       "2 Paprikas",
@@ -545,7 +545,7 @@
     "image": "KartoffelbreiMitEi.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1kg Kartoffeln",
       "6 Eier",
@@ -595,7 +595,7 @@
     "image": "Tortilla.jpg",
     "defaultPortions": 3,
     "cuisine": "mexikanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1.2 kg Kartoffeln (vorwiegend festkochend",
       "2 Zwiebeln",
@@ -618,7 +618,7 @@
     "image": "Schnitzel.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "2 Veggie-Schnitzel",
       "1 kleine Dose Erbsen",
@@ -641,7 +641,7 @@
     "image": "Kürbissuppe.jpg",
     "defaultPortions": 4,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Hokkaido Kürbis",
       "4 mittelgroße Kartoffeln",
@@ -668,7 +668,7 @@
     "image": "Pancakes.jpg",
     "defaultPortions": 2,
     "cuisine": "amerikanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "150g Mehl",
       "1 El Zucker",
@@ -690,7 +690,7 @@
     "image": "Milchreis.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients":[
       "200 g Milchreis/Risottoreis",
       "750 ml Milch",
@@ -710,7 +710,7 @@
     "image": "Baozi.jpg",
     "defaultPortions": 2,
     "cuisine": "chinesisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients":[
       "Für den Teig:",
       "300 g Mehl",
@@ -739,7 +739,7 @@
     "title": "Bananenbrot",
     "image": "Bananenbrot.jpg",
     "defaultPortions": 4,
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "cuisine": "deutsch",
     "ingredients": [
       "2 überreife Bananen",
@@ -764,7 +764,7 @@
     "image": "MangoStickyRice.jpeg",
     "defaultPortions": 4,
     "cuisine": "thailändisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250 g Klebereis",
       "250 ml Kokosnusscream",
@@ -795,7 +795,7 @@
     "image": "CamembertSahneSoße.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250g Nudeln",
       "200ml Sahne",
@@ -816,7 +816,7 @@
     "image": "FetaNudeln.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250g Nudeln",
       "200g Feta oder Hirtenkäse",
@@ -839,7 +839,7 @@
     "image": "Muehlenhack.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250g Nudeln",
       "200ml Schlagsahne",
@@ -860,7 +860,7 @@
     "image": "PilzSahneSoße.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250g Nudeln",
       "200ml Schlagsahne",
@@ -881,7 +881,7 @@
     "image": "Spinatlasagne.jpg",
     "defaultPortions": 4,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "450g Spinat",
       "300g Frischkäse",
@@ -906,7 +906,7 @@
     "image": "Spinatnudeln.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "250g Nudeln",
       "400g Spinat",
@@ -927,7 +927,7 @@
     "image": "Tomatenrisotto.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "150g Risottoreis",
       "3 große Tomaten",
@@ -961,7 +961,7 @@
     "image": "GrillgemüsePasta.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "250g Nudeln",
       "1 Zwiebeln",
@@ -994,7 +994,7 @@
     "image": "Lasagne.jpg",
     "defaultPortions": 4,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Packung dm-Sonnenblumenhack",
       "1 Zwiebeln",
@@ -1094,7 +1094,7 @@
     "image": "Baguette.jpg",
     "defaultPortions": 4,
     "cuisine": "französisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "400g Mehl (Type 00)",
       "1 TL Zucker",
@@ -1116,7 +1116,7 @@
     "image": "Burger.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Burger:",
       "2 Burgerbrot",
@@ -1145,7 +1145,7 @@
     "image": "Pizza.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Teig:",
       "250 g Mehl",
@@ -1175,7 +1175,7 @@
     "image": "Pizzataschen.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Teig:",
       "300g Mehl",
@@ -1212,7 +1212,7 @@
     "image": "Quesadilla.jpg",
     "defaultPortions": 2,
     "cuisine": "mexikanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "6 Wraps",
       "250g Streukäse",
@@ -1231,7 +1231,7 @@
     "image": "Eiwrap.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "2 High Protein Wraps",
       "50g Frischkäse",
@@ -1255,7 +1255,7 @@
     "image": "RotiChanai.jpg",
     "defaultPortions": 2,
     "cuisine": "malaiisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Zutaten A:",
       "320g Mehl",
@@ -1287,7 +1287,7 @@
     "image": "FalafelWrap.jpg",
     "defaultPortions": 2,
     "cuisine": "libanesisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "Zutaten Falafel:",
       "600 ml Wasser",
@@ -1331,7 +1331,7 @@
     "image": "Quiche.jpg",
     "defaultPortions": 4,
     "cuisine": "französisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "1 Stange Blätterteig",
       "700g Zuccini",
@@ -1355,7 +1355,7 @@
     "image": "ShishAndaz.jpeg",
     "defaultPortions": 4,
     "cuisine": "persisch",
-    "tags": ["vegetarisch", "vegan"],
+    "tags": ["VEGETARIAN", "VEGAN"],
     "ingredients": [
       "3 Auberginen",
       "2 TL Salz",
@@ -1391,7 +1391,7 @@
     "image": "BasilikumPesto.jpeg",
     "defaultPortions": 4,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "50 g Basilikum",
       "50 g Pinienkerne",
@@ -1414,7 +1414,7 @@
     "image": "TacoCup.jpeg",
     "defaultPortions": 3,
     "cuisine": "mexikanisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "ingredients": [
       "6 kleine Wraps",
       "1 Packung Veggie Hack von dm",
@@ -1447,7 +1447,7 @@
     "image": "PizzaBasilikum.jpeg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
-    "tags": ["vegetarisch"],
+    "tags": ["VEGETARIAN"],
     "relatedRecipes": ["Basilikum Pesto"],
     "ingredients": [
       "Teig:",

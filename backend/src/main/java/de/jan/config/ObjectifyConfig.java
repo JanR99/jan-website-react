@@ -4,6 +4,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
+import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
 import de.jan.user.PasswordResetToken;
@@ -19,7 +20,8 @@ public class ObjectifyConfig {
     List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
         User.class,
         PasswordResetToken.class,
-        Recipe.class
+        Recipe.class,
+        RecipeImage.class
     );
 
     @PostConstruct

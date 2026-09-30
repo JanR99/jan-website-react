@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
-import { Recipe } from "../../types/Recipe";
+import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
 import { recipePath, recipeThumbnail } from "../../utils/recipe";
 import Dialog from "../ui/Dialog";
 import RecipeEditor from "./RecipeEditor";
@@ -95,7 +95,7 @@ export default function RecipeAdminSection() {
                                 <div className="recipe-admin-row-text">
                                     <strong>{recipe.title}</strong>
                                     <span className="muted">
-                                        {[recipe.cuisine, ...recipe.tags].filter(Boolean).join(" · ")}
+                                        {[recipe.cuisine, ...recipe.tags.map((tag) => RECIPE_TAGS[tag])].filter(Boolean).join(" · ")}
                                     </span>
                                 </div>
                                 <div className="recipe-admin-row-actions">

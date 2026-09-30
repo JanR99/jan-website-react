@@ -24,7 +24,7 @@ public class Recipe implements DatastoreEntity {
 
     private String cuisine;
 
-    private List<String> tags = new ArrayList<>();
+    private List<RecipeTag> tags = new ArrayList<>();
 
     /** One entry per line; entries ending with ":" are section headers */
     private List<String> ingredients = new ArrayList<>();
@@ -52,11 +52,11 @@ public class Recipe implements DatastoreEntity {
     public String getCuisine() { return cuisine; }
     public void setCuisine(String cuisine) { this.cuisine = cuisine; }
 
-    public List<String> getTags() {
+    public List<RecipeTag> getTags() {
         if (tags == null) tags = new ArrayList<>();
         return tags;
     }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setTags(List<RecipeTag> tags) { this.tags = tags; }
 
     public List<String> getIngredients() {
         if (ingredients == null) ingredients = new ArrayList<>();

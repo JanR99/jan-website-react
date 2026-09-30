@@ -6,6 +6,9 @@ function resolveApiBase(): string {
 }
 
 const APP_PATH = resolveApiBase();
+
+/** Absolute URL of a backend path, e.g. for <img src> */
+export const apiUrl = (path: string) => `${APP_PATH}${path}`;
 const DISCOVERY_URL = `${APP_PATH}/v3/api-docs`;
 
 class APIClient {
