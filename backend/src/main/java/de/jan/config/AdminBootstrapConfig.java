@@ -2,7 +2,6 @@ package de.jan.config;
 
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.RegisterRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -26,9 +25,12 @@ public class AdminBootstrapConfig {
             // executes outside any HTTP request, so no Objectify context
             ObjectifyService.run(() -> {
                 try {
-                    userRepository.setAdminStatus(email, true);
-                    System.out.println("Bootstrap: " + email + " is now admin (existing user).");
-                } catch (EntityNotFoundException e) {
+                    if (userRepository.getByEmail(email) != null) {
+                        userRepository.setAdminStatus(email, true);
+                        System.out.println("Bootstrap: " + email + " is now admin (existing user).");
+                        return null;
+                    }
+
                     if (password == null || password.isBlank()) {
                         System.out.println("Bootstrap: user " + email + " does not exist and BOOTSTRAP_ADMIN_PASSWORD is not set. Skipping.");
                         return null;

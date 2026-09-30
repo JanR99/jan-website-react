@@ -61,19 +61,18 @@ public class UserRepository {
         if (request.getEmail() == null || request.getPassword() == null) {
             throw new EntityStateException("Email or password is null");
         }
-        try {
-            User user = getByEmail(normalizeEmail(request.getEmail()));
-            if (!passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
-                throw new EntityStateException(credentialsMessage);
-            }
-            return user;
-        } catch (EntityNotFoundException e) {
+        User user = getByEmail(request.getEmail());
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
             throw new EntityStateException(credentialsMessage);
         }
+        return user;
     }
 
     public User setAdminStatus(String targetEmail, boolean isAdmin) {
         User target = getByEmail(targetEmail);
+        if (target == null) {
+            throw new EntityNotFoundException("User with email " + targetEmail + " not found");
+        }
         target.setAdmin(isAdmin);
         return userDAO.save(target);
     }

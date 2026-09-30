@@ -4,15 +4,15 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.controller.requests.SetAdminStatusRequest;
 import de.jan.controller.response.LoginResponse;
-import de.jan.security.AuthUtils;
+import de.jan.exceptions.EntityNotFoundException;
 import de.jan.security.Authorization;
+import de.jan.security.CurrentUser;
 import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
 import de.jan.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,20 +56,21 @@ public class UserController {
     @Operation(operationId = GET_USER_BY_EMAIL)
     @GetMapping("getUserByEmail")
     public ResponseEntity<UserDTO> getUserByEmail(
+            @CurrentUser User caller,
             @RequestParam("email") String email
     ) {
+        Authorization.with(caller).isAdmin();
         User user = userRepository.getByEmail(email);
-        return ResponseEntity.ok(UserDTO.from(user));
+        return user == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(UserDTO.from(user));
     }
 
     @Operation(operationId = SET_ADMIN_STATUS)
     @PostMapping("/setAdminStatus")
     public ResponseEntity<UserDTO> setAdminStatus(
-            HttpServletRequest request,
+            @CurrentUser User caller,
             @RequestBody SetAdminStatusRequest body
     ) {
-        String callerEmail = AuthUtils.getCurrentEmail(request);
-        Authorization.isAdmin(userRepository.getByEmail(callerEmail));
+        Authorization.with(caller).isAdmin();
         User updatedUser = userRepository.setAdminStatus(body.getTargetEmail(), body.isAdmin());
         return ResponseEntity.ok(UserDTO.from(updatedUser));
     }
