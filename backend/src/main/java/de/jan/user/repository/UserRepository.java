@@ -12,6 +12,7 @@ import de.jan.user.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -117,6 +118,22 @@ public class UserRepository {
         if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
             throw new EntityStateException("Invalid password: passwords need to be at least " + PASSWORD_MIN_LENGTH + " characters long");
         }
+    }
+
+    public List<User> getAdmins() {
+        return userDAO.getAdmins().stream()
+                .sorted(Comparator.comparing(User::getEmail))
+                .toList();
+    }
+
+    public User changeAdminStatus(User caller, String targetEmail, boolean isAdmin) {
+        if (targetEmail == null || targetEmail.isBlank()) {
+            throw new EntityStateException("Email must not be empty");
+        }
+        if (!isAdmin && normalizeEmail(targetEmail).equals(caller.getEmail())) {
+            throw new EntityStateException("You cannot remove your own admin rights");
+        }
+        return setAdminStatus(targetEmail, isAdmin);
     }
 
     public User setAdminStatus(String targetEmail, boolean isAdmin) {

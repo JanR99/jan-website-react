@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "user")
 @RestController
 @RequestMapping("/api/users")
@@ -39,6 +41,7 @@ public class UserController {
     private static final String UPDATE_PROFILE = "updateProfile";
     private static final String DELETE_ACCOUNT = "deleteAccount";
     private static final String GET_PERMISSIONS = "getPermissions";
+    private static final String GET_ADMINS = "getAdmins";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -108,7 +111,7 @@ public class UserController {
     public ResponseEntity<PermissionsResponse> getPermissions(
             @CurrentUser User user
     ) {
-        return ResponseEntity.ok(new PermissionsResponse(user.isAdmin()));
+        return ResponseEntity.ok(new PermissionsResponse(user.isAdmin(), user.isAdmin()));
     }
 
     @Operation(operationId = GET_USER_BY_EMAIL)
@@ -129,7 +132,16 @@ public class UserController {
             @RequestBody SetAdminStatusRequest body
     ) {
         Authorization.with(caller).isAdmin();
-        User updatedUser = userRepository.setAdminStatus(body.getTargetEmail(), body.isAdmin());
+        User updatedUser = userRepository.changeAdminStatus(caller, body.getTargetEmail(), body.isAdmin());
         return ResponseEntity.ok(UserDTO.from(updatedUser));
+    }
+
+    @Operation(operationId = GET_ADMINS)
+    @GetMapping("/admins")
+    public ResponseEntity<List<UserDTO>> getAdmins(
+            @CurrentUser User caller
+    ) {
+        Authorization.with(caller).isAdmin();
+        return ResponseEntity.ok(userRepository.getAdmins().stream().map(UserDTO::from).toList());
     }
 }

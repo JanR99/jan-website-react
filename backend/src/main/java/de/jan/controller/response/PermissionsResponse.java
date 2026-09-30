@@ -7,12 +7,18 @@ package de.jan.controller.response;
 public class PermissionsResponse {
 
     private final boolean canManageRecipes;
+    private final boolean canManageUsers;
 
-    public PermissionsResponse(boolean canManageRecipes) {
+    public PermissionsResponse(boolean canManageRecipes, boolean canManageUsers) {
         this.canManageRecipes = canManageRecipes;
+        this.canManageUsers = canManageUsers;
     }
 
     public boolean isCanManageRecipes() {
         return canManageRecipes;
+    }
+
+    public boolean isCanManageUsers() {
+        return canManageUsers;
     }
 }

@@ -44,4 +44,5 @@ export interface DeleteAccountRequest {
 
 export interface Permissions {
     canManageRecipes: boolean;
+    canManageUsers: boolean;
 }

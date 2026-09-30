@@ -28,6 +28,7 @@ public class User implements DatastoreEntity {
     private String lastname;
 
     @JsonIgnore
+    @Index
     private boolean admin = false;
 
     @Index

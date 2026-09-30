@@ -53,6 +53,13 @@ export default class UserController {
 
     static async setAdminStatus(req: SetAdminStatusRequest): Promise<UserDTO> {
         const apis = await apiClient;
-        return apis.user.setAdminStatus.execute({}, { requestBody: req });
+        const response: { body: UserDTO } = await apis.user.setAdminStatus.execute({}, { requestBody: req });
+        return response.body;
+    }
+
+    static async getAdmins(): Promise<UserDTO[]> {
+        const apis = await apiClient;
+        const response: { body: UserDTO[] } = await apis.user.getAdmins.execute({});
+        return response.body ?? [];
     }
 }

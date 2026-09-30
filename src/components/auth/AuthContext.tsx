@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let active = true;
         UserController.getPermissions()
             .then((result) => active && setPermissions(result))
-            .catch(() => active && setPermissions({ canManageRecipes: false }));
+            .catch(() => active && setPermissions({ canManageRecipes: false, canManageUsers: false }));
         return () => {
             active = false;
         };
