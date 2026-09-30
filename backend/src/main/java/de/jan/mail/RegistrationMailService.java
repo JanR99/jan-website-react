@@ -23,6 +23,10 @@ public class RegistrationMailService extends AbstractMailService<User> {
 
     @Override
     protected String getRecipient(User user) {
+        // no notification when the admin registers themselves (e.g. the bootstrap admin)
+        if (adminEmail.equalsIgnoreCase(user.getEmail())) {
+            return null;
+        }
         return adminEmail;
     }
 

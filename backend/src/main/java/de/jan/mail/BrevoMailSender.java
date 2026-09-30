@@ -35,9 +35,6 @@ public class BrevoMailSender {
     }
 
     public void send(String to, String subject, String text) {
-        if (to.equals(senderEmail)) {
-            return;
-        }
         if (apiKey.isBlank() || senderEmail.isBlank()) {
             log.info("Mail skipped (BREVO_API_KEY or BOOTSTRAP_ADMIN_EMAIL not set): \"{}\" to {}", subject, to);
             return;
