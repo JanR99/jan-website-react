@@ -5,6 +5,7 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.objectify.DatastoreEntity;
+import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,8 @@ import java.util.List;
 public class ObjectifyConfig {
 
     List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
-        User.class
+        User.class,
+        PasswordResetToken.class
     );
 
     @PostConstruct

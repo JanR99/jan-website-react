@@ -159,11 +159,6 @@
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
 }
 
-.form-message--success {
-    background: color-mix(in srgb, var(--color-success) 14%, transparent);
-    color: var(--color-success);
-}
-
 /* ---------- Mobil: Seitenleiste wird zu Tabs ---------- */
 
 @media (max-width: 820px) {

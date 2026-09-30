@@ -20,6 +20,18 @@ public class BaseDAO<T extends DatastoreEntity> {
         return entity;
     }
 
+    public T getById(Long id) {
+        return ofy().load().type(clazz).id(id).now();
+    }
+
+    public void delete(T entity) {
+        ofy().delete().entity(entity).now();
+    }
+
+    public void deleteAll(List<T> entities) {
+        ofy().delete().entities(entities).now();
+    }
+
     public List<T> findByFilter(Map<String, Object> filterMap) {
         Query<T> query = ofy().load().type(clazz);
         for (Map.Entry<String, Object> entry : filterMap.entrySet()) {

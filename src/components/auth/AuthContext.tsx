@@ -17,7 +17,7 @@ export type LoginResult =
     | { ok: true }
     | { ok: false; error: string };
 
-export type AuthDialogMode = "login" | "register";
+export type AuthDialogMode = "login" | "register" | "forgot";
 
 interface AuthContextValue {
     user: UserDTO | null;

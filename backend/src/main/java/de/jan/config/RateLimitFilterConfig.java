@@ -13,7 +13,7 @@ public class RateLimitFilterConfig {
     public FilterRegistrationBean<LoginRateLimitFilter> loginRateLimitFilter(RateLimiter rateLimiter) {
         FilterRegistrationBean<LoginRateLimitFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new LoginRateLimitFilter(rateLimiter));
-        registrationBean.addUrlPatterns("/api/users/login");
+        registrationBean.addUrlPatterns("/api/users/login", "/api/users/requestPasswordReset", "/api/users/resetPassword");
         registrationBean.setOrder(0); // after CORS, before Objectify (order 1) and JWT (order 2)
         return registrationBean;
     }
