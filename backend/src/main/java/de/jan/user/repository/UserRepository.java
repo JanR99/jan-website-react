@@ -87,9 +87,6 @@ public class UserRepository {
 
     public User getByEmail(String email) {
         List<User> users = userDAO.getByEmail(normalizeEmail(email));
-        if (users.isEmpty()) {
-            throw new EntityNotFoundException("User with email " + email + " not found");
-        }
-        return users.getFirst();
+        return users.isEmpty() ? null : users.getFirst();
     }
 }
