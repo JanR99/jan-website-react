@@ -12,8 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Uploaded recipe images live in the Datastore as RecipeImage. A recipe refers to one
- * with image = "uploads/<id>"; older recipes use a file name inside public/Bilder.
+ * Recipe images live in the Datastore as RecipeImage. A recipe refers to one
+ * with image = "uploads/<id>".
  */
 @Component
 public class ImageRepository {
@@ -49,10 +49,6 @@ public class ImageRepository {
 
     public RecipeImage getById(Long id) {
         return id == null ? null : imageDAO.getById(id);
-    }
-
-    public static boolean isUpload(String image) {
-        return image != null && image.startsWith(UPLOAD_PREFIX);
     }
 
     /** "uploads/<id>" -> id, null for anything else */

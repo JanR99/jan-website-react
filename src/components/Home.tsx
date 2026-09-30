@@ -2,16 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { destinations, destinationThumbnail } from '../data/destinations';
 import { useRecipes } from '../hooks/useRecipes';
-import { recipePath, recipeThumbnail } from '../utils/recipe';
+import { recipePath, recipeImage } from '../utils/recipe';
 import { ArrowRight, BookOpen, Plane } from "lucide-react";
 import '../styles/Home.css';
 
-const TEASER_IMAGES = ['CharKoayTeow.jpg', 'Baozi.jpg', 'FalafelWrap.jpg', 'AburaSoba.jpg'];
+const TEASER_TITLES = ['Char Koay Teow', 'Baozi 包子', 'Falafel Wrap', 'Abura Soba'];
 
 const Home: React.FC = () => {
     const { recipes } = useRecipes();
-    const teaser = TEASER_IMAGES
-        .map(image => recipes.find(r => r.image === image))
+    const teaser = TEASER_TITLES
+        .map(title => recipes.find(r => r.title === title))
         .filter((r): r is NonNullable<typeof r> => Boolean(r));
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
 
@@ -40,7 +40,7 @@ const Home: React.FC = () => {
 
                 <div className="home-hero-collage" aria-hidden="true">
                     <img src={destinationThumbnail('Porto', 1)} alt="" />
-                    {teaser[0] && <img src={recipeThumbnail(teaser[0])} alt="" />}
+                    {teaser[0] && <img src={recipeImage(teaser[0])} alt="" />}
                     <img src={destinationThumbnail('Andorra', 1)} alt="" />
                 </div>
             </section>
@@ -93,7 +93,7 @@ const Home: React.FC = () => {
                     </div>
                     <div className="cookbook-teaser-images" aria-hidden="true">
                         {teaser.map(recipe => (
-                            <img key={recipe.id} src={recipeThumbnail(recipe)} alt="" loading="lazy" />
+                            <img key={recipe.id} src={recipeImage(recipe)} alt="" loading="lazy" />
                         ))}
                     </div>
                 </Link>

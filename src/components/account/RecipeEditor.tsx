@@ -4,7 +4,7 @@ import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { Recipe, RecipeRequest, RECIPE_TAGS, RecipeTag } from "../../types/Recipe";
-import { recipeThumbnail } from "../../utils/recipe";
+import { recipeImage } from "../../utils/recipe";
 import RecipeImageDropzone from "./RecipeImageDropzone";
 import { ArrowLeft, X } from "lucide-react";
 
@@ -27,7 +27,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
     const [ingredients, setIngredients] = useState((recipe?.ingredients ?? []).join("\n"));
     const [preparation, setPreparation] = useState((recipe?.preparation ?? []).join("\n"));
     const [related, setRelated] = useState<number[]>(recipe?.relatedRecipeIds ?? []);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(recipe ? recipeThumbnail(recipe) : null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(recipe ? recipeImage(recipe) : null);
     const [uploading, setUploading] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -104,7 +104,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
                 onBusyChange={setUploading}
                 onUploaded={(name) => {
                     setImage(name);
-                    setPreviewUrl(recipeThumbnail({ image: name }));
+                    setPreviewUrl(recipeImage({ image: name }));
                 }}
             />
 

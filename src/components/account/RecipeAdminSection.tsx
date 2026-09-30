@@ -5,7 +5,7 @@ import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
-import { recipePath, recipeThumbnail } from "../../utils/recipe";
+import { recipePath, recipeImage } from "../../utils/recipe";
 import Dialog from "../ui/Dialog";
 import RecipeEditor from "./RecipeEditor";
 import { ExternalLink, Lock, Pencil, Plus, Search, Trash2 } from "lucide-react";
@@ -91,7 +91,7 @@ export default function RecipeAdminSection() {
                     <ul>
                         {filtered.map((recipe) => (
                             <li key={recipe.id} className="recipe-admin-row">
-                                <img src={recipeThumbnail(recipe)} alt="" loading="lazy" />
+                                <img src={recipeImage(recipe)} alt="" loading="lazy" />
                                 <div className="recipe-admin-row-text">
                                     <strong>{recipe.title}</strong>
                                     <span className="muted">

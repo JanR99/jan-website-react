@@ -11,9 +11,8 @@ export default class ImageController {
         return response.body;
     }
 
-    static getImageUrl(image: string): string | null {
-        return image.startsWith(UPLOAD_PREFIX)
-            ? apiUrl(`/api/images/${encodeURIComponent(image.slice(UPLOAD_PREFIX.length))}`)
-            : null;
+    static getImageUrl(image: string): string {
+        const id = image.startsWith(UPLOAD_PREFIX) ? image.slice(UPLOAD_PREFIX.length) : image;
+        return apiUrl(`/api/images/${encodeURIComponent(id)}`);
     }
 }
