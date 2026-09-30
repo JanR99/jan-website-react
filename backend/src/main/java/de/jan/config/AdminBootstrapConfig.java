@@ -25,8 +25,9 @@ public class AdminBootstrapConfig {
             // executes outside any HTTP request, so no Objectify context
             ObjectifyService.run(() -> {
                 try {
-                    if (userRepository.getByEmail(email) != null) {
-                        userRepository.setAdminStatus(email, true);
+                    User existing = userRepository.getByEmail(email);
+                    if (existing != null) {
+                        userRepository.grantAdminRole(existing);
                         System.out.println("Bootstrap: " + email + " is now admin (existing user).");
                         return null;
                     }
@@ -44,7 +45,7 @@ public class AdminBootstrapConfig {
 
                     try {
                         User newUser = userRepository.register(request);
-                        userRepository.setAdminStatus(newUser.getEmail(), true);
+                        userRepository.grantAdminRole(newUser);
                         System.out.println("Bootstrap: " + email + " was newly created and is now admin.");
                     } catch (Exception inner) {
                         System.out.println("Bootstrap-Admin couldn't be created: " + inner.getMessage());

@@ -4,6 +4,8 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -50,6 +52,13 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
             return false;
         }
         return ofy().load().type(clazz).filterKey(key(id)).keys().first().now() != null;
+    }
+
+    public List<T> getByIds(Collection<ID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return new ArrayList<>(ofy().load().type(clazz).ids(ids).values());
     }
 
     public List<T> getAll() {

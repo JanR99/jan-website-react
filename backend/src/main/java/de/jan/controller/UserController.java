@@ -5,10 +5,9 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.PasswordResetRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.controller.requests.ResetPasswordRequest;
-import de.jan.controller.requests.SetAdminStatusRequest;
 import de.jan.controller.requests.UpdateProfileRequest;
 import de.jan.controller.response.LoginResponse;
-import de.jan.controller.response.PermissionsResponse;
+import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.security.JwtService;
@@ -35,13 +34,11 @@ public class UserController {
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
     private static final String GET_USER_BY_EMAIL = "getUserByEmail";
-    private static final String SET_ADMIN_STATUS = "setAdminStatus";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
     private static final String UPDATE_PROFILE = "updateProfile";
     private static final String DELETE_ACCOUNT = "deleteAccount";
     private static final String GET_PERMISSIONS = "getPermissions";
-    private static final String GET_ADMINS = "getAdmins";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -108,10 +105,10 @@ public class UserController {
 
     @Operation(operationId = GET_PERMISSIONS)
     @GetMapping("/permissions")
-    public ResponseEntity<PermissionsResponse> getPermissions(
+    public ResponseEntity<List<Permission>> getPermissions(
             @CurrentUser User user
     ) {
-        return ResponseEntity.ok(new PermissionsResponse(user.isAdmin(), user.isAdmin()));
+        return ResponseEntity.ok(List.copyOf(Authorization.permissionsOf(user)));
     }
 
     @Operation(operationId = GET_USER_BY_EMAIL)
@@ -120,28 +117,8 @@ public class UserController {
             @CurrentUser User caller,
             @RequestParam("email") String email
     ) {
-        Authorization.with(caller).isAdmin();
+        Authorization.with(caller).require(Permission.MANAGE_USERS);
         User user = userRepository.getByEmail(email);
         return user == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(UserDTO.from(user));
-    }
-
-    @Operation(operationId = SET_ADMIN_STATUS)
-    @PostMapping("/setAdminStatus")
-    public ResponseEntity<UserDTO> setAdminStatus(
-            @CurrentUser User caller,
-            @RequestBody SetAdminStatusRequest body
-    ) {
-        Authorization.with(caller).isAdmin();
-        User updatedUser = userRepository.changeAdminStatus(caller, body.getTargetEmail(), body.isAdmin());
-        return ResponseEntity.ok(UserDTO.from(updatedUser));
-    }
-
-    @Operation(operationId = GET_ADMINS)
-    @GetMapping("/admins")
-    public ResponseEntity<List<UserDTO>> getAdmins(
-            @CurrentUser User caller
-    ) {
-        Authorization.with(caller).isAdmin();
-        return ResponseEntity.ok(userRepository.getAdmins().stream().map(UserDTO::from).toList());
     }
 }

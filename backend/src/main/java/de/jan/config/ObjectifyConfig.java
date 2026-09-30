@@ -8,6 +8,7 @@ import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarker;
+import de.jan.role.Role;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
@@ -23,7 +24,8 @@ public class ObjectifyConfig {
         PasswordResetToken.class,
         Recipe.class,
         RecipeImage.class,
-        RecipeSeedMarker.class
+        RecipeSeedMarker.class,
+        Role.class
     );
 
     @PostConstruct

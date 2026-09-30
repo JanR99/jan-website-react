@@ -28,11 +28,6 @@ export interface ResetPasswordRequest {
     password: string;
 }
 
-export interface SetAdminStatusRequest {
-    targetEmail: string;
-    admin: boolean;
-}
-
 export interface UpdateProfileRequest {
     firstname: string;
     lastname: string;
@@ -42,7 +37,3 @@ export interface DeleteAccountRequest {
     password: string;
 }
 
-export interface Permissions {
-    canManageRecipes: boolean;
-    canManageUsers: boolean;
-}

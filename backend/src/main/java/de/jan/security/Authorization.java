@@ -1,69 +1,61 @@
 package de.jan.security;
 
-import de.jan.exceptions.AdminException;
 import de.jan.exceptions.UnauthenticatedException;
 import de.jan.exceptions.UnauthorizedException;
+import de.jan.role.Permission;
+import de.jan.role.Role;
+import de.jan.role.RoleDAO;
 import de.jan.user.User;
 
+import java.util.EnumSet;
+import java.util.Set;
+
+/**
+ * Checks what the logged-in user may do, based on the permissions of their roles.
+ * Usage: Authorization.with(user).require(Permission.MANAGE_RECIPES);
+ */
 public class Authorization {
 
     public static final String USER_NOT_AUTHORIZED = "User is not authorized";
 
     private final User user;
-    private final boolean isAdmin;
+    private final Set<Permission> permissions;
 
     private Authorization(User user) {
         if (user == null) {
             throw new UnauthenticatedException();
         }
         this.user = user;
-        this.isAdmin = user.isAdmin();
+        this.permissions = permissionsOf(user);
     }
 
     public static Authorization with(User user) {
         return new Authorization(user);
     }
 
-    private AuthorizationResult result(boolean isAuthorized) {
-        return new AuthorizationResult(isAdmin).or(new AuthorizationResult(isAuthorized));
+    /** Union of the permissions of all roles of the user. */
+    public static Set<Permission> permissionsOf(User user) {
+        Set<Permission> result = EnumSet.noneOf(Permission.class);
+        for (Role role : new RoleDAO().getByIds(user.getRoleIds())) {
+            result.addAll(role.getPermissions());
+        }
+        return result;
     }
 
-    public void isAdmin() {
-        new AuthorizationResult(isAdmin, new AdminException()).check();
+    public boolean has(Permission permission) {
+        return permissions.contains(permission);
     }
 
-    public void of(User user) {
-        result(this.user.getEmail().equals(user.getEmail())).check();
+    public void require(Permission permission) {
+        if (!has(permission)) {
+            throw new UnauthorizedException("Missing permission " + permission);
+        }
     }
 
-    static class AuthorizationResult {
-
-        private final boolean isAuthorized;
-        private final RuntimeException exception;
-
-        public AuthorizationResult(boolean isAuthorized) {
-            this(isAuthorized, USER_NOT_AUTHORIZED);
-        }
-
-        public AuthorizationResult(boolean isAuthorized, String exceptionMessage) {
-            this(isAuthorized, new UnauthorizedException(exceptionMessage));
-        }
-
-        public AuthorizationResult(boolean isAuthorized, RuntimeException exception) {
-            this.isAuthorized = isAuthorized;
-            this.exception = exception;
-        }
-
-        public AuthorizationResult or(AuthorizationResult other) {
-            boolean combined = this.isAuthorized || other.isAuthorized;
-            RuntimeException combinedException = other.exception != null ? other.exception : this.exception;
-            return new AuthorizationResult(combined, combinedException);
-        }
-
-        public void check() {
-            if (!isAuthorized) {
-                throw exception;
-            }
+    /** The user acts on their own data, or may manage users. */
+    public void of(User other) {
+        if (!user.getEmail().equals(other.getEmail()) && !has(Permission.MANAGE_USERS)) {
+            throw new UnauthorizedException(USER_NOT_AUTHORIZED);
         }
     }
 }

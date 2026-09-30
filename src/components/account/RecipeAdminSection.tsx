@@ -31,7 +31,7 @@ export default function RecipeAdminSection() {
         return <div className="loading"><div className="spinner" /></div>;
     }
 
-    if (!permissions.canManageRecipes) {
+    if (!permissions.includes("MANAGE_RECIPES")) {
         return (
             <div className="card empty-state">
                 <span className="empty-state-icon"><Lock size={26} /></span>

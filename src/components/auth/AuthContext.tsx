@@ -4,7 +4,8 @@ import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { UserDTO } from "../../types/entities.ts";
-import { LoginRequest, Permissions, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
+import { LoginRequest, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
+import { Permission } from "../../types/roles.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -22,7 +23,8 @@ export type AuthDialogMode = "login" | "register" | "forgot";
 interface AuthContextValue {
     user: UserDTO | null;
     isAuthenticated: boolean;
-    permissions: Permissions | null;
+    permissions: Permission[] | null;
+    hasPermission: (permission: Permission) => boolean;
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
@@ -83,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return restored;
     });
     const [authDialog, setAuthDialog] = useState<AuthDialogMode | null>(null);
-    const [permissions, setPermissions] = useState<Permissions | null>(null);
+    const [permissions, setPermissions] = useState<Permission[] | null>(null);
     const token = session?.token ?? null;
 
     useEffect(() => {
@@ -92,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let active = true;
         UserController.getPermissions()
             .then((result) => active && setPermissions(result))
-            .catch(() => active && setPermissions({ canManageRecipes: false, canManageUsers: false }));
+            .catch(() => active && setPermissions([]));
         return () => {
             active = false;
         };
@@ -170,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user: session?.user ?? null,
             isAuthenticated: session !== null,
             permissions,
+            hasPermission: (permission: Permission) => permissions?.includes(permission) ?? false,
             login,
             register,
             logout,

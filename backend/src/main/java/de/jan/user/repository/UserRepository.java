@@ -2,9 +2,10 @@ package de.jan.user.repository;
 
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.mail.RegistrationMailService;
+import de.jan.role.Role;
+import de.jan.role.repository.RoleRepository;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
@@ -12,7 +13,6 @@ import de.jan.user.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -28,12 +28,15 @@ public class UserRepository {
     private final PasswordResetTokenDAO passwordResetTokenDAO;
     private final PasswordEncoder passwordEncoder;
     private final RegistrationMailService registrationMailService;
+    private final RoleRepository roleRepository;
 
-    public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService) {
+    public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService,
+                          RoleRepository roleRepository) {
         this.userDAO = new UserDAO();
         this.passwordResetTokenDAO = new PasswordResetTokenDAO();
         this.passwordEncoder = passwordEncoder;
         this.registrationMailService = registrationMailService;
+        this.roleRepository = roleRepository;
     }
 
     private static String normalizeEmail(String email) {
@@ -92,7 +95,7 @@ public class UserRepository {
         if (password == null || !passwordEncoder.matches(password, user.getHashedPassword())) {
             throw new EntityStateException("Invalid password");
         }
-        if (user.isAdmin()) {
+        if (roleRepository.hasAdminRole(user)) {
             throw new EntityStateException("Admin accounts cannot be deleted");
         }
 
@@ -120,29 +123,10 @@ public class UserRepository {
         }
     }
 
-    public List<User> getAdmins() {
-        return userDAO.getAdmins().stream()
-                .sorted(Comparator.comparing(User::getEmail))
-                .toList();
-    }
-
-    public User changeAdminStatus(User caller, String targetEmail, boolean isAdmin) {
-        if (targetEmail == null || targetEmail.isBlank()) {
-            throw new EntityStateException("Email must not be empty");
-        }
-        if (!isAdmin && normalizeEmail(targetEmail).equals(caller.getEmail())) {
-            throw new EntityStateException("You cannot remove your own admin rights");
-        }
-        return setAdminStatus(targetEmail, isAdmin);
-    }
-
-    public User setAdminStatus(String targetEmail, boolean isAdmin) {
-        User target = getByEmail(targetEmail);
-        if (target == null) {
-            throw new EntityNotFoundException("User with email " + targetEmail + " not found");
-        }
-        target.setAdmin(isAdmin);
-        return userDAO.save(target);
+    public void grantAdminRole(User user) {
+        Role admin = roleRepository.ensureAdminRole();
+        user.getRoleIds().add(admin.getId());
+        userDAO.save(user);
     }
 
     public User save(User user) {

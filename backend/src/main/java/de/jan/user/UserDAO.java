@@ -15,8 +15,8 @@ public class UserDAO extends BaseDAO<User, Long> {
         return find(Filter.eq("email", email));
     }
 
-    public List<User> getAdmins() {
-        return find(Filter.eq("admin", true));
+    public List<User> getByRoleId(Long roleId) {
+        return find(Filter.eq("roleIds", roleId));
     }
 
     public List<User> getByFavoriteRecipeId(Long recipeId) {

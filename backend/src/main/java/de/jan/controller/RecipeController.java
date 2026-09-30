@@ -4,6 +4,7 @@ import de.jan.controller.requests.RecipeRequest;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeDTO;
 import de.jan.recipe.repository.RecipeRepository;
+import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.user.User;
@@ -50,7 +51,7 @@ public class RecipeController {
             @CurrentUser User user,
             @RequestBody RecipeRequest body
     ) {
-        Authorization.with(user).isAdmin();
+        Authorization.with(user).require(Permission.MANAGE_RECIPES);
         return ResponseEntity.ok(toDTO(recipeRepository.create(body)));
     }
 
@@ -61,7 +62,7 @@ public class RecipeController {
             @RequestParam("id") Long id,
             @RequestBody RecipeRequest body
     ) {
-        Authorization.with(user).isAdmin();
+        Authorization.with(user).require(Permission.MANAGE_RECIPES);
         return ResponseEntity.ok(toDTO(recipeRepository.update(id, body)));
     }
 
@@ -71,7 +72,7 @@ public class RecipeController {
             @CurrentUser User user,
             @RequestParam("id") Long id
     ) {
-        Authorization.with(user).isAdmin();
+        Authorization.with(user).require(Permission.MANAGE_RECIPES);
         recipeRepository.delete(id);
         return ResponseEntity.noContent().build();
     }

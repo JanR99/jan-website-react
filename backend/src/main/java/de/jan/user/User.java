@@ -9,7 +9,9 @@ import com.googlecode.objectify.annotation.Index;
 import de.jan.objectify.DatastoreEntity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class User implements DatastoreEntity {
@@ -27,9 +29,8 @@ public class User implements DatastoreEntity {
 
     private String lastname;
 
-    @JsonIgnore
     @Index
-    private boolean admin = false;
+    private Set<Long> roleIds = new LinkedHashSet<>();
 
     @Index
     private List<Long> favoriteRecipeIds = new ArrayList<>();
@@ -94,12 +95,16 @@ public class User implements DatastoreEntity {
         this.lastname = lastname;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public Set<Long> getRoleIds() {
+        // Objectify does not store empty collections, so they load as null
+        if (roleIds == null) {
+            roleIds = new LinkedHashSet<>();
+        }
+        return roleIds;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setRoleIds(Set<Long> roleIds) {
+        this.roleIds = roleIds;
     }
 
     public List<Long> getFavoriteRecipeIds() {

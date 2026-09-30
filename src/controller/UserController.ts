@@ -1,8 +1,9 @@
 import { apiClient } from "./APIClient.ts";
 import {
-    DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest, Permissions,
-    RegisterRequest, ResetPasswordRequest, SetAdminStatusRequest, UpdateProfileRequest
+    DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest,
+    RegisterRequest, ResetPasswordRequest, UpdateProfileRequest
 } from "../types/userController.ts";
+import { Permission } from "../types/roles.ts";
 import {UserDTO} from "../types/entities.ts";
 
 export default class UserController {
@@ -38,10 +39,10 @@ export default class UserController {
         await apis.user.deleteAccount.execute({}, { requestBody: req });
     }
 
-    static async getPermissions(): Promise<Permissions> {
+    static async getPermissions(): Promise<Permission[]> {
         const apis = await apiClient;
-        const response: { body: Permissions } = await apis.user.getPermissions.execute({});
-        return response.body;
+        const response: { body: Permission[] } = await apis.user.getPermissions.execute({});
+        return response.body ?? [];
     }
 
     static async getUserByEmail(email: string): Promise<UserDTO> {
@@ -49,17 +50,5 @@ export default class UserController {
         return apis.user.getUserByEmail.execute({
             email,
         });
-    }
-
-    static async setAdminStatus(req: SetAdminStatusRequest): Promise<UserDTO> {
-        const apis = await apiClient;
-        const response: { body: UserDTO } = await apis.user.setAdminStatus.execute({}, { requestBody: req });
-        return response.body;
-    }
-
-    static async getAdmins(): Promise<UserDTO[]> {
-        const apis = await apiClient;
-        const response: { body: UserDTO[] } = await apis.user.getAdmins.execute({});
-        return response.body ?? [];
     }
 }

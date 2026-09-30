@@ -3,6 +3,7 @@ package de.jan.controller;
 import de.jan.controller.response.ImageUploadResponse;
 import de.jan.image.ImageRepository;
 import de.jan.image.RecipeImage;
+import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.user.User;
@@ -41,7 +42,7 @@ public class ImageController {
             @CurrentUser User user,
             @RequestPart("file") MultipartFile file
     ) throws IOException {
-        Authorization.with(user).isAdmin();
+        Authorization.with(user).require(Permission.MANAGE_RECIPES);
         return ResponseEntity.ok(new ImageUploadResponse(imageRepository.upload(file.getBytes())));
     }
 
