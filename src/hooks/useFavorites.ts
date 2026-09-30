@@ -1,52 +1,79 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useAuth } from "../components/auth/AuthContext";
+import FavoritesController from "../controller/FavoritesController";
 
-const STORAGE_KEY = "favoriteRecipes";
-const listeners = new Set<() => void>();
-
-function read(): string[] {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as string[]) : [];
-    } catch {
-        return [];
-    }
+try {
+    localStorage.removeItem("favoriteRecipes");
+} catch {
+    // storage not available – nothing to clean up
 }
 
-let snapshot: string[] = read();
+const EMPTY: string[] = [];
 
-function write(next: string[]) {
+let snapshot: string[] = EMPTY;
+let owner: string | null = null;
+const listeners = new Set<() => void>();
+
+function emit(next: string[]) {
     snapshot = next;
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-        // Storage nicht verfügbar – Favoriten leben dann nur in dieser Sitzung
-    }
     listeners.forEach((listener) => listener());
 }
 
 function subscribe(listener: () => void) {
     listeners.add(listener);
-    const onStorage = (event: StorageEvent) => {
-        if (event.key === STORAGE_KEY) {
-            snapshot = read();
-            listener();
-        }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => {
-        listeners.delete(listener);
-        window.removeEventListener("storage", onStorage);
-    };
+    return () => listeners.delete(listener);
+}
+
+function loadFor(email: string | null) {
+    if (owner === email) return;
+    owner = email;
+    emit(EMPTY);
+    if (!email) return;
+
+    FavoritesController.getFavorites()
+        .then((favorites) => {
+            if (owner === email) emit(favorites);
+        })
+        .catch(() => {
+            // leave the list empty; the next component that mounts retries
+            if (owner === email) owner = null;
+        });
 }
 
 export function useFavorites() {
-    const favorites = useSyncExternalStore(subscribe, () => snapshot);
+    const { user, isAuthenticated, openAuthDialog } = useAuth();
+    const email = user?.email ?? null;
+
+    useEffect(() => {
+        loadFor(email);
+    }, [email]);
+
+    const favorites = useSyncExternalStore(subscribe, () => (owner === email ? snapshot : EMPTY));
 
     const isFavorite = useCallback((title: string) => favorites.includes(title), [favorites]);
 
     const toggleFavorite = useCallback((title: string) => {
-        write(snapshot.includes(title) ? snapshot.filter((t) => t !== title) : [...snapshot, title]);
-    }, []);
+        if (!isAuthenticated || !email) {
+            openAuthDialog("login");
+            return;
+        }
+
+        const previous = snapshot;
+        const remove = previous.includes(title);
+        emit(remove ? previous.filter((t) => t !== title) : [...previous, title]);
+
+        const request = remove
+            ? FavoritesController.removeFavorite(title)
+            : FavoritesController.addFavorite(title);
+
+        request
+            .then((serverList) => {
+                if (owner === email) emit(serverList);
+            })
+            .catch(() => {
+                if (owner === email) emit(previous);
+            });
+    }, [isAuthenticated, email, openAuthDialog]);
 
     return { favorites, isFavorite, toggleFavorite };
 }

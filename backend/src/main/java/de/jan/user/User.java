@@ -6,6 +6,9 @@ import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import de.jan.objectify.DatastoreEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class User implements DatastoreEntity {
 
@@ -24,6 +27,8 @@ public class User implements DatastoreEntity {
 
     @JsonIgnore
     private boolean admin = false;
+
+    private List<String> favorites = new ArrayList<>();
 
     public User() {
 
@@ -83,5 +88,17 @@ public class User implements DatastoreEntity {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public List<String> getFavorites() {
+        // Objectify does not store empty lists, so older/empty entities load with null
+        if (favorites == null) {
+            favorites = new ArrayList<>();
+        }
+        return favorites;
+    }
+
+    public void setFavorites(List<String> favorites) {
+        this.favorites = favorites;
     }
 }
