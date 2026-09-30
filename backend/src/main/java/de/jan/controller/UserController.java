@@ -1,15 +1,17 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.LoginRequest;
+import de.jan.controller.requests.PasswordResetRequest;
 import de.jan.controller.requests.RegisterRequest;
+import de.jan.controller.requests.ResetPasswordRequest;
 import de.jan.controller.requests.SetAdminStatusRequest;
 import de.jan.controller.response.LoginResponse;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserDTO;
+import de.jan.user.repository.PasswordResetRepository;
 import de.jan.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,15 +25,19 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final PasswordResetRepository passwordResetRepository;
 
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
     private static final String GET_USER_BY_EMAIL = "getUserByEmail";
     private static final String SET_ADMIN_STATUS = "setAdminStatus";
+    private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
+    private static final String RESET_PASSWORD = "resetPassword";
 
-    public UserController(UserRepository userRepository, JwtService jwtService) {
+    public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.passwordResetRepository = passwordResetRepository;
     }
 
     @Operation(operationId = REGISTER)
@@ -51,6 +57,24 @@ public class UserController {
         User user = userRepository.login(request);
         String token = jwtService.generateToken(user.getEmail());
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
+    }
+
+    @Operation(operationId = REQUEST_PASSWORD_RESET)
+    @PostMapping("/requestPasswordReset")
+    public ResponseEntity<Void> requestPasswordReset(
+            @RequestBody PasswordResetRequest request
+    ) {
+        passwordResetRepository.requestReset(request.getEmail());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = RESET_PASSWORD)
+    @PostMapping("/resetPassword")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody ResetPasswordRequest request
+    ) {
+        passwordResetRepository.resetPassword(request.getToken(), request.getPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(operationId = GET_USER_BY_EMAIL)

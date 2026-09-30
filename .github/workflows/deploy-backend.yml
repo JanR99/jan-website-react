@@ -9,6 +9,7 @@ on:
       - 'pom.xml'
       - 'Dockerfile'
       - '.github/workflows/deploy-backend.yml'
+      - 'public/CNAME'
 
 jobs:
   deploy:
@@ -28,10 +29,13 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      - name: Read frontend domain from CNAME
+        run: echo "FRONTEND_URL=https://$(tr -d '[:space:]' < public/CNAME)" >> "$GITHUB_ENV"
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy jan-website-backend \
             --source=. \
             --region=europe-west1 \
             --allow-unauthenticated \
-            --set-env-vars="^#^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}#BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}#JWT_SECRET=${{ secrets.JWT_SECRET }}#BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}"
+            --set-env-vars="^#^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}#BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}#JWT_SECRET=${{ secrets.JWT_SECRET }}#BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}#FRONTEND_URL=${{ env.FRONTEND_URL }}"

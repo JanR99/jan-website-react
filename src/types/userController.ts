@@ -19,6 +19,15 @@ export interface LoginResponse {
     }
 }
 
+export interface PasswordResetRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    token: string;
+    password: string;
+}
+
 export interface SetAdminStatusRequest {
     targetEmail: string;
     admin: boolean;

@@ -241,6 +241,11 @@
     color: var(--color-danger);
 }
 
+.form-message--success {
+    background: color-mix(in srgb, var(--color-success) 14%, transparent);
+    color: var(--color-success);
+}
+
 /* ---------- Karten ---------- */
 
 .card {

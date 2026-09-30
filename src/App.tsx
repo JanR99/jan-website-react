@@ -8,6 +8,7 @@ import Destination from './components/Destination';
 import RecipePage from './components/RecipePage';
 import AccountPage from './components/account/AccountPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import PasswordResetPage from './components/auth/PasswordResetPage';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
 
 const NotFound: React.FC = () => (
@@ -29,6 +30,7 @@ const App: React.FC = () => {
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/cookbook/:recipeTitle" element={<RecipePage />} />
                     <Route path="/destination/:destination" element={<Destination />} />
+                    <Route path="/passwort-zuruecksetzen" element={<PasswordResetPage />} />
 
                     {/* paths for logged-in users */}
                     <Route

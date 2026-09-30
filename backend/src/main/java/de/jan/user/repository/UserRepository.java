@@ -39,9 +39,7 @@ public class UserRepository {
             throw new EntityStateException("Invalid email address format");
         }
 
-        if (req.getPassword() == null || req.getPassword().length() < PASSWORD_MIN_LENGTH) {
-            throw new EntityStateException("Invalid password: passwords need to be at least " + PASSWORD_MIN_LENGTH + " characters long");
-        }
+        validatePassword(req.getPassword());
 
         String email = normalizeEmail(req.getEmail());
 
@@ -68,6 +66,18 @@ public class UserRepository {
         return user;
     }
 
+    public User changePassword(User user, String newPassword) {
+        validatePassword(newPassword);
+        user.setHashedPassword(passwordEncoder.encode(newPassword));
+        return save(user);
+    }
+
+    private static void validatePassword(String password) {
+        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+            throw new EntityStateException("Invalid password: passwords need to be at least " + PASSWORD_MIN_LENGTH + " characters long");
+        }
+    }
+
     public User setAdminStatus(String targetEmail, boolean isAdmin) {
         User target = getByEmail(targetEmail);
         if (target == null) {
@@ -82,6 +92,10 @@ public class UserRepository {
             throw new EntityStateException("Email or password is null");
         }
         return userDAO.save(user);
+    }
+
+    public User getById(Long id) {
+        return id == null ? null : userDAO.getById(id);
     }
 
     public User getByEmail(String email) {

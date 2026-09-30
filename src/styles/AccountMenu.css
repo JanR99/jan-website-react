@@ -196,6 +196,26 @@
     min-height: 46px;
 }
 
+.auth-text-link {
+    align-self: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent-strong);
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.auth-text-link:hover {
+    text-decoration: underline;
+}
+
+.auth-text-link--end {
+    align-self: flex-end;
+    margin-top: -6px;
+}
+
 @media (max-width: 640px) {
     .account-trigger-name {
         display: none;
@@ -210,4 +230,16 @@
     .auth-form-row {
         grid-template-columns: 1fr;
     }
+}
+
+/* ---------- Passwort zurücksetzen ---------- */
+
+.password-reset-card {
+    max-width: 440px;
+}
+
+.password-reset-hint {
+    max-width: 440px;
+    margin-top: 16px;
+    font-size: 0.9rem;
 }

@@ -1,7 +1,7 @@
 import { apiClient } from "./APIClient.ts";
 import {
-    LoginRequest, LoginResponse,
-    RegisterRequest, SetAdminStatusRequest
+    LoginRequest, LoginResponse, PasswordResetRequest,
+    RegisterRequest, ResetPasswordRequest, SetAdminStatusRequest
 } from "../types/userController.ts";
 import {UserDTO} from "../types/entities.ts";
 
@@ -15,6 +15,16 @@ export default class UserController {
     static async login(req: LoginRequest) : Promise<LoginResponse> {
         const apis = await apiClient;
         return apis.user.login.execute({}, { requestBody: req });
+    }
+
+    static async requestPasswordReset(req: PasswordResetRequest): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.requestPasswordReset.execute({}, { requestBody: req });
+    }
+
+    static async resetPassword(req: ResetPasswordRequest): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.resetPassword.execute({}, { requestBody: req });
     }
 
     static async getUserByEmail(email: string): Promise<UserDTO> {

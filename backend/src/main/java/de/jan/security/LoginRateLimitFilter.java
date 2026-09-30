@@ -13,7 +13,11 @@ import java.util.Set;
 public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     // Paths protected against brute-force attempts. Extend this set if
-    private static final Set<String> LIMITED_PATHS = Set.of("/api/users/login");
+    private static final Set<String> LIMITED_PATHS = Set.of(
+            "/api/users/login",
+            "/api/users/requestPasswordReset",
+            "/api/users/resetPassword"
+    );
 
     private final RateLimiter rateLimiter;
 
@@ -38,7 +42,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         if (!rateLimiter.tryConsume(clientIp)) {
             response.setStatus(429);
             response.setContentType("application/json");
-            response.getWriter().write("{\"message\":\"Too many login attempts, please try again in a minute.\"}");
+            response.getWriter().write("{\"message\":\"Too many attempts, please try again in a minute.\"}");
             return;
         }
 
