@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.RecipeRequest;
+import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
+import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
@@ -19,12 +21,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * On startup:
  * 1. imports resources/recipes/recipes.json once, if there are no recipes in the database yet
  *    (so a fresh emulator is filled automatically, production only on the very first start),
- * 2. migrates favorites that are still stored as recipe titles to recipe IDs.
+ * 2. migrates favorites that are still stored as recipe titles to recipe IDs,
+ * 3. deletes uploaded images that were never saved with a recipe.
  */
 @Configuration
 public class RecipeBootstrapConfig {
@@ -37,7 +43,7 @@ public class RecipeBootstrapConfig {
             String image,
             Integer defaultPortions,
             String cuisine,
-            List<String> tags,
+            List<RecipeTag> tags,
             List<String> ingredients,
             List<String> preparation,
             List<String> relatedRecipes
@@ -45,7 +51,8 @@ public class RecipeBootstrapConfig {
     }
 
     @Bean
-    public CommandLineRunner bootstrapRecipes(RecipeRepository recipeRepository, ObjectMapper objectMapper) {
+    public CommandLineRunner bootstrapRecipes(RecipeRepository recipeRepository, ImageRepository imageRepository,
+                                              ObjectMapper objectMapper) {
         return args -> ObjectifyService.run(() -> {
             try {
                 if (recipeRepository.isEmpty()) {
@@ -58,6 +65,11 @@ public class RecipeBootstrapConfig {
                 migrateFavorites(recipeRepository);
             } catch (Exception e) {
                 System.out.println("Bootstrap: favorites migration failed: " + e.getMessage());
+            }
+            try {
+                deleteOrphanImages(recipeRepository, imageRepository);
+            } catch (Exception e) {
+                System.out.println("Bootstrap: image cleanup failed: " + e.getMessage());
             }
             return null;
         });
@@ -113,6 +125,17 @@ public class RecipeBootstrapConfig {
         }
 
         System.out.println("Bootstrap: imported " + byTitle.size() + " of " + seeds.size() + " recipes.");
+    }
+
+    private void deleteOrphanImages(RecipeRepository recipeRepository, ImageRepository imageRepository) {
+        Set<Long> referenced = recipeRepository.getAll().stream()
+                .map(recipe -> ImageRepository.idOf(recipe.getImage()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        int deleted = imageRepository.deleteOrphans(referenced);
+        if (deleted > 0) {
+            System.out.println("Bootstrap: deleted " + deleted + " unused uploaded images.");
+        }
     }
 
     private void migrateFavorites(RecipeRepository recipeRepository) {

@@ -3,9 +3,10 @@ import type { FormEvent } from "react";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
-import { Recipe, RecipeRequest } from "../../types/Recipe";
+import { Recipe, RecipeRequest, RECIPE_TAGS, RecipeTag } from "../../types/Recipe";
 import { recipeThumbnail } from "../../utils/recipe";
-import { ArrowLeft, ImageOff, X } from "lucide-react";
+import RecipeImageDropzone from "./RecipeImageDropzone";
+import { ArrowLeft, X } from "lucide-react";
 
 interface RecipeEditorProps {
     recipe: Recipe | null;
@@ -15,18 +16,19 @@ interface RecipeEditorProps {
 }
 
 const toLines = (text: string) => text.split("\n").map((line) => line.trim()).filter(Boolean);
-const toList = (text: string) => text.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean);
+const ALL_TAGS = Object.keys(RECIPE_TAGS) as RecipeTag[];
 
 export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: RecipeEditorProps) {
     const [title, setTitle] = useState(recipe?.title ?? "");
     const [image, setImage] = useState(recipe?.image ?? "");
     const [portions, setPortions] = useState(String(recipe?.defaultPortions ?? 2));
     const [cuisine, setCuisine] = useState(recipe?.cuisine ?? "");
-    const [tags, setTags] = useState((recipe?.tags ?? []).join(", "));
+    const [tags, setTags] = useState<RecipeTag[]>(recipe?.tags ?? []);
     const [ingredients, setIngredients] = useState((recipe?.ingredients ?? []).join("\n"));
     const [preparation, setPreparation] = useState((recipe?.preparation ?? []).join("\n"));
     const [related, setRelated] = useState<number[]>(recipe?.relatedRecipeIds ?? []);
-    const [imageBroken, setImageBroken] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(recipe ? recipeThumbnail(recipe) : null);
+    const [uploading, setUploading] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,14 +48,18 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
             image: image.trim(),
             defaultPortions: Number(portions),
             cuisine: cuisine.trim(),
-            tags: toList(tags),
+            tags: ALL_TAGS.filter((tag) => tags.includes(tag)),
             ingredients: toLines(ingredients),
             preparation: toLines(preparation),
             relatedRecipeIds: related,
         };
 
-        if (!request.title || !request.image || !request.cuisine) {
-            setError("Titel, Bild und Küche dürfen nicht leer sein.");
+        if (!request.title || !request.cuisine) {
+            setError("Titel und Küche dürfen nicht leer sein.");
+            return;
+        }
+        if (!request.image) {
+            setError("Bitte ein Bild hochladen.");
             return;
         }
         if (!Number.isInteger(request.defaultPortions) || request.defaultPortions < 1 || request.defaultPortions > 99) {
@@ -93,32 +99,14 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
                 <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={150} required />
             </label>
 
-            <div className="recipe-editor-image">
-                <label className="field">
-                    Bild (Dateiname)
-                    <input
-                        className="input"
-                        value={image}
-                        onChange={(e) => {
-                            setImage(e.target.value);
-                            setImageBroken(false);
-                        }}
-                        placeholder="z. B. Bananenbrot.jpg"
-                        maxLength={200}
-                        required
-                    />
-                    <span className="muted recipe-editor-hint">
-                        Die Datei muss in public/Bilder/Essen-normal und Essen-thumbnail liegen.
-                    </span>
-                </label>
-                <div className="recipe-editor-preview" aria-hidden="true">
-                    {image.trim() && !imageBroken ? (
-                        <img src={recipeThumbnail({ image: image.trim() })} alt="" onError={() => setImageBroken(true)} />
-                    ) : (
-                        <ImageOff size={24} />
-                    )}
-                </div>
-            </div>
+            <RecipeImageDropzone
+                previewUrl={previewUrl}
+                onBusyChange={setUploading}
+                onUploaded={(name) => {
+                    setImage(name);
+                    setPreviewUrl(recipeThumbnail({ image: name }));
+                }}
+            />
 
             <div className="recipe-editor-row">
                 <label className="field">
@@ -147,15 +135,27 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
                         {cuisines.map((c) => <option key={c} value={c} />)}
                     </datalist>
                 </label>
-                <label className="field">
+                <div className="field">
                     Tags
-                    <input
-                        className="input"
-                        value={tags}
-                        onChange={(e) => setTags(e.target.value)}
-                        placeholder="vegetarisch, vegan"
-                    />
-                </label>
+                    <div className="recipe-editor-tags" role="group" aria-label="Tags">
+                        {ALL_TAGS.map((tag) => {
+                            const active = tags.includes(tag);
+                            return (
+                                <button
+                                    key={tag}
+                                    type="button"
+                                    className="chip"
+                                    aria-pressed={active}
+                                    onClick={() =>
+                                        setTags((prev) => (active ? prev.filter((t) => t !== tag) : [...prev, tag]))
+                                    }
+                                >
+                                    {RECIPE_TAGS[tag]}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
 
             <label className="field">
@@ -226,8 +226,8 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
                 <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
                     Abbrechen
                 </button>
-                <button type="submit" className="btn" disabled={busy}>
-                    {busy ? "Speichern …" : recipe ? "Änderungen speichern" : "Rezept anlegen"}
+                <button type="submit" className="btn" disabled={busy || uploading}>
+                    {busy ? "Speichern …" : uploading ? "Bild wird hochgeladen …" : recipe ? "Änderungen speichern" : "Rezept anlegen"}
                 </button>
             </div>
         </form>

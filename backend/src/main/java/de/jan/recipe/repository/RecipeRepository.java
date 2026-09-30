@@ -3,8 +3,10 @@ package de.jan.recipe.repository;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
+import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeDAO;
+import de.jan.recipe.RecipeTag;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import org.springframework.stereotype.Component;
@@ -40,13 +42,15 @@ public class RecipeRepository {
 
     private final RecipeDAO recipeDAO;
     private final UserDAO userDAO;
+    private final ImageRepository imageRepository;
 
     private volatile List<Recipe> cache;
     private volatile long cachedAt;
 
-    public RecipeRepository() {
+    public RecipeRepository(ImageRepository imageRepository) {
         this.recipeDAO = new RecipeDAO();
         this.userDAO = new UserDAO();
+        this.imageRepository = imageRepository;
     }
 
     public List<Recipe> getAll() {
@@ -89,9 +93,13 @@ public class RecipeRepository {
 
     public Recipe update(Long id, RecipeRequest request) {
         Recipe recipe = getById(id);
+        String previousImage = recipe.getImage();
         apply(recipe, request);
         Recipe saved = recipeDAO.save(recipe);
         invalidateCache();
+        if (!Objects.equals(previousImage, saved.getImage())) {
+            imageRepository.deleteQuietly(previousImage);
+        }
         return saved;
     }
 
@@ -112,6 +120,7 @@ public class RecipeRepository {
 
         recipeDAO.delete(recipe);
         invalidateCache();
+        imageRepository.deleteQuietly(recipe.getImage());
     }
 
     public void saveAllUnchecked(List<Recipe> recipes) {
@@ -135,7 +144,13 @@ public class RecipeRepository {
 
         String image = request.getImage() == null ? "" : request.getImage().trim();
         requireText(image, "Image", SHORT_TEXT_MAX_LENGTH);
-        if (!IMAGE_NAME.matcher(image).matches() || image.contains("..")) {
+        if (ImageRepository.isUpload(image)) {
+            // keeping the current image needs no check, a new upload must exist
+            if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
+                throw new EntityStateException("The uploaded image was not found, please upload it again");
+            }
+        } else if (!IMAGE_NAME.matcher(image).matches() || image.contains("..")) {
+            // older recipes: file name inside public/Bilder
             throw new EntityStateException("Image must be a plain file name");
         }
 
@@ -150,15 +165,10 @@ public class RecipeRepository {
         List<String> ingredients = cleanEntries(request.getIngredients(), "Ingredients");
         List<String> preparation = cleanEntries(request.getPreparation(), "Preparation");
 
-        Set<String> tags = new LinkedHashSet<>();
+        // unknown tag names are already rejected by Jackson when reading the request
+        Set<RecipeTag> tags = new LinkedHashSet<>();
         if (request.getTags() != null) {
-            for (String tag : request.getTags()) {
-                String cleaned = collapse(tag).toLowerCase(Locale.GERMAN);
-                if (!cleaned.isEmpty()) {
-                    requireText(cleaned, "Tag", SHORT_TEXT_MAX_LENGTH);
-                    tags.add(cleaned);
-                }
-            }
+            request.getTags().stream().filter(Objects::nonNull).forEach(tags::add);
         }
 
         Set<Long> related = new LinkedHashSet<>();

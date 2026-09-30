@@ -1,5 +1,7 @@
 package de.jan.controller.requests;
 
+import de.jan.recipe.RecipeTag;
+
 import java.util.List;
 
 public class RecipeRequest {
@@ -8,7 +10,7 @@ public class RecipeRequest {
     private String image;
     private Integer defaultPortions;
     private String cuisine;
-    private List<String> tags;
+    private List<RecipeTag> tags;
     private List<String> ingredients;
     private List<String> preparation;
     private List<Long> relatedRecipeIds;
@@ -25,8 +27,8 @@ public class RecipeRequest {
     public String getCuisine() { return cuisine; }
     public void setCuisine(String cuisine) { this.cuisine = cuisine; }
 
-    public List<String> getTags() { return tags; }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public List<RecipeTag> getTags() { return tags; }
+    public void setTags(List<RecipeTag> tags) { this.tags = tags; }
 
     public List<String> getIngredients() { return ingredients; }
     public void setIngredients(List<String> ingredients) { this.ingredients = ingredients; }
