@@ -32,3 +32,12 @@ export interface SetAdminStatusRequest {
     targetEmail: string;
     admin: boolean;
 }
+
+export interface UpdateProfileRequest {
+    firstname: string;
+    lastname: string;
+}
+
+export interface DeleteAccountRequest {
+    password: string;
+}
