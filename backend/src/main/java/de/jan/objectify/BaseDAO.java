@@ -30,7 +30,10 @@ public class BaseDAO<T extends DatastoreEntity> {
     }
 
     public boolean exists(Long id) {
-        return id != null && getById(id) != null;
+        if (id == null) {
+            return false;
+        }
+        return ofy().load().type(clazz).filterKey(Key.create(clazz, id)).keys().first().now() != null;
     }
 
     public List<T> getAll() {
