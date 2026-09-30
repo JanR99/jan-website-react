@@ -38,6 +38,7 @@ The frontend automatically talks to the backend on port 8080 of whichever host i
 | `GCP_SA_KEY` | JSON key of a service account with deploy rights, created once via `gcloud iam service-accounts keys create key.json --iam-account=<sa-email>` |
 | `JWT_SECRET` | Any long random string, e.g. `openssl rand -base64 48` |
 | `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` | Chosen by you — the backend creates (or promotes) this account to admin on every startup |
+| `BREVO_API_KEY` | API key from [Brevo](https://app.brevo.com/settings/keys/api) (free plan) used to email `BOOTSTRAP_ADMIN_EMAIL` about new registrations. That address must be a verified sender in Brevo. Optional — without it no email is sent |
 | `VITE_API_BASE_URL` | The deployed backend's URL (Cloud Run service URL, or a custom domain mapped to it) |
 
 The same `JWT_SECRET`, `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` also go into your local `.env` file.

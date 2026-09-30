@@ -4,6 +4,7 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
+import de.jan.mail.RegistrationMailService;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,10 +22,12 @@ public class UserRepository {
 
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
+    private final RegistrationMailService registrationMailService;
 
-    public UserRepository(PasswordEncoder passwordEncoder) {
+    public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService) {
         this.userDAO = new UserDAO();
         this.passwordEncoder = passwordEncoder;
+        this.registrationMailService = registrationMailService;
     }
 
     private static String normalizeEmail(String email) {
@@ -48,7 +51,9 @@ public class UserRepository {
 
         String hashedPassword = passwordEncoder.encode(req.getPassword());
         User user = new User(email, hashedPassword, req.getFirstname(), req.getLastname());
-        return save(user);
+        User savedUser = save(user);
+        registrationMailService.send(savedUser);
+        return savedUser;
     }
 
     public User login(LoginRequest request) {
