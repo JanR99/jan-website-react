@@ -4,7 +4,7 @@ import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { UserDTO } from "../../types/entities.ts";
-import { LoginRequest, RegisterRequest } from "../../types/userController.ts";
+import { LoginRequest, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -25,6 +25,8 @@ interface AuthContextValue {
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
+    updateProfile: (request: UpdateProfileRequest) => Promise<LoginResult>;
+    deleteAccount: (password: string) => Promise<LoginResult>;
 
     authDialog: AuthDialogMode | null;
     openAuthDialog: (mode?: AuthDialogMode) => void;
@@ -112,6 +114,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(null);
     }, []);
 
+    const updateProfile = useCallback(async (request: UpdateProfileRequest): Promise<LoginResult> => {
+        try {
+            const user = await UserController.updateProfile(request);
+            setSession((current) => {
+                if (!current) return current;
+                const next: Session = { ...current, user };
+                saveSession(next);
+                return next;
+            });
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error: handleApiError(error) };
+        }
+    }, []);
+
+    const deleteAccount = useCallback(async (password: string): Promise<LoginResult> => {
+        try {
+            await UserController.deleteAccount({ password });
+        } catch (error) {
+            return { ok: false, error: handleApiError(error) };
+        }
+        logout();
+        return { ok: true };
+    }, [logout]);
+
     useEffect(() => {
         if (!session) return;
         const expiry = getTokenExpiry(session.token);
@@ -130,11 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             login,
             register,
             logout,
+            updateProfile,
+            deleteAccount,
             authDialog,
             openAuthDialog,
             closeAuthDialog,
         }),
-        [session, login, register, logout, authDialog, openAuthDialog, closeAuthDialog]
+        [session, login, register, logout, updateProfile, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

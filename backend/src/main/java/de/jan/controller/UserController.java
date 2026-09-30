@@ -1,10 +1,12 @@
 package de.jan.controller;
 
+import de.jan.controller.requests.DeleteAccountRequest;
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.PasswordResetRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.controller.requests.ResetPasswordRequest;
 import de.jan.controller.requests.SetAdminStatusRequest;
+import de.jan.controller.requests.UpdateProfileRequest;
 import de.jan.controller.response.LoginResponse;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
@@ -33,6 +35,8 @@ public class UserController {
     private static final String SET_ADMIN_STATUS = "setAdminStatus";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
+    private static final String UPDATE_PROFILE = "updateProfile";
+    private static final String DELETE_ACCOUNT = "deleteAccount";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -74,6 +78,26 @@ public class UserController {
             @RequestBody ResetPasswordRequest request
     ) {
         passwordResetRepository.resetPassword(request.getToken(), request.getPassword());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = UPDATE_PROFILE)
+    @PostMapping("/updateProfile")
+    public ResponseEntity<UserDTO> updateProfile(
+            @CurrentUser User user,
+            @RequestBody UpdateProfileRequest body
+    ) {
+        User updatedUser = userRepository.updateName(user, body.getFirstname(), body.getLastname());
+        return ResponseEntity.ok(UserDTO.from(updatedUser));
+    }
+
+    @Operation(operationId = DELETE_ACCOUNT)
+    @PostMapping("/deleteAccount")
+    public ResponseEntity<Void> deleteAccount(
+            @CurrentUser User user,
+            @RequestBody DeleteAccountRequest body
+    ) {
+        userRepository.deleteAccount(user, body.getPassword());
         return ResponseEntity.noContent().build();
     }
 

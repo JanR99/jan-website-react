@@ -1,7 +1,7 @@
 import { apiClient } from "./APIClient.ts";
 import {
-    LoginRequest, LoginResponse, PasswordResetRequest,
-    RegisterRequest, ResetPasswordRequest, SetAdminStatusRequest
+    DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest,
+    RegisterRequest, ResetPasswordRequest, SetAdminStatusRequest, UpdateProfileRequest
 } from "../types/userController.ts";
 import {UserDTO} from "../types/entities.ts";
 
@@ -25,6 +25,17 @@ export default class UserController {
     static async resetPassword(req: ResetPasswordRequest): Promise<void> {
         const apis = await apiClient;
         await apis.user.resetPassword.execute({}, { requestBody: req });
+    }
+
+    static async updateProfile(req: UpdateProfileRequest): Promise<UserDTO> {
+        const apis = await apiClient;
+        const response: { body: UserDTO } = await apis.user.updateProfile.execute({}, { requestBody: req });
+        return response.body;
+    }
+
+    static async deleteAccount(req: DeleteAccountRequest): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.deleteAccount.execute({}, { requestBody: req });
     }
 
     static async getUserByEmail(email: string): Promise<UserDTO> {

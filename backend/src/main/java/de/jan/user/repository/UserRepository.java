@@ -5,6 +5,8 @@ import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.mail.RegistrationMailService;
+import de.jan.user.PasswordResetToken;
+import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,13 +21,16 @@ public class UserRepository {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private static final int PASSWORD_MIN_LENGTH = 8;
+    private static final int NAME_MAX_LENGTH = 100;
 
     private final UserDAO userDAO;
+    private final PasswordResetTokenDAO passwordResetTokenDAO;
     private final PasswordEncoder passwordEncoder;
     private final RegistrationMailService registrationMailService;
 
     public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService) {
         this.userDAO = new UserDAO();
+        this.passwordResetTokenDAO = new PasswordResetTokenDAO();
         this.passwordEncoder = passwordEncoder;
         this.registrationMailService = registrationMailService;
     }
@@ -70,6 +75,42 @@ public class UserRepository {
         validatePassword(newPassword);
         user.setHashedPassword(passwordEncoder.encode(newPassword));
         return save(user);
+    }
+
+    public User updateName(User user, String firstname, String lastname) {
+        user.setFirstname(validateName(firstname, "First name"));
+        user.setLastname(validateName(lastname, "Last name"));
+        return save(user);
+    }
+
+    /**
+     * Deletes the account after re-checking the password. Admin accounts can't be deleted,
+     * the bootstrap admin would otherwise just be recreated on the next start.
+     */
+    public void deleteAccount(User user, String password) {
+        if (password == null || !passwordEncoder.matches(password, user.getHashedPassword())) {
+            throw new EntityStateException("Invalid password");
+        }
+        if (user.isAdmin()) {
+            throw new EntityStateException("Admin accounts cannot be deleted");
+        }
+
+        List<PasswordResetToken> resetTokens = passwordResetTokenDAO.getByUserId(user.getId());
+        if (!resetTokens.isEmpty()) {
+            passwordResetTokenDAO.deleteAll(resetTokens);
+        }
+        userDAO.delete(user);
+    }
+
+    private static String validateName(String name, String label) {
+        String trimmed = name == null ? "" : name.trim();
+        if (trimmed.isEmpty()) {
+            throw new EntityStateException(label + " must not be empty");
+        }
+        if (trimmed.length() > NAME_MAX_LENGTH) {
+            throw new EntityStateException(label + " must be at most " + NAME_MAX_LENGTH + " characters long");
+        }
+        return trimmed;
     }
 
     private static void validatePassword(String password) {
