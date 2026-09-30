@@ -1,12 +1,32 @@
-export function handleApiError(error: any): string {
-    const errorBody = (error as { response?: { data?: any } })?.response?.data;
+export function handleApiError(error: unknown): string {
+    const err = error as {
+        response?: { body?: unknown; data?: unknown; text?: string };
+    };
 
-    if (typeof errorBody === "string") {
-        return errorBody;
+    const body = err.response?.body ?? err.response?.data;
+
+    if (typeof body === "string" && body.trim().length > 0) {
+        return body;
     }
 
-    if (errorBody && typeof errorBody === "object" && "message" in errorBody) {
-        return String(errorBody.message);
+    if (body && typeof body === "object" && "message" in body) {
+        const message = (body as { message: unknown }).message;
+        if (typeof message === "string" && message.trim().length > 0) {
+            return message;
+        }
+    }
+
+    const text = err.response?.text;
+    if (typeof text === "string" && text.trim().length > 0) {
+        try {
+            const parsed = JSON.parse(text);
+            if (parsed && typeof parsed === "object" && typeof parsed.message === "string") {
+                return parsed.message;
+            }
+        } catch {
+            // not JSON, fall through and use the raw text
+        }
+        return text;
     }
 
     return "Gerade nicht verfügbar. Bitte später erneut versuchen.";

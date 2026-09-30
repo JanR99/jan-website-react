@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from "react
 import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
+import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import {UserDTO} from "../../types/entities.ts";
 import {LoginRequest, RegisterRequest} from "../../types/userController.ts";
 
@@ -56,17 +57,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
-        const response = await UserController.login(request);
-        apiClient.setToken(response.body.token);
-        const next: Session = { token: response.body.token, user: response.body.user };
-        saveSession(next);
-        setSession(next);
-        return { ok: true };
+        try {
+            const response = await UserController.login(request);
+            apiClient.setToken(response.body.token);
+            const next: Session = { token: response.body.token, user: response.body.user };
+            saveSession(next);
+            setSession(next);
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error: handleApiError(error) };
+        }
     }, []);
 
     const register = useCallback(async (request: RegisterRequest): Promise<LoginResult> => {
-        await UserController.register(request);
+        try {
+            await UserController.register(request);
+        } catch (error) {
+            return { ok: false, error: handleApiError(error) };
+        }
 
+        // The register endpoint only returns the created user, not a token,
+        // so log in right away with the same credentials.
         return login({ email: request.email, password: request.password });
     }, [login]);
 
