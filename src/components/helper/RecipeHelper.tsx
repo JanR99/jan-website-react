@@ -1,65 +1,62 @@
-import React, {ReactNode} from 'react';
+import { ReactNode } from 'react';
+
+const numberFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 });
+
+const parseQuantity = (raw: string): number => {
+    const value = raw.trim().replace(',', '.');
+    const mixed = value.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+    if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
+    const fraction = value.match(/^(\d+)\/(\d+)$/);
+    if (fraction) return Number(fraction[1]) / Number(fraction[2]);
+    return parseFloat(value);
+};
+
+const QUANTITY = String.raw`\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?`;
+const INGREDIENT_PATTERN = new RegExp(`^(${QUANTITY})(?:\\s*-\\s*(${QUANTITY}))?(.*)$`);
 
 export const adjustIngredient = (
     ingredient: string,
     portions: number | "",
     defaultPortions: number = 2
 ): string => {
-    const match = ingredient.match(/^(\d+(\.\d+)?)(\s*[^\d\s]+.*)?$/);
-    if (match && typeof portions === "number") {
-        const quantity = parseFloat(match[1]);
-        const unitAndName = match[3] || '';
-        const adjustedQuantity = (quantity * portions) / defaultPortions;
-        return `${adjustedQuantity} ${unitAndName}`.trim();
-    }
-    return ingredient;
+    const match = ingredient.match(INGREDIENT_PATTERN);
+    if (!match || typeof portions !== "number" || !defaultPortions) return ingredient;
+
+    const factor = portions / defaultPortions;
+    const scale = (raw: string) => numberFormat.format(parseQuantity(raw) * factor);
+
+    const [, from, to, rest] = match;
+    return `${scale(from)}${to ? `–${scale(to)}` : ''}${rest}`;
 };
+
+export const isSectionHeader = (ingredient: string) => ingredient.trim().endsWith(":");
 
 export const renderIngredients = (
     recipe: { ingredients?: string[] },
-    adjustFn: (ingredient: string) => ReactNode
+    adjustFn: (ingredient: string, index: number) => ReactNode
 ) => {
     if (!recipe.ingredients) return null;
 
-    return recipe.ingredients.map((ingredient, index) => {
-        const isSectionHeader = ingredient.endsWith(":");
-
-        return isSectionHeader ? (
+    return recipe.ingredients.map((ingredient, index) =>
+        isSectionHeader(ingredient) ? (
             <li key={index} className="ingredient-section">
-                <strong>{ingredient}</strong>
+                {ingredient.replace(/:\s*$/, '')}
             </li>
         ) : (
-            <li key={index} className="ingredient-item">
-                <span className="ingredient-icon">🍴</span> {adjustFn(ingredient)}
-            </li>
-        );
-    });
+            adjustFn(ingredient, index)
+        )
+    );
 };
 
-export const renderPreparationSteps = (
-    recipe: { preparation?: string[] }
-) => {
-    if (!recipe.preparation) return null;
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-    return recipe.preparation.map((step, index) => {
-        const parts = step.split(urlRegex);
-
-        return (
-            <span key={index}>
-        {index + 1}.{" "}
-                {parts.map((part, i) =>
-                    urlRegex.test(part) ? (
-                        <a key={i} href={part} target="_blank" rel="noopener noreferrer">
-                            {part}
-                        </a>
-                    ) : (
-                        part
-                    )
-                )}
-                <br />
-      </span>
-        );
-    });
-};
+export const renderStepText = (step: string): ReactNode =>
+    step.split(URL_REGEX).map((part, i) =>
+        /^https?:\/\//.test(part) ? (
+            <a key={i} href={part} target="_blank" rel="noopener noreferrer">
+                {part}
+            </a>
+        ) : (
+            part
+        )
+    );

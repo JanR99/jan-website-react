@@ -1,6 +1,3 @@
-// @ts-ignore
-import SwaggerClient from "swagger-client";
-
 function resolveApiBase(): string {
     if (import.meta.env.DEV) {
         return `${window.location.protocol}//${window.location.hostname}:8080`;
@@ -45,6 +42,8 @@ class APIClient {
             return request;
         };
 
+        // @ts-ignore
+        const { default: SwaggerClient } = await import("swagger-client");
         const swaggerClient: any = await SwaggerClient(DISCOVERY_URL, {
             requestInterceptor,
         });

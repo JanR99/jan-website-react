@@ -1,10 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
-import {UserDTO} from "../../types/entities.ts";
-import {LoginRequest, RegisterRequest} from "../../types/userController.ts";
+import { UserDTO } from "../../types/entities.ts";
+import { LoginRequest, RegisterRequest } from "../../types/userController.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -17,21 +17,45 @@ export type LoginResult =
     | { ok: true }
     | { ok: false; error: string };
 
+export type AuthDialogMode = "login" | "register";
+
 interface AuthContextValue {
     user: UserDTO | null;
+    isAuthenticated: boolean;
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
+
+    authDialog: AuthDialogMode | null;
+    openAuthDialog: (mode?: AuthDialogMode) => void;
+    closeAuthDialog: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
+
+function getTokenExpiry(token: string): number | null {
+    try {
+        const payload = token.split(".")[1];
+        const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+        return typeof json.exp === "number" ? json.exp * 1000 : null;
+    } catch {
+        return null;
+    }
+}
+
+function isExpired(token: string): boolean {
+    const expiry = getTokenExpiry(token);
+    return expiry !== null && expiry <= Date.now();
+}
 
 // sessionStorage keeps the login across page reloads, but not across browser sessions.
 // Every access is wrapped in try/catch because storage can be unavailable (e.g. private mode).
 function loadSession(): Session | null {
     try {
         const raw = sessionStorage.getItem(STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as Session) : null;
+        if (!raw) return null;
+        const session = JSON.parse(raw) as Session;
+        return isExpired(session.token) ? null : session;
     } catch {
         return null;
     }
@@ -55,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         apiClient.setToken(restored?.token ?? null);
         return restored;
     });
+    const [authDialog, setAuthDialog] = useState<AuthDialogMode | null>(null);
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
         try {
@@ -87,9 +112,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(null);
     }, []);
 
+    useEffect(() => {
+        if (!session) return;
+        const expiry = getTokenExpiry(session.token);
+        if (expiry === null) return;
+        const timeout = window.setTimeout(logout, Math.max(0, expiry - Date.now()));
+        return () => window.clearTimeout(timeout);
+    }, [session, logout]);
+
+    const openAuthDialog = useCallback((mode: AuthDialogMode = "login") => setAuthDialog(mode), []);
+    const closeAuthDialog = useCallback(() => setAuthDialog(null), []);
+
     const value = useMemo<AuthContextValue>(
-        () => ({ user: session?.user ?? null, login, register, logout }),
-        [session, login, register, logout]
+        () => ({
+            user: session?.user ?? null,
+            isAuthenticated: session !== null,
+            login,
+            register,
+            logout,
+            authDialog,
+            openAuthDialog,
+            closeAuthDialog,
+        }),
+        [session, login, register, logout, authDialog, openAuthDialog, closeAuthDialog]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
