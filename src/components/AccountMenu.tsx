@@ -1,184 +1,91 @@
 import { useEffect, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext.tsx";
-import { handleApiError } from "../controller/util/ErrorHandler.ts";
+import { accountSectionPath, visibleAccountSections } from "../config/navigation.tsx";
+import Avatar from "./ui/Avatar.tsx";
+import { ChevronDown, LogIn, LogOut } from "lucide-react";
 import "../styles/AccountMenu.css";
 
-type Tab = "login" | "register";
-
 export default function AccountMenu() {
-    const { user, login, register, logout } = useAuth();
+    const { user, logout, openAuthDialog } = useAuth();
     const [open, setOpen] = useState(false);
-    const [tab, setTab] = useState<Tab>("login");
-    const [busy, setBusy] = useState(false);
-    const [message, setMessage] = useState<string | null>(null);
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [firstname, setFirstname] = useState("");
-    const [lastname, setLastname] = useState("");
-
     const rootRef = useRef<HTMLDivElement>(null);
+    const { pathname } = useLocation();
 
-    // Close the dropdown on an outside click
     useEffect(() => {
-        function handleClick(event: MouseEvent) {
-            if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-                setOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
+        if (!open) return;
+        const onClick = (event: MouseEvent) => {
+            if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+        };
+        const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+        document.addEventListener("mousedown", onClick);
+        document.addEventListener("keydown", onKey);
+        return () => {
+            document.removeEventListener("mousedown", onClick);
+            document.removeEventListener("keydown", onKey);
+        };
+    }, [open]);
 
-    function resetFields() {
-        setPassword("");
-        setMessage(null);
+    useEffect(() => setOpen(false), [pathname]);
+
+    if (!user) {
+        return (
+            <button type="button" className="btn btn-sm" onClick={() => openAuthDialog("login")}>
+                <LogIn size={16} />
+                Anmelden
+            </button>
+        );
     }
 
-    function switchTab(next: Tab) {
-        setTab(next);
-        resetFields();
-    }
-
-    async function handleSubmit(event: FormEvent) {
-        event.preventDefault();
-        setBusy(true);
-        setMessage(null);
-
-        if (tab === "register" && (!firstname.trim() || !lastname.trim())) {
-            setMessage("Vorname und Nachname dürfen nicht leer sein.");
-            setBusy(false);
-            return;
-        }
-
-        let result: { ok: boolean; error?: string };
-
-        try {
-            result =
-                tab === "login"
-                    ? await login({ email, password })
-                    : await register({ email, password, firstname, lastname });
-        } catch (error: any) {
-            result = { ok: false, error: handleApiError(error) };
-        }
-
-        if (result.ok) {
-            setOpen(false);
-            setEmail("");
-            setPassword("");
-            setFirstname("");
-            setLastname("");
-        } else {
-            setMessage(result.error || "Register/Login error happened");
-        }
-        setBusy(false);
-    }
+    const items = visibleAccountSections().filter((s) => s.showInMenu !== false);
 
     return (
         <div className="account-menu" ref={rootRef}>
-            {user ? (
-                <>
-                    <button className="account-menu-trigger" onClick={() => setOpen((v) => !v)}>
-                        {user.email}
-                    </button>
-                    {open && (
-                        <div className="account-menu-dropdown">
-                            <p className="account-menu-greeting">Angemeldet als<br />{user.email}</p>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    logout();
-                                    setOpen(false);
-                                }}
-                            >
-                                Abmelden
-                            </button>
+            <button
+                type="button"
+                className="account-trigger"
+                onClick={() => setOpen((v) => !v)}
+                aria-haspopup="true"
+                aria-expanded={open}
+            >
+                <Avatar user={user} size={32} />
+                <span className="account-trigger-name">{user.firstname || user.email}</span>
+                <ChevronDown size={16} className="account-trigger-chevron" />
+            </button>
+
+            {open && (
+                <div className="account-dropdown">
+                    <div className="account-dropdown-head">
+                        <Avatar user={user} size={40} />
+                        <div>
+                            <strong>{[user.firstname, user.lastname].filter(Boolean).join(" ") || "Mein Konto"}</strong>
+                            <span>{user.email}</span>
                         </div>
-                    )}
-                </>
-            ) : (
-                <>
-                    <button className="account-menu-trigger" onClick={() => setOpen((v) => !v)}>
-                        Konto
-                    </button>
-                    {open && (
-                        <div className="account-menu-dropdown">
-                            <div className="account-menu-tabs">
-                                <span
-                                    className={tab === "login" ? "active" : ""}
-                                    onClick={() => switchTab("login")}
-                                >
-                                    Anmelden
-                                </span>
-                                <span
-                                    className={tab === "register" ? "active" : ""}
-                                    onClick={() => switchTab("register")}
-                                >
-                                    Registrieren
-                                </span>
-                            </div>
+                    </div>
 
-                            <form onSubmit={handleSubmit}>
-                                <label>
-                                    E-Mail
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        autoComplete="username"
-                                        required
-                                    />
-                                </label>
-                                <label>
-                                    Passwort
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete={tab === "login" ? "current-password" : "new-password"}
-                                        required
-                                    />
-                                </label>
+                    <nav className="account-dropdown-list" aria-label="Konto">
+                        {items.map((section) => (
+                            <Link key={section.path} to={accountSectionPath(section)} className="account-dropdown-item">
+                                <section.icon size={18} />
+                                {section.label}
+                            </Link>
+                        ))}
+                    </nav>
 
-                                {tab === "register" && (
-                                    <>
-                                        <label>
-                                            Vorname
-                                            <input
-                                                type="text"
-                                                value={firstname}
-                                                onChange={(e) => setFirstname(e.target.value)}
-                                                autoComplete="given-name"
-                                                required
-                                            />
-                                        </label>
-                                        <label>
-                                            Nachname
-                                            <input
-                                                type="text"
-                                                value={lastname}
-                                                onChange={(e) => setLastname(e.target.value)}
-                                                autoComplete="family-name"
-                                                required
-                                            />
-                                        </label>
-                                    </>
-                                )}
-
-                                <button type="submit" disabled={busy}>
-                                    {busy
-                                        ? "Bitte warten ..."
-                                        : tab === "login"
-                                            ? "Anmelden"
-                                            : "Registrieren"}
-                                </button>
-
-                                {message && <p className="account-menu-message" role="alert">{message}</p>}
-                            </form>
-                        </div>
-                    )}
-                </>
+                    <div className="account-dropdown-footer">
+                        <button
+                            type="button"
+                            className="account-dropdown-item"
+                            onClick={() => {
+                                logout();
+                                setOpen(false);
+                            }}
+                        >
+                            <LogOut size={18} />
+                            Abmelden
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );

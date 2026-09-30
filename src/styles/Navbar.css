@@ -1,64 +1,96 @@
-.nav-wrapper {
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.site-header-inner {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-bottom: 30px;
-    width: 100%;
+    gap: 24px;
+    height: var(--header-height);
 }
 
-.header-row {
+.site-logo {
+    flex-shrink: 0;
     display: flex;
-    justify-content: center;
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
+    align-items: center;
+    transition: transform var(--transition);
 }
 
-.hero-header h1 {
-    font-size: 60px;
-    font-weight: 900;
-    color: black;
-    text-shadow: 2px 2px gray;
-    text-decoration: underline;
-    margin: 0;
-    text-align: center;
-    line-height: 1.1;
+.site-logo:hover {
+    transform: rotate(-2deg) scale(1.03);
 }
 
-.logo-fixed {
-    position: absolute;
-    left: -80px;
-    top: -80px;
-    height: 200px;
-    z-index: 10;
-}
-
-.logo-fixed img {
-    height: 100%;
+.site-logo img {
+    height: 46px;
     width: auto;
-    display: block;
 }
 
-.hero-buttons {
+.main-nav {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
-    width: 90%;
+    gap: 4px;
 }
 
-@media (max-width: 768px) {
+.main-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    color: var(--color-text-muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color var(--transition), background-color var(--transition);
+}
 
-    .logo-fixed {
-        left: -10px;
-        top: -50px;
-        height: 80px;
-        width: auto;
+.main-nav-link:hover {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+}
+
+.main-nav-link.is-active {
+    color: var(--color-accent-strong);
+    background: var(--color-accent-soft);
+}
+
+.site-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+/* Mobil: Navigation als zweite Zeile unter dem Logo */
+@media (max-width: 640px) {
+    .site-header-inner {
+        flex-wrap: wrap;
+        height: auto;
+        row-gap: 0;
+        padding-top: 10px;
     }
 
-    .hero-header h1 {
-        font-size: 20px;
-        text-align: center;
+    .site-logo img {
+        height: 34px;
+    }
+
+    .main-nav {
+        order: 3;
+        width: 100%;
+        margin-inline: calc(var(--gutter) * -1);
+        padding: 6px var(--gutter) 8px;
+        width: calc(100% + var(--gutter) * 2);
+    }
+
+    .main-nav-link {
+        flex: 1;
+        justify-content: center;
+        height: 36px;
     }
 }

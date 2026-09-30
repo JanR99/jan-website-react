@@ -1,77 +1,41 @@
 .cookie-consent {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.9);
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 1500;
+    width: min(400px, calc(100vw - 32px));
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    animation: pop-in 220ms ease;
 }
 
-.cookie-consent-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 800px;
-  width: 100%;
-  margin: 0 auto;
-  color: #fff;
-  flex-wrap: wrap;
+.cookie-consent h2 {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
 }
 
-.cookie-consent-content h2 {
-  margin: 0 0 10px 0;
-  font-size: 24px;
-}
-
-.cookie-consent-content p {
-  margin: 0;
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: 15px;
+.cookie-consent p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
 }
 
 .cookie-consent-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
 }
 
-.cookie-consent-button {
-  padding: 10px 20px;
-  background-color: #050801;
-  color: #e7b4b4;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+@media (max-width: 480px) {
+    .cookie-consent {
+        left: 16px;
+        bottom: 16px;
+    }
 
-.cookie-consent-button:hover {
-  background-color: #e7b4b4;
-  color: #050801;
-}
-
-.cookie-consent-button--secondary {
-  background-color: #333;
-  color: #fff;
-}
-
-.cookie-consent-button--secondary:hover {
-  background-color: #555;
-}
-
-@media (max-width: 600px) {
-  .cookie-consent-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .cookie-consent-actions {
-    justify-content: center;
-  }
+    .cookie-consent-actions .btn {
+        flex: 1;
+    }
 }

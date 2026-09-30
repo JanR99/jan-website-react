@@ -1,210 +1,173 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import '../App.css';
+import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Recipe } from '../types/Recipe';
+import { useRecipes } from '../hooks/useRecipes';
+import { useFavorites } from '../hooks/useFavorites';
+import { capitalize, isVegan, isVegetarian } from '../utils/recipe';
+import PageHeader from './layout/PageHeader';
+import RecipeCard from './RecipeCard';
+import BackToTop from './ui/BackToTop';
+import { Heart, Search, Utensils, X } from "lucide-react";
 import '../styles/Cookbook.css';
-import { Recipe } from "../types/Recipe";
-import Navbar from "./Navbar";
 
-const filterRecipes = (recipes: Recipe[], diet: string, cuisine: string, ingredientSearch: string) => {
+type Diet = 'alle' | 'vegetarisch' | 'vegan';
+const DIETS: Diet[] = ['alle', 'vegetarisch', 'vegan'];
+
+const filterRecipes = (recipes: Recipe[], diet: Diet, cuisine: string, search: string) => {
+    const terms = search.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+
     return recipes.filter(r => {
         const matchesDiet =
-            diet === "alle" ||
-            (diet === "vegan" && r.tags?.includes("vegan")) ||
-            (diet === "vegetarisch" && (r.tags?.includes("vegetarisch") || r.tags?.includes("vegan")));
+            diet === 'alle' ||
+            (diet === 'vegan' && isVegan(r)) ||
+            (diet === 'vegetarisch' && isVegetarian(r));
 
-        const matchesCuisine = cuisine === "alle" || r.cuisine === cuisine;
+        const matchesCuisine = cuisine === 'alle' || r.cuisine === cuisine;
 
-        const matchesIngredientSearch = ingredientSearch
-            ? ingredientSearch.toLowerCase().split(',').map(s => s.trim()).every(searchTerm => {
-                return r.ingredients?.some(ingredient =>
-                    ingredient.toLowerCase().includes(searchTerm)
-                );
-            })
-            : true;
+        const matchesSearch = terms.every(term =>
+            r.title.toLowerCase().includes(term) ||
+            r.ingredients?.some(ingredient => String(ingredient).toLowerCase().includes(term))
+        );
 
-        return matchesDiet && matchesCuisine && matchesIngredientSearch;
+        return matchesDiet && matchesCuisine && matchesSearch;
     });
 };
 
 const Cookbook: React.FC = () => {
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [dietFilter, setDietFilter] = useState("alle");
-    const [cuisineFilter, setCuisineFilter] = useState("alle");
-    const [ingredientSearch, setIngredientSearch] = useState("");
-    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-    const [showTopButton, setShowTopButton] = useState(false);
+    const { recipes, loading, error } = useRecipes();
+    const { favorites } = useFavorites();
 
-    const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>(() => {
-        const stored = localStorage.getItem("favoriteRecipes");
-        return stored ? JSON.parse(stored) : [];
-    });
+    const [params, setParams] = useSearchParams();
+    const dietParam = params.get('diet');
+    const diet: Diet = DIETS.includes(dietParam as Diet) ? (dietParam as Diet) : 'alle';
+    const cuisine = params.get('kueche') ?? 'alle';
+    const search = params.get('q') ?? '';
+    const favoritesOnly = params.get('favoriten') === '1';
 
-    const cuisines: string[] = [
-        "alle",
-        ...Array.from(
-            new Set(
-                recipes
-                    .map(r => r.cuisine)
-                    .filter((c): c is string => Boolean(c))
-            )
-        ).sort((a, b) => a.localeCompare(b))
-    ];
-
-    const filteredRecipes = filterRecipes(recipes, dietFilter, cuisineFilter, ingredientSearch)
-        .filter(r => !showFavoritesOnly || favoriteRecipes.includes(r.title));
-
-    useEffect(() => {
-        const fetchAll = async () => {
-            try {
-                const data: Recipe[] = await fetch("/recipes/recipes.json").then(res => res.json());
-
-                setRecipes(data);
-            } catch (err) {
-                console.error("Error loading recipes:", err);
-            }
-        };
-
-        fetchAll().then();
-
-        const handleScroll = () => {
-            setShowTopButton(window.scrollY > 300);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const updateParam = (key: string, value: string | null) => {
+        setParams(prev => {
+            const next = new URLSearchParams(prev);
+            if (value === null || value === '' || value === 'alle') next.delete(key);
+            else next.set(key, value);
+            return next;
+        }, { replace: true });
     };
 
-    const toggleFavorite = (title: string) => {
-        setFavoriteRecipes(prev => {
-            let updated: string[];
-            if (prev.includes(title)) {
-                updated = prev.filter(t => t !== title);
-            } else {
-                updated = [...prev, title];
-            }
-            localStorage.setItem("favoriteRecipes", JSON.stringify(updated));
-            return updated;
-        });
-    };
+    const cuisines = useMemo(
+        () => Array.from(new Set(recipes.map(r => r.cuisine).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+        [recipes]
+    );
+
+    const filteredRecipes = useMemo(
+        () => filterRecipes(recipes, diet, cuisine, search)
+            .filter(r => !favoritesOnly || favorites.includes(r.title)),
+        [recipes, diet, cuisine, search, favoritesOnly, favorites]
+    );
+
+    const hasFilters = diet !== 'alle' || cuisine !== 'alle' || search !== '' || favoritesOnly;
 
     return (
-        <div>
-            <Navbar
+        <div className="container">
+            <PageHeader
+                eyebrow="Kochbuch"
                 title="Mein Kochbuch"
-                links={[
-                    { to: "/", label: "Home" },
-                ]}
+                lead={recipes.length > 0
+                    ? `${recipes.length} Rezepte aus ${cuisines.length} Küchen. Such nach dem, was noch im Kühlschrank ist.`
+                    : 'Meine gesammelten Lieblingsrezepte.'}
             />
 
-            <div className="filter-container">
-                {/* Diet Filter */}
-                <div className="filter-section">
-                    <span className="filter-label">Ernährung:</span>
-                    <div className="filter-group">
-                        {["alle", "vegetarisch", "vegan"].map(f => (
-                            <span
-                                key={f}
-                                className={`filter-pill ${dietFilter === f ? "active" : ""}`}
-                                onClick={() => setDietFilter(f)}
-                            >
-                                {f.charAt(0).toUpperCase() + f.slice(1)}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Cuisine Filter */}
-                <div className="filter-section">
-                    <span className="filter-label">Küche:</span>
-                    <div className="filter-group">
-                        {cuisines.map(c => (
-                            <span
-                                key={c}
-                                className={`filter-pill ${cuisineFilter === c ? "active" : ""}`}
-                                onClick={() => setCuisineFilter(c)}
-                            >
-                                {c.charAt(0).toUpperCase() + c.slice(1)}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Ingredients Search */}
-                <div className="filter-section">
-                    <span className="filter-label">Zutaten:</span>
+            {/* Filter */}
+            <div className="filter-panel card">
+                <div className="input-with-icon filter-search">
+                    <Search size={18} />
                     <input
-                        type="text"
-                        placeholder="Zutaten eingeben, z.B. 'Tomate, Käse'"
-                        value={ingredientSearch}
-                        onChange={e => setIngredientSearch(e.target.value)}
+                        className="input"
+                        type="search"
+                        placeholder="Rezept oder Zutaten, z.B. „Tomate, Käse“"
+                        value={search}
+                        onChange={e => updateParam('q', e.target.value)}
+                        aria-label="Rezepte durchsuchen"
                     />
                 </div>
 
-                {/* Favorites Section */}
-                <div className="filter-section">
-                    <span className="filter-label">Favoriten:</span>
-                    <div className="filter-group">
-                    <span
-                        className={`filter-pill ${showFavoritesOnly ? "active" : ""}`}
-                        onClick={() => setShowFavoritesOnly(prev => !prev)}
-                    >
-                        {showFavoritesOnly ? "Nur Favoriten" : "Alle"}
-                    </span>
+                <div className="filter-row">
+                    <div className="segmented" role="group" aria-label="Ernährung">
+                        {DIETS.map(d => (
+                            <button
+                                key={d}
+                                type="button"
+                                aria-pressed={diet === d}
+                                onClick={() => updateParam('diet', d)}
+                            >
+                                {d === 'alle' ? 'Alles' : capitalize(d)}
+                            </button>
+                        ))}
                     </div>
+
+                    <button
+                        type="button"
+                        className="chip chip-favorites"
+                        aria-pressed={favoritesOnly}
+                        onClick={() => updateParam('favoriten', favoritesOnly ? null : '1')}
+                    >
+                        <Heart size={16} fill={favoritesOnly ? "currentColor" : "none"} />
+                        Favoriten{favorites.length > 0 && ` (${favorites.length})`}
+                    </button>
+                </div>
+
+                <div className="filter-cuisines" role="group" aria-label="Küche">
+                    {['alle', ...cuisines].map(c => (
+                        <button
+                            key={c}
+                            type="button"
+                            className="chip"
+                            aria-pressed={cuisine === c}
+                            onClick={() => updateParam('kueche', c)}
+                        >
+                            {c === 'alle' ? 'Alle Küchen' : capitalize(c)}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Render recipes */}
-            <div className="container">
-                {filteredRecipes.length > 0 ? (
-                    filteredRecipes.map((recipe, index) => {
-                        const imageSrc = recipe.image.includes('.') ? recipe.image : `${recipe.image}.jpg`;
-
-                        return (
-                            <div className="img-cookbook" key={index}>
-                                <figcaption>{recipe.title}</figcaption>
-                                <Link
-                                    to={`/cookbook/${recipe.title
-                                        .toLowerCase()
-                                        .replace(/\s+/g, "-")}`}
-                                    state={{ recipe }}
-                                >
-                                    <img
-                                        src={`../Bilder/Essen-thumbnail/${imageSrc}`}
-                                        alt={recipe.title}
-                                    />
-                                </Link>
-                                <button
-                                    className="favorite-button"
-                                    onClick={() => toggleFavorite(recipe.title)}
-                                >
-                                    {favoriteRecipes.includes(recipe.title) ? '★' : '☆'}
-                                </button>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <p style={{ textAlign: "center", fontWeight: "bold", marginTop: "20px" }}>
-                        Es gibt leider noch keine Rezepte mit diesen Filtern.
-                    </p>
+            {/* Ergebnis */}
+            <div className="results-bar">
+                <span className="muted">
+                    {loading ? 'Rezepte werden geladen …' : `${filteredRecipes.length} ${filteredRecipes.length === 1 ? 'Rezept' : 'Rezepte'}`}
+                </span>
+                {hasFilters && (
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setParams({}, { replace: true })}>
+                        <X size={16} /> Filter zurücksetzen
+                    </button>
                 )}
             </div>
 
-            {/* Back to Top Button */}
-            {showTopButton && (
-                <button
-                    onClick={scrollToTop}
-                    className="button-link back-to-top"
-                    aria-label="Scroll to top"
-                >
-                    ↑ Top
-                </button>
+            {error ? (
+                <div className="card empty-state"><h3>Ups</h3><p>{error}</p></div>
+            ) : loading ? (
+                <div className="recipe-grid">
+                    {Array.from({ length: 6 }, (_, i) => <div key={i} className="recipe-card-skeleton skeleton" />)}
+                </div>
+            ) : filteredRecipes.length > 0 ? (
+                <div className="recipe-grid">
+                    {filteredRecipes.map(recipe => <RecipeCard key={recipe.title} recipe={recipe} />)}
+                </div>
+            ) : (
+                <div className="card empty-state">
+                    <span className="empty-state-icon"><Utensils size={26} /></span>
+                    <h3>Keine passenden Rezepte</h3>
+                    <p>
+                        {favoritesOnly && favorites.length === 0
+                            ? 'Du hast noch keine Favoriten. Tipp aufs Herz bei einem Rezept, um es zu merken.'
+                            : 'Es gibt leider noch keine Rezepte mit diesen Filtern.'}
+                    </p>
+                    <button type="button" className="btn btn-secondary" onClick={() => setParams({}, { replace: true })}>
+                        Filter zurücksetzen
+                    </button>
+                </div>
             )}
+
+            <BackToTop />
         </div>
     );
 };

@@ -2,33 +2,32 @@ import React, { useEffect, useState } from 'react';
 import '../styles/CookieConsent.css';
 
 const CONSENT_KEY = 'cookieConsent';
+const OPEN_EVENT = 'cookie-consent:open';
+
+export const openCookieSettings = () => window.dispatchEvent(new Event(OPEN_EVENT));
 
 const CookieConsent: React.FC = () => {
     const [showConsent, setShowConsent] = useState(false);
 
     useEffect(() => {
         try {
-            const consent = localStorage.getItem(CONSENT_KEY);
-
-            if (!consent) {
+            if (!localStorage.getItem(CONSENT_KEY)) {
                 setShowConsent(true);
             }
         } catch {
             setShowConsent(true);
         }
+
+        const open = () => setShowConsent(true);
+        window.addEventListener(OPEN_EVENT, open);
+        return () => window.removeEventListener(OPEN_EVENT, open);
     }, []);
 
-    const acceptCookies = () => {
+    const saveChoice = (choice: 'accepted' | 'rejected') => {
         try {
-            localStorage.setItem(CONSENT_KEY, 'accepted');
-        } finally {
-            setShowConsent(false);
-        }
-    };
-
-    const rejectCookies = () => {
-        try {
-            localStorage.setItem(CONSENT_KEY, 'rejected');
+            localStorage.setItem(CONSENT_KEY, choice);
+        } catch {
+            // Storage nicht verfügbar
         } finally {
             setShowConsent(false);
         }
@@ -45,29 +44,19 @@ const CookieConsent: React.FC = () => {
             aria-modal="false"
             aria-labelledby="cookie-consent-title"
         >
-            <div className="cookie-consent-content">
-                <h2 id="cookie-consent-title">Cookie-Einstellungen</h2>
-                <p>
-                    Wir verwenden Cookies, um unsere Website zu verbessern
-                    und bestimmte Funktionen bereitzustellen. Du kannst
-                    selbst entscheiden, welchen Cookies du zustimmst.
-                </p>
-                <div className="cookie-consent-actions">
-                    <button
-                        type="button"
-                        className="cookie-consent-button cookie-consent-button--secondary"
-                        onClick={rejectCookies}
-                    >
-                        Nur notwendige
-                    </button>
-                    <button
-                        type="button"
-                        className="cookie-consent-button"
-                        onClick={acceptCookies}
-                    >
-                        Alle akzeptieren
-                    </button>
-                </div>
+            <h2 id="cookie-consent-title">🍪 Cookie-Einstellungen</h2>
+            <p>
+                Wir verwenden Cookies, um unsere Website zu verbessern
+                und bestimmte Funktionen bereitzustellen. Du kannst
+                selbst entscheiden, welchen Cookies du zustimmst.
+            </p>
+            <div className="cookie-consent-actions">
+                <button type="button" className="btn btn-secondary btn-sm" onClick={() => saveChoice('rejected')}>
+                    Nur notwendige
+                </button>
+                <button type="button" className="btn btn-sm" onClick={() => saveChoice('accepted')}>
+                    Alle akzeptieren
+                </button>
             </div>
         </div>
     );
