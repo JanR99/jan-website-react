@@ -93,7 +93,7 @@ const Home: React.FC = () => {
                     </div>
                     <div className="cookbook-teaser-images" aria-hidden="true">
                         {teaser.map(recipe => (
-                            <img key={recipe.title} src={recipeThumbnail(recipe)} alt="" loading="lazy" />
+                            <img key={recipe.id} src={recipeThumbnail(recipe)} alt="" loading="lazy" />
                         ))}
                     </div>
                 </Link>
@@ -101,7 +101,7 @@ const Home: React.FC = () => {
                     <p className="cookbook-teaser-links muted">
                         Zum Beispiel:{' '}
                         {teaser.map((recipe, i) => (
-                            <React.Fragment key={recipe.title}>
+                            <React.Fragment key={recipe.id}>
                                 {i > 0 && ' · '}
                                 <Link to={recipePath(recipe)} state={{ recipe }}>{recipe.title}</Link>
                             </React.Fragment>

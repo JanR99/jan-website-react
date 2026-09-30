@@ -1,8 +1,8 @@
 package de.jan.controller.requests;
 
 public class FavoriteRequest {
-    private String title;
+    private Long recipeId;
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public Long getRecipeId() { return recipeId; }
+    public void setRecipeId(Long recipeId) { this.recipeId = recipeId; }
 }

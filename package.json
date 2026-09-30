@@ -14,11 +14,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run validate && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "validate": "tsx scripts/validateRecipes.ts"
+    "deploy": "gh-pages -d dist"
   },
   "eslintConfig": {
     "extends": [

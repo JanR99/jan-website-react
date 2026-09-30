@@ -1,8 +1,10 @@
 package de.jan.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.IgnoreSave;
 import com.googlecode.objectify.annotation.Index;
 import de.jan.objectify.DatastoreEntity;
 
@@ -28,7 +30,16 @@ public class User implements DatastoreEntity {
     @JsonIgnore
     private boolean admin = false;
 
-    private List<String> favorites = new ArrayList<>();
+    @Index
+    private List<Long> favoriteRecipeIds = new ArrayList<>();
+
+    /**
+     * Favorites from before the recipes moved into the database, stored as recipe titles.
+     * Only loaded (never saved) so RecipeBootstrapConfig can migrate them to IDs; the next save drops them.
+     */
+    @AlsoLoad("favorites")
+    @IgnoreSave
+    private List<String> legacyFavoriteTitles;
 
     public User() {
 
@@ -90,15 +101,23 @@ public class User implements DatastoreEntity {
         this.admin = admin;
     }
 
-    public List<String> getFavorites() {
+    public List<Long> getFavoriteRecipeIds() {
         // Objectify does not store empty lists, so older/empty entities load with null
-        if (favorites == null) {
-            favorites = new ArrayList<>();
+        if (favoriteRecipeIds == null) {
+            favoriteRecipeIds = new ArrayList<>();
         }
-        return favorites;
+        return favoriteRecipeIds;
     }
 
-    public void setFavorites(List<String> favorites) {
-        this.favorites = favorites;
+    public void setFavoriteRecipeIds(List<Long> favoriteRecipeIds) {
+        this.favoriteRecipeIds = favoriteRecipeIds;
+    }
+
+    public List<String> getLegacyFavoriteTitles() {
+        return legacyFavoriteTitles;
+    }
+
+    public void clearLegacyFavoriteTitles() {
+        this.legacyFavoriteTitles = null;
     }
 }

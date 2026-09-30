@@ -8,6 +8,7 @@ import de.jan.controller.requests.ResetPasswordRequest;
 import de.jan.controller.requests.SetAdminStatusRequest;
 import de.jan.controller.requests.UpdateProfileRequest;
 import de.jan.controller.response.LoginResponse;
+import de.jan.controller.response.PermissionsResponse;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.security.JwtService;
@@ -37,6 +38,7 @@ public class UserController {
     private static final String RESET_PASSWORD = "resetPassword";
     private static final String UPDATE_PROFILE = "updateProfile";
     private static final String DELETE_ACCOUNT = "deleteAccount";
+    private static final String GET_PERMISSIONS = "getPermissions";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -99,6 +101,14 @@ public class UserController {
     ) {
         userRepository.deleteAccount(user, body.getPassword());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = GET_PERMISSIONS)
+    @GetMapping("/permissions")
+    public ResponseEntity<PermissionsResponse> getPermissions(
+            @CurrentUser User user
+    ) {
+        return ResponseEntity.ok(new PermissionsResponse(user.isAdmin()));
     }
 
     @Operation(operationId = GET_USER_BY_EMAIL)

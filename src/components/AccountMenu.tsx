@@ -7,7 +7,7 @@ import { ChevronDown, LogIn, LogOut } from "lucide-react";
 import "../styles/AccountMenu.css";
 
 export default function AccountMenu() {
-    const { user, logout, openAuthDialog } = useAuth();
+    const { user, logout, openAuthDialog, permissions } = useAuth();
     const [open, setOpen] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
     const { pathname } = useLocation();
@@ -37,7 +37,7 @@ export default function AccountMenu() {
         );
     }
 
-    const items = visibleAccountSections().filter((s) => s.showInMenu !== false);
+    const items = visibleAccountSections(permissions).filter((s) => s.showInMenu !== false);
 
     return (
         <div className="account-menu" ref={rootRef}>

@@ -4,7 +4,7 @@ import { adjustIngredient, renderIngredients, renderStepText } from './helper/Re
 import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
-import { isVegan, isVegetarian, recipeImage, recipeSlug, recipeThumbnail } from '../utils/recipe';
+import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug, recipeThumbnail } from '../utils/recipe';
 import RecipeCard from './RecipeCard';
 import { ArrowLeft, Check, Heart, Leaf, Minus, Plus } from "lucide-react";
 import '../styles/Recipe.css';
@@ -60,21 +60,27 @@ const RecipePage: React.FC = () => {
 
     const changePortions = (delta: number) => setPortions(p => Math.min(99, Math.max(1, p + delta)));
 
+    const related = (recipe.relatedRecipeIds ?? [])
+        .map(id => recipes.find(r => r.id === id))
+        .filter((r): r is Recipe => Boolean(r));
+
+    // links the name of a related recipe inside an ingredient, e.g. "2 EL Basilikum Pesto"
     const renderIngredientWithLinks = (ingredient: string) => {
-        for (const relatedTitle of recipe.relatedRecipes ?? []) {
-            if (ingredient.includes(relatedTitle)) {
-                const [before, after] = ingredient.split(relatedTitle);
-                const related = recipes.find(r => r.title === relatedTitle);
+        for (const relatedRecipe of related) {
+            const index = ingredient.indexOf(relatedRecipe.title);
+            if (index >= 0) {
+                const before = ingredient.slice(0, index);
+                const after = ingredient.slice(index + relatedRecipe.title.length);
                 return (
                     <>
                         {before}
                         <Link
                             className="ingredient-link"
-                            to={`/cookbook/${recipeSlug(relatedTitle)}`}
-                            state={{ recipe: related }}
+                            to={recipePath(relatedRecipe)}
+                            state={{ recipe: relatedRecipe }}
                             onClick={e => e.stopPropagation()}
                         >
-                            {relatedTitle}
+                            {relatedRecipe.title}
                         </Link>
                         {after}
                     </>
@@ -84,11 +90,7 @@ const RecipePage: React.FC = () => {
         return ingredient;
     };
 
-    const related = (recipe.relatedRecipes ?? [])
-        .map(title => recipes.find(r => r.title === title))
-        .filter((r): r is Recipe => Boolean(r));
-
-    const favorite = isFavorite(recipe.title);
+    const favorite = isFavorite(recipe.id);
 
     return (
         <div className="container">
@@ -138,7 +140,7 @@ const RecipePage: React.FC = () => {
                     <button
                         type="button"
                         className={`btn ${favorite ? '' : 'btn-secondary'}`}
-                        onClick={() => toggleFavorite(recipe.title)}
+                        onClick={() => toggleFavorite(recipe.id)}
                         aria-pressed={favorite}
                     >
                         <Heart size={18} fill={favorite ? "currentColor" : "none"} />
@@ -186,7 +188,7 @@ const RecipePage: React.FC = () => {
                 <section className="section">
                     <h2 className="related-title">Passt dazu</h2>
                     <div className="recipe-grid">
-                        {related.map(r => <RecipeCard key={r.title} recipe={r} />)}
+                        {related.map(r => <RecipeCard key={r.id} recipe={r} />)}
                     </div>
                 </section>
             )}
