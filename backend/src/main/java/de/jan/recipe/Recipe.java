@@ -17,7 +17,7 @@ public class Recipe implements DatastoreEntity {
     @Index
     private String title;
 
-    /** File name inside public/Bilder/Essen-normal and Essen-thumbnail (".jpg" is added if there is no extension) */
+    /** "uploads/<id>" of a RecipeImage */
     private String image;
 
     private int defaultPortions;

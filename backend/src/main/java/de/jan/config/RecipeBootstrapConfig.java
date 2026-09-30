@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class RecipeBootstrapConfig {
 
     private static final String SEED_FILE = "recipes/recipes.json";
+    private static final String SEED_IMAGE_DIR = "recipes/images/";
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record SeedRecipe(
@@ -56,7 +57,7 @@ public class RecipeBootstrapConfig {
         return args -> ObjectifyService.run(() -> {
             try {
                 if (recipeRepository.isEmpty()) {
-                    importSeed(recipeRepository, objectMapper);
+                    importSeed(recipeRepository, imageRepository, objectMapper);
                 }
             } catch (Exception e) {
                 System.out.println("Bootstrap: recipe import failed: " + e.getMessage());
@@ -75,7 +76,8 @@ public class RecipeBootstrapConfig {
         });
     }
 
-    private void importSeed(RecipeRepository recipeRepository, ObjectMapper objectMapper) throws Exception {
+    private void importSeed(RecipeRepository recipeRepository, ImageRepository imageRepository,
+                            ObjectMapper objectMapper) throws Exception {
         ClassPathResource resource = new ClassPathResource(SEED_FILE);
         if (!resource.exists()) {
             System.out.println("Bootstrap: no " + SEED_FILE + " found, skipping recipe import.");
@@ -90,9 +92,17 @@ public class RecipeBootstrapConfig {
         // first pass: create all recipes
         Map<String, Recipe> byTitle = new HashMap<>();
         for (SeedRecipe seed : seeds) {
+            String image;
+            try {
+                image = importSeedImage(seed.image(), imageRepository);
+            } catch (Exception e) {
+                System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": image " + seed.image() + ": " + e.getMessage());
+                continue;
+            }
+
             RecipeRequest request = new RecipeRequest();
             request.setTitle(seed.title());
-            request.setImage(seed.image());
+            request.setImage(image);
             request.setDefaultPortions(seed.defaultPortions());
             request.setCuisine(seed.cuisine());
             request.setTags(seed.tags());
@@ -102,6 +112,7 @@ public class RecipeBootstrapConfig {
                 Recipe created = recipeRepository.create(request);
                 byTitle.put(created.getTitle(), created);
             } catch (Exception e) {
+                imageRepository.deleteQuietly(image);
                 System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": " + e.getMessage());
             }
         }
@@ -125,6 +136,20 @@ public class RecipeBootstrapConfig {
         }
 
         System.out.println("Bootstrap: imported " + byTitle.size() + " of " + seeds.size() + " recipes.");
+    }
+
+    /** Stores resources/recipes/images/<fileName> as RecipeImage and returns "uploads/<id>". */
+    private String importSeedImage(String fileName, ImageRepository imageRepository) throws Exception {
+        if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("..")) {
+            throw new IllegalArgumentException("invalid file name");
+        }
+        ClassPathResource resource = new ClassPathResource(SEED_IMAGE_DIR + fileName);
+        if (!resource.exists()) {
+            throw new IllegalArgumentException("file not found");
+        }
+        try (InputStream in = resource.getInputStream()) {
+            return imageRepository.upload(in.readAllBytes());
+        }
     }
 
     private void deleteOrphanImages(RecipeRepository recipeRepository, ImageRepository imageRepository) {

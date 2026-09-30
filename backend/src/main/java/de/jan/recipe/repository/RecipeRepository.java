@@ -38,7 +38,6 @@ public class RecipeRepository {
     private static final int MAX_PORTIONS = 99;
     private static final Pattern LINE_BREAKS = Pattern.compile("\\s*\\R\\s*");
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
-    private static final Pattern IMAGE_NAME = Pattern.compile("^[^/\\\\]+$");
 
     private final RecipeDAO recipeDAO;
     private final UserDAO userDAO;
@@ -144,14 +143,9 @@ public class RecipeRepository {
 
         String image = request.getImage() == null ? "" : request.getImage().trim();
         requireText(image, "Image", SHORT_TEXT_MAX_LENGTH);
-        if (ImageRepository.isUpload(image)) {
-            // keeping the current image needs no check, a new upload must exist
-            if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
-                throw new EntityStateException("The uploaded image was not found, please upload it again");
-            }
-        } else if (!IMAGE_NAME.matcher(image).matches() || image.contains("..")) {
-            // older recipes: file name inside public/Bilder
-            throw new EntityStateException("Image must be a plain file name");
+        // a new upload must exist; keeping the current image needs no check
+        if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
+            throw new EntityStateException("The uploaded image was not found, please upload it again");
         }
 
         Integer portions = request.getDefaultPortions();

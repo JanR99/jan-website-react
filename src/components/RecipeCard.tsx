@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Recipe } from '../types/Recipe';
 import { useFavorites } from '../hooks/useFavorites';
-import { isVegan, isVegetarian, recipePath, recipeThumbnail } from '../utils/recipe';
+import { isVegan, isVegetarian, recipePath, recipeImage } from '../utils/recipe';
 import { Heart, Leaf } from "lucide-react";
 
 export default function RecipeCard({ recipe }: { recipe: Recipe }) {
@@ -13,7 +13,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
         <article className="recipe-card">
             <Link to={recipePath(recipe)} state={{ recipe }} className="recipe-card-link">
                 <div className="recipe-card-image">
-                    <img src={recipeThumbnail(recipe)} alt="" loading="lazy" decoding="async" />
+                    <img src={recipeImage(recipe)} alt="" loading="lazy" decoding="async" />
                 </div>
                 <div className="recipe-card-body">
                     <span className="recipe-card-kicker">

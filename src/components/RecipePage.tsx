@@ -4,7 +4,7 @@ import { adjustIngredient, renderIngredients, renderStepText } from './helper/Re
 import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
-import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug, recipeThumbnail } from '../utils/recipe';
+import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
 import RecipeCard from './RecipeCard';
 import { ArrowLeft, Check, Heart, Leaf, Minus, Plus } from "lucide-react";
 import '../styles/Recipe.css';
@@ -108,7 +108,7 @@ const RecipePage: React.FC = () => {
                     rel="noopener noreferrer"
                     title="Bild in voller Größe öffnen"
                 >
-                    <img src={recipeThumbnail(recipe)} alt={recipe.title} />
+                    <img src={recipeImage(recipe)} alt={recipe.title} />
                 </a>
 
                 <div className="recipe-hero-info">

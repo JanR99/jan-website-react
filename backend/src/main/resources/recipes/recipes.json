@@ -1,7 +1,7 @@
 [
   {
     "title": "Knoblauchöl",
-    "image": "Knoblauchöl.jpg",
+    "image": "Knoblauchoel.jpg",
     "defaultPortions": 1,
     "cuisine": "italienisch",
     "tags": ["VEGETARIAN", "VEGAN"],
@@ -450,7 +450,7 @@
   },
   {
     "title": "Austernpilz-Onigiri",
-    "image": "AusternpilzOnigiri.jpeg",
+    "image": "AusternpilzOnigiri.jpg",
     "defaultPortions": 2,
     "cuisine": "japanisch",
     "tags": ["VEGETARIAN"],
@@ -489,7 +489,7 @@
   },
   {
     "title": "Gnocchi Tomatensoße",
-    "image": "GnocchiTomatensoße.jpg",
+    "image": "GnocchiTomatensosse.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
     "tags": ["VEGETARIAN", "VEGAN"],
@@ -638,7 +638,7 @@
   },
   {
     "title": "Kürbissuppe",
-    "image": "Kürbissuppe.jpg",
+    "image": "Kuerbissuppe.jpg",
     "defaultPortions": 4,
     "cuisine": "deutsch",
     "tags": ["VEGETARIAN"],
@@ -761,7 +761,7 @@
   },
   {
     "title": "Mango Sticky Rice ~ khao niew mamuang",
-    "image": "MangoStickyRice.jpeg",
+    "image": "MangoStickyRice.jpg",
     "defaultPortions": 4,
     "cuisine": "thailändisch",
     "tags": ["VEGETARIAN"],
@@ -792,7 +792,7 @@
   },
   {
     "title": "Camembert Sahne Soße",
-    "image": "CamembertSahneSoße.jpg",
+    "image": "CamembertSahneSosse.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
     "tags": ["VEGETARIAN"],
@@ -857,7 +857,7 @@
   },
   {
     "title": "Pilz Sahne Nudeln",
-    "image": "PilzSahneSoße.jpg",
+    "image": "PilzSahneSosse.jpg",
     "defaultPortions": 2,
     "cuisine": "deutsch",
     "tags": ["VEGETARIAN"],
@@ -958,7 +958,7 @@
   },
   {
     "title": "Grillgemüse Pasta",
-    "image": "GrillgemüsePasta.jpg",
+    "image": "GrillgemuesePasta.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
     "tags": ["VEGETARIAN", "VEGAN"],
@@ -1060,7 +1060,7 @@
   },
   {
     "title": "Kürbis Walnuss Pasta",
-    "image": "KürbisNudeln.jpg",
+    "image": "KuerbisNudeln.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
     "tags": [],
@@ -1352,7 +1352,7 @@
   },
   {
     "title": "Shish Andaz",
-    "image": "ShishAndaz.jpeg",
+    "image": "ShishAndaz.jpg",
     "defaultPortions": 4,
     "cuisine": "persisch",
     "tags": ["VEGETARIAN", "VEGAN"],
@@ -1388,7 +1388,7 @@
   },
   {
     "title": "Basilikum Pesto",
-    "image": "BasilikumPesto.jpeg",
+    "image": "BasilikumPesto.jpg",
     "defaultPortions": 4,
     "cuisine": "italienisch",
     "tags": ["VEGETARIAN"],
@@ -1411,7 +1411,7 @@
   },
   {
     "title": "Taco Cup",
-    "image": "TacoCup.jpeg",
+    "image": "TacoCup.jpg",
     "defaultPortions": 3,
     "cuisine": "mexikanisch",
     "tags": ["VEGETARIAN"],
@@ -1444,7 +1444,7 @@
   },
   {
     "title": "Basilikum Pesto Pizza",
-    "image": "PizzaBasilikum.jpeg",
+    "image": "PizzaBasilikum.jpg",
     "defaultPortions": 2,
     "cuisine": "italienisch",
     "tags": ["VEGETARIAN"],
@@ -1468,7 +1468,7 @@
   },
   {
     "title": "Tonkotsu Ramen",
-    "image": "TonkotsuRamen.jpeg",
+    "image": "TonkotsuRamen.jpg",
     "defaultPortions": 6,
     "cuisine": "japanisch",
     "tags": [],
