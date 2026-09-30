@@ -1,6 +1,7 @@
 package de.jan.objectify;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
 
 import java.util.List;
@@ -23,10 +24,10 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
 
     private Key<T> key(ID id) {
         if (id instanceof Long longId) {
-            return Key.create(clazz, longId);
+            return ObjectifyService.key(clazz, longId);
         }
         if (id instanceof String stringId) {
-            return Key.create(clazz, stringId);
+            return ObjectifyService.key(clazz, stringId);
         }
         throw new IllegalArgumentException("Unsupported id type: " + (id == null ? "null" : id.getClass()));
     }
