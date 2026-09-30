@@ -41,3 +41,7 @@ export interface UpdateProfileRequest {
 export interface DeleteAccountRequest {
     password: string;
 }
+
+export interface Permissions {
+    canManageRecipes: boolean;
+}

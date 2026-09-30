@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, Heart, Plane, User } from "lucide-react";
+import { BookOpen, ChefHat, Heart, Plane, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
+import RecipeAdminSection from "../components/account/RecipeAdminSection";
+import type { Permissions } from "../types/userController";
 
 export interface NavItem {
     to: string;
@@ -23,6 +25,7 @@ export interface AccountSection {
     description?: string;
     element: ReactNode;
     showInMenu?: boolean;
+    requires?: keyof Permissions;
 }
 
 export const ACCOUNT_SECTIONS: AccountSection[] = [
@@ -40,6 +43,14 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         description: "Rezepte, die du im Kochbuch mit einem Herz markiert hast.",
         element: <FavoritesSection />,
     },
+    {
+        path: "rezepte",
+        label: "Rezepte verwalten",
+        icon: ChefHat,
+        description: "Rezepte im Kochbuch anlegen, bearbeiten und löschen.",
+        element: <RecipeAdminSection />,
+        requires: "canManageRecipes",
+    },
 ];
 
 export const ACCOUNT_BASE = "/konto";
@@ -47,4 +58,5 @@ export const ACCOUNT_BASE = "/konto";
 export const accountSectionPath = (section: AccountSection) =>
     section.path ? `${ACCOUNT_BASE}/${section.path}` : ACCOUNT_BASE;
 
-export const visibleAccountSections = () => ACCOUNT_SECTIONS;
+export const visibleAccountSections = (permissions: Permissions | null) =>
+    ACCOUNT_SECTIONS.filter((section) => !section.requires || permissions?.[section.requires] === true);

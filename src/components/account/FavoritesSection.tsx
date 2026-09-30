@@ -8,7 +8,7 @@ import "../../styles/Cookbook.css";
 export default function FavoritesSection() {
     const { favorites } = useFavorites();
     const { recipes, loading } = useRecipes();
-    const favoriteRecipes = recipes.filter((r) => favorites.includes(r.title));
+    const favoriteRecipes = recipes.filter((r) => favorites.includes(r.id));
 
     if (loading) {
         return <div className="loading"><div className="spinner" /></div>;
@@ -28,7 +28,7 @@ export default function FavoritesSection() {
     return (
         <div className="recipe-grid account-favorites">
             {favoriteRecipes.map((recipe) => (
-                <RecipeCard key={recipe.title} recipe={recipe} />
+                <RecipeCard key={recipe.id} recipe={recipe} />
             ))}
         </div>
     );

@@ -8,13 +8,13 @@ try {
     // storage not available – nothing to clean up
 }
 
-const EMPTY: string[] = [];
+const EMPTY: number[] = [];
 
-let snapshot: string[] = EMPTY;
+let snapshot: number[] = EMPTY;
 let owner: string | null = null;
 const listeners = new Set<() => void>();
 
-function emit(next: string[]) {
+function emit(next: number[]) {
     snapshot = next;
     listeners.forEach((listener) => listener());
 }
@@ -50,21 +50,21 @@ export function useFavorites() {
 
     const favorites = useSyncExternalStore(subscribe, () => (owner === email ? snapshot : EMPTY));
 
-    const isFavorite = useCallback((title: string) => favorites.includes(title), [favorites]);
+    const isFavorite = useCallback((recipeId: number) => favorites.includes(recipeId), [favorites]);
 
-    const toggleFavorite = useCallback((title: string) => {
+    const toggleFavorite = useCallback((recipeId: number) => {
         if (!isAuthenticated || !email) {
             openAuthDialog("login");
             return;
         }
 
         const previous = snapshot;
-        const remove = previous.includes(title);
-        emit(remove ? previous.filter((t) => t !== title) : [...previous, title]);
+        const remove = previous.includes(recipeId);
+        emit(remove ? previous.filter((id) => id !== recipeId) : [...previous, recipeId]);
 
         const request = remove
-            ? FavoritesController.removeFavorite(title)
-            : FavoritesController.addFavorite(title);
+            ? FavoritesController.removeFavorite(recipeId)
+            : FavoritesController.addFavorite(recipeId);
 
         request
             .then((serverList) => {

@@ -1,26 +1,26 @@
 import { apiClient } from "./APIClient.ts";
 
 interface FavoritesResponse {
-    body: string[];
+    body: number[];
 }
 
 export default class FavoritesController {
 
-    static async getFavorites(): Promise<string[]> {
+    static async getFavorites(): Promise<number[]> {
         const apis = await apiClient;
         const response: FavoritesResponse = await apis.favorites.getFavorites.execute({});
         return response.body ?? [];
     }
 
-    static async addFavorite(title: string): Promise<string[]> {
+    static async addFavorite(recipeId: number): Promise<number[]> {
         const apis = await apiClient;
-        const response: FavoritesResponse = await apis.favorites.addFavorite.execute({}, { requestBody: { title } });
+        const response: FavoritesResponse = await apis.favorites.addFavorite.execute({}, { requestBody: { recipeId } });
         return response.body ?? [];
     }
 
-    static async removeFavorite(title: string): Promise<string[]> {
+    static async removeFavorite(recipeId: number): Promise<number[]> {
         const apis = await apiClient;
-        const response: FavoritesResponse = await apis.favorites.removeFavorite.execute({}, { requestBody: { title } });
+        const response: FavoritesResponse = await apis.favorites.removeFavorite.execute({}, { requestBody: { recipeId } });
         return response.body ?? [];
     }
 }

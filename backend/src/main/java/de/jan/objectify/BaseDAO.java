@@ -20,8 +20,20 @@ public class BaseDAO<T extends DatastoreEntity> {
         return entity;
     }
 
+    public void saveAll(List<T> entities) {
+        ofy().save().entities(entities).now();
+    }
+
     public T getById(Long id) {
         return ofy().load().type(clazz).id(id).now();
+    }
+
+    public boolean exists(Long id) {
+        return id != null && getById(id) != null;
+    }
+
+    public List<T> getAll() {
+        return ofy().load().type(clazz).list();
     }
 
     public void delete(T entity) {
@@ -38,5 +50,9 @@ public class BaseDAO<T extends DatastoreEntity> {
             query = query.filter(entry.getKey(), entry.getValue());
         }
         return query.list();
+    }
+
+    public int count() {
+        return ofy().load().type(clazz).count();
     }
 }

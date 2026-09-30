@@ -1,10 +1,13 @@
 export interface Recipe {
+    id: number;
     title: string;
     image: string;
     defaultPortions: number;
-    ingredients: any[];
+    ingredients: string[];
     preparation: string[];
     cuisine: string;
-    tags?: string[];
-    relatedRecipes?: string[];
+    tags: string[];
+    relatedRecipeIds: number[];
 }
+
+export type RecipeRequest = Omit<Recipe, "id">;

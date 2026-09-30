@@ -60,7 +60,7 @@ const Cookbook: React.FC = () => {
 
     const filteredRecipes = useMemo(
         () => filterRecipes(recipes, diet, cuisine, search)
-            .filter(r => !favoritesOnly || favorites.includes(r.title)),
+            .filter(r => !favoritesOnly || favorites.includes(r.id)),
         [recipes, diet, cuisine, search, favoritesOnly, favorites]
     );
 
@@ -150,7 +150,7 @@ const Cookbook: React.FC = () => {
                 </div>
             ) : filteredRecipes.length > 0 ? (
                 <div className="recipe-grid">
-                    {filteredRecipes.map(recipe => <RecipeCard key={recipe.title} recipe={recipe} />)}
+                    {filteredRecipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)}
                 </div>
             ) : (
                 <div className="card empty-state">

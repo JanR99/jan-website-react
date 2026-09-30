@@ -1,18 +1,18 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { ACCOUNT_BASE, accountSectionPath, visibleAccountSections } from "../../config/navigation";
+import { ACCOUNT_BASE, ACCOUNT_SECTIONS, accountSectionPath, visibleAccountSections } from "../../config/navigation";
 import Avatar from "../ui/Avatar";
 import { LogOut } from "lucide-react";
 import "../../styles/Account.css";
 
 export default function AccountPage() {
-    const { user, logout } = useAuth();
+    const { user, logout, permissions } = useAuth();
     const { pathname } = useLocation();
-    const sections = visibleAccountSections();
+    const sections = visibleAccountSections(permissions);
 
     const current =
-        sections.find((s) => s.path && pathname.startsWith(`${ACCOUNT_BASE}/${s.path}`)) ??
-        sections.find((s) => s.path === "");
+        ACCOUNT_SECTIONS.find((s) => s.path && pathname.startsWith(`${ACCOUNT_BASE}/${s.path}`)) ??
+        ACCOUNT_SECTIONS.find((s) => s.path === "");
 
     if (!user) return null;
 

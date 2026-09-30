@@ -4,7 +4,7 @@ import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { UserDTO } from "../../types/entities.ts";
-import { LoginRequest, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
+import { LoginRequest, Permissions, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
 
 const STORAGE_KEY = "jan-website-session";
 
@@ -22,6 +22,7 @@ export type AuthDialogMode = "login" | "register" | "forgot";
 interface AuthContextValue {
     user: UserDTO | null;
     isAuthenticated: boolean;
+    permissions: Permissions | null;
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
@@ -82,6 +83,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return restored;
     });
     const [authDialog, setAuthDialog] = useState<AuthDialogMode | null>(null);
+    const [permissions, setPermissions] = useState<Permissions | null>(null);
+    const token = session?.token ?? null;
+
+    useEffect(() => {
+        setPermissions(null);
+        if (!token) return;
+        let active = true;
+        UserController.getPermissions()
+            .then((result) => active && setPermissions(result))
+            .catch(() => active && setPermissions({ canManageRecipes: false }));
+        return () => {
+            active = false;
+        };
+    }, [token]);
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
         try {
@@ -154,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         () => ({
             user: session?.user ?? null,
             isAuthenticated: session !== null,
+            permissions,
             login,
             register,
             logout,
@@ -163,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             openAuthDialog,
             closeAuthDialog,
         }),
-        [session, login, register, logout, updateProfile, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
+        [session, permissions, login, register, logout, updateProfile, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

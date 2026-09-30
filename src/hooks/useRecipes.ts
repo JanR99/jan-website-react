@@ -1,18 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Recipe } from "../types/Recipe";
+import RecipeController from "../controller/RecipeController";
 
-let cache: Recipe[] | null = null;
-let pending: Promise<Recipe[]> | null = null;
+interface RecipesState {
+    recipes: Recipe[];
+    loading: boolean;
+    error: string | null;
+}
 
-function loadRecipes(): Promise<Recipe[]> {
-    if (cache) return Promise.resolve(cache);
+let state: RecipesState = { recipes: [], loading: true, error: null };
+let loaded = false;
+let pending: Promise<void> | null = null;
+const listeners = new Set<() => void>();
+
+function setState(next: Partial<RecipesState>) {
+    state = { ...state, ...next };
+    listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+}
+
+function load(): Promise<void> {
     if (!pending) {
-        pending = fetch(`${import.meta.env.BASE_URL}recipes/recipes.json`)
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json() as Promise<Recipe[]>;
+        pending = RecipeController.listRecipes()
+            .then((recipes) => {
+                loaded = true;
+                setState({ recipes, loading: false, error: null });
             })
-            .then((data) => (cache = data))
+            .catch((err) => {
+                console.error("Error loading recipes:", err);
+                setState({ loading: false, error: "Die Rezepte konnten nicht geladen werden." });
+            })
             .finally(() => {
                 pending = null;
             });
@@ -20,25 +41,17 @@ function loadRecipes(): Promise<Recipe[]> {
     return pending;
 }
 
+/** Loads the recipes again, e.g. after an admin changed one. */
+export function reloadRecipes(): Promise<void> {
+    return load();
+}
+
 export function useRecipes() {
-    const [recipes, setRecipes] = useState<Recipe[]>(cache ?? []);
-    const [loading, setLoading] = useState(cache === null);
-    const [error, setError] = useState<string | null>(null);
+    const current = useSyncExternalStore(subscribe, () => state);
 
     useEffect(() => {
-        if (cache) return;
-        let active = true;
-        loadRecipes()
-            .then((data) => active && setRecipes(data))
-            .catch((err) => {
-                console.error("Error loading recipes:", err);
-                if (active) setError("Die Rezepte konnten nicht geladen werden.");
-            })
-            .finally(() => active && setLoading(false));
-        return () => {
-            active = false;
-        };
+        if (!loaded) void load();
     }, []);
 
-    return { recipes, loading, error };
+    return current;
 }

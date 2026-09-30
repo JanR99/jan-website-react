@@ -6,7 +6,7 @@ import { Heart, Leaf } from "lucide-react";
 
 export default function RecipeCard({ recipe }: { recipe: Recipe }) {
     const { isFavorite, toggleFavorite } = useFavorites();
-    const favorite = isFavorite(recipe.title);
+    const favorite = isFavorite(recipe.id);
     const ingredientCount = recipe.ingredients?.filter(i => !String(i).trim().endsWith(':')).length ?? 0;
 
     return (
@@ -32,7 +32,7 @@ export default function RecipeCard({ recipe }: { recipe: Recipe }) {
             <button
                 type="button"
                 className={`favorite-button${favorite ? ' is-active' : ''}`}
-                onClick={() => toggleFavorite(recipe.title)}
+                onClick={() => toggleFavorite(recipe.id)}
                 aria-pressed={favorite}
                 aria-label={favorite ? `${recipe.title} aus Favoriten entfernen` : `${recipe.title} zu Favoriten hinzufügen`}
             >

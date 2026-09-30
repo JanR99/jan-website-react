@@ -32,27 +32,27 @@ public class FavoritesController {
 
     @Operation(operationId = GET_FAVORITES)
     @GetMapping("/list")
-    public ResponseEntity<List<String>> getFavorites(
+    public ResponseEntity<List<Long>> getFavorites(
             @CurrentUser User user)
     {
-        return ResponseEntity.ok(user.getFavorites());
+        return ResponseEntity.ok(user.getFavoriteRecipeIds());
     }
 
     @Operation(operationId = ADD_FAVORITE)
     @PostMapping("/add")
-    public ResponseEntity<List<String>> addFavorite(
+    public ResponseEntity<List<Long>> addFavorite(
             @CurrentUser User user,
             @RequestBody FavoriteRequest body
     ) {
-        return ResponseEntity.ok(favoritesRepository.addFavorite(user, body.getTitle()));
+        return ResponseEntity.ok(favoritesRepository.addFavorite(user, body.getRecipeId()));
     }
 
     @Operation(operationId = REMOVE_FAVORITE)
     @PostMapping("/remove")
-    public ResponseEntity<List<String>> removeFavorite(
+    public ResponseEntity<List<Long>> removeFavorite(
             @CurrentUser User user,
             @RequestBody FavoriteRequest body
     ) {
-        return ResponseEntity.ok(favoritesRepository.removeFavorite(user, body.getTitle()));
+        return ResponseEntity.ok(favoritesRepository.removeFavorite(user, body.getRecipeId()));
     }
 }
