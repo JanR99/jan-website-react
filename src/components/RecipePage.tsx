@@ -6,7 +6,8 @@ import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
 import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
 import RecipeCard from './RecipeCard';
-import { ArrowLeft, Check, Heart, Leaf, Minus, Plus } from "lucide-react";
+import CookMode from './CookMode';
+import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus } from "lucide-react";
 import '../styles/Recipe.css';
 
 const RecipePage: React.FC = () => {
@@ -23,11 +24,15 @@ const RecipePage: React.FC = () => {
     const defaultPortions = recipe?.defaultPortions ?? 2;
     const [portions, setPortions] = useState<number>(defaultPortions);
     const [checked, setChecked] = useState<Set<number>>(new Set());
+    const [cooking, setCooking] = useState(false);
+    const [cookStep, setCookStep] = useState(0);
 
     // Beim Wechsel auf ein anderes Rezept zurücksetzen
     useEffect(() => {
         setPortions(defaultPortions);
         setChecked(new Set());
+        setCooking(false);
+        setCookStep(0);
     }, [recipeTitle, defaultPortions]);
 
     useEffect(() => {
@@ -137,15 +142,23 @@ const RecipePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        className={`btn ${favorite ? '' : 'btn-secondary'}`}
-                        onClick={() => toggleFavorite(recipe.id)}
-                        aria-pressed={favorite}
-                    >
-                        <Heart size={18} fill={favorite ? "currentColor" : "none"} />
-                        {favorite ? 'In deinen Favoriten' : 'Zu Favoriten'}
-                    </button>
+                    <div className="recipe-hero-actions">
+                        {recipe.preparation?.length > 0 && (
+                            <button type="button" className="btn" onClick={() => setCooking(true)}>
+                                <CookingPot size={18} />
+                                {cookStep > 0 ? 'Weiterkochen' : 'Kochmodus'}
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className={`btn ${favorite ? '' : 'btn-secondary'}`}
+                            onClick={() => toggleFavorite(recipe.id)}
+                            aria-pressed={favorite}
+                        >
+                            <Heart size={18} fill={favorite ? "currentColor" : "none"} />
+                            {favorite ? 'In deinen Favoriten' : 'Zu Favoriten'}
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -191,6 +204,18 @@ const RecipePage: React.FC = () => {
                         {related.map(r => <RecipeCard key={r.id} recipe={r} />)}
                     </div>
                 </section>
+            )}
+
+            {cooking && (
+                <CookMode
+                    recipe={recipe}
+                    portions={portions}
+                    step={cookStep}
+                    onStepChange={setCookStep}
+                    checked={checked}
+                    onToggleChecked={toggleChecked}
+                    onClose={() => setCooking(false)}
+                />
             )}
 
             <p className="recipe-footer-link">
