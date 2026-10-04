@@ -43,5 +43,10 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: cloud-firestore-emulator
+
+      - name: Build and test
         run: mvn -B -pl backend -am verify
