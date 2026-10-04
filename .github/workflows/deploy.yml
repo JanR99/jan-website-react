@@ -6,7 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
   build-and-deploy:
+    needs: checks
     runs-on: ubuntu-latest
 
     steps:
