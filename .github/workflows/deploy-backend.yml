@@ -1,15 +1,9 @@
 name: Deploy Backend to Cloud Run
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'backend/**'
-      - 'pom.xml'
-      - 'Dockerfile'
-      - '.github/workflows/deploy-backend.yml'
-      - 'public/CNAME'
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   deploy:

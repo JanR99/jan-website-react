@@ -27,8 +27,9 @@ The frontend automatically talks to the backend on port 8080 of whichever host i
 
 ## Deployment
 
-- **Frontend** deploys to GitHub Pages via GitHub Actions on every push to `master` (`.github/workflows/`).
-- **Backend** deploys to [Cloud Run](https://cloud.google.com/run) the same way, building the Docker image from the repo root `Dockerfile`.
+- Nothing deploys on a push to `master`. Both workflows in `.github/workflows/` run when a GitHub release is published, or when started by hand in the Actions tab ("Run workflow").
+- **Frontend** deploys to GitHub Pages.
+- **Backend** deploys to [Cloud Run](https://cloud.google.com/run), building the Docker image from the repo root `Dockerfile`.
 
 ### Required GitHub secrets
 
