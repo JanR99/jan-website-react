@@ -90,6 +90,28 @@
     --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.6);
 }
 
+/* Drucken: immer das helle Farbschema auf weißem Papier, auch im Dark Mode */
+@media print {
+    :root,
+    :root:not([data-theme="light"]),
+    :root[data-theme="dark"] {
+        color-scheme: light;
+        --color-bg: #ffffff;
+        --color-surface: #ffffff;
+        --color-surface-2: #f5eee6;
+        --color-text: #1f1a16;
+        --color-text-muted: #6d6259;
+        --color-border: #ebe1d6;
+        --color-accent: #ea7a0b;
+        --color-accent-strong: #b95900;
+        --color-accent-soft: #fdebd6;
+        --color-on-accent: #ffffff;
+        --color-danger: #c0362c;
+        --color-danger-soft: #fbe5e3;
+        --color-success: #2f7d4f;
+    }
+}
+
 /* ---------- Reset ---------- */
 
 *,
