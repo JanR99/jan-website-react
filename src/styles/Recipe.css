@@ -465,3 +465,127 @@
         animation: none;
     }
 }
+
+/* ---------- Druckansicht (RecipePrintSheet) ---------- */
+
+/* Genau eine A4-Seite. Am Bildschirm unsichtbar, aber gelayoutet, damit ihre Höhe gemessen werden kann. */
+.recipe-print {
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    visibility: hidden;
+    pointer-events: none;
+    width: 210mm;
+    height: 296mm;
+    padding: 13mm 14mm;
+    overflow: hidden;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* --print-scale setzt RecipePrintSheet so, dass alles auf die Seite passt.
+   Verkleinert wird per transform, die Breite gleicht das aus, damit die Seite weiter voll genutzt wird. */
+.recipe-print-content {
+    width: calc(100% / var(--print-scale, 1));
+    transform: scale(var(--print-scale, 1));
+    transform-origin: top left;
+}
+
+.recipe-print-head {
+    display: grid;
+    /* feste Bildbreite, damit das Bild bei langen Rezepten mit verkleinert wird */
+    grid-template-columns: 250px 1fr;
+    align-items: center;
+    gap: 26px;
+    margin-bottom: 24px;
+}
+
+.recipe-print-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+}
+
+.recipe-print-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.recipe-print-info h1 {
+    font-size: 32px;
+}
+
+.recipe-print-body {
+    display: grid;
+    grid-template-columns: 36% 1fr;
+    align-items: start;
+    gap: 28px;
+}
+
+.recipe-print-body h2 {
+    font-size: 21px;
+}
+
+.recipe-print-ingredients {
+    padding: 16px 18px;
+    box-shadow: none;
+}
+
+.recipe-print-ingredient {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 2px;
+    border-bottom: 1px dashed var(--color-border);
+    line-height: 1.4;
+}
+
+.recipe-print-ingredient:last-child {
+    border-bottom: 0;
+}
+
+.recipe-print .ingredient-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+}
+
+.recipe-print .steps {
+    margin-top: 14px;
+}
+
+.recipe-print .steps li {
+    padding-bottom: 14px;
+}
+
+.recipe-print .steps p {
+    font-size: 14px;
+    line-height: 1.55;
+    padding-top: 9px;
+}
+
+@media print {
+    /* nur das Blatt drucken, der Rest der Seite wird ausgeblendet */
+    body:has(> .recipe-print) > :not(.recipe-print) {
+        display: none;
+    }
+
+    body:has(> .recipe-print) {
+        min-height: 0;
+    }
+
+    .recipe-print {
+        position: static;
+        visibility: visible;
+        break-inside: avoid;
+        /* Hintergrundfarben (Schritt-Nummern, Badges) auch ohne "Hintergrundgrafiken" drucken */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

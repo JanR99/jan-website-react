@@ -7,7 +7,8 @@ import { useFavorites } from '../hooks/useFavorites';
 import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
 import RecipeCard from './RecipeCard';
 import CookMode from './CookMode';
-import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus } from "lucide-react";
+import RecipePrintSheet from './RecipePrintSheet';
+import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer } from "lucide-react";
 import '../styles/Recipe.css';
 
 const RecipePage: React.FC = () => {
@@ -158,6 +159,11 @@ const RecipePage: React.FC = () => {
                             <Heart size={18} fill={favorite ? "currentColor" : "none"} />
                             {favorite ? 'In deinen Favoriten' : 'Zu Favoriten'}
                         </button>
+                        {/* Browser-Druckdialog; gedruckt wird nur das RecipePrintSheet weiter unten */}
+                        <button type="button" className="btn btn-secondary" onClick={() => window.print()}>
+                            <Printer size={18} />
+                            Drucken / PDF
+                        </button>
                     </div>
                 </div>
             </section>
@@ -217,6 +223,8 @@ const RecipePage: React.FC = () => {
                     onClose={() => setCooking(false)}
                 />
             )}
+
+            <RecipePrintSheet recipe={recipe} portions={portions} />
 
             <p className="recipe-footer-link">
                 <Link to="/cookbook" className="btn btn-secondary">
