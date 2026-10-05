@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Logging for tests: only warnings and errors, so "mvn test" mostly shows the test results -->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- logs every request answered with 400; tests send such requests on purpose -->
+    <logger name="org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver" level="ERROR"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
