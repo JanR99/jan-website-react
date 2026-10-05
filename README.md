@@ -9,14 +9,15 @@ A personal website with a cooking recipe collection, built with [React](https://
 
 ## Getting Started (local development)
 
-The backend needs Java 21 and the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (for the local Datastore emulator).
+The backend needs Java 21 and [Docker](https://www.docker.com/products/docker-desktop/) (the start script runs the local Datastore emulator and its admin UI as containers). The backend tests (`mvn test`) start their own emulator with the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).
 
 1. Copy `.env.example` to `.env` in the project root and fill in your own values.
-2. Start the backend + Datastore emulator:
+2. Start the backend + Datastore emulator + Datastore UI (Docker must be running):
    ```bash
    ./start-dev.sh      # Linux/Mac
    .\start-dev.ps1     # Windows
    ```
+   The Datastore UI ([gcp-emulator-ui](https://github.com/drehelis/gcp-emulator-ui)) runs on http://localhost:8083 and shows what is in the local emulator. Emulator and UI run in the background (logs: Docker Desktop or `docker logs -f jan-website-datastore`) and are removed again when the script ends, so the local data only lives as long as the script runs.
 3. In a second terminal, start the frontend:
    ```bash
    npm install
