@@ -116,7 +116,7 @@ public class UserController {
     }
 
     @Operation(operationId = GET_USER_BY_EMAIL)
-    @GetMapping("getUserByEmail")
+    @GetMapping("/getUserByEmail")
     public ResponseEntity<UserDTO> getUserByEmail(
             @CurrentUser User caller,
             @RequestParam("email") String email
