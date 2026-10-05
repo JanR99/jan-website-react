@@ -8,15 +8,15 @@
     color-scheme: light;
 
     /* Farben */
-    --color-bg: #fbf7f2;
+    --color-bg: #f2e9dd;
     --color-surface: #ffffff;
-    --color-surface-2: #f5eee6;
+    --color-surface-2: #eadfd0;
     --color-text: #1f1a16;
     --color-text-muted: #6d6259;
-    --color-border: #ebe1d6;
+    --color-border: #d9c9b6;
     --color-accent: #ea7a0b;          /* dein Orange */
-    --color-accent-strong: #b95900;   /* Orange für Text auf hellem Grund */
-    --color-accent-soft: #fdebd6;
+    --color-accent-strong: #a85000;   /* Orange für Text auf hellem Grund */
+    --color-accent-soft: #fbdcb8;
     --color-on-accent: #ffffff;
     --color-danger: #c0362c;
     --color-danger-soft: #fbe5e3;
@@ -98,13 +98,13 @@
         color-scheme: light;
         --color-bg: #ffffff;
         --color-surface: #ffffff;
-        --color-surface-2: #f5eee6;
+        --color-surface-2: #eadfd0;
         --color-text: #1f1a16;
         --color-text-muted: #6d6259;
-        --color-border: #ebe1d6;
+        --color-border: #d9c9b6;
         --color-accent: #ea7a0b;
-        --color-accent-strong: #b95900;
-        --color-accent-soft: #fdebd6;
+        --color-accent-strong: #a85000;
+        --color-accent-soft: #fbdcb8;
         --color-on-accent: #ffffff;
         --color-danger: #c0362c;
         --color-danger-soft: #fbe5e3;
