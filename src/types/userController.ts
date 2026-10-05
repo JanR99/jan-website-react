@@ -13,10 +13,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    body: {
-        token: string;
-        user: UserDTO;
-    }
+    token: string;
+    user: UserDTO;
 }
 
 export interface PasswordResetRequest {

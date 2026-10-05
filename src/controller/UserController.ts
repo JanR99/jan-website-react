@@ -10,12 +10,14 @@ export default class UserController {
 
     static async register(req: RegisterRequest) : Promise<UserDTO> {
         const apis = await apiClient;
-        return apis.user.register.execute({}, { requestBody: req });
+        const response: { body: UserDTO } = await apis.user.register.execute({}, { requestBody: req });
+        return response.body;
     }
 
     static async login(req: LoginRequest) : Promise<LoginResponse> {
         const apis = await apiClient;
-        return apis.user.login.execute({}, { requestBody: req });
+        const response: { body: LoginResponse } = await apis.user.login.execute({}, { requestBody: req });
+        return response.body;
     }
 
     static async requestPasswordReset(req: PasswordResetRequest): Promise<void> {
@@ -45,11 +47,11 @@ export default class UserController {
         return response.body ?? [];
     }
 
-    static async getUserByEmail(email: string): Promise<UserDTO> {
+    /** undefined if there is no user with this email (the backend then answers without content) */
+    static async getUserByEmail(email: string): Promise<UserDTO | undefined> {
         const apis = await apiClient;
-        return apis.user.getUserByEmail.execute({
-            email,
-        });
+        const response: { body?: UserDTO } = await apis.user.getUserByEmail.execute({ email });
+        return response.body;
     }
 
     static async listUsers(): Promise<UserAdminDTO[]> {

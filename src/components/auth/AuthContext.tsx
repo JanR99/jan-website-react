@@ -103,8 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
         try {
             const response = await UserController.login(request);
-            apiClient.setToken(response.body.token);
-            const next: Session = { token: response.body.token, user: response.body.user };
+            apiClient.setToken(response.token);
+            const next: Session = { token: response.token, user: response.user };
             saveSession(next);
             setSession(next);
             return { ok: true };
