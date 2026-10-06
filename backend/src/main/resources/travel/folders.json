@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Andorra",
+    "country": "Andorra",
+    "photos": [
+      "Andorra1.jpg",
+      "Andorra2.jpg",
+      "Andorra3.jpg"
+    ]
+  },
+  {
+    "name": "Porto",
+    "country": "Portugal",
+    "photos": [
+      "Porto1.jpg",
+      "Porto2.jpg",
+      "Porto3.jpg"
+    ]
+  },
+  {
+    "name": "Prag",
+    "country": "Tschechien",
+    "photos": [
+      "Prag1.jpg",
+      "Prag2.jpg",
+      "Prag3.jpg"
+    ]
+  },
+  {
+    "name": "Spanien",
+    "country": "Spanien",
+    "photos": [
+      "Spanien1.jpg",
+      "Spanien2.jpg",
+      "Spanien3.jpg"
+    ]
+  }
+]

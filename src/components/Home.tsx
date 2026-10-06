@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { destinations, destinationThumbnail } from '../data/destinations';
+import TravelController from '../controller/TravelController';
 import { useRecipes } from '../hooks/useRecipes';
+import { useTravelFolders } from '../hooks/useTravelFolders';
 import { recipePath, recipeImage } from '../utils/recipe';
+import { TRAVEL_BASE } from '../utils/travel';
+import TravelFolderCard from './travel/TravelFolderCard';
 import { ArrowRight, BookOpen, Plane } from "lucide-react";
 import '../styles/Home.css';
 
 const TEASER_TITLES = ['Char Koay Teow', 'Baozi 包子', 'Falafel Wrap', 'Abura Soba'];
+/** The home page only shows a few trips, the travel diary has all of them. */
+const TEASER_FOLDERS = 4;
 
 const Home: React.FC = () => {
     const { recipes } = useRecipes();
@@ -14,6 +19,9 @@ const Home: React.FC = () => {
         .map(title => recipes.find(r => r.title === title))
         .filter((r): r is NonNullable<typeof r> => Boolean(r));
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
+
+    const { folders } = useTravelFolders();
+    const covers = folders.flatMap(folder => (folder.coverPhotoId !== null ? [folder.coverPhotoId] : []));
 
     return (
         <div className="container">
@@ -31,50 +39,40 @@ const Home: React.FC = () => {
                             <BookOpen size={18} />
                             Zum Kochbuch
                         </Link>
-                        <a href="#reisen" className="btn btn-secondary">
+                        <Link to={TRAVEL_BASE} className="btn btn-secondary">
                             <Plane size={18} />
-                            Reisen ansehen
-                        </a>
+                            Zum Reisetagebuch
+                        </Link>
                     </div>
                 </div>
 
                 <div className="home-hero-collage" aria-hidden="true">
-                    <img src={destinationThumbnail('Porto', 1)} alt="" />
+                    {covers[0] !== undefined && <img src={TravelController.photoUrl(covers[0])} alt="" />}
                     {teaser[0] && <img src={recipeImage(teaser[0])} alt="" />}
-                    <img src={destinationThumbnail('Andorra', 1)} alt="" />
+                    {covers[1] !== undefined && <img src={TravelController.photoUrl(covers[1])} alt="" />}
                 </div>
             </section>
 
-            {/* Reisen */}
-            <section className="section" id="reisen">
-                <div className="section-head">
-                    <div>
-                        <span className="eyebrow">Unterwegs</span>
-                        <h2>Meine Reisen</h2>
-                    </div>
-                </div>
-
-                <div className="destination-grid">
-                    {destinations.map(dest => (
-                        <Link key={dest.name} to={`/destination/${dest.name}`} className="destination-card">
-                            <img
-                                src={destinationThumbnail(dest.name, 1)}
-                                alt={dest.name}
-                                loading="lazy"
-                            />
-                            <div className="destination-card-body">
-                                {dest.country !== dest.name && (
-                                    <span className="destination-card-country">{dest.country}</span>
-                                )}
-                                <h3>{dest.name}</h3>
-                                <span className="destination-card-cta">
-                                    {dest.imageCount} Fotos <ArrowRight size={16} />
-                                </span>
-                            </div>
+            {/* Reisen-Teaser */}
+            {folders.length > 0 && (
+                <section className="section">
+                    <div className="section-head">
+                        <div>
+                            <span className="eyebrow">Unterwegs</span>
+                            <h2>Meine Reisen</h2>
+                        </div>
+                        <Link to={TRAVEL_BASE} className="btn btn-secondary btn-sm">
+                            Alle Reisen <ArrowRight size={16} />
                         </Link>
-                    ))}
-                </div>
-            </section>
+                    </div>
+
+                    <div className="destination-grid">
+                        {folders.slice(0, TEASER_FOLDERS).map(folder => (
+                            <TravelFolderCard key={folder.id} folder={folder} />
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Kochbuch-Teaser */}
             <section className="section">

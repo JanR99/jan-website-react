@@ -13,12 +13,12 @@ export default defineConfig({
             // public/manifest.json stays as it is
             manifest: false,
             workbox: {
-                // the app itself, without the travel photos in public/Bilder
+                // the app itself; recipes, travel folders and images come from the backend, see runtimeCaching
                 globPatterns: ['**/*.{js,css,html,ico,png,woff2}', 'manifest.json'],
                 runtimeCaching: [
                     {
-                        // recipes and the API description: network first, the stored copy when the backend doesn't answer
-                        urlPattern: ({ url }) => url.pathname === '/v3/api-docs' || url.pathname === '/api/recipes/list',
+                        // recipes, travel folders and the API description: network first, the stored copy when the backend doesn't answer
+                        urlPattern: ({ url }) => ['/v3/api-docs', '/api/recipes/list', '/api/travel/folders/list'].includes(url.pathname),
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'api',
@@ -48,11 +48,12 @@ export default defineConfig({
                         },
                     },
                     {
-                        // preview images of the travel photos; the full-size ones are too big to store
-                        urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/Bilder/Urlaub-thumbnail/'),
-                        handler: 'StaleWhileRevalidate',
+                        // travel photos never change either: stored once they were loaded, the oldest ones make room
+                        urlPattern: ({ url }) => /^\/api\/travel\/photos\/\d+$/.test(url.pathname),
+                        handler: 'CacheFirst',
                         options: {
-                            cacheName: 'travel-thumbnails',
+                            cacheName: 'travel-photos',
+                            fetchOptions: { mode: 'cors', credentials: 'omit' },
                             cacheableResponse: { statuses: [200] },
                             expiration: { maxEntries: 60, purgeOnQuotaError: true },
                         },
