@@ -35,6 +35,28 @@ export default defineConfig({
                             ],
                         },
                     },
+                    {
+                        // recipe images never change (a new upload gets a new id): stored once they were loaded
+                        urlPattern: ({ url }) => url.pathname.startsWith('/api/images/'),
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'recipe-images',
+                            // <img> loads them without CORS, which would give the worker a response it can't check
+                            fetchOptions: { mode: 'cors', credentials: 'omit' },
+                            cacheableResponse: { statuses: [200] },
+                            expiration: { maxEntries: 200, purgeOnQuotaError: true },
+                        },
+                    },
+                    {
+                        // preview images of the travel photos; the full-size ones are too big to store
+                        urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.includes('/Bilder/Urlaub-thumbnail/'),
+                        handler: 'StaleWhileRevalidate',
+                        options: {
+                            cacheName: 'travel-thumbnails',
+                            cacheableResponse: { statuses: [200] },
+                            expiration: { maxEntries: 60, purgeOnQuotaError: true },
+                        },
+                    },
                 ],
             },
         }),
