@@ -1,37 +1,16 @@
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
-import { capitalize, isVegan, isVegetarian } from '../utils/recipe';
+import { capitalize } from '../utils/recipe';
+import { Diet, filterRecipes } from '../utils/recipeFilter';
 import PageHeader from './layout/PageHeader';
 import RecipeCard from './RecipeCard';
 import BackToTop from './ui/BackToTop';
 import { Heart, Search, Utensils, X } from "lucide-react";
 import '../styles/Cookbook.css';
 
-type Diet = 'alle' | 'vegetarisch' | 'vegan';
 const DIETS: Diet[] = ['alle', 'vegetarisch', 'vegan'];
-
-const filterRecipes = (recipes: Recipe[], diet: Diet, cuisine: string, search: string) => {
-    const terms = search.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-
-    return recipes.filter(r => {
-        const matchesDiet =
-            diet === 'alle' ||
-            (diet === 'vegan' && isVegan(r)) ||
-            (diet === 'vegetarisch' && isVegetarian(r));
-
-        const matchesCuisine = cuisine === 'alle' || r.cuisine === cuisine;
-
-        const matchesSearch = terms.every(term =>
-            r.title.toLowerCase().includes(term) ||
-            r.ingredients?.some(ingredient => String(ingredient).toLowerCase().includes(term))
-        );
-
-        return matchesDiet && matchesCuisine && matchesSearch;
-    });
-};
 
 const Cookbook: React.FC = () => {
     const { recipes, loading, error } = useRecipes();
