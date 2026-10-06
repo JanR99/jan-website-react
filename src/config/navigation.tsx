@@ -16,8 +16,8 @@ export interface NavItem {
 }
 
 export const MAIN_NAV: NavItem[] = [
-    { to: TRAVEL_BASE, label: "Reisen", icon: Plane },
     { to: "/cookbook", label: "Kochbuch", icon: BookOpen },
+    { to: TRAVEL_BASE, label: "Reisen", icon: Plane },
 ];
 
 export interface AccountSection {
