@@ -14,4 +14,8 @@ export default defineConfig({
         host: true,
         port: 5173,
     },
+    test: {
+        // the app reads window.location while loading (APIClient), so tests need a browser-like environment
+        environment: 'jsdom',
+    },
 })
