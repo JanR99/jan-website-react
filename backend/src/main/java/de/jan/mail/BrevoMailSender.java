@@ -26,6 +26,12 @@ public class BrevoMailSender {
     private final String apiKey;
     private final String senderEmail;
 
+    /**
+     * Mails only leave the machine on Cloud Run, which always sets K_SERVICE. Started locally
+     * (start-dev) or in tests, a mail is written to the log instead, whatever is in the .env.
+     */
+    private final boolean onCloudRun = System.getenv("K_SERVICE") != null;
+
     public BrevoMailSender(
             @Value("${BREVO_API_KEY:}") String apiKey,
             @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String senderEmail
@@ -35,6 +41,11 @@ public class BrevoMailSender {
     }
 
     public void send(String to, String subject, String text) {
+        if (!onCloudRun) {
+            // with the text, so e.g. the link of a password reset mail can be used locally
+            log.info("Mail not sent (not running on Cloud Run): \"{}\" to {}\n{}", subject, to, text);
+            return;
+        }
         if (apiKey.isBlank() || senderEmail.isBlank()) {
             log.info("Mail skipped (BREVO_API_KEY or BOOTSTRAP_ADMIN_EMAIL not set): \"{}\" to {}", subject, to);
             return;
