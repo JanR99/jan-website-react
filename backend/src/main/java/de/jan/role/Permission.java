@@ -7,6 +7,8 @@ package de.jan.role;
 public enum Permission {
     /** create, edit and delete recipes, upload images */
     MANAGE_RECIPES,
+    /** create, rename and delete travel folders, add and remove their photos */
+    MANAGE_TRAVEL,
     /** manage roles and assign them to users */
     MANAGE_USERS
 }
