@@ -15,6 +15,27 @@ export default defineConfig({
             workbox: {
                 // the app itself, without the travel photos in public/Bilder
                 globPatterns: ['**/*.{js,css,html,ico,png,woff2}', 'manifest.json'],
+                runtimeCaching: [
+                    {
+                        // recipes and the API description: network first, the stored copy when the backend doesn't answer
+                        urlPattern: ({ url }) => url.pathname === '/v3/api-docs' || url.pathname === '/api/recipes/list',
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'api',
+                            networkTimeoutSeconds: 3,
+                            cacheableResponse: { statuses: [200] },
+                            plugins: [
+                                {
+                                    // a server error (e.g. 503 while Cloud Run is down) counts as "no answer"
+                                    fetchDidSucceed: async ({ response }) => {
+                                        if (response.status >= 500) throw new Error(`backend answered ${response.status}`)
+                                        return response
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
             },
         }),
     ],
