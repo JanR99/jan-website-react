@@ -19,8 +19,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private static final String BEARER_PREFIX = "Bearer ";
-
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -43,21 +41,25 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
             WebDataBinderFactory binderFactory
     ) {
         String authHeader = webRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+        if (authHeader == null || !authHeader.startsWith(JwtService.BEARER_PREFIX)) {
             throw new UnauthenticatedException();
         }
 
-        String email;
+        JwtService.Token token;
         try {
-            email = jwtService.extractEmail(authHeader.substring(BEARER_PREFIX.length()));
+            token = jwtService.parse(authHeader.substring(JwtService.BEARER_PREFIX.length()));
         } catch (JwtException | IllegalArgumentException e) {
             // invalid, expired or empty token
             throw new UnauthenticatedException();
         }
 
-        User user = userRepository.getByEmail(email);
+        User user = userRepository.getByEmail(token.email());
         if (user == null) {
             // valid token, but the account no longer exists
+            throw new UnauthenticatedException();
+        }
+        if (token.version() != user.getTokenVersion()) {
+            // the password was changed after this token was issued
             throw new UnauthenticatedException();
         }
         return user;

@@ -1,5 +1,6 @@
 package de.jan.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.role.Permission;
 import de.jan.role.Role;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HexFormat;
 import java.util.List;
@@ -41,6 +43,9 @@ class UserControllerTest extends ControllerTest {
     private static final String INVALID_LINK = "This reset link is invalid or has expired";
     private static final String PASSWORD_TOO_SHORT = "Invalid password: passwords need to be at least 8 characters long";
     private static final String LOCKOUT = "You cannot take away your own permission to manage users";
+
+    private static final long TWO_HOURS = 2 * 60 * 60;
+    private static final long THIRTY_DAYS = 30 * 24 * 60 * 60;
 
     @Nested
     class Register {
@@ -209,6 +214,67 @@ class UserControllerTest extends ControllerTest {
 
             loginFrom("203.0.113.8", PASSWORD).andExpect(status().isOk());
         }
+
+        @Test
+        void withoutRememberMe_theTokenIsValidForTwoHours() throws Exception {
+            registered(EMAIL);
+
+            MvcResult result = login(EMAIL, PASSWORD).andExpect(status().isOk()).andReturn();
+
+            assertEquals(TWO_HOURS, lifetimeInSeconds(tokenOf(result)));
+        }
+
+        @Test
+        void withRememberMe_theTokenIsValidFor30Days() throws Exception {
+            registered(EMAIL);
+
+            MvcResult result = mockMvc.perform(post("/api/users/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("email", EMAIL, "password", PASSWORD, "rememberMe", true))))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            assertEquals(THIRTY_DAYS, lifetimeInSeconds(tokenOf(result)));
+        }
+    }
+
+    @Nested
+    class RenewToken {
+
+        @Test
+        void withALoginThatStaysLoggedIn_returnsANewTokenAndTheUser() throws Exception {
+            User user = registered(EMAIL);
+
+            MvcResult result = renewToken(staysLoggedIn(user))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.token").isString())
+                    .andExpect(jsonPath("$.user.id").value(user.getId()))
+                    .andExpect(jsonPath("$.user.email").value(EMAIL))
+                    .andExpect(jsonPath("$.user.firstname").value("Anna"))
+                    .andExpect(jsonPath("$.user.lastname").value("Test"))
+                    .andExpect(jsonPath("$.user.hashedPassword").doesNotExist())
+                    .andReturn();
+
+            // the new token lasts 30 days again and can be renewed itself
+            String token = tokenOf(result);
+            assertEquals(THIRTY_DAYS, lifetimeInSeconds(token));
+            renewToken("Bearer " + token).andExpect(status().isOk());
+        }
+
+        @Test
+        void withALoginThatEndsAfterTwoHours_returns400() throws Exception {
+            renewToken(bearer(registered(EMAIL)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Only a login that stays logged in can be renewed"));
+        }
+
+        @Test
+        void notLoggedIn_returns401() throws Exception {
+            mockMvc.perform(post("/api/users/renewToken"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
     }
 
     @Nested
@@ -268,6 +334,28 @@ class UserControllerTest extends ControllerTest {
 
             login(EMAIL, "new-password").andExpect(status().isOk());
             login(EMAIL, PASSWORD).andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void logsTheAccountOutEverywhere() throws Exception {
+            User user = registered(EMAIL);
+            String loginFromBefore = bearer(user);
+            String loginFromBeforeThatStaysLoggedIn = staysLoggedIn(user);
+            storeResetToken(user, "valid-token", minutesFromNow(30));
+
+            resetPassword("valid-token", "new-password").andExpect(status().isNoContent());
+
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, loginFromBefore))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+            renewToken(loginFromBeforeThatStaysLoggedIn)
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+
+            // logging in again works
+            MvcResult result = login(EMAIL, "new-password").andExpect(status().isOk()).andReturn();
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenOf(result)))
+                    .andExpect(status().isOk());
         }
 
         @Test
@@ -746,6 +834,25 @@ class UserControllerTest extends ControllerTest {
                 .header("X-Forwarded-For", forwardedFor)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of("email", UserControllerTest.EMAIL, "password", password))));
+    }
+
+    /** Authorization header of a login with "Angemeldet bleiben". */
+    private String staysLoggedIn(User user) {
+        return "Bearer " + jwtService.generateToken(user, true);
+    }
+
+    private ResultActions renewToken(String authorization) throws Exception {
+        return mockMvc.perform(post("/api/users/renewToken").header(HttpHeaders.AUTHORIZATION, authorization));
+    }
+
+    private String tokenOf(MvcResult loginResult) throws Exception {
+        return objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+    }
+
+    /** Seconds between "issued at" and "expires" in the payload of a token. */
+    private long lifetimeInSeconds(String token) throws Exception {
+        JsonNode payload = objectMapper.readTree(Base64.getUrlDecoder().decode(token.split("\\.")[1]));
+        return payload.get("exp").asLong() - payload.get("iat").asLong();
     }
 
     private ResultActions requestPasswordReset(String email) throws Exception {

@@ -36,6 +36,12 @@ public class User implements DatastoreEntity {
     private List<Long> favoriteRecipeIds = new ArrayList<>();
 
     /**
+     * Counts the password changes. A token carries the number it was issued with,
+     * so every login from before a password change stops working.
+     */
+    private int tokenVersion;
+
+    /**
      * Favorites from before the recipes moved into the database, stored as recipe titles.
      * Only loaded (never saved) so RecipeBootstrapConfig can migrate them to IDs; the next save drops them.
      */
@@ -117,6 +123,14 @@ public class User implements DatastoreEntity {
 
     public void setFavoriteRecipeIds(List<Long> favoriteRecipeIds) {
         this.favoriteRecipeIds = favoriteRecipeIds;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(int tokenVersion) {
+        this.tokenVersion = tokenVersion;
     }
 
     public List<String> getLegacyFavoriteTitles() {

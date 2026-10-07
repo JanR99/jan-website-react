@@ -140,7 +140,7 @@ public abstract class ControllerTest {
 
     /** Value for the Authorization header of a logged-in user. */
     protected String bearer(User user) {
-        return "Bearer " + jwtService.generateToken(user.getEmail());
+        return "Bearer " + jwtService.generateToken(user, false);
     }
 
     /** Authorization header of a new user with exactly these permissions. */

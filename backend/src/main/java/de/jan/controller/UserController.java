@@ -18,7 +18,9 @@ import de.jan.user.UserDTO;
 import de.jan.user.repository.PasswordResetRepository;
 import de.jan.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +37,7 @@ public class UserController {
 
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
+    private static final String RENEW_TOKEN = "renewToken";
     private static final String GET_USER_BY_EMAIL = "getUserByEmail";
     private static final String SET_ROLES = "setRoles";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
@@ -65,7 +68,18 @@ public class UserController {
             @RequestBody LoginRequest request
     ) {
         User user = userRepository.login(request);
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user, request.isRememberMe());
+        return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
+    }
+
+    @Operation(operationId = RENEW_TOKEN)
+    @PostMapping("/renewToken")
+    public ResponseEntity<LoginResponse> renewToken(
+            @CurrentUser User user,
+            // hidden: the frontend sends this header with every request anyway, it is not a parameter of its own
+            @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization
+    ) {
+        String token = jwtService.renewToken(user, authorization.substring(JwtService.BEARER_PREFIX.length()));
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
     }
 

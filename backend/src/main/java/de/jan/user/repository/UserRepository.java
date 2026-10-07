@@ -82,6 +82,8 @@ public class UserRepository {
     public User changePassword(User user, String newPassword) {
         validatePassword(newPassword);
         user.setHashedPassword(passwordEncoder.encode(newPassword));
+        // logs the account out everywhere, see User.tokenVersion
+        user.setTokenVersion(user.getTokenVersion() + 1);
         return save(user);
     }
 
