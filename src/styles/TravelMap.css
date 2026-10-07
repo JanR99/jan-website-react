@@ -1,0 +1,162 @@
+/* Die Karten des Reisetagebuchs (Leaflet). Wird nach leaflet.css geladen, siehe leafletMap.ts. */
+
+.travel-map.leaflet-container {
+    background: var(--color-surface-2);
+    font: inherit;
+}
+
+.travel-map--picker.leaflet-container {
+    cursor: crosshair;
+}
+
+/* ---------- Pin ---------- */
+
+.travel-pin {
+    display: grid;
+    place-items: center;
+}
+
+.travel-pin > span {
+    display: block;
+    line-height: 0;
+}
+
+.travel-pin svg {
+    fill: var(--color-accent);
+    stroke: var(--color-on-accent);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+    transform-origin: 50% 100%;
+    transition: transform var(--transition);
+}
+
+.travel-pin:hover svg,
+.travel-pin:focus-visible svg {
+    transform: scale(1.15);
+}
+
+.travel-pin:focus-visible {
+    outline: none;
+}
+
+.travel-pin:focus-visible svg {
+    stroke: var(--color-text);
+}
+
+/* ---------- Popup eines Pins: der Ordner mit Titelbild ---------- */
+
+.travel-map-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-lg);
+}
+
+.travel-map-popup .leaflet-popup-content {
+    width: 200px;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.35;
+}
+
+.travel-map-popup .leaflet-popup-tip {
+    background: var(--color-surface);
+    box-shadow: none;
+}
+
+.travel-map .travel-map-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.travel-map-card img {
+    display: block;
+    width: 200px;
+    height: 120px;
+    object-fit: cover;
+}
+
+.travel-map-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px 14px;
+}
+
+.travel-map-card-country {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.travel-map-card strong {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.travel-map-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    color: var(--color-accent-strong);
+    font-weight: 500;
+    transition: gap var(--transition);
+}
+
+.travel-map-card:hover .travel-map-card-cta {
+    gap: 10px;
+}
+
+/* ---------- Bedienelemente in den Farben der Seite ---------- */
+
+.travel-map .leaflet-bar {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.travel-map .leaflet-bar a,
+.travel-map .leaflet-bar a.leaflet-disabled {
+    background: var(--color-surface);
+    border-bottom-color: var(--color-border);
+    color: var(--color-text);
+}
+
+.travel-map .leaflet-bar a.leaflet-disabled {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+.travel-map .leaflet-bar a:hover {
+    background: var(--color-surface-2);
+}
+
+.travel-map .leaflet-control-attribution {
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+}
+
+.travel-map .leaflet-control-attribution a {
+    color: inherit;
+}
+
+/* ---------- Dunkles Design: die hellen Kacheln von OpenStreetMap abdunkeln ---------- */
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .travel-map .leaflet-tile-pane {
+        filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+    }
+}
+
+:root[data-theme="dark"] .travel-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+}

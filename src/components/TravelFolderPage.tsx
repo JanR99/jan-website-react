@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Images, Pencil, Star, Trash2 } from "lucide-react";
+import { Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
-import { dropTravelFolder, dropTravelPhoto, storeTravelFolder, useTravelFolders } from "../hooks/useTravelFolders";
+import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
-import { folderCountry, photoCountLabel, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
+import { folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
+import TravelFolderText from "./travel/TravelFolderText";
 import TravelLightbox from "./travel/TravelLightbox";
 import TravelPhotoDropzone from "./travel/TravelPhotoDropzone";
 import Dialog from "./ui/Dialog";
@@ -18,7 +19,7 @@ import "../styles/Travel.css";
 /** What an admin is about to delete, shown in the confirm dialog. */
 type DeleteTarget = { kind: "photo"; photoId: number; number: number } | { kind: "folder" };
 
-/** One folder of the travel diary: its photos as a gallery. Admins can add and remove photos here. */
+/** One trip of the travel diary: its text and its photos as a gallery. Admins can write the text and add and remove photos here. */
 export default function TravelFolderPage() {
     const { folderId } = useParams();
     const { folders, loading, error } = useTravelFolders();
@@ -27,12 +28,11 @@ export default function TravelFolderPage() {
     const navigate = useNavigate();
 
     const folder = folders.find((f) => String(f.id) === folderId);
-    const count = folder?.photoIds.length ?? 0;
+    const count = folder?.photos.length ?? 0;
 
     const [lightbox, setLightbox] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);
     const [toDelete, setToDelete] = useState<DeleteTarget | null>(null);
-    const [actionError, setActionError] = useState<string | null>(null);
 
     if (!folder) {
         if (loading) {
@@ -52,21 +52,11 @@ export default function TravelFolderPage() {
     // a photo may have been deleted while the lightbox was open
     const shown = lightbox !== null && lightbox < count ? lightbox : null;
 
-    async function setCover(photoId: number) {
-        if (!folder) return;
-        setActionError(null);
-        try {
-            storeTravelFolder(await TravelController.setCover(folder.id, photoId));
-        } catch (err) {
-            setActionError(handleApiError(err));
-        }
-    }
-
     return (
         <div className="container">
             <PageHeader
                 back={{ to: TRAVEL_BASE, label: "Alle Reisen" }}
-                eyebrow={folderCountry(folder) ?? "Reise"}
+                eyebrow={folderSubtitle(folder) ?? "Reise"}
                 title={folder.name}
             >
                 {canManage && (
@@ -87,8 +77,10 @@ export default function TravelFolderPage() {
                 )}
             </PageHeader>
 
+            {/* the key ends writing the text when another trip is opened */}
+            <TravelFolderText key={folder.id} folder={folder} canManage={canManage} />
+
             {canManage && <TravelPhotoDropzone folderId={folder.id} />}
-            {actionError && <p className="form-message form-message--error" role="alert">{actionError}</p>}
 
             {count === 0 ? (
                 <div className="card empty-state">
@@ -98,8 +90,8 @@ export default function TravelFolderPage() {
                 </div>
             ) : (
                 <div className="gallery">
-                    {folder.photoIds.map((photoId, i) => {
-                        const isCover = folder.coverPhotoId === photoId;
+                    {folder.photos.map((photo, i) => {
+                        const photoId = photo.id;
                         return (
                             <div key={photoId} className="gallery-item">
                                 <button
@@ -110,22 +102,12 @@ export default function TravelFolderPage() {
                                 >
                                     <img
                                         src={TravelController.photoUrl(photoId)}
-                                        alt={`${folder.name} ${i + 1}`}
+                                        alt={photoDescription(folder.name, photo, i)}
                                         loading={i < 2 ? "eager" : "lazy"}
                                     />
                                 </button>
                                 {canManage && (
                                     <div className="gallery-actions">
-                                        <button
-                                            type="button"
-                                            className={`gallery-action${isCover ? " is-active" : ""}`}
-                                            onClick={() => void setCover(photoId)}
-                                            disabled={isCover}
-                                            aria-label={isCover ? `Foto ${i + 1} ist das Titelbild` : `Foto ${i + 1} als Titelbild verwenden`}
-                                            title={isCover ? "Titelbild des Ordners" : "Als Titelbild verwenden"}
-                                        >
-                                            <Star size={18} fill={isCover ? "currentColor" : "none"} />
-                                        </button>
                                         <button
                                             type="button"
                                             className="gallery-action gallery-action--delete"
@@ -148,7 +130,7 @@ export default function TravelFolderPage() {
                     <h2 className="other-destinations-title">Weitere Reisen</h2>
                     <div className="other-destinations">
                         {others.map((other) => {
-                            const country = folderCountry(other);
+                            const subtitle = folderSubtitle(other);
                             return (
                                 <Link key={other.id} to={travelFolderPath(other)} className="other-destination">
                                     {other.coverPhotoId !== null ? (
@@ -158,7 +140,7 @@ export default function TravelFolderPage() {
                                     )}
                                     <span>
                                         <strong>{other.name}</strong>
-                                        {country && <small>{country}</small>}
+                                        {subtitle && <small>{subtitle}</small>}
                                     </span>
                                 </Link>
                             );
@@ -170,7 +152,8 @@ export default function TravelFolderPage() {
             {shown !== null && (
                 <TravelLightbox
                     name={folder.name}
-                    photoIds={folder.photoIds}
+                    photos={folder.photos}
+                    canManage={canManage}
                     index={shown}
                     onIndexChange={setLightbox}
                     onClose={() => setLightbox(null)}
@@ -241,7 +224,7 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
             <h2 id="delete-travel-title">{isFolder ? "Ordner löschen?" : "Foto löschen?"}</h2>
             <p className="muted">
                 {isFolder
-                    ? `„${folder.name}“ wird dauerhaft gelöscht${folder.photoIds.length > 0 ? ` – zusammen mit ${photoCountLabel(folder.photoIds.length)}` : ""}.`
+                    ? `„${folder.name}“ wird dauerhaft gelöscht${folder.photos.length > 0 ? ` – zusammen mit ${photoCountLabel(folder.photos.length)}` : ""}.`
                     : `Foto ${target?.kind === "photo" ? target.number : ""} aus „${folder.name}“ wird dauerhaft gelöscht.`}
             </p>
             {target?.kind === "photo" && (

@@ -1,21 +1,27 @@
-import { useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FolderPlus, Images } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
+import { useOnline } from "../hooks/useOnline";
 import { useTravelFolders } from "../hooks/useTravelFolders";
-import { travelFolderPath } from "../utils/travel";
+import { folderPosition, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import TravelFolderCard from "./travel/TravelFolderCard";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
 import "../styles/Travel.css";
 
-/** The travel diary: all folders, one per trip. Admins can add folders here. */
+const TravelMap = lazy(() => import("./travel/TravelMap"));
+
+/** The travel diary: a map and all folders, one per trip. Admins can add folders here. */
 export default function TravelDiary() {
     const { folders, loading, error } = useTravelFolders();
     const { hasPermission } = useAuth();
     const canManage = hasPermission("MANAGE_TRAVEL");
     const navigate = useNavigate();
     const [creating, setCreating] = useState(false);
+    // the map tiles come from OpenStreetMap and are not stored for offline use, so no map without network
+    const online = useOnline();
+    const onMap = useMemo(() => folders.filter((folder) => folderPosition(folder) !== null), [folders]);
 
     return (
         <div className="container">
@@ -32,9 +38,20 @@ export default function TravelDiary() {
                         </button>
                     </div>
                 )}
+                {canManage && folders.length > 0 && onMap.length === 0 && (
+                    <p className="muted travel-map-missing">
+                        Die Karte erscheint, sobald ein Ordner einen Ort hat – im Ordner unter „Ordner bearbeiten“.
+                    </p>
+                )}
             </PageHeader>
 
             {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+
+            {online && onMap.length > 0 && (
+                <Suspense fallback={<div className="travel-map" aria-hidden="true" />}>
+                    <TravelMap folders={onMap} />
+                </Suspense>
+            )}
 
             {loading ? (
                 <div className="loading"><div className="spinner" /></div>

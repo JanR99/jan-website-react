@@ -1,12 +1,28 @@
 import { apiClient, apiUrl } from "./APIClient.ts";
 import { TravelFolder, TravelFolderRequest } from "../types/Travel.ts";
 
+/** A folder as the service worker may still have it stored from an older version: without captions, date and text. */
+type StoredTravelFolder = Omit<TravelFolder, "photos" | "startMonth" | "endMonth" | "text">
+    & Partial<Pick<TravelFolder, "photos" | "startMonth" | "endMonth" | "text">>
+    & { photoIds?: number[] };
+
+/** Without this, such a stored list would break the pages while offline; online the list is always the new one. */
+function fromStored({ photoIds, photos, ...folder }: StoredTravelFolder): TravelFolder {
+    return {
+        ...folder,
+        startMonth: folder.startMonth ?? null,
+        endMonth: folder.endMonth ?? null,
+        text: folder.text ?? "",
+        photos: photos ?? (photoIds ?? []).map((id) => ({ id, caption: "" })),
+    };
+}
+
 export default class TravelController {
 
     static async listFolders(): Promise<TravelFolder[]> {
         const apis = await apiClient;
-        const response: { body: TravelFolder[] } = await apis.travel.listTravelFolders.execute({});
-        return response.body ?? [];
+        const response: { body: StoredTravelFolder[] } = await apis.travel.listTravelFolders.execute({});
+        return (response.body ?? []).map(fromStored);
     }
 
     static async createFolder(req: TravelFolderRequest): Promise<TravelFolder> {
@@ -18,6 +34,13 @@ export default class TravelController {
     static async updateFolder(id: number, req: TravelFolderRequest): Promise<TravelFolder> {
         const apis = await apiClient;
         const response: { body: TravelFolder } = await apis.travel.updateTravelFolder.execute({ id }, { requestBody: req });
+        return response.body;
+    }
+
+    /** An empty text removes it. */
+    static async setText(id: number, text: string): Promise<TravelFolder> {
+        const apis = await apiClient;
+        const response: { body: TravelFolder } = await apis.travel.setTravelFolderText.execute({ id }, { requestBody: { text } });
         return response.body;
     }
 
@@ -38,6 +61,16 @@ export default class TravelController {
         const response: { body: TravelFolder } = await apis.travel.uploadTravelPhoto.execute(
             { folderId },
             { requestBody: { file } }
+        );
+        return response.body;
+    }
+
+    /** An empty caption removes it; returns the folder with the changed photo. */
+    static async setCaption(photoId: number, caption: string): Promise<TravelFolder> {
+        const apis = await apiClient;
+        const response: { body: TravelFolder } = await apis.travel.setTravelPhotoCaption.execute(
+            { id: photoId },
+            { requestBody: { caption } }
         );
         return response.body;
     }

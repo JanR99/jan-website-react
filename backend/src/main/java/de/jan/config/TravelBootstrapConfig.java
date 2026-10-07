@@ -32,7 +32,7 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
     private static final String SEED_IMAGE_DIR = "travel/images/";
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record SeedFolder(String name, String country, List<String> photos) {
+    public record SeedFolder(String name, String country, Double latitude, Double longitude, List<String> photos) {
     }
 
     private final TravelRepository travelRepository;
@@ -87,10 +87,12 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
                     TravelFolderRequest request = new TravelFolderRequest();
                     request.setName(seed.name());
                     request.setCountry(seed.country());
+                    request.setLatitude(seed.latitude());
+                    request.setLongitude(seed.longitude());
                     folder = travelRepository.createFolder(request);
                 }
                 // photos are imported in order, so the ones an interrupted start already stored are skipped
-                for (int i = folder.getPhotoIds().size(); i < photos.size(); i++) {
+                for (int i = folder.getPhotos().size(); i < photos.size(); i++) {
                     travelRepository.addPhoto(folder.getId(), readImage(photos.get(i)));
                     imported++;
                 }
