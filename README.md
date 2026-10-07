@@ -5,11 +5,11 @@ A personal website with a cooking recipe collection, built with [React](https://
 ## Project Structure
 
 - `src/` – React frontend
-- `backend/` – Spring Boot backend (Java 21, Maven)
+- `backend/` – Spring Boot backend (Java 25, Maven)
 
 ## Getting Started (local development)
 
-The backend needs Java 21 and [Docker](https://www.docker.com/products/docker-desktop/) (the start script runs the local Datastore emulator and its admin UI as containers). The backend tests (`mvn test`) start their own emulator with the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).
+The backend needs Java 25 (`JAVA_HOME` has to point to it) and [Docker](https://www.docker.com/products/docker-desktop/) (the start script runs the local Datastore emulator and its admin UI as containers). The backend tests (`mvn test`) start their own emulator with the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).
 
 1. Copy `.env.example` to `.env` in the project root and fill in your own values.
 2. Start the backend + Datastore emulator + Datastore UI (Docker must be running):

@@ -104,6 +104,27 @@ export GOOGLE_CLOUD_PROJECT="${PROJECT_ID}"
 echo "DATASTORE_EMULATOR_HOST = ${DATASTORE_EMULATOR_HOST}"
 echo "GOOGLE_CLOUD_PROJECT    = ${GOOGLE_CLOUD_PROJECT}"
 
+java_home="${JAVA_HOME:-}"
+java_version=""
+if [ -n "${java_home}" ] && [ -x "${java_home}/bin/java" ] && [ -f "${java_home}/release" ]; then
+    java_version="$(sed -n 's/^JAVA_VERSION="\([^"]*\)".*/\1/p' "${java_home}/release" | head -n 1)"
+fi
+
+if [ "${java_version%%.*}" != "25" ]; then
+    if [ -z "${java_home}" ]; then
+        problem="JAVA_HOME is not set"
+    elif [ -n "${java_version}" ]; then
+        problem="JAVA_HOME points to Java ${java_version} ('${java_home}')"
+    else
+        problem="JAVA_HOME ('${java_home}') does not point to a JDK"
+    fi
+    echo "ERROR: ${problem}. Set JAVA_HOME to a JDK 25 (in your shell or in .env)." >&2
+    exit 1
+fi
+
+echo "JAVA_HOME = ${java_home}"
+"${java_home}/bin/java" -version
+
 # --- Start the Spring Boot app ---
 echo "Starting Spring Boot app in '${BACKEND_DIR}' ..."
 cd "${BACKEND_DIR}"
