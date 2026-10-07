@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -88,8 +89,8 @@ public abstract class ControllerTest {
         ReflectionTestUtils.setField(recipeRepositoryForCacheReset, "cache", null);
         // same for the travel folders
         ReflectionTestUtils.setField(travelRepositoryForCacheReset, "cache", null);
-        // login and password reset allow five attempts per minute, counted across all tests otherwise
-        ((Map<?, ?>) ReflectionTestUtils.getField(rateLimiter, "windows")).clear();
+        // login, password reset and registration are rate limited, counted across all tests otherwise
+        ((Map<?, ?>) Objects.requireNonNull(ReflectionTestUtils.getField(rateLimiter, "windows"))).clear();
     }
 
     /** Runs code that uses the database directly, like the ObjectifyFilter does for a request. */

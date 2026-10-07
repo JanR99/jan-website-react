@@ -91,13 +91,39 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withEmailThatIsTaken_returns400() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
 
             mockMvc.perform(post("/api/users/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(registerBody("ANNA@example.com", "another-password")))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("User with this email already exists"));
+        }
+
+        @Test
+        void afterThreeRegistrationsInAnHour_returns429() throws Exception {
+            for (int number = 1; number <= 3; number++) {
+                register("user" + number + "@example.com", PASSWORD).andExpect(status().isOk());
+            }
+
+            register("user4@example.com", PASSWORD)
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.message").value("Too many registrations, please try again later."));
+
+            // logging in is counted separately
+            login("user1@example.com", PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void rejectedAttempts_doNotCountTowardsTheLimit() throws Exception {
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                register(EMAIL, "short").andExpect(status().isBadRequest());
+            }
+
+            for (int number = 1; number <= 3; number++) {
+                register("user" + number + "@example.com", PASSWORD).andExpect(status().isOk());
+            }
+            register("user4@example.com", PASSWORD).andExpect(status().isTooManyRequests());
         }
     }
 
@@ -106,7 +132,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void returnsATokenAndTheUser() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             MvcResult result = login("Anna@Example.com", PASSWORD)
                     .andExpect(status().isOk())
@@ -126,7 +152,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withWrongPassword_returns400() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
 
             login(EMAIL, "wrong-password")
                     .andExpect(status().isBadRequest())
@@ -151,7 +177,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void afterFiveAttemptsInAMinute_returns429() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
             for (int attempt = 1; attempt <= 5; attempt++) {
                 login(EMAIL, "wrong-password").andExpect(status().isBadRequest());
             }
@@ -161,6 +187,28 @@ class UserControllerTest extends ControllerTest {
                     .andExpect(status().isTooManyRequests())
                     .andExpect(jsonPath("$.message").value("Too many attempts, please try again in a minute."));
         }
+
+        @Test
+        void withMadeUpForwardedForEntries_theLimitStillApplies() throws Exception {
+            registered(EMAIL);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                // only the last entry is added by Cloud Run, a client can put anything in front of it
+                loginFrom("10.0.0." + attempt + ", 203.0.113.7", "wrong-password")
+                        .andExpect(status().isBadRequest());
+            }
+
+            loginFrom("10.0.0.6, 203.0.113.7", PASSWORD).andExpect(status().isTooManyRequests());
+        }
+
+        @Test
+        void attemptsAreCountedPerClientAddress() throws Exception {
+            registered(EMAIL);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                loginFrom("203.0.113.7", "wrong-password").andExpect(status().isBadRequest());
+            }
+
+            loginFrom("203.0.113.8", PASSWORD).andExpect(status().isOk());
+        }
     }
 
     @Nested
@@ -168,7 +216,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withKnownEmail_returns204AndStoresAToken() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             requestPasswordReset("Anna@Example.com")
                     .andExpect(status().isNoContent())
@@ -179,7 +227,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void requestedTwice_keepsOnlyTheNewestToken() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             requestPasswordReset(EMAIL).andExpect(status().isNoContent());
             String firstHash = resetTokensOf(user).getFirst().getTokenHash();
@@ -211,7 +259,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withValidToken_returns204AndChangesThePassword() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             storeResetToken(user, "valid-token", minutesFromNow(30));
 
             resetPassword("valid-token", "new-password")
@@ -224,7 +272,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void usingTheTokenASecondTime_returns400() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             storeResetToken(user, "valid-token", minutesFromNow(30));
             resetPassword("valid-token", "new-password").andExpect(status().isNoContent());
 
@@ -242,7 +290,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withExpiredToken_returns400AndKeepsThePassword() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             storeResetToken(user, "expired-token", minutesFromNow(-1));
 
             resetPassword("expired-token", "new-password")
@@ -254,7 +302,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withTooShortPassword_returns400AndKeepsTheTokenValid() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             storeResetToken(user, "valid-token", minutesFromNow(30));
 
             resetPassword("valid-token", "short")
@@ -288,7 +336,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void returnsTheUserWithTheNewName() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             mockMvc.perform(post("/api/users/updateProfile")
                             .header(HttpHeaders.AUTHORIZATION, bearer(user))
@@ -349,7 +397,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withTheRightPassword_returns204AndRemovesTheAccount() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             String bearer = bearer(user);
 
             mockMvc.perform(post("/api/users/deleteAccount")
@@ -369,7 +417,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withWrongPassword_returns400AndKeepsTheAccount() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             mockMvc.perform(post("/api/users/deleteAccount")
                             .header(HttpHeaders.AUTHORIZATION, bearer(user))
@@ -383,7 +431,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withoutPassword_returns400() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             mockMvc.perform(post("/api/users/deleteAccount")
                             .header(HttpHeaders.AUTHORIZATION, bearer(user))
@@ -395,7 +443,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void asAdmin_returns400AndKeepsTheAccount() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             inDatastore(() -> {
                 userRepository.grantAdminRole(userRepository.getByEmail(EMAIL));
                 return null;
@@ -464,7 +512,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withoutPermission_returns403() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
 
             mockMvc.perform(get("/api/users/getUserByEmail").param("email", EMAIL)
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
@@ -474,7 +522,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withPermission_returnsTheUser() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
 
             mockMvc.perform(get("/api/users/getUserByEmail").param("email", "Anna@Example.com")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
@@ -522,8 +570,8 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withPermission_returnsAllUsersWithTheirRolesSortedByEmail() throws Exception {
-            registered("berta@example.com", PASSWORD);
-            User anna = registered(EMAIL, PASSWORD);
+            registered("berta@example.com");
+            User anna = registered(EMAIL);
             // registered by the test support as "user<number>@example.com", so sorted last
             User manager = userWith(Permission.MANAGE_USERS);
 
@@ -558,7 +606,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withoutPermission_returns403AndChangesNothing() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
             Role cooks = storedRole("Cooks", Permission.MANAGE_RECIPES);
 
             mockMvc.perform(post("/api/users/setRoles")
@@ -573,7 +621,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withPermission_returnsTheUserWithTheNewRoles() throws Exception {
-            User user = registered(EMAIL, PASSWORD);
+            User user = registered(EMAIL);
             Role cooks = storedRole("Cooks", Permission.MANAGE_RECIPES);
 
             mockMvc.perform(post("/api/users/setRoles")
@@ -618,7 +666,7 @@ class UserControllerTest extends ControllerTest {
 
         @Test
         void withUnknownRole_returns400() throws Exception {
-            registered(EMAIL, PASSWORD);
+            registered(EMAIL);
 
             mockMvc.perform(post("/api/users/setRoles")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS))
@@ -651,10 +699,10 @@ class UserControllerTest extends ControllerTest {
         }
     }
 
-    private User registered(String email, String password) {
+    private User registered(String email) {
         RegisterRequest request = new RegisterRequest();
         request.setEmail(email);
-        request.setPassword(password);
+        request.setPassword(UserControllerTest.PASSWORD);
         request.setFirstname("Anna");
         request.setLastname("Test");
         return inDatastore(() -> userRepository.register(request));
@@ -672,6 +720,12 @@ class UserControllerTest extends ControllerTest {
         return json(Map.of("email", email, "password", password, "firstname", "Anna", "lastname", "Test"));
     }
 
+    private ResultActions register(String email, String password) throws Exception {
+        return mockMvc.perform(post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(registerBody(email, password)));
+    }
+
     private String nameBody(String firstname, String lastname) throws Exception {
         return json(Map.of("firstname", firstname, "lastname", lastname));
     }
@@ -684,6 +738,14 @@ class UserControllerTest extends ControllerTest {
         return mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of("email", email, "password", password))));
+    }
+
+    /** Logs in the way Cloud Run passes a request on: with the client address in X-Forwarded-For. */
+    private ResultActions loginFrom(String forwardedFor, String password) throws Exception {
+        return mockMvc.perform(post("/api/users/login")
+                .header("X-Forwarded-For", forwardedFor)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("email", UserControllerTest.EMAIL, "password", password))));
     }
 
     private ResultActions requestPasswordReset(String email) throws Exception {
