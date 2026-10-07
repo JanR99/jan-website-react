@@ -9,6 +9,10 @@ import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarker;
 import de.jan.role.Role;
+import de.jan.travel.TravelFolder;
+import de.jan.travel.TravelPhoto;
+import de.jan.travel.TravelPhotoFile;
+import de.jan.travel.TravelSeedMarker;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
@@ -25,7 +29,11 @@ public class ObjectifyConfig {
         Recipe.class,
         RecipeImage.class,
         RecipeSeedMarker.class,
-        Role.class
+        Role.class,
+        TravelFolder.class,
+        TravelPhoto.class,
+        TravelPhotoFile.class,
+        TravelSeedMarker.class
     );
 
     @PostConstruct

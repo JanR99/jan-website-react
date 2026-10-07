@@ -59,7 +59,7 @@ class RoleControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[0].id").value(admin.getId()))
                     .andExpect(jsonPath("$[0].name").value("ADMIN"))
                     .andExpect(jsonPath("$[0].system").value(true))
-                    .andExpect(jsonPath("$[0].permissions", contains("MANAGE_RECIPES", "MANAGE_USERS")))
+                    .andExpect(jsonPath("$[0].permissions", contains("MANAGE_RECIPES", "MANAGE_TRAVEL", "MANAGE_USERS")))
                     .andExpect(jsonPath("$[1].id").value(cooks.getId()))
                     .andExpect(jsonPath("$[1].name").value("Cooks"))
                     .andExpect(jsonPath("$[1].system").value(false))

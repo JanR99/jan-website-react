@@ -1,15 +1,17 @@
 import React from 'react';
-import { HashRouter as Router, Link, Route, Routes } from 'react-router-dom';
+import { HashRouter as Router, Link, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Layout from './components/layout/Layout';
 import Cookbook from './components/Cookbook';
 import Home from './components/Home';
-import Destination from './components/Destination';
+import TravelDiary from './components/TravelDiary';
+import TravelFolderPage from './components/TravelFolderPage';
 import RecipePage from './components/RecipePage';
 import AccountPage from './components/account/AccountPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PasswordResetPage from './components/auth/PasswordResetPage';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
+import { TRAVEL_BASE } from './utils/travel';
 
 const NotFound: React.FC = () => (
     <div className="container">
@@ -29,7 +31,10 @@ const App: React.FC = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
                     <Route path="/cookbook/:recipeTitle" element={<RecipePage />} />
-                    <Route path="/destination/:destination" element={<Destination />} />
+                    <Route path={TRAVEL_BASE} element={<TravelDiary />} />
+                    <Route path={`${TRAVEL_BASE}/:folderId`} element={<TravelFolderPage />} />
+                    {/* links to the old pages, where trips had no ids yet */}
+                    <Route path="/destination/*" element={<Navigate to={TRAVEL_BASE} replace />} />
                     <Route path="/passwort-zuruecksetzen" element={<PasswordResetPage />} />
 
                     {/* paths for logged-in users */}

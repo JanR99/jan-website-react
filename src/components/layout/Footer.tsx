@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { openCookieSettings } from "../CookieConsent";
+import { TRAVEL_BASE } from "../../utils/travel";
 
 export default function Footer() {
     return (
@@ -7,7 +8,7 @@ export default function Footer() {
             <div className="container">
                 <span>© {new Date().getFullYear()} Jan · jan-website.de</span>
                 <nav aria-label="Footer">
-                    <Link to="/">Reisen</Link>
+                    <Link to={TRAVEL_BASE}>Reisen</Link>
                     <Link to="/cookbook">Kochbuch</Link>
                     <button type="button" onClick={openCookieSettings}>Cookie-Einstellungen</button>
                 </nav>

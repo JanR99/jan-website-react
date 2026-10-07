@@ -14,6 +14,7 @@ import de.jan.role.Role;
 import de.jan.role.repository.RoleRepository;
 import de.jan.security.JwtService;
 import de.jan.security.RateLimiter;
+import de.jan.travel.repository.TravelRepository;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,9 @@ public abstract class ControllerTest {
     private RecipeRepository recipeRepositoryForCacheReset;
 
     @Autowired
+    private TravelRepository travelRepositoryForCacheReset;
+
+    @Autowired
     private RateLimiter rateLimiter;
 
     @BeforeEach
@@ -82,6 +86,8 @@ public abstract class ControllerTest {
         }
         // the recipe list is cached for a minute, which would leak recipes into the next test
         ReflectionTestUtils.setField(recipeRepositoryForCacheReset, "cache", null);
+        // same for the travel folders
+        ReflectionTestUtils.setField(travelRepositoryForCacheReset, "cache", null);
         // login and password reset allow five attempts per minute, counted across all tests otherwise
         ((Map<?, ?>) ReflectionTestUtils.getField(rateLimiter, "windows")).clear();
     }

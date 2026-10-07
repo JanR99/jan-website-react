@@ -6,6 +6,7 @@ import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
 import UsersRolesSection from "../components/account/UsersRolesSection";
 import type { Permission } from "../types/roles";
+import { TRAVEL_BASE } from "../utils/travel";
 
 export interface NavItem {
     to: string;
@@ -15,8 +16,8 @@ export interface NavItem {
 }
 
 export const MAIN_NAV: NavItem[] = [
-    { to: "/", label: "Reisen", icon: Plane, activePrefixes: ["/destination"] },
     { to: "/cookbook", label: "Kochbuch", icon: BookOpen },
+    { to: TRAVEL_BASE, label: "Reisen", icon: Plane },
 ];
 
 export interface AccountSection {
