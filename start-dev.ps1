@@ -106,18 +106,28 @@ $env:GOOGLE_CLOUD_PROJECT    = $ProjectId
 Write-Host "DATASTORE_EMULATOR_HOST = $env:DATASTORE_EMULATOR_HOST" -ForegroundColor Green
 Write-Host "GOOGLE_CLOUD_PROJECT    = $env:GOOGLE_CLOUD_PROJECT" -ForegroundColor Green
 
-# --- Use JDK 21 instead of the system JDK (Spring Boot 3.x needs JDK 21) ---
-$AdoptiumRoot = "C:\Program Files\Eclipse Adoptium"
-$Jdk21Dir = Get-ChildItem -Path $AdoptiumRoot -Directory -Filter "jdk-21*" -ErrorAction SilentlyContinue |
-        Select-Object -First 1
+$JavaVersion = $null
+$ReleaseFile = if ($env:JAVA_HOME) { Join-Path $env:JAVA_HOME "release" } else { $null }
+if ($ReleaseFile -and (Test-Path $ReleaseFile) -and (Test-Path (Join-Path $env:JAVA_HOME "bin\java.exe"))) {
+    $VersionLine = Select-String -Path $ReleaseFile -Pattern '^JAVA_VERSION="([^"]+)"' | Select-Object -First 1
+    if ($VersionLine) {
+        $JavaVersion = $VersionLine.Matches[0].Groups[1].Value
+    }
+}
 
-if (-not $Jdk21Dir) {
-    Write-Host "ERROR: No 'jdk-21*' folder found under '$AdoptiumRoot'. Is JDK 21 installed?" -ForegroundColor Red
+if (-not $JavaVersion -or $JavaVersion.Split(".")[0] -ne "25") {
+    if (-not $env:JAVA_HOME) {
+        $Problem = "JAVA_HOME is not set"
+    } elseif ($JavaVersion) {
+        $Problem = "JAVA_HOME points to Java $JavaVersion ('$env:JAVA_HOME')"
+    } else {
+        $Problem = "JAVA_HOME ('$env:JAVA_HOME') does not point to a JDK"
+    }
+    Write-Host "ERROR: $Problem. Set JAVA_HOME to a JDK 25, e.g. 'C:\Program Files\Java\jdk-25.0.3'." -ForegroundColor Red
     Remove-DevContainers
     exit 1
 }
 
-$env:JAVA_HOME = $Jdk21Dir.FullName
 $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
 
 Write-Host "JAVA_HOME = $env:JAVA_HOME" -ForegroundColor Green
