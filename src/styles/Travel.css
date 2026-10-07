@@ -87,6 +87,27 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* ---------- Karte mit den Reisen (Leaflet-eigene Stile: TravelMap.css) ---------- */
+
+.travel-map {
+    /* eigener Stapelkontext: Leaflet nutzt z-index bis 1000 und läge sonst über der Navigation */
+    isolation: isolate;
+    height: clamp(260px, 45vh, 440px);
+    margin-bottom: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-2);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.travel-map--picker {
+    height: 220px;
+    margin-bottom: 0;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+}
+
 /* ---------- Verwaltung (nur mit dem Recht "Reisen verwalten") ---------- */
 
 .travel-toolbar {
@@ -110,6 +131,77 @@
 
 .travel-folder-optional {
     font-weight: 400;
+}
+
+.travel-map-missing {
+    margin-top: 14px;
+    font-size: 0.9rem;
+}
+
+/* Ort eines Ordners wählen: Suche, Treffer, kleine Karte */
+
+.travel-location {
+    gap: 8px;
+}
+
+.travel-location-search {
+    display: flex;
+    gap: 8px;
+}
+
+.travel-location-search .input {
+    flex: 1;
+    min-width: 0;
+}
+
+.travel-location-results {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.travel-location-results button {
+    width: 100%;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+}
+
+.travel-location-results button:hover {
+    background: var(--color-surface-2);
+}
+
+.travel-location-results button.is-active {
+    background: var(--color-accent-soft);
+    font-weight: 500;
+}
+
+.travel-location-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.travel-location-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 34px;
+}
+
+.travel-location-footer .btn {
+    flex-shrink: 0;
 }
 
 .travel-upload {

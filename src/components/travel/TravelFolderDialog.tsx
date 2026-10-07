@@ -3,8 +3,10 @@ import type { FormEvent } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
-import { TravelFolder } from "../../types/Travel";
+import { TravelFolder, TravelPosition } from "../../types/Travel";
+import { folderCountry, folderPosition } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
+import TravelLocationPicker from "./TravelLocationPicker";
 
 interface TravelFolderDialogProps {
     open: boolean;
@@ -14,7 +16,7 @@ interface TravelFolderDialogProps {
     onSaved: (folder: TravelFolder) => void;
 }
 
-/** Creates a folder or changes name and country of an existing one. */
+/** Creates a folder or changes name, country and the place on the map of an existing one. */
 export default function TravelFolderDialog({ open, folder, onClose, onSaved }: TravelFolderDialogProps) {
     const [busy, setBusy] = useState(false);
     const close = () => {
@@ -39,11 +41,17 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
 }) {
     const [name, setName] = useState(folder?.name ?? "");
     const [country, setCountry] = useState(folder?.country ?? "");
+    const [position, setPosition] = useState<TravelPosition | null>(folder ? folderPosition(folder) : null);
     const [error, setError] = useState<string | null>(null);
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
-        const request = { name: name.trim(), country: country.trim() };
+        const request = {
+            name: name.trim(),
+            country: country.trim(),
+            latitude: position?.latitude ?? null,
+            longitude: position?.longitude ?? null,
+        };
         if (!request.name) {
             setError("Der Name darf nicht leer sein.");
             return;
@@ -87,6 +95,11 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
                     maxLength={80}
                 />
             </label>
+            <TravelLocationPicker
+                position={position}
+                onChange={setPosition}
+                suggestion={[name.trim(), folderCountry({ name, country })].filter(Boolean).join(", ")}
+            />
             {error && <p className="form-message form-message--error" role="alert">{error}</p>}
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
