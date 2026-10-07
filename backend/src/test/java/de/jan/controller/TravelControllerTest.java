@@ -1,6 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
@@ -76,6 +77,26 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[1].photos", hasSize(0)))
                     .andExpect(jsonPath("$[1].coverPhotoId", nullValue()));
         }
+
+        @Test
+        void returnsTheNewestTripFirstAndTheOnesWithoutDateAfterThemByName() throws Exception {
+            storedFolder("Wien", "");
+            inDatastore(() -> travelRepository.createFolder(requestWithMonths("Prag", "2023-05", null)));
+            storedFolder("Andorra", "");
+            inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[*].name", contains("Porto", "Prag", "Andorra", "Wien")))
+                    .andExpect(jsonPath("$[0].startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$[0].endMonth").value("2024-10"))
+                    .andExpect(jsonPath("$[1].startMonth").value("2023-05"))
+                    .andExpect(jsonPath("$[1].endMonth", nullValue()))
+                    .andExpect(jsonPath("$[2].startMonth", nullValue()))
+                    .andExpect(jsonPath("$[2].endMonth", nullValue()))
+                    // no text yet
+                    .andExpect(jsonPath("$[0].text").value(""));
+        }
     }
 
     @Nested
@@ -120,6 +141,95 @@ class TravelControllerTest extends ControllerTest {
 
             mockMvc.perform(get("/api/travel/folders/list"))
                     .andExpect(jsonPath("$[*].name", contains("Porto 2024")));
+        }
+
+        @Test
+        void withMonths_storesWhenTheTripWas() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", " 2024-09 ", "2024-10"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$.endMonth").value("2024-10"))
+                    .andExpect(jsonPath("$.text").value(""));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$[0].endMonth").value("2024-10"));
+        }
+
+        @Test
+        void withOnlyStartMonth_storesATripWithinOneMonth() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-09", ""))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withTheSameEndMonth_storesNoEndMonth() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-09", "2024-09"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withoutMonths_storesNoDate() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", null, null))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth", nullValue()))
+                    .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withOnlyEndMonth_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", null, "2024-10"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("An end month needs a start month"));
+        }
+
+        @Test
+        void withEndMonthBeforeStartMonth_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-09", "2023-12"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("The end month must not be before the start month"));
+        }
+
+        @Test
+        void withStartMonthThatIsNoMonth_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-13", null))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Start month must be a year and a month like 2024-05"));
+        }
+
+        @Test
+        void withEndMonthInAnotherFormat_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-09", "10/2024"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("End month must be a year and a month like 2024-05"));
         }
 
         @Test
@@ -327,6 +437,60 @@ class TravelControllerTest extends ControllerTest {
         }
 
         @Test
+        void withMonths_changesWhenTheTripWas() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2025-03", null))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth").value("2025-03"))
+                    .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withoutMonths_removesTheDate() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", ""))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.startMonth", nullValue()))
+                    .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withEndMonthBeforeStartMonth_returns400AndKeepsTheDate() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithMonths("Porto", "2024-09", "2024-08"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("The end month must not be before the start month"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].endMonth").value("2024-10"));
+        }
+
+        @Test
+        void keepsTheText() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Lissabon", "Portugal"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Lissabon"))
+                    .andExpect(jsonPath("$.text").value("Drei Tage am Douro."));
+        }
+
+        @Test
         void withItsOwnName_isAllowed() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
@@ -357,6 +521,135 @@ class TravelControllerTest extends ControllerTest {
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", ""))))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Folder 999 not found"));
+        }
+    }
+
+    @Nested
+    class SetTravelFolderText {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest("Drei Tage am Douro."))))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutPermission_returns403AndKeepsTheText() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest("Etwas anderes"))))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(MISSING_PERMISSION));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].text").value("Drei Tage am Douro."));
+        }
+
+        @Test
+        void withPermission_returnsTheFolderWithTheText() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", null)));
+            Long photo = storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest("Drei Tage am Douro."))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.text").value("Drei Tage am Douro."))
+                    // everything else stays
+                    .andExpect(jsonPath("$.name").value("Porto"))
+                    .andExpect(jsonPath("$.startMonth").value("2024-09"))
+                    .andExpect(jsonPath("$.photos[0].id").value(photo));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].text").value("Drei Tage am Douro."));
+        }
+
+        @Test
+        void keepsParagraphsAndLineBreaksButCleansUpTheRest() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            String text = "  Erster Absatz.  \r\n\r\n\r\n\r\nZweiter Absatz,\t\nzweite Zeile.\n   \nDritter Absatz.\n\n";
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest(text))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.text").value("Erster Absatz.\n\nZweiter Absatz,\nzweite Zeile.\n\nDritter Absatz."));
+        }
+
+        @Test
+        void withEmptyText_removesIt() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest(" \n "))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.text").value(""));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].text").value(""));
+        }
+
+        @Test
+        void withoutText_removesIt() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest(null))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.text").value(""));
+        }
+
+        @Test
+        void withLongestText_isAllowed() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            String text = "x".repeat(TravelRepository.TEXT_MAX_LENGTH);
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest(text))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.text").value(text));
+        }
+
+        @Test
+        void withTooLongText_returns400AndKeepsTheText() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest("x".repeat(TravelRepository.TEXT_MAX_LENGTH + 1)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Text must be at most 10000 characters long"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].text").value("Drei Tage am Douro."));
+        }
+
+        @Test
+        void withUnknownId_returns404() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", "999")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(textRequest("Drei Tage am Douro."))))
                     .andExpect(status().isNotFound())
                     .andExpect(content().string("Folder 999 not found"));
         }
@@ -831,6 +1124,20 @@ class TravelControllerTest extends ControllerTest {
         return request;
     }
 
+    /** A folder without a country and a place on the map; the months as year and month like "2024-05". */
+    private static TravelFolderRequest requestWithMonths(String name, String startMonth, String endMonth) {
+        TravelFolderRequest request = request(name, "");
+        request.setStartMonth(startMonth);
+        request.setEndMonth(endMonth);
+        return request;
+    }
+
+    private static TravelFolderTextRequest textRequest(String text) {
+        TravelFolderTextRequest request = new TravelFolderTextRequest();
+        request.setText(text);
+        return request;
+    }
+
     private static TravelPhotoCaptionRequest captionRequest(String caption) {
         TravelPhotoCaptionRequest request = new TravelPhotoCaptionRequest();
         request.setCaption(caption);
@@ -847,7 +1154,7 @@ class TravelControllerTest extends ControllerTest {
     }
 
     private static Long lastPhoto(TravelFolderDTO folder) {
-        return folder.getPhotos().get(folder.getPhotos().size() - 1).getId();
+        return folder.getPhotos().getLast().getId();
     }
 
     /** @param authorization value of the Authorization header, null to send the request without login */

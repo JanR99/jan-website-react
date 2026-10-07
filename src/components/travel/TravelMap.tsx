@@ -5,7 +5,7 @@ import { ArrowRight, MapPin } from "lucide-react";
 import L from "leaflet";
 import TravelController from "../../controller/TravelController";
 import { TravelFolder } from "../../types/Travel";
-import { folderCountry, folderPosition, photoCountLabel, travelFolderPath } from "../../utils/travel";
+import { folderPosition, folderSubtitle, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
 
 /**
@@ -79,13 +79,13 @@ export default function TravelMap({ folders }: { folders: TravelFolder[] }) {
 
 /** What the popup of a pin shows: the folder with its cover photo, as a link into it. */
 function TravelMapCard({ folder }: { folder: TravelFolder }) {
-    const country = folderCountry(folder);
+    const subtitle = folderSubtitle(folder);
 
     return (
         <Link to={travelFolderPath(folder)} className="travel-map-card">
             {folder.coverPhotoId !== null && <img src={TravelController.photoUrl(folder.coverPhotoId)} alt="" />}
             <span className="travel-map-card-body">
-                {country && <span className="travel-map-card-country">{country}</span>}
+                {subtitle && <span className="travel-map-card-country">{subtitle}</span>}
                 <strong>{folder.name}</strong>
                 <span className="travel-map-card-cta">
                     {photoCountLabel(folder.photos.length)} <ArrowRight size={14} />

@@ -4,12 +4,16 @@ import {
     cleanCaption,
     folderCountry,
     folderPosition,
+    folderSubtitle,
     parsePlaces,
     photoCountLabel,
     photoDescription,
     roundPosition,
     sortFolders,
+    textParagraphs,
+    toMonth,
     travelFolderPath,
+    travelPeriod,
     withoutPhoto,
 } from "./travel";
 
@@ -25,6 +29,9 @@ function folder(overrides: Partial<TravelFolder> = {}): TravelFolder {
         coverPhotoId: 10,
         latitude: 41.1496,
         longitude: -8.611,
+        startMonth: null,
+        endMonth: null,
+        text: "",
         photos: photos(10, 11, 12),
         ...overrides,
     };
@@ -40,6 +47,17 @@ describe("sortFolders", () => {
     it("sorts by name the German way, umlauts next to their base letter", () => {
         const sorted = sortFolders([folder({ name: "Zürich" }), folder({ name: "Österreich" }), folder({ name: "Oslo" })]);
         expect(sorted.map((f) => f.name)).toEqual(["Oslo", "Österreich", "Zürich"]);
+    });
+
+    it("puts the newest trip first and the ones without a date after them", () => {
+        const sorted = sortFolders([
+            folder({ name: "Wien" }),
+            folder({ name: "Prag", startMonth: "2023-05" }),
+            folder({ name: "Andorra" }),
+            folder({ name: "Porto", startMonth: "2024-09", endMonth: "2024-10" }),
+            folder({ name: "Athen", startMonth: "2023-05" }),
+        ]);
+        expect(sorted.map((f) => f.name)).toEqual(["Porto", "Athen", "Prag", "Andorra", "Wien"]);
     });
 
     it("leaves the given list as it is", () => {
@@ -163,5 +181,78 @@ describe("cleanCaption", () => {
 
     it("is empty if there are only spaces", () => {
         expect(cleanCaption("   ")).toBe("");
+    });
+});
+
+describe("travelPeriod", () => {
+    it("is the month and the year of a trip within one month", () => {
+        expect(travelPeriod({ startMonth: "2024-05", endMonth: null })).toBe("Mai 2024");
+        expect(travelPeriod({ startMonth: "2024-03", endMonth: "2024-03" })).toBe("März 2024");
+    });
+
+    it("names the year once if the trip ended in the same year", () => {
+        expect(travelPeriod({ startMonth: "2024-05", endMonth: "2024-06" })).toBe("Mai – Juni 2024");
+    });
+
+    it("names both years of a trip over the turn of the year", () => {
+        expect(travelPeriod({ startMonth: "2023-12", endMonth: "2024-01" })).toBe("Dezember 2023 – Januar 2024");
+    });
+
+    it("is null if it is not known when the trip was", () => {
+        expect(travelPeriod({ startMonth: null, endMonth: null })).toBeNull();
+        expect(travelPeriod({ startMonth: "Mai 2024", endMonth: null })).toBeNull();
+    });
+});
+
+describe("folderSubtitle", () => {
+    it("is the country and the time of the trip", () => {
+        expect(folderSubtitle(folder({ startMonth: "2024-09" }))).toBe("Portugal · September 2024");
+    });
+
+    it("is only what is known", () => {
+        expect(folderSubtitle(folder())).toBe("Portugal");
+        expect(folderSubtitle(folder({ name: "Andorra", country: "Andorra", startMonth: "2022-08" }))).toBe("August 2022");
+    });
+
+    it("is null if nothing is known", () => {
+        expect(folderSubtitle(folder({ country: "" }))).toBeNull();
+    });
+});
+
+describe("toMonth", () => {
+    it("joins year and month", () => {
+        expect(toMonth("2024", "05")).toBe("2024-05");
+        expect(toMonth(" 2024 ", "12")).toBe("2024-12");
+    });
+
+    it("is null if nothing is filled in", () => {
+        expect(toMonth("", "")).toBeNull();
+        expect(toMonth("  ", "")).toBeNull();
+    });
+
+    it("is undefined if only one part is filled in", () => {
+        expect(toMonth("2024", "")).toBeUndefined();
+        expect(toMonth("", "05")).toBeUndefined();
+    });
+
+    it("is undefined if the year is none", () => {
+        expect(toMonth("24", "05")).toBeUndefined();
+        expect(toMonth("20245", "05")).toBeUndefined();
+        expect(toMonth("1024", "05")).toBeUndefined();
+    });
+});
+
+describe("textParagraphs", () => {
+    it("splits the text at empty lines and keeps the line breaks inside a paragraph", () => {
+        expect(textParagraphs("Erster Absatz.\n\nZweiter Absatz,\nzweite Zeile.\n \n\nDritter.")).toEqual([
+            "Erster Absatz.",
+            "Zweiter Absatz,\nzweite Zeile.",
+            "Dritter.",
+        ]);
+    });
+
+    it("is empty for a folder without a text", () => {
+        expect(textParagraphs("")).toEqual([]);
+        expect(textParagraphs(" \n ")).toEqual([]);
     });
 });

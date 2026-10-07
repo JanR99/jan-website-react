@@ -1,6 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
@@ -34,6 +35,7 @@ public class TravelController {
     private static final String LIST_TRAVEL_FOLDERS = "listTravelFolders";
     private static final String CREATE_TRAVEL_FOLDER = "createTravelFolder";
     private static final String UPDATE_TRAVEL_FOLDER = "updateTravelFolder";
+    private static final String SET_TRAVEL_FOLDER_TEXT = "setTravelFolderText";
     private static final String SET_TRAVEL_FOLDER_COVER = "setTravelFolderCover";
     private static final String DELETE_TRAVEL_FOLDER = "deleteTravelFolder";
     private static final String UPLOAD_TRAVEL_PHOTO = "uploadTravelPhoto";
@@ -70,6 +72,18 @@ public class TravelController {
     ) {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
         return ResponseEntity.ok(travelRepository.updateFolder(id, body));
+    }
+
+    /** The diary text of the trip; an empty one removes it. */
+    @Operation(operationId = SET_TRAVEL_FOLDER_TEXT)
+    @PostMapping("/folders/setText")
+    public ResponseEntity<TravelFolderDTO> setTravelFolderText(
+            @CurrentUser User user,
+            @RequestParam("id") Long id,
+            @RequestBody TravelFolderTextRequest body
+    ) {
+        Authorization.with(user).require(Permission.MANAGE_TRAVEL);
+        return ResponseEntity.ok(travelRepository.setText(id, body.getText()));
     }
 
     /** Without photoId the folder shows its first photo again. */

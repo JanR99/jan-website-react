@@ -4,9 +4,10 @@ import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { TravelFolder, TravelPosition } from "../../types/Travel";
-import { folderCountry, folderPosition } from "../../utils/travel";
+import { folderCountry, folderPosition, toMonth } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
 import TravelLocationPicker from "./TravelLocationPicker";
+import TravelMonthField, { monthInput } from "./TravelMonthField";
 
 interface TravelFolderDialogProps {
     open: boolean;
@@ -16,7 +17,7 @@ interface TravelFolderDialogProps {
     onSaved: (folder: TravelFolder) => void;
 }
 
-/** Creates a folder or changes name, country and the place on the map of an existing one. */
+/** Creates a folder or changes name, country, the time of the trip and the place on the map of an existing one. */
 export default function TravelFolderDialog({ open, folder, onClose, onSaved }: TravelFolderDialogProps) {
     const [busy, setBusy] = useState(false);
     const close = () => {
@@ -41,16 +42,35 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
 }) {
     const [name, setName] = useState(folder?.name ?? "");
     const [country, setCountry] = useState(folder?.country ?? "");
+    const [start, setStart] = useState(() => monthInput(folder?.startMonth ?? null));
+    const [end, setEnd] = useState(() => monthInput(folder?.endMonth ?? null));
     const [position, setPosition] = useState<TravelPosition | null>(folder ? folderPosition(folder) : null);
     const [error, setError] = useState<string | null>(null);
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
+        const startMonth = toMonth(start.year, start.month);
+        const endMonth = toMonth(end.year, end.month);
+        if (startMonth === undefined || endMonth === undefined) {
+            setError("Bitte beim Zeitraum jeweils Monat und Jahr angeben.");
+            return;
+        }
+        if (endMonth && !startMonth) {
+            setError("Zum Ende des Zeitraums fehlt der Anfang.");
+            return;
+        }
+        if (startMonth && endMonth && endMonth < startMonth) {
+            setError("Das Ende des Zeitraums liegt vor dem Anfang.");
+            return;
+        }
+
         const request = {
             name: name.trim(),
             country: country.trim(),
             latitude: position?.latitude ?? null,
             longitude: position?.longitude ?? null,
+            startMonth,
+            endMonth,
         };
         if (!request.name) {
             setError("Der Name darf nicht leer sein.");
@@ -95,6 +115,11 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
                     maxLength={80}
                 />
             </label>
+            <div className="field travel-period">
+                <span>Zeitraum <span className="muted travel-folder-optional">(optional, „Bis“ nur bei mehreren Monaten)</span></span>
+                <TravelMonthField label="Von" value={start} onChange={setStart} />
+                <TravelMonthField label="Bis" value={end} onChange={setEnd} />
+            </div>
             <TravelLocationPicker
                 position={position}
                 onChange={setPosition}

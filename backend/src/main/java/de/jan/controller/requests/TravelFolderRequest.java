@@ -9,6 +9,10 @@ public class TravelFolderRequest {
     private Double latitude;
     private Double longitude;
 
+    /** when the trip was, as year and month like "2024-05"; both empty if that is not known */
+    private String startMonth;
+    private String endMonth;
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -20,4 +24,10 @@ public class TravelFolderRequest {
 
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public String getStartMonth() { return startMonth; }
+    public void setStartMonth(String startMonth) { this.startMonth = startMonth; }
+
+    public String getEndMonth() { return endMonth; }
+    public void setEndMonth(String endMonth) { this.endMonth = endMonth; }
 }

@@ -27,6 +27,12 @@ export interface TravelFolder {
     /** where the trip is shown on the map; both null if the folder has no place on it */
     latitude: number | null;
     longitude: number | null;
+    /** when the trip was, as year and month like "2024-05"; both null if that is not known */
+    startMonth: string | null;
+    /** null for a trip within one month */
+    endMonth: string | null;
+    /** what the diary says about the trip, paragraphs separated by an empty line; empty if there is none */
+    text: string;
     photos: TravelPhoto[];
 }
 
@@ -36,4 +42,7 @@ export interface TravelFolderRequest {
     /** both null for a folder without a place on the map */
     latitude: number | null;
     longitude: number | null;
+    /** year and month like "2024-05"; both null if it is not known when the trip was */
+    startMonth: string | null;
+    endMonth: string | null;
 }

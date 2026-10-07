@@ -108,6 +108,63 @@
     box-shadow: none;
 }
 
+/* ---------- Text einer Reise, über den Fotos ---------- */
+
+.travel-text {
+    max-width: 68ch;
+    margin-bottom: 32px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.travel-text p {
+    margin: 0;
+    /* Zeilenumbrüche innerhalb eines Absatzes bleiben erhalten */
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.travel-text p + p {
+    margin-top: 1em;
+}
+
+/* nur für Admins; die Schrift des Buttons richtet sich nicht nach dem Fließtext */
+.travel-text-edit {
+    line-height: 1.2;
+}
+
+.travel-text p + .travel-text-edit {
+    margin-top: 16px;
+}
+
+.travel-text-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 760px;
+    margin-bottom: 32px;
+}
+
+.travel-text-input {
+    min-height: 220px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.travel-text-editor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.travel-text-count {
+    margin-right: auto;
+    font-size: 0.8rem;
+}
+
 /* ---------- Verwaltung (nur mit dem Recht "Reisen verwalten") ---------- */
 
 .travel-toolbar {
@@ -136,6 +193,24 @@
 .travel-map-missing {
     margin-top: 14px;
     font-size: 0.9rem;
+}
+
+/* Zeitraum der Reise: Monat und Jahr, von und bis */
+
+.travel-period {
+    gap: 8px;
+}
+
+.travel-month-field {
+    display: grid;
+    grid-template-columns: 34px 1fr 92px;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+}
+
+.travel-month-field .input {
+    min-width: 0;
 }
 
 /* Ort eines Ordners wählen: Suche, Treffer, kleine Karte */

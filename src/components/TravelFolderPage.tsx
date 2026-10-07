@@ -6,9 +6,10 @@ import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
 import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
-import { folderCountry, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
+import { folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
+import TravelFolderText from "./travel/TravelFolderText";
 import TravelLightbox from "./travel/TravelLightbox";
 import TravelPhotoDropzone from "./travel/TravelPhotoDropzone";
 import Dialog from "./ui/Dialog";
@@ -18,7 +19,7 @@ import "../styles/Travel.css";
 /** What an admin is about to delete, shown in the confirm dialog. */
 type DeleteTarget = { kind: "photo"; photoId: number; number: number } | { kind: "folder" };
 
-/** One folder of the travel diary: its photos as a gallery. Admins can add and remove photos here. */
+/** One trip of the travel diary: its text and its photos as a gallery. Admins can write the text and add and remove photos here. */
 export default function TravelFolderPage() {
     const { folderId } = useParams();
     const { folders, loading, error } = useTravelFolders();
@@ -55,7 +56,7 @@ export default function TravelFolderPage() {
         <div className="container">
             <PageHeader
                 back={{ to: TRAVEL_BASE, label: "Alle Reisen" }}
-                eyebrow={folderCountry(folder) ?? "Reise"}
+                eyebrow={folderSubtitle(folder) ?? "Reise"}
                 title={folder.name}
             >
                 {canManage && (
@@ -75,6 +76,9 @@ export default function TravelFolderPage() {
                     </div>
                 )}
             </PageHeader>
+
+            {/* the key ends writing the text when another trip is opened */}
+            <TravelFolderText key={folder.id} folder={folder} canManage={canManage} />
 
             {canManage && <TravelPhotoDropzone folderId={folder.id} />}
 
@@ -126,7 +130,7 @@ export default function TravelFolderPage() {
                     <h2 className="other-destinations-title">Weitere Reisen</h2>
                     <div className="other-destinations">
                         {others.map((other) => {
-                            const country = folderCountry(other);
+                            const subtitle = folderSubtitle(other);
                             return (
                                 <Link key={other.id} to={travelFolderPath(other)} className="other-destination">
                                     {other.coverPhotoId !== null ? (
@@ -136,7 +140,7 @@ export default function TravelFolderPage() {
                                     )}
                                     <span>
                                         <strong>{other.name}</strong>
-                                        {country && <small>{country}</small>}
+                                        {subtitle && <small>{subtitle}</small>}
                                     </span>
                                 </Link>
                             );

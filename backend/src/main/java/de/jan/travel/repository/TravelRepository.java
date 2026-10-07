@@ -43,7 +43,12 @@ public class TravelRepository {
 
     private static final int NAME_MAX_LENGTH = 80;
     public static final int CAPTION_MAX_LENGTH = 200;
+    public static final int TEXT_MAX_LENGTH = 10_000;
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final Pattern MONTH = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])");
+    private static final Pattern LINE_BREAK = Pattern.compile("\\r\\n?");
+    private static final Pattern SPACES_AT_LINE_END = Pattern.compile("[ \\t]+\\n");
+    private static final Pattern EMPTY_LINES = Pattern.compile("\\n{3,}");
     private static final Comparator<TravelPhoto> PHOTO_ORDER = Comparator
             .comparing(TravelPhoto::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(TravelPhoto::getId);
@@ -63,7 +68,7 @@ public class TravelRepository {
         this.seedMarkerDAO = new TravelSeedMarkerDAO();
     }
 
-    /** All folders sorted by name, each with the ids of its photos. */
+    /** All folders with their photos: the newest trip first, the ones without a date after them by name. */
     public List<TravelFolderDTO> getFolders() {
         List<TravelFolderDTO> current = cache;
         if (current != null && System.currentTimeMillis() - cachedAt < CACHE_TTL.toMillis()) {
@@ -72,8 +77,10 @@ public class TravelRepository {
         Map<Long, List<TravelPhoto>> photosByFolder = photoDAO.getAll().stream()
                 .collect(Collectors.groupingBy(TravelPhoto::getFolderId));
         Collator collator = Collator.getInstance(Locale.GERMAN);
+        Comparator<TravelFolder> newestFirst = Comparator.comparing(
+                TravelFolder::getStartMonth, Comparator.nullsLast(Comparator.reverseOrder()));
         List<TravelFolderDTO> result = folderDAO.getAll().stream()
-                .sorted(Comparator.comparing(TravelFolder::getName, collator))
+                .sorted(newestFirst.thenComparing(TravelFolder::getName, collator))
                 .map(folder -> toDTO(folder, photosByFolder.getOrDefault(folder.getId(), List.of())))
                 .toList();
         cache = result;
@@ -96,10 +103,21 @@ public class TravelRepository {
         return toDTO(saved, List.of());
     }
 
-    /** Changes name, country and the place on the map. */
+    /** Changes name, country, the months of the trip and the place on the map; the text stays. */
     public TravelFolderDTO updateFolder(Long id, TravelFolderRequest request) {
         TravelFolder folder = loadFolder(id);
         apply(folder, request);
+        folderDAO.save(folder);
+        invalidateCache();
+        return getFolder(id);
+    }
+
+    /** Sets what the diary says about the trip; an empty text removes it. */
+    public TravelFolderDTO setText(Long id, String text) {
+        TravelFolder folder = loadFolder(id);
+        String cleaned = cleanText(text);
+        requireMaxLength(cleaned, TEXT_MAX_LENGTH, "Text");
+        folder.setText(cleaned);
         folderDAO.save(folder);
         invalidateCache();
         return getFolder(id);
@@ -249,9 +267,43 @@ public class TravelRepository {
             requireRange(longitude, 180, "Longitude");
         }
 
+        String startMonth = month(request.getStartMonth(), "Start month");
+        String endMonth = month(request.getEndMonth(), "End month");
+        if (endMonth != null && startMonth == null) {
+            throw new EntityStateException("An end month needs a start month");
+        }
+        if (endMonth != null && endMonth.compareTo(startMonth) < 0) {
+            throw new EntityStateException("The end month must not be before the start month");
+        }
+
         folder.setName(name);
         folder.setCountry(country);
         folder.setPosition(latitude, longitude);
+        // a trip within one month has no end month
+        folder.setPeriod(startMonth, Objects.equals(startMonth, endMonth) ? null : endMonth);
+    }
+
+    /** A year and a month like "2024-05", which also sorts by time; null if none is given. */
+    private static String month(String value, String label) {
+        String month = value == null ? "" : value.trim();
+        if (month.isEmpty()) {
+            return null;
+        }
+        if (!MONTH.matcher(month).matches()) {
+            throw new EntityStateException(label + " must be a year and a month like 2024-05");
+        }
+        return month;
+    }
+
+    /** Keeps the line breaks: no spaces at the end of a line and at most one empty line between paragraphs. */
+    private static String cleanText(String value) {
+        if (value == null) {
+            return "";
+        }
+        String text = LINE_BREAK.matcher(value).replaceAll("\n");
+        text = SPACES_AT_LINE_END.matcher(text).replaceAll("\n");
+        text = EMPTY_LINES.matcher(text).replaceAll("\n\n");
+        return text.strip();
     }
 
     /** Best effort: removes a photo whose file could not be stored. */

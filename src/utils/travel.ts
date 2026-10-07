@@ -4,9 +4,17 @@ export const TRAVEL_BASE = "/reisen";
 
 export const travelFolderPath = (folder: Pick<TravelFolder, "id">) => `${TRAVEL_BASE}/${folder.id}`;
 
-/** Same order as the backend: by name. */
+/** Same order as the backend: the newest trip first, the ones without a date after them by name. */
 export function sortFolders(folders: TravelFolder[]): TravelFolder[] {
-    return [...folders].sort((a, b) => a.name.localeCompare(b.name, "de"));
+    return [...folders].sort((a, b) => {
+        if (a.startMonth !== b.startMonth) {
+            if (a.startMonth === null) return 1;
+            if (b.startMonth === null) return -1;
+            // "2024-05" sorts by time as a text
+            return a.startMonth < b.startMonth ? 1 : -1;
+        }
+        return a.name.localeCompare(b.name, "de");
+    });
 }
 
 /** The folder after one of its photos was deleted; if that was the cover, the first photo takes over. */
@@ -32,6 +40,57 @@ export function cleanCaption(caption: string): string {
 export function folderCountry(folder: Pick<TravelFolder, "name" | "country">): string | null {
     const country = folder.country.trim();
     return country && country.toLowerCase() !== folder.name.trim().toLowerCase() ? country : null;
+}
+
+export const MONTH_NAMES = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember",
+];
+
+/** Year and month of a text like "2024-05", null if it is none. */
+function parseMonth(value: string | null): { year: number; month: number } | null {
+    const match = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(value ?? "");
+    return match ? { year: Number(match[1]), month: Number(match[2]) } : null;
+}
+
+/** When the trip was: "Mai 2024", "Mai – Juni 2024" or "Dezember 2023 – Januar 2024"; null if that is not known. */
+export function travelPeriod(folder: Pick<TravelFolder, "startMonth" | "endMonth">): string | null {
+    const start = parseMonth(folder.startMonth);
+    if (!start) return null;
+    const startName = MONTH_NAMES[start.month - 1];
+    const end = parseMonth(folder.endMonth);
+    if (!end || (end.year === start.year && end.month === start.month)) {
+        return `${startName} ${start.year}`;
+    }
+    const endLabel = `${MONTH_NAMES[end.month - 1]} ${end.year}`;
+    return end.year === start.year ? `${startName} – ${endLabel}` : `${startName} ${start.year} – ${endLabel}`;
+}
+
+/** The small line above the name of a folder: country and time of the trip, as far as they are known. */
+export function folderSubtitle(folder: Pick<TravelFolder, "name" | "country" | "startMonth" | "endMonth">): string | null {
+    return [folderCountry(folder), travelPeriod(folder)].filter(Boolean).join(" · ") || null;
+}
+
+/**
+ * The two parts of a month field the way the backend wants a month: "2024-05",
+ * null if both are empty, undefined if only one of them is filled in or the year is none.
+ *
+ * @param year the year of the travel
+ * @param month "01" to "12", or empty
+ */
+export function toMonth(year: string, month: string): string | null | undefined {
+    const yearText = year.trim();
+    if (!yearText && !month) return null;
+    const value = `${yearText}-${month}`;
+    const parsed = parseMonth(value);
+    return parsed && parsed.year >= 1900 && parsed.year <= 2100 ? value : undefined;
+}
+
+export const TEXT_MAX_LENGTH = 10_000;
+
+/** The paragraphs of a folder's text; they are separated by empty lines. */
+export function textParagraphs(text: string): string[] {
+    return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
 }
 
 export function photoCountLabel(count: number): string {

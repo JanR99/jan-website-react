@@ -25,6 +25,14 @@ public class TravelFolder implements DatastoreEntity {
     private Double latitude;
     private Double longitude;
 
+    /** when the trip was, as year and month like "2024-05"; both null if that is not known */
+    private String startMonth;
+    /** null for a trip within one month */
+    private String endMonth;
+
+    /** what the diary says about the trip, paragraphs separated by an empty line */
+    private String text;
+
     private Date createdAt;
 
     public TravelFolder() {
@@ -50,6 +58,17 @@ public class TravelFolder implements DatastoreEntity {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    public String getStartMonth() { return startMonth; }
+    public String getEndMonth() { return endMonth; }
+
+    public void setPeriod(String startMonth, String endMonth) {
+        this.startMonth = startMonth;
+        this.endMonth = endMonth;
+    }
+
+    public String getText() { return text == null ? "" : text; }
+    public void setText(String text) { this.text = text; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
