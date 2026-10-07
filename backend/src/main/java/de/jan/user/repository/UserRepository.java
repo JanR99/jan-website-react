@@ -87,6 +87,19 @@ public class UserRepository {
         return save(user);
     }
 
+    /**
+     * Changes the password of a logged-in user after re-checking the current one.
+     * Reset links that are still open stop working, as they do after a reset.
+     */
+    public User changeOwnPassword(User user, String currentPassword, String newPassword) {
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getHashedPassword())) {
+            throw new EntityStateException("Invalid password");
+        }
+        User updated = changePassword(user, newPassword);
+        deleteResetTokensOf(user);
+        return updated;
+    }
+
     public User updateName(User user, String firstname, String lastname) {
         user.setFirstname(validateName(firstname, "First name"));
         user.setLastname(validateName(lastname, "Last name"));
@@ -105,11 +118,15 @@ public class UserRepository {
             throw new EntityStateException("Admin accounts cannot be deleted");
         }
 
+        deleteResetTokensOf(user);
+        userDAO.delete(user);
+    }
+
+    private void deleteResetTokensOf(User user) {
         List<PasswordResetToken> resetTokens = passwordResetTokenDAO.getByUserId(user.getId());
         if (!resetTokens.isEmpty()) {
             passwordResetTokenDAO.deleteAll(resetTokens);
         }
-        userDAO.delete(user);
     }
 
     private static String validateName(String name, String label) {

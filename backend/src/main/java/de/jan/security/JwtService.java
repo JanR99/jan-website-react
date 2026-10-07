@@ -64,4 +64,9 @@ public class JwtService {
         }
         return generateToken(user, true);
     }
+
+    /** A new token of the same kind as the given one: with "Angemeldet bleiben" or without. */
+    public String reissueToken(User user, String token) {
+        return generateToken(user, parse(token).rememberMe());
+    }
 }

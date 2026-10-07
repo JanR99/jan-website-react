@@ -472,6 +472,137 @@ class UserControllerTest extends ControllerTest {
     }
 
     @Nested
+    class ChangePassword {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(post("/api/users/changePassword")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(passwordsBody(PASSWORD, "new-password")))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withTheRightPassword_returnsANewTokenAndChangesThePassword() throws Exception {
+            User user = registered(EMAIL);
+
+            MvcResult result = changePassword(bearer(user), PASSWORD, "new-password")
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.token").isString())
+                    .andExpect(jsonPath("$.user.id").value(user.getId()))
+                    .andExpect(jsonPath("$.user.email").value(EMAIL))
+                    .andExpect(jsonPath("$.user.firstname").value("Anna"))
+                    .andExpect(jsonPath("$.user.lastname").value("Test"))
+                    .andExpect(jsonPath("$.user.hashedPassword").doesNotExist())
+                    .andReturn();
+
+            // the new token keeps this device logged in
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenOf(result)))
+                    .andExpect(status().isOk());
+            login(EMAIL, "new-password").andExpect(status().isOk());
+            login(EMAIL, PASSWORD).andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void logsTheAccountOutEverywhereElse() throws Exception {
+            User user = registered(EMAIL);
+            String otherDevice = staysLoggedIn(user);
+
+            changePassword(bearer(user), PASSWORD, "new-password").andExpect(status().isOk());
+
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, otherDevice))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+            renewToken(otherDevice)
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void theNewTokenLastsAsLongAsTheOneBefore() throws Exception {
+            User user = registered(EMAIL);
+
+            MvcResult shortLogin = changePassword(bearer(user), PASSWORD, "new-password")
+                    .andExpect(status().isOk())
+                    .andReturn();
+            assertEquals(TWO_HOURS, lifetimeInSeconds(tokenOf(shortLogin)));
+
+            User changed = inDatastore(() -> userRepository.getByEmail(EMAIL));
+            MvcResult longLogin = changePassword(staysLoggedIn(changed), "new-password", "newer-password")
+                    .andExpect(status().isOk())
+                    .andReturn();
+            assertEquals(THIRTY_DAYS, lifetimeInSeconds(tokenOf(longLogin)));
+        }
+
+        @Test
+        void withWrongCurrentPassword_returns400AndKeepsThePassword() throws Exception {
+            User user = registered(EMAIL);
+            String bearer = bearer(user);
+
+            changePassword(bearer, "wrong-password", "new-password")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Invalid password"));
+
+            // nothing has changed: the token and the old password still work
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, bearer))
+                    .andExpect(status().isOk());
+            login(EMAIL, PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void withoutCurrentPassword_returns400() throws Exception {
+            User user = registered(EMAIL);
+
+            mockMvc.perform(post("/api/users/changePassword")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("newPassword", "new-password"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Invalid password"));
+        }
+
+        @Test
+        void withTooShortNewPassword_returns400AndKeepsThePassword() throws Exception {
+            User user = registered(EMAIL);
+
+            changePassword(bearer(user), PASSWORD, "short")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(PASSWORD_TOO_SHORT));
+
+            login(EMAIL, PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void removesResetLinksThatAreStillOpen() throws Exception {
+            User user = registered(EMAIL);
+            storeResetToken(user, "open-link", minutesFromNow(30));
+
+            changePassword(bearer(user), PASSWORD, "new-password").andExpect(status().isOk());
+
+            assertEquals(0, resetTokensOf(user).size());
+            resetPassword("open-link", "another-password")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_LINK));
+        }
+
+        @Test
+        void afterFiveAttemptsInAMinute_returns429() throws Exception {
+            User user = registered(EMAIL);
+            String bearer = bearer(user);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                changePassword(bearer, "wrong-password", "new-password").andExpect(status().isBadRequest());
+            }
+
+            // even the right password is rejected now
+            changePassword(bearer, PASSWORD, "new-password")
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.message").value("Too many attempts, please try again in a minute."));
+        }
+    }
+
+    @Nested
     class DeleteAccount {
 
         @Test
@@ -816,6 +947,17 @@ class UserControllerTest extends ControllerTest {
 
     private String nameBody(String firstname, String lastname) throws Exception {
         return json(Map.of("firstname", firstname, "lastname", lastname));
+    }
+
+    private String passwordsBody(String currentPassword, String newPassword) throws Exception {
+        return json(Map.of("currentPassword", currentPassword, "newPassword", newPassword));
+    }
+
+    private ResultActions changePassword(String authorization, String currentPassword, String newPassword) throws Exception {
+        return mockMvc.perform(post("/api/users/changePassword")
+                .header(HttpHeaders.AUTHORIZATION, authorization)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(passwordsBody(currentPassword, newPassword)));
     }
 
     private String rolesBody(String email, Long... roleIds) throws Exception {

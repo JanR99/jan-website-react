@@ -89,7 +89,7 @@ public abstract class ControllerTest {
         ReflectionTestUtils.setField(recipeRepositoryForCacheReset, "cache", null);
         // same for the travel folders
         ReflectionTestUtils.setField(travelRepositoryForCacheReset, "cache", null);
-        // login, password reset and registration are rate limited, counted across all tests otherwise
+        // login, password reset, password change and registration are rate limited, counted across all tests otherwise
         ((Map<?, ?>) Objects.requireNonNull(ReflectionTestUtils.getField(rateLimiter, "windows"))).clear();
     }
 

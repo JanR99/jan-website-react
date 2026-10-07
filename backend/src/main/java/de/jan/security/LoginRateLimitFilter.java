@@ -21,7 +21,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     private record Limit(String name, int maxAttempts, Duration window, boolean onlySuccessful, String message) {
     }
 
-    // against guessing passwords and reset tokens; login and password reset share these attempts
+    // against guessing passwords and reset tokens; login, password reset and password change share these attempts
     private static final Limit LOGIN = new Limit("login", 5, Duration.ofMinutes(1), false,
             "Too many attempts, please try again in a minute.");
 
@@ -33,6 +33,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             "/api/users/login", LOGIN,
             "/api/users/requestPasswordReset", LOGIN,
             "/api/users/resetPassword", LOGIN,
+            "/api/users/changePassword", LOGIN,
             "/api/users/register", REGISTRATION
     );
 

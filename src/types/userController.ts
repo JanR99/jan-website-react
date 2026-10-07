@@ -33,6 +33,11 @@ export interface UpdateProfileRequest {
     lastname: string;
 }
 
+export interface ChangePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}
+
 export interface DeleteAccountRequest {
     password: string;
 }

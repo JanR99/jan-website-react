@@ -4,7 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useFavorites } from "../../hooks/useFavorites";
 import Dialog from "../ui/Dialog";
-import { BookOpen, Heart, Pencil, Trash2 } from "lucide-react";
+import { BookOpen, Heart, KeyRound, Pencil, Trash2 } from "lucide-react";
+
+const PASSWORD_MIN_LENGTH = 8;
 
 export default function ProfileSection() {
     const { user } = useAuth();
@@ -27,6 +29,8 @@ export default function ProfileSection() {
                     <span className="muted">Neue Rezepte entdecken</span>
                 </Link>
             </div>
+
+            <PasswordCard />
 
             <DangerZoneCard />
         </div>
@@ -152,6 +156,134 @@ function PersonalDataCard() {
                         </p>
                     )}
                 </>
+            )}
+        </div>
+    );
+}
+
+function PasswordCard() {
+    const { user, changePassword } = useAuth();
+    const [editing, setEditing] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [saved, setSaved] = useState(false);
+
+    if (!user) return null;
+
+    function startEditing() {
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirm("");
+        setError(null);
+        setSaved(false);
+        setEditing(true);
+    }
+
+    async function handleSubmit(event: FormEvent) {
+        event.preventDefault();
+        if (newPassword.length < PASSWORD_MIN_LENGTH) {
+            setError(`Das neue Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein.`);
+            return;
+        }
+        if (newPassword !== confirm) {
+            setError("Die neuen Passwörter stimmen nicht überein.");
+            return;
+        }
+
+        setBusy(true);
+        setError(null);
+        const result = await changePassword({ currentPassword, newPassword });
+        setBusy(false);
+
+        if (result.ok) {
+            setEditing(false);
+            setSaved(true);
+        } else {
+            setError(result.error);
+        }
+    }
+
+    return (
+        <div className="card card-pad">
+            <div className="account-card-head">
+                <h2 className="account-card-title">Passwort</h2>
+                {!editing && (
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={startEditing}>
+                        <KeyRound size={16} />
+                        Ändern
+                    </button>
+                )}
+            </div>
+
+            {editing ? (
+                <form className="profile-form" onSubmit={handleSubmit}>
+                    {/* not visible: tells a password manager which account the new password belongs to */}
+                    <input type="text" autoComplete="username" value={user.email} readOnly hidden />
+                    <label className="field">
+                        Aktuelles Passwort
+                        <input
+                            className="input"
+                            type="password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            autoComplete="current-password"
+                            autoFocus
+                            required
+                        />
+                    </label>
+                    <div className="profile-form-row">
+                        <label className="field">
+                            Neues Passwort
+                            <input
+                                className="input"
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                autoComplete="new-password"
+                                minLength={PASSWORD_MIN_LENGTH}
+                                required
+                            />
+                        </label>
+                        <label className="field">
+                            Neues Passwort wiederholen
+                            <input
+                                className="input"
+                                type="password"
+                                value={confirm}
+                                onChange={(e) => setConfirm(e.target.value)}
+                                autoComplete="new-password"
+                                required
+                            />
+                        </label>
+                    </div>
+                    <p className="muted profile-form-hint">
+                        Mindestens {PASSWORD_MIN_LENGTH} Zeichen. Auf allen anderen Geräten wirst du danach abgemeldet.
+                    </p>
+
+                    {error && (
+                        <p className="form-message form-message--error" role="alert">{error}</p>
+                    )}
+
+                    <div className="profile-form-actions">
+                        <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)} disabled={busy}>
+                            Abbrechen
+                        </button>
+                        <button type="submit" className="btn" disabled={busy}>
+                            {busy ? "Speichern …" : "Passwort ändern"}
+                        </button>
+                    </div>
+                </form>
+            ) : saved ? (
+                <p className="form-message form-message--success" role="status">
+                    Dein Passwort wurde geändert. Auf allen anderen Geräten bist du jetzt abgemeldet.
+                </p>
+            ) : (
+                <p className="muted">
+                    Wenn du dein Passwort änderst, wirst du auf allen anderen Geräten abgemeldet.
+                </p>
             )}
         </div>
     );

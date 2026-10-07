@@ -1,5 +1,6 @@
 package de.jan.controller;
 
+import de.jan.controller.requests.ChangePasswordRequest;
 import de.jan.controller.requests.DeleteAccountRequest;
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.PasswordResetRequest;
@@ -43,6 +44,7 @@ public class UserController {
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
     private static final String UPDATE_PROFILE = "updateProfile";
+    private static final String CHANGE_PASSWORD = "changePassword";
     private static final String DELETE_ACCOUNT = "deleteAccount";
     private static final String GET_PERMISSIONS = "getPermissions";
     private static final String LIST_USERS = "listUsers";
@@ -109,6 +111,20 @@ public class UserController {
     ) {
         User updatedUser = userRepository.updateName(user, body.getFirstname(), body.getLastname());
         return ResponseEntity.ok(UserDTO.from(updatedUser));
+    }
+
+    @Operation(operationId = CHANGE_PASSWORD)
+    @PostMapping("/changePassword")
+    public ResponseEntity<LoginResponse> changePassword(
+            @CurrentUser User user,
+            // hidden: the frontend sends this header with every request anyway, it is not a parameter of its own
+            @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestBody ChangePasswordRequest body
+    ) {
+        User updatedUser = userRepository.changeOwnPassword(user, body.getCurrentPassword(), body.getNewPassword());
+        // the change logs the account out everywhere; with a new token this device stays logged in
+        String token = jwtService.reissueToken(updatedUser, authorization.substring(JwtService.BEARER_PREFIX.length()));
+        return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(updatedUser)));
     }
 
     @Operation(operationId = DELETE_ACCOUNT)

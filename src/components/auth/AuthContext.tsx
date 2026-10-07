@@ -4,7 +4,9 @@ import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError, isUnauthenticated } from "../../controller/util/ErrorHandler.ts";
 import { UserDTO } from "../../types/entities.ts";
-import { LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
+import {
+    ChangePasswordRequest, LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest
+} from "../../types/userController.ts";
 import { Permission } from "../../types/roles.ts";
 import { getTokenExpiry, loadSession, needsRenewal, saveSession, Session } from "./sessionStore.ts";
 
@@ -26,6 +28,7 @@ interface AuthContextValue {
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
     updateProfile: (request: UpdateProfileRequest) => Promise<LoginResult>;
+    changePassword: (request: ChangePasswordRequest) => Promise<LoginResult>;
     deleteAccount: (password: string) => Promise<LoginResult>;
 
     authDialog: AuthDialogMode | null;
@@ -129,6 +132,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const changePassword = useCallback(async (request: ChangePasswordRequest): Promise<LoginResult> => {
+        try {
+            // the old token stops working with the change, the answer brings a new one for this device
+            startSession(await UserController.changePassword(request));
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error: handleApiError(error) };
+        }
+    }, [startSession]);
+
     const deleteAccount = useCallback(async (password: string): Promise<LoginResult> => {
         try {
             await UserController.deleteAccount({ password });
@@ -168,12 +181,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             register,
             logout,
             updateProfile,
+            changePassword,
             deleteAccount,
             authDialog,
             openAuthDialog,
             closeAuthDialog,
         }),
-        [session, permissions, login, register, logout, updateProfile, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
+        [session, permissions, login, register, logout, updateProfile, changePassword, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

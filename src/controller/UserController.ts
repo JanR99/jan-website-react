@@ -1,6 +1,6 @@
 import { apiClient } from "./APIClient.ts";
 import {
-    DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest,
+    ChangePasswordRequest, DeleteAccountRequest, LoginRequest, LoginResponse, PasswordResetRequest,
     RegisterRequest, ResetPasswordRequest, UpdateProfileRequest
 } from "../types/userController.ts";
 import { Permission, SetRolesRequest, UserAdminDTO } from "../types/roles.ts";
@@ -40,6 +40,13 @@ export default class UserController {
     static async updateProfile(req: UpdateProfileRequest): Promise<UserDTO> {
         const apis = await apiClient;
         const response: { body: UserDTO } = await apis.user.updateProfile.execute({}, { requestBody: req });
+        return response.body;
+    }
+
+    /** Logs the account out everywhere; the token in the answer keeps this device logged in. */
+    static async changePassword(req: ChangePasswordRequest): Promise<LoginResponse> {
+        const apis = await apiClient;
+        const response: { body: LoginResponse } = await apis.user.changePassword.execute({}, { requestBody: req });
         return response.body;
     }
 
