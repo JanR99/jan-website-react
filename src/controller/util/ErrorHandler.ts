@@ -31,3 +31,9 @@ export function handleApiError(error: unknown): string {
 
     return "Gerade nicht verfügbar. Bitte später erneut versuchen.";
 }
+
+/** true if the backend did not accept the login itself: the token is missing, expired or no longer valid */
+export function isUnauthenticated(error: unknown): boolean {
+    const err = error as { status?: number; response?: { status?: number } } | null | undefined;
+    return (err?.response?.status ?? err?.status) === 401;
+}

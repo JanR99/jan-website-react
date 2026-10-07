@@ -10,6 +10,8 @@ export interface RegisterRequest {
 export interface LoginRequest {
     email: string;
     password: string;
+    /** "Angemeldet bleiben": the login then lasts 30 days instead of 2 hours */
+    rememberMe?: boolean;
 }
 
 export interface LoginResponse {

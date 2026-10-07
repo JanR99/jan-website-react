@@ -14,6 +14,7 @@ export default function AuthDialog() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
     const [firstname, setFirstname] = useState("");
     const [lastname, setLastname] = useState("");
 
@@ -57,13 +58,14 @@ export default function AuthDialog() {
         setBusy(true);
         const result =
             mode === "login"
-                ? await login({ email, password })
+                ? await login({ email, password, rememberMe })
                 : await register({ email, password, firstname: firstname.trim(), lastname: lastname.trim() });
         setBusy(false);
 
         if (result.ok) {
             setEmail("");
             setPassword("");
+            setRememberMe(false);
             setFirstname("");
             setLastname("");
             closeAuthDialog();
@@ -164,9 +166,19 @@ export default function AuthDialog() {
                     )}
 
                     {isLogin && (
-                        <button type="button" className="auth-text-link auth-text-link--end" onClick={() => switchMode("forgot")}>
-                            Passwort vergessen?
-                        </button>
+                        <div className="auth-options">
+                            <label className="auth-remember">
+                                <input
+                                    type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                />
+                                Angemeldet bleiben
+                            </label>
+                            <button type="button" className="auth-text-link" onClick={() => switchMode("forgot")}>
+                                Passwort vergessen?
+                            </button>
+                        </div>
                     )}
 
                     {message && (

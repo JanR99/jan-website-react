@@ -211,9 +211,28 @@
     text-decoration: underline;
 }
 
-.auth-text-link--end {
-    align-self: flex-end;
-    margin-top: -6px;
+.auth-options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-top: -4px;
+}
+
+.auth-remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.auth-remember input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--color-accent);
 }
 
 @media (max-width: 640px) {

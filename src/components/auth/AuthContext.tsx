@@ -2,17 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
-import { handleApiError } from "../../controller/util/ErrorHandler.ts";
+import { handleApiError, isUnauthenticated } from "../../controller/util/ErrorHandler.ts";
 import { UserDTO } from "../../types/entities.ts";
-import { LoginRequest, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
+import { LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest } from "../../types/userController.ts";
 import { Permission } from "../../types/roles.ts";
+import { getTokenExpiry, loadSession, needsRenewal, saveSession, Session } from "./sessionStore.ts";
 
-const STORAGE_KEY = "jan-website-session";
-
-interface Session {
-    token: string;
-    user: UserDTO;
-}
+// setTimeout runs at once when its delay is longer than this (about 24.8 days)
+const MAX_TIMEOUT = 2 ** 31 - 1;
 
 export type LoginResult =
     | { ok: true }
@@ -38,46 +35,6 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-function getTokenExpiry(token: string): number | null {
-    try {
-        const payload = token.split(".")[1];
-        const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-        return typeof json.exp === "number" ? json.exp * 1000 : null;
-    } catch {
-        return null;
-    }
-}
-
-function isExpired(token: string): boolean {
-    const expiry = getTokenExpiry(token);
-    return expiry !== null && expiry <= Date.now();
-}
-
-// sessionStorage keeps the login across page reloads, but not across browser sessions.
-// Every access is wrapped in try/catch because storage can be unavailable (e.g. private mode).
-function loadSession(): Session | null {
-    try {
-        const raw = sessionStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        const session = JSON.parse(raw) as Session;
-        return isExpired(session.token) ? null : session;
-    } catch {
-        return null;
-    }
-}
-
-function saveSession(session: Session | null) {
-    try {
-        if (session) {
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-        } else {
-            sessionStorage.removeItem(STORAGE_KEY);
-        }
-    } catch {
-        // Storage unavailable: the session then only lives in memory
-    }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(() => {
         const restored = loadSession();
@@ -88,30 +45,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [permissions, setPermissions] = useState<Permission[] | null>(null);
     const token = session?.token ?? null;
 
+    const startSession = useCallback((response: LoginResponse) => {
+        apiClient.setToken(response.token);
+        const next: Session = { token: response.token, user: response.user };
+        saveSession(next);
+        setSession(next);
+    }, []);
+
+    const logout = useCallback(() => {
+        apiClient.clearToken();
+        saveSession(null);
+        setSession(null);
+    }, []);
+
     useEffect(() => {
         setPermissions(null);
         if (!token) return;
         let active = true;
         UserController.getPermissions()
             .then((result) => active && setPermissions(result))
-            .catch(() => active && setPermissions([]));
+            .catch((error) => {
+                if (!active) return;
+                if (isUnauthenticated(error)) {
+                    // the backend no longer accepts this login, e.g. after the password was reset on another device
+                    logout();
+                } else {
+                    setPermissions([]);
+                }
+            });
         return () => {
             active = false;
         };
-    }, [token]);
+    }, [token, logout]);
+
+    // A login with "Angemeldet bleiben" gets a fresh token on a visit, so its 30 days start again.
+    useEffect(() => {
+        if (!token || !needsRenewal(token)) return;
+        let active = true;
+        UserController.renewToken()
+            .then((response) => active && startSession(response))
+            .catch((error) => {
+                // anything else (e.g. being offline) can wait: the current token is valid until it expires
+                if (active && isUnauthenticated(error)) logout();
+            });
+        return () => {
+            active = false;
+        };
+    }, [token, startSession, logout]);
 
     const login = useCallback(async (request: LoginRequest): Promise<LoginResult> => {
         try {
-            const response = await UserController.login(request);
-            apiClient.setToken(response.token);
-            const next: Session = { token: response.token, user: response.user };
-            saveSession(next);
-            setSession(next);
+            startSession(await UserController.login(request));
             return { ok: true };
         } catch (error) {
             return { ok: false, error: handleApiError(error) };
         }
-    }, []);
+    }, [startSession]);
 
     const register = useCallback(async (request: RegisterRequest): Promise<LoginResult> => {
         try {
@@ -124,12 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // so log in right away with the same credentials.
         return login({ email: request.email, password: request.password });
     }, [login]);
-
-    const logout = useCallback(() => {
-        apiClient.clearToken();
-        saveSession(null);
-        setSession(null);
-    }, []);
 
     const updateProfile = useCallback(async (request: UpdateProfileRequest): Promise<LoginResult> => {
         try {
@@ -160,7 +143,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!session) return;
         const expiry = getTokenExpiry(session.token);
         if (expiry === null) return;
-        const timeout = window.setTimeout(logout, Math.max(0, expiry - Date.now()));
+        // 30 days are more than one setTimeout can wait, so a long login is checked again in between
+        let timeout = window.setTimeout(function check() {
+            const remaining = expiry - Date.now();
+            if (remaining <= 0) {
+                logout();
+            } else {
+                timeout = window.setTimeout(check, Math.min(remaining, MAX_TIMEOUT));
+            }
+        }, Math.max(0, Math.min(expiry - Date.now(), MAX_TIMEOUT)));
         return () => window.clearTimeout(timeout);
     }, [session, logout]);
 

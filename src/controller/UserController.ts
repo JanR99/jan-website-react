@@ -20,6 +20,13 @@ export default class UserController {
         return response.body;
     }
 
+    /** Only for a login with "Angemeldet bleiben": the new token is valid for another 30 days. */
+    static async renewToken() : Promise<LoginResponse> {
+        const apis = await apiClient;
+        const response: { body: LoginResponse } = await apis.user.renewToken.execute({});
+        return response.body;
+    }
+
     static async requestPasswordReset(req: PasswordResetRequest): Promise<void> {
         const apis = await apiClient;
         await apis.user.requestPasswordReset.execute({}, { requestBody: req });

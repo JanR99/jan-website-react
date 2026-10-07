@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { handleApiError } from './ErrorHandler';
+import { handleApiError, isUnauthenticated } from './ErrorHandler';
 
 const FALLBACK = 'Gerade nicht verfügbar. Bitte später erneut versuchen.';
 
@@ -46,5 +46,25 @@ describe('handleApiError', () => {
         expect(handleApiError({})).toBe(FALLBACK);
         expect(handleApiError(new Error('Failed to fetch'))).toBe(FALLBACK);
         expect(handleApiError('boom')).toBe(FALLBACK);
+    });
+});
+
+describe('isUnauthenticated', () => {
+    it('is true for a 401 answer', () => {
+        expect(isUnauthenticated({ response: { status: 401 } })).toBe(true);
+        expect(isUnauthenticated({ status: 401 })).toBe(true);
+    });
+
+    it('is false for other answers', () => {
+        expect(isUnauthenticated({ response: { status: 400 } })).toBe(false);
+        expect(isUnauthenticated({ response: { status: 403 } })).toBe(false);
+        expect(isUnauthenticated({ response: { status: 500 } })).toBe(false);
+    });
+
+    it('is false for errors without an answer, e.g. when offline', () => {
+        expect(isUnauthenticated(new Error('Failed to fetch'))).toBe(false);
+        expect(isUnauthenticated({})).toBe(false);
+        expect(isUnauthenticated(undefined)).toBe(false);
+        expect(isUnauthenticated('boom')).toBe(false);
     });
 });
