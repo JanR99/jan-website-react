@@ -49,7 +49,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void returnsAllFoldersSortedByNameWithTheirPhotos() throws Exception {
-            storedFolder("Prag", "Tschechien");
+            inDatastore(() -> travelRepository.createFolder(request("Prag", "Tschechien", 50.0755, 14.4378)));
             TravelFolderDTO andorra = storedFolder("Andorra", "");
             Long first = storedPhoto(andorra.getId());
             Long second = storedPhoto(andorra.getId());
@@ -64,7 +64,12 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[0].photoIds[0]").value(first))
                     .andExpect(jsonPath("$[0].photoIds[1]").value(second))
                     .andExpect(jsonPath("$[0].coverPhotoId").value(first))
+                    // no place on the map
+                    .andExpect(jsonPath("$[0].latitude", nullValue()))
+                    .andExpect(jsonPath("$[0].longitude", nullValue()))
                     .andExpect(jsonPath("$[1].country").value("Tschechien"))
+                    .andExpect(jsonPath("$[1].latitude").value(50.0755))
+                    .andExpect(jsonPath("$[1].longitude").value(14.4378))
                     .andExpect(jsonPath("$[1].photoIds", hasSize(0)))
                     .andExpect(jsonPath("$[1].coverPhotoId", nullValue()));
         }
@@ -105,11 +110,81 @@ class TravelControllerTest extends ControllerTest {
                     // name and country are cleaned up
                     .andExpect(jsonPath("$.name").value("Porto 2024"))
                     .andExpect(jsonPath("$.country").value("Portugal"))
+                    .andExpect(jsonPath("$.latitude", nullValue()))
+                    .andExpect(jsonPath("$.longitude", nullValue()))
                     .andExpect(jsonPath("$.photoIds", hasSize(0)))
                     .andExpect(jsonPath("$.coverPhotoId", nullValue()));
 
             mockMvc.perform(get("/api/travel/folders/list"))
                     .andExpect(jsonPath("$[*].name", contains("Porto 2024")));
+        }
+
+        @Test
+        void withPosition_storesThePlaceOnTheMap() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "Portugal", 41.1496, -8.611))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.latitude").value(41.1496))
+                    .andExpect(jsonPath("$.longitude").value(-8.611));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$[0].longitude").value(-8.611));
+        }
+
+        @Test
+        void withPositionAtTheLimits_isAllowed() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Antarktis", "", -90.0, 180.0))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.latitude").value(-90.0))
+                    .andExpect(jsonPath("$.longitude").value(180.0));
+        }
+
+        @Test
+        void withOnlyLatitude_returns400AndStoresNothing() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "", 41.1496, null))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Latitude and longitude must be given together"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void withOnlyLongitude_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "", null, -8.611))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Latitude and longitude must be given together"));
+        }
+
+        @Test
+        void withLatitudeOutOfRange_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "", 90.5, -8.611))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Latitude must be between -90 and 90"));
+        }
+
+        @Test
+        void withLongitudeOutOfRange_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "", 41.1496, -180.5))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Longitude must be between -180 and 180"));
         }
 
         @Test
@@ -200,6 +275,52 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.photoIds[0]").value(photo));
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[*].name", contains("Lissabon")));
+        }
+
+        @Test
+        void withPosition_setsThePlaceOnTheMap() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "Portugal");
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "Portugal", 41.1496, -8.611))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.latitude").value(41.1496))
+                    .andExpect(jsonPath("$.longitude").value(-8.611));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$[0].longitude").value(-8.611));
+        }
+
+        @Test
+        void withoutPosition_takesTheFolderOffTheMap() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(request("Porto", "Portugal", 41.1496, -8.611)));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Porto", "Portugal"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.latitude", nullValue()))
+                    .andExpect(jsonPath("$.longitude", nullValue()));
+        }
+
+        @Test
+        void withPositionOutOfRange_returns400AndKeepsThePosition() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(request("Porto", "Portugal", 41.1496, -8.611)));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Lissabon", "Portugal", -91.0, -8.611))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Latitude must be between -90 and 90"));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].name").value("Porto"))
+                    .andExpect(jsonPath("$[0].latitude").value(41.1496));
         }
 
         @Test
@@ -572,10 +693,17 @@ class TravelControllerTest extends ControllerTest {
         }
     }
 
+    /** A folder without a place on the map. */
     private static TravelFolderRequest request(String name, String country) {
+        return request(name, country, null, null);
+    }
+
+    private static TravelFolderRequest request(String name, String country, Double latitude, Double longitude) {
         TravelFolderRequest request = new TravelFolderRequest();
         request.setName(name);
         request.setCountry(country);
+        request.setLatitude(latitude);
+        request.setLongitude(longitude);
         return request;
     }
 

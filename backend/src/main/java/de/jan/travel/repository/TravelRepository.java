@@ -95,7 +95,7 @@ public class TravelRepository {
         return toDTO(saved, List.of());
     }
 
-    /** Changes name and country. */
+    /** Changes name, country and the place on the map. */
     public TravelFolderDTO updateFolder(Long id, TravelFolderRequest request) {
         TravelFolder folder = loadFolder(id);
         apply(folder, request);
@@ -222,8 +222,19 @@ public class TravelRepository {
         String country = collapse(request.getCountry());
         requireMaxLength(country, "Country");
 
+        Double latitude = request.getLatitude();
+        Double longitude = request.getLongitude();
+        if ((latitude == null) != (longitude == null)) {
+            throw new EntityStateException("Latitude and longitude must be given together");
+        }
+        if (latitude != null) {
+            requireRange(latitude, 90, "Latitude");
+            requireRange(longitude, 180, "Longitude");
+        }
+
         folder.setName(name);
         folder.setCountry(country);
+        folder.setPosition(latitude, longitude);
     }
 
     /** Best effort: removes a photo whose file could not be stored. */
@@ -242,6 +253,13 @@ public class TravelRepository {
 
     private static String collapse(String value) {
         return value == null ? "" : WHITESPACE.matcher(value.trim()).replaceAll(" ");
+    }
+
+    /** NaN and infinite values are out of range as well. */
+    private static void requireRange(double value, int limit, String label) {
+        if (!(Math.abs(value) <= limit)) {
+            throw new EntityStateException(label + " must be between -" + limit + " and " + limit);
+        }
     }
 
     private static void requireMaxLength(String value, String label) {

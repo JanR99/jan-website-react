@@ -21,6 +21,10 @@ public class TravelFolder implements DatastoreEntity {
     /** id of the TravelPhoto shown on the folder; null means the first photo */
     private Long coverPhotoId;
 
+    /** where the trip is shown on the map; both null if the folder has no place on it */
+    private Double latitude;
+    private Double longitude;
+
     private Date createdAt;
 
     public TravelFolder() {
@@ -37,6 +41,15 @@ public class TravelFolder implements DatastoreEntity {
 
     public Long getCoverPhotoId() { return coverPhotoId; }
     public void setCoverPhotoId(Long coverPhotoId) { this.coverPhotoId = coverPhotoId; }
+
+    public Double getLatitude() { return latitude; }
+    public Double getLongitude() { return longitude; }
+
+    /** Both values or, to take the folder off the map, both null. */
+    public void setPosition(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
