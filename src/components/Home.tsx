@@ -1,17 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TravelController from '../controller/TravelController';
 import { useRecipes } from '../hooks/useRecipes';
 import { useTravelFolders } from '../hooks/useTravelFolders';
-import { recipePath, recipeImage } from '../utils/recipe';
+import { randomRecipe, recipePath, recipeImage } from '../utils/recipe';
 import { TRAVEL_BASE } from '../utils/travel';
 import TravelFolderCard from './travel/TravelFolderCard';
-import { ArrowRight, BookOpen, Plane } from "lucide-react";
+import { ArrowRight, BookOpen, Dices, Plane } from "lucide-react";
 import '../styles/Home.css';
 
 const TEASER_TITLES = ['Char Koay Teow', 'Baozi 包子', 'Falafel Wrap', 'Abura Soba'];
 /** The home page only shows a few trips, the travel diary has all of them. */
 const TEASER_FOLDERS = 4;
+/** last random recipe, so it does not suggest the same recipe twice in a row. */
+let lastSurpriseId: number | undefined;
 
 const Home: React.FC = () => {
     const { recipes } = useRecipes();
@@ -22,6 +24,14 @@ const Home: React.FC = () => {
 
     const { folders } = useTravelFolders();
     const covers = folders.flatMap(folder => (folder.coverPhotoId !== null ? [folder.coverPhotoId] : []));
+
+    const navigate = useNavigate();
+    const openRandomRecipe = () => {
+        const recipe = randomRecipe(recipes, lastSurpriseId);
+        if (!recipe) return;
+        lastSurpriseId = recipe.id;
+        navigate(recipePath(recipe), { state: { recipe } });
+    };
 
     return (
         <div className="container">
@@ -76,7 +86,9 @@ const Home: React.FC = () => {
 
             {/* Kochbuch-Teaser */}
             <section className="section">
-                <Link to="/cookbook" className="cookbook-teaser card">
+                <div className="cookbook-teaser card">
+                    {/* makes the whole card lead to the cookbook; the buttons below lie on top of it */}
+                    <Link to="/cookbook" className="cookbook-teaser-cover" aria-hidden="true" tabIndex={-1} />
                     <div className="cookbook-teaser-text">
                         <span className="eyebrow">Kochbuch</span>
                         <h2>Was koche ich heute?</h2>
@@ -85,16 +97,27 @@ const Home: React.FC = () => {
                                 ? `${recipes.length} Rezepte aus ${cuisineCount} Küchen – filterbar nach Zutaten, Küche und Ernährung.`
                                 : 'Meine Rezeptsammlung – filterbar nach Zutaten, Küche und Ernährung.'}
                         </p>
-                        <span className="btn">
-                            Rezepte entdecken <ArrowRight size={18} />
-                        </span>
+                        <div className="cookbook-teaser-actions">
+                            <Link to="/cookbook" className="btn">
+                                Rezepte entdecken <ArrowRight size={18} />
+                            </Link>
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={openRandomRecipe}
+                                disabled={recipes.length === 0}
+                            >
+                                <Dices size={18} />
+                                Überrasch mich
+                            </button>
+                        </div>
                     </div>
                     <div className="cookbook-teaser-images" aria-hidden="true">
                         {teaser.map(recipe => (
                             <img key={recipe.id} src={recipeImage(recipe)} alt="" loading="lazy" />
                         ))}
                     </div>
-                </Link>
+                </div>
                 {teaser.length > 0 && (
                     <p className="cookbook-teaser-links muted">
                         Zum Beispiel:{' '}

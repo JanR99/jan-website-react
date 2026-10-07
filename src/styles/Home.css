@@ -63,6 +63,9 @@
 /* ---------- Kochbuch-Teaser ---------- */
 
 .cookbook-teaser {
+    position: relative;
+    /* keeps the z-index values below inside the card */
+    isolation: isolate;
     display: grid;
     grid-template-columns: 1fr minmax(0, 420px);
     align-items: center;
@@ -70,8 +73,6 @@
     padding: clamp(24px, 4vw, 44px);
     overflow: hidden;
     background: linear-gradient(135deg, var(--color-accent-soft), var(--color-surface) 70%);
-    text-decoration: none;
-    color: inherit;
     transition: box-shadow var(--transition), border-color var(--transition);
 }
 
@@ -85,7 +86,21 @@
     font-size: clamp(1.7rem, 3.5vw, 2.4rem);
 }
 
-.cookbook-teaser .btn {
+/* An empty link over the whole card, so a click anywhere on it opens the cookbook.
+   The z-index puts it above the pictures, which are raised by their transform. */
+.cookbook-teaser-cover {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* The buttons lie on top of that link and stay clickable on their own */
+.cookbook-teaser-actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     margin-top: 22px;
 }
 

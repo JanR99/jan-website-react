@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Recipe } from '../types/Recipe';
-import { capitalize, isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from './recipe';
+import { capitalize, isVegan, isVegetarian, randomRecipe, recipeImage, recipePath, recipeSlug } from './recipe';
 
 const recipe = (overrides: Partial<Recipe> = {}): Recipe => ({
     id: 1,
@@ -79,5 +79,48 @@ describe('isVegan / isVegetarian', () => {
     it('treats a recipe without tags as neither', () => {
         expect(isVegan(recipe())).toBe(false);
         expect(isVegetarian(recipe())).toBe(false);
+    });
+});
+
+describe('randomRecipe', () => {
+    const recipes = [recipe({ id: 1 }), recipe({ id: 2 }), recipe({ id: 3 })];
+
+    it('picks by the random number: the first for 0, the last for just under 1', () => {
+        expect(randomRecipe(recipes, undefined, () => 0)?.id).toBe(1);
+        expect(randomRecipe(recipes, undefined, () => 0.5)?.id).toBe(2);
+        expect(randomRecipe(recipes, undefined, () => 0.999999)?.id).toBe(3);
+    });
+
+    it('leaves out the excluded recipe', () => {
+        expect(randomRecipe(recipes, 1, () => 0)?.id).toBe(2);
+        expect(randomRecipe(recipes, 2, () => 0.5)?.id).toBe(3);
+        expect(randomRecipe(recipes, 3, () => 0.999999)?.id).toBe(2);
+    });
+
+    it('never returns the excluded recipe, whatever the random number', () => {
+        for (let i = 0; i < 200; i++) {
+            expect(randomRecipe(recipes, 2)?.id).not.toBe(2);
+        }
+    });
+
+    it('reaches every recipe', () => {
+        const picked = new Set<number>();
+        for (let step = 0; step < 30; step++) {
+            picked.add(randomRecipe(recipes, undefined, () => step / 30)!.id);
+        }
+        expect([...picked].sort()).toEqual([1, 2, 3]);
+    });
+
+    it('returns the only recipe even if it is the excluded one', () => {
+        expect(randomRecipe([recipe({ id: 7 })], 7)?.id).toBe(7);
+    });
+
+    it('ignores an excluded id that is not in the list', () => {
+        expect(randomRecipe(recipes, 99, () => 0.999999)?.id).toBe(3);
+    });
+
+    it('returns undefined when there are no recipes', () => {
+        expect(randomRecipe([])).toBeUndefined();
+        expect(randomRecipe([], 1)).toBeUndefined();
     });
 });
