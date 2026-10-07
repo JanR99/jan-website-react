@@ -1,6 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelPhotoCaptionRequest;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolderDTO;
@@ -60,9 +61,11 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[0].id").value(andorra.getId()))
                     .andExpect(jsonPath("$[0].country").value(""))
                     // in the order they were added; the first one is the cover
-                    .andExpect(jsonPath("$[0].photoIds", hasSize(2)))
-                    .andExpect(jsonPath("$[0].photoIds[0]").value(first))
-                    .andExpect(jsonPath("$[0].photoIds[1]").value(second))
+                    .andExpect(jsonPath("$[0].photos", hasSize(2)))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(first))
+                    .andExpect(jsonPath("$[0].photos[1].id").value(second))
+                    // a new photo has no caption
+                    .andExpect(jsonPath("$[0].photos[0].caption").value(""))
                     .andExpect(jsonPath("$[0].coverPhotoId").value(first))
                     // no place on the map
                     .andExpect(jsonPath("$[0].latitude", nullValue()))
@@ -70,7 +73,7 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[1].country").value("Tschechien"))
                     .andExpect(jsonPath("$[1].latitude").value(50.0755))
                     .andExpect(jsonPath("$[1].longitude").value(14.4378))
-                    .andExpect(jsonPath("$[1].photoIds", hasSize(0)))
+                    .andExpect(jsonPath("$[1].photos", hasSize(0)))
                     .andExpect(jsonPath("$[1].coverPhotoId", nullValue()));
         }
     }
@@ -112,7 +115,7 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.country").value("Portugal"))
                     .andExpect(jsonPath("$.latitude", nullValue()))
                     .andExpect(jsonPath("$.longitude", nullValue()))
-                    .andExpect(jsonPath("$.photoIds", hasSize(0)))
+                    .andExpect(jsonPath("$.photos", hasSize(0)))
                     .andExpect(jsonPath("$.coverPhotoId", nullValue()));
 
             mockMvc.perform(get("/api/travel/folders/list"))
@@ -271,8 +274,8 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.id").value(folder.getId()))
                     .andExpect(jsonPath("$.name").value("Lissabon"))
                     .andExpect(jsonPath("$.country").value(""))
-                    .andExpect(jsonPath("$.photoIds", hasSize(1)))
-                    .andExpect(jsonPath("$.photoIds[0]").value(photo));
+                    .andExpect(jsonPath("$.photos", hasSize(1)))
+                    .andExpect(jsonPath("$.photos[0].id").value(photo));
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[*].name", contains("Lissabon")));
         }
@@ -396,9 +399,9 @@ class TravelControllerTest extends ControllerTest {
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.coverPhotoId").value(second))
-                    .andExpect(jsonPath("$.photoIds", hasSize(2)))
-                    .andExpect(jsonPath("$.photoIds[0]").value(first))
-                    .andExpect(jsonPath("$.photoIds[1]").value(second));
+                    .andExpect(jsonPath("$.photos", hasSize(2)))
+                    .andExpect(jsonPath("$.photos[0].id").value(first))
+                    .andExpect(jsonPath("$.photos[1].id").value(second));
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].coverPhotoId").value(second));
         }
@@ -506,7 +509,7 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
 
-            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photoIds", hasSize(0)));
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos", hasSize(0)));
         }
 
         @Test
@@ -518,11 +521,11 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(folder.getId()))
-                    .andExpect(jsonPath("$.photoIds", hasSize(2)))
-                    .andExpect(jsonPath("$.photoIds[0]").value(first))
+                    .andExpect(jsonPath("$.photos", hasSize(2)))
+                    .andExpect(jsonPath("$.photos[0].id").value(first))
                     .andExpect(jsonPath("$.coverPhotoId").value(first));
 
-            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photoIds", hasSize(2)));
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos", hasSize(2)));
         }
 
         @Test
@@ -559,7 +562,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(upload(folder.getId(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest());
 
-            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photoIds", hasSize(0)));
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos", hasSize(0)));
         }
 
         @Test
@@ -577,6 +580,127 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(upload(999L, JPEG, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNotFound())
                     .andExpect(content().string("Folder 999 not found"));
+        }
+    }
+
+    @Nested
+    class SetTravelPhotoCaption {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("Blick auf den Douro"))))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutPermission_returns403AndKeepsTheCaption() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("Etwas anderes"))))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(MISSING_PERMISSION));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[0].caption").value("Blick auf den Douro"));
+        }
+
+        @Test
+        void withPermission_returnsTheFolderWithTheCaption() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", second.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("  Blick   auf den Douro "))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.photos", hasSize(2)))
+                    .andExpect(jsonPath("$.photos[0].id").value(first))
+                    .andExpect(jsonPath("$.photos[0].caption").value(""))
+                    .andExpect(jsonPath("$.photos[1].id").value(second))
+                    // the caption is cleaned up
+                    .andExpect(jsonPath("$.photos[1].caption").value("Blick auf den Douro"));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[1].caption").value("Blick auf den Douro"));
+        }
+
+        @Test
+        void withEmptyCaption_removesIt() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("  "))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.photos[0].caption").value(""));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos[0].caption").value(""));
+        }
+
+        @Test
+        void withoutCaption_removesIt() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest(null))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.photos[0].caption").value(""));
+        }
+
+        @Test
+        void withLongestCaption_isAllowed() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            String caption = "x".repeat(TravelRepository.CAPTION_MAX_LENGTH);
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest(caption))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.photos[0].caption").value(caption));
+        }
+
+        @Test
+        void withTooLongCaption_returns400AndKeepsTheCaption() throws Exception {
+            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
+
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("x".repeat(TravelRepository.CAPTION_MAX_LENGTH + 1)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Caption must be at most 200 characters long"));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[0].caption").value("Blick auf den Douro"));
+        }
+
+        @Test
+        void withUnknownId_returns404() throws Exception {
+            mockMvc.perform(post("/api/travel/photos/setCaption").param("id", "999")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(captionRequest("Blick auf den Douro"))))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Photo 999 not found"));
         }
     }
 
@@ -616,8 +740,8 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(content().string(""));
 
             mockMvc.perform(get("/api/travel/folders/list"))
-                    .andExpect(jsonPath("$[0].photoIds", hasSize(1)))
-                    .andExpect(jsonPath("$[0].photoIds[0]").value(second))
+                    .andExpect(jsonPath("$[0].photos", hasSize(1)))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(second))
                     .andExpect(jsonPath("$[0].coverPhotoId").value(second));
             mockMvc.perform(get("/api/travel/photos/" + first)).andExpect(status().isNotFound());
         }
@@ -707,6 +831,12 @@ class TravelControllerTest extends ControllerTest {
         return request;
     }
 
+    private static TravelPhotoCaptionRequest captionRequest(String caption) {
+        TravelPhotoCaptionRequest request = new TravelPhotoCaptionRequest();
+        request.setCaption(caption);
+        return request;
+    }
+
     private TravelFolderDTO storedFolder(String name, String country) {
         return inDatastore(() -> travelRepository.createFolder(request(name, country)));
     }
@@ -717,7 +847,7 @@ class TravelControllerTest extends ControllerTest {
     }
 
     private static Long lastPhoto(TravelFolderDTO folder) {
-        return folder.getPhotoIds().get(folder.getPhotoIds().size() - 1);
+        return folder.getPhotos().get(folder.getPhotos().size() - 1).getId();
     }
 
     /** @param authorization value of the Authorization header, null to send the request without login */

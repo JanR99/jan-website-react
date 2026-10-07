@@ -1,15 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { TravelFolder } from "../types/Travel";
+import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
+    cleanCaption,
     folderCountry,
     folderPosition,
     parsePlaces,
     photoCountLabel,
+    photoDescription,
     roundPosition,
     sortFolders,
     travelFolderPath,
     withoutPhoto,
 } from "./travel";
+
+function photos(...ids: number[]): TravelPhoto[] {
+    return ids.map((id) => ({ id, caption: "" }));
+}
 
 function folder(overrides: Partial<TravelFolder> = {}): TravelFolder {
     return {
@@ -19,7 +25,7 @@ function folder(overrides: Partial<TravelFolder> = {}): TravelFolder {
         coverPhotoId: 10,
         latitude: 41.1496,
         longitude: -8.611,
-        photoIds: [10, 11, 12],
+        photos: photos(10, 11, 12),
         ...overrides,
     };
 }
@@ -45,15 +51,15 @@ describe("sortFolders", () => {
 
 describe("withoutPhoto", () => {
     it("removes the photo and keeps the cover", () => {
-        expect(withoutPhoto(folder(), 11)).toMatchObject({ photoIds: [10, 12], coverPhotoId: 10 });
+        expect(withoutPhoto(folder(), 11)).toMatchObject({ photos: photos(10, 12), coverPhotoId: 10 });
     });
 
     it("makes the first remaining photo the cover if the cover was removed", () => {
-        expect(withoutPhoto(folder(), 10)).toMatchObject({ photoIds: [11, 12], coverPhotoId: 11 });
+        expect(withoutPhoto(folder(), 10)).toMatchObject({ photos: photos(11, 12), coverPhotoId: 11 });
     });
 
     it("has no cover once the last photo is gone", () => {
-        expect(withoutPhoto(folder({ photoIds: [10] }), 10)).toMatchObject({ photoIds: [], coverPhotoId: null });
+        expect(withoutPhoto(folder({ photos: photos(10) }), 10)).toMatchObject({ photos: [], coverPhotoId: null });
     });
 
     it("changes nothing for a photo of another folder", () => {
@@ -136,5 +142,26 @@ describe("parsePlaces", () => {
     it("is empty if the answer is no list", () => {
         expect(parsePlaces({ error: "Unable to geocode" })).toEqual([]);
         expect(parsePlaces(null)).toEqual([]);
+    });
+});
+
+describe("photoDescription", () => {
+    it("is the caption of the photo", () => {
+        expect(photoDescription("Porto", { caption: " Blick auf den Douro " }, 0)).toBe("Blick auf den Douro");
+    });
+
+    it("is the folder and the number of the photo if there is no caption", () => {
+        expect(photoDescription("Porto", { caption: "" }, 2)).toBe("Porto 3");
+        expect(photoDescription("Porto", { caption: "  " }, 0)).toBe("Porto 1");
+    });
+});
+
+describe("cleanCaption", () => {
+    it("removes the spaces around it and repeated ones inside", () => {
+        expect(cleanCaption("  Blick   auf den\tDouro \n")).toBe("Blick auf den Douro");
+    });
+
+    it("is empty if there are only spaces", () => {
+        expect(cleanCaption("   ")).toBe("");
     });
 });

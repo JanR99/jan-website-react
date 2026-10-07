@@ -22,7 +22,7 @@ export default function TravelFolderCard({ folder }: { folder: TravelFolder }) {
                 {country && <span className="destination-card-country">{country}</span>}
                 <h3>{folder.name}</h3>
                 <span className="destination-card-cta">
-                    {photoCountLabel(folder.photoIds.length)} <ArrowRight size={16} />
+                    {photoCountLabel(folder.photos.length)} <ArrowRight size={16} />
                 </span>
             </div>
         </Link>

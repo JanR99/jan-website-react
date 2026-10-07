@@ -9,7 +9,14 @@ export interface PlaceSearchResult extends TravelPosition {
     label: string;
 }
 
-/** A folder of the travel diary (one per trip) with the ids of its photos in the order they are shown. */
+/** A photo of a folder; the image itself is loaded by the id. */
+export interface TravelPhoto {
+    id: number;
+    /** shown below the photo in the large view; empty if the photo has none */
+    caption: string;
+}
+
+/** A folder of the travel diary (one per trip) with its photos in the order they are shown. */
 export interface TravelFolder {
     id: number;
     name: string;
@@ -20,7 +27,7 @@ export interface TravelFolder {
     /** where the trip is shown on the map; both null if the folder has no place on it */
     latitude: number | null;
     longitude: number | null;
-    photoIds: number[];
+    photos: TravelPhoto[];
 }
 
 export interface TravelFolderRequest {

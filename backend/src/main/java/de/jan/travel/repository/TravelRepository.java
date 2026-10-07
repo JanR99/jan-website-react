@@ -42,6 +42,7 @@ public class TravelRepository {
     public static final long MAX_PHOTO_BYTES = 500L * 1024;
 
     private static final int NAME_MAX_LENGTH = 80;
+    public static final int CAPTION_MAX_LENGTH = 200;
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final Comparator<TravelPhoto> PHOTO_ORDER = Comparator
             .comparing(TravelPhoto::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
@@ -165,11 +166,19 @@ public class TravelRepository {
         return getFolder(folderId);
     }
 
+    /** Sets the text shown below a photo; an empty one removes it. Returns the folder of the photo. */
+    public TravelFolderDTO setCaption(Long photoId, String caption) {
+        TravelPhoto photo = loadPhoto(photoId);
+        String text = collapse(caption);
+        requireMaxLength(text, CAPTION_MAX_LENGTH, "Caption");
+        photo.setCaption(text);
+        photoDAO.save(photo);
+        invalidateCache();
+        return getFolder(photo.getFolderId());
+    }
+
     public void deletePhoto(Long id) {
-        TravelPhoto photo = id == null ? null : photoDAO.getById(id);
-        if (photo == null) {
-            throw new EntityNotFoundException("Photo " + id + " not found");
-        }
+        TravelPhoto photo = loadPhoto(id);
         fileDAO.delete(id);
         photoDAO.delete(photo);
 
@@ -203,8 +212,16 @@ public class TravelRepository {
         return folder;
     }
 
+    private TravelPhoto loadPhoto(Long id) {
+        TravelPhoto photo = id == null ? null : photoDAO.getById(id);
+        if (photo == null) {
+            throw new EntityNotFoundException("Photo " + id + " not found");
+        }
+        return photo;
+    }
+
     private static TravelFolderDTO toDTO(TravelFolder folder, Collection<TravelPhoto> photos) {
-        return TravelFolderDTO.from(folder, photos.stream().sorted(PHOTO_ORDER).map(TravelPhoto::getId).toList());
+        return TravelFolderDTO.from(folder, photos.stream().sorted(PHOTO_ORDER).toList());
     }
 
     private void apply(TravelFolder folder, TravelFolderRequest request) {
@@ -212,7 +229,7 @@ public class TravelRepository {
         if (name.isEmpty()) {
             throw new EntityStateException("Name must not be empty");
         }
-        requireMaxLength(name, "Name");
+        requireMaxLength(name, NAME_MAX_LENGTH, "Name");
         boolean taken = folderDAO.getAll().stream()
                 .anyMatch(other -> !Objects.equals(other.getId(), folder.getId()) && other.getName().equalsIgnoreCase(name));
         if (taken) {
@@ -220,7 +237,7 @@ public class TravelRepository {
         }
 
         String country = collapse(request.getCountry());
-        requireMaxLength(country, "Country");
+        requireMaxLength(country, NAME_MAX_LENGTH, "Country");
 
         Double latitude = request.getLatitude();
         Double longitude = request.getLongitude();
@@ -262,9 +279,9 @@ public class TravelRepository {
         }
     }
 
-    private static void requireMaxLength(String value, String label) {
-        if (value.length() > NAME_MAX_LENGTH) {
-            throw new EntityStateException(label + " must be at most " + NAME_MAX_LENGTH + " characters long");
+    private static void requireMaxLength(String value, int maxLength, String label) {
+        if (value.length() > maxLength) {
+            throw new EntityStateException(label + " must be at most " + maxLength + " characters long");
         }
     }
 }

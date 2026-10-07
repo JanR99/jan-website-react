@@ -6,7 +6,7 @@ import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
 import { dropTravelFolder, dropTravelPhoto, storeTravelFolder, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
-import { folderCountry, photoCountLabel, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
+import { folderCountry, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
 import TravelLightbox from "./travel/TravelLightbox";
@@ -27,7 +27,7 @@ export default function TravelFolderPage() {
     const navigate = useNavigate();
 
     const folder = folders.find((f) => String(f.id) === folderId);
-    const count = folder?.photoIds.length ?? 0;
+    const count = folder?.photos.length ?? 0;
 
     const [lightbox, setLightbox] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);
@@ -98,7 +98,8 @@ export default function TravelFolderPage() {
                 </div>
             ) : (
                 <div className="gallery">
-                    {folder.photoIds.map((photoId, i) => {
+                    {folder.photos.map((photo, i) => {
+                        const photoId = photo.id;
                         const isCover = folder.coverPhotoId === photoId;
                         return (
                             <div key={photoId} className="gallery-item">
@@ -110,7 +111,7 @@ export default function TravelFolderPage() {
                                 >
                                     <img
                                         src={TravelController.photoUrl(photoId)}
-                                        alt={`${folder.name} ${i + 1}`}
+                                        alt={photoDescription(folder.name, photo, i)}
                                         loading={i < 2 ? "eager" : "lazy"}
                                     />
                                 </button>
@@ -170,7 +171,8 @@ export default function TravelFolderPage() {
             {shown !== null && (
                 <TravelLightbox
                     name={folder.name}
-                    photoIds={folder.photoIds}
+                    photos={folder.photos}
+                    canManage={canManage}
                     index={shown}
                     onIndexChange={setLightbox}
                     onClose={() => setLightbox(null)}
@@ -241,7 +243,7 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
             <h2 id="delete-travel-title">{isFolder ? "Ordner löschen?" : "Foto löschen?"}</h2>
             <p className="muted">
                 {isFolder
-                    ? `„${folder.name}“ wird dauerhaft gelöscht${folder.photoIds.length > 0 ? ` – zusammen mit ${photoCountLabel(folder.photoIds.length)}` : ""}.`
+                    ? `„${folder.name}“ wird dauerhaft gelöscht${folder.photos.length > 0 ? ` – zusammen mit ${photoCountLabel(folder.photos.length)}` : ""}.`
                     : `Foto ${target?.kind === "photo" ? target.number : ""} aus „${folder.name}“ wird dauerhaft gelöscht.`}
             </p>
             {target?.kind === "photo" && (

@@ -1,4 +1,4 @@
-import { PlaceSearchResult, TravelFolder, TravelPosition } from "../types/Travel";
+import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition } from "../types/Travel";
 
 export const TRAVEL_BASE = "/reisen";
 
@@ -11,9 +11,21 @@ export function sortFolders(folders: TravelFolder[]): TravelFolder[] {
 
 /** The folder after one of its photos was deleted; if that was the cover, the first photo takes over. */
 export function withoutPhoto(folder: TravelFolder, photoId: number): TravelFolder {
-    const photoIds = folder.photoIds.filter((id) => id !== photoId);
-    const coverPhotoId = folder.coverPhotoId === photoId ? photoIds[0] ?? null : folder.coverPhotoId;
-    return { ...folder, photoIds, coverPhotoId };
+    const photos = folder.photos.filter((photo) => photo.id !== photoId);
+    const coverPhotoId = folder.coverPhotoId === photoId ? photos[0]?.id ?? null : folder.coverPhotoId;
+    return { ...folder, photos, coverPhotoId };
+}
+
+/** What a photo shows, for screen readers: its caption, otherwise the folder and its place in it. */
+export function photoDescription(folderName: string, photo: Pick<TravelPhoto, "caption">, index: number): string {
+    return photo.caption.trim() || `${folderName} ${index + 1}`;
+}
+
+export const CAPTION_MAX_LENGTH = 200;
+
+/** A caption the way the backend stores it: without spaces around it and with single spaces inside. */
+export function cleanCaption(caption: string): string {
+    return caption.trim().replace(/\s+/g, " ");
 }
 
 /** The country is only shown if it says more than the name (not for "Andorra" in "Andorra"). */

@@ -144,19 +144,120 @@
     position: fixed;
     inset: 0;
     z-index: 3000;
-    display: grid;
-    place-items: center;
-    padding: 56px 72px;
+    display: flex;
+    flex-direction: column;
     background: rgba(10, 8, 6, 0.94);
     animation: fade-in 150ms ease;
 }
 
-.lightbox img {
+/* die Fläche, über die gewischt wird */
+.lightbox-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    /* seitliche Bewegungen sind das Wischen; hoch/runter und Zoomen bleiben beim Browser */
+    touch-action: pan-y pinch-zoom;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* hineingezoomt gehört auch die seitliche Bewegung dem Browser */
+.lightbox-stage.is-zoomed {
+    touch-action: auto;
+}
+
+.lightbox-track {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+}
+
+.lightbox-track.is-sliding {
+    transition: transform 280ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.lightbox-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 56px 72px 10px;
+}
+
+.lightbox-slide img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     border-radius: var(--radius-sm);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    -webkit-user-drag: none;
+}
+
+.lightbox-footer {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 52px;
+    padding: 8px 72px 16px;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+}
+
+.lightbox-caption {
+    max-width: 70ch;
+    margin: 0;
+    color: #fff;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.lightbox-counter {
+    font-size: 0.9rem;
+}
+
+/* Unterschrift bearbeiten, nur für Admins */
+.lightbox-caption-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: min(100%, 560px);
+}
+
+.lightbox-caption-field .input {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    text-align: center;
+}
+
+.lightbox-caption-field .input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.lightbox-caption-field .input:focus {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 3px rgba(234, 122, 11, 0.35);
+}
+
+.lightbox-caption-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 1.2em;
+    font-size: 0.8rem;
+}
+
+.lightbox-error {
+    max-width: 70ch;
+    margin: 0;
+    color: #ffb4ab;
+    font-size: 0.85rem;
 }
 
 .lightbox-btn {
@@ -194,13 +295,10 @@
     transform: translateY(-50%);
 }
 
-.lightbox-counter {
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.9rem;
+@media (prefers-reduced-motion: reduce) {
+    .lightbox-track.is-sliding {
+        transition: none;
+    }
 }
 
 @media (max-width: 640px) {
@@ -219,8 +317,14 @@
         grid-column: span 2;
     }
 
-    .lightbox {
-        padding: 64px 8px;
+    .lightbox-slide {
+        padding: 64px 8px 8px;
+    }
+
+    /* links und rechts sitzen die Pfeile */
+    .lightbox-footer {
+        min-height: 64px;
+        padding: 8px 64px 12px;
     }
 
     .lightbox-prev,

@@ -23,6 +23,9 @@ public class TravelPhoto implements DatastoreEntity {
     /** photos are shown in the order they were added */
     private Date createdAt;
 
+    /** shown below the photo in the large view; empty if the photo has none */
+    private String caption;
+
     public TravelPhoto() {
 
     }
@@ -35,4 +38,7 @@ public class TravelPhoto implements DatastoreEntity {
     public Long getId() { return id; }
     public Long getFolderId() { return folderId; }
     public Date getCreatedAt() { return createdAt; }
+
+    public String getCaption() { return caption == null ? "" : caption; }
+    public void setCaption(String caption) { this.caption = caption; }
 }

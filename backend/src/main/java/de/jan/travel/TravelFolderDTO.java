@@ -10,22 +10,23 @@ public class TravelFolderDTO {
     private Long coverPhotoId;
     private Double latitude;
     private Double longitude;
-    private List<Long> photoIds;
+    private List<TravelPhotoDTO> photos;
 
-    /** @param photoIds the photos of the folder in the order they are shown */
-    public static TravelFolderDTO from(TravelFolder folder, List<Long> photoIds) {
+    /** @param photos the photos of the folder in the order they are shown */
+    public static TravelFolderDTO from(TravelFolder folder, List<TravelPhoto> photos) {
         TravelFolderDTO dto = new TravelFolderDTO();
         dto.id = folder.getId();
         dto.name = folder.getName();
         dto.country = folder.getCountry();
         dto.latitude = folder.getLatitude();
         dto.longitude = folder.getLongitude();
-        dto.photoIds = List.copyOf(photoIds);
+        dto.photos = photos.stream().map(TravelPhotoDTO::from).toList();
         // the chosen cover, otherwise the first photo
         Long cover = folder.getCoverPhotoId();
-        dto.coverPhotoId = cover != null && dto.photoIds.contains(cover)
+        boolean coverExists = cover != null && dto.photos.stream().anyMatch(photo -> cover.equals(photo.getId()));
+        dto.coverPhotoId = coverExists
                 ? cover
-                : dto.photoIds.stream().findFirst().orElse(null);
+                : dto.photos.stream().findFirst().map(TravelPhotoDTO::getId).orElse(null);
         return dto;
     }
 
@@ -37,5 +38,5 @@ public class TravelFolderDTO {
     /** null if the folder has no place on the map; then the longitude is null as well */
     public Double getLatitude() { return latitude; }
     public Double getLongitude() { return longitude; }
-    public List<Long> getPhotoIds() { return photoIds; }
+    public List<TravelPhotoDTO> getPhotos() { return photos; }
 }

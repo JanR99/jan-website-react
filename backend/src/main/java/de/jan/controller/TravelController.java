@@ -1,6 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelPhotoCaptionRequest;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
@@ -36,6 +37,7 @@ public class TravelController {
     private static final String SET_TRAVEL_FOLDER_COVER = "setTravelFolderCover";
     private static final String DELETE_TRAVEL_FOLDER = "deleteTravelFolder";
     private static final String UPLOAD_TRAVEL_PHOTO = "uploadTravelPhoto";
+    private static final String SET_TRAVEL_PHOTO_CAPTION = "setTravelPhotoCaption";
     private static final String DELETE_TRAVEL_PHOTO = "deleteTravelPhoto";
     private static final String GET_TRAVEL_PHOTO = "getTravelPhoto";
 
@@ -103,6 +105,18 @@ public class TravelController {
     ) throws IOException {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
         return ResponseEntity.ok(travelRepository.addPhoto(folderId, file.getBytes()));
+    }
+
+    /** An empty caption removes it; returns the folder of the photo. */
+    @Operation(operationId = SET_TRAVEL_PHOTO_CAPTION)
+    @PostMapping("/photos/setCaption")
+    public ResponseEntity<TravelFolderDTO> setTravelPhotoCaption(
+            @CurrentUser User user,
+            @RequestParam("id") Long id,
+            @RequestBody TravelPhotoCaptionRequest body
+    ) {
+        Authorization.with(user).require(Permission.MANAGE_TRAVEL);
+        return ResponseEntity.ok(travelRepository.setCaption(id, body.getCaption()));
     }
 
     @Operation(operationId = DELETE_TRAVEL_PHOTO)

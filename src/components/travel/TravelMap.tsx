@@ -88,7 +88,7 @@ function TravelMapCard({ folder }: { folder: TravelFolder }) {
                 {country && <span className="travel-map-card-country">{country}</span>}
                 <strong>{folder.name}</strong>
                 <span className="travel-map-card-cta">
-                    {photoCountLabel(folder.photoIds.length)} <ArrowRight size={14} />
+                    {photoCountLabel(folder.photos.length)} <ArrowRight size={14} />
                 </span>
             </span>
         </Link>

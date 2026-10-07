@@ -92,7 +92,7 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
                     folder = travelRepository.createFolder(request);
                 }
                 // photos are imported in order, so the ones an interrupted start already stored are skipped
-                for (int i = folder.getPhotoIds().size(); i < photos.size(); i++) {
+                for (int i = folder.getPhotos().size(); i < photos.size(); i++) {
                     travelRepository.addPhoto(folder.getId(), readImage(photos.get(i)));
                     imported++;
                 }
