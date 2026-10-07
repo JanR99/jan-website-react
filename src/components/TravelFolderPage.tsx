@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Images, Pencil, Star, Trash2 } from "lucide-react";
+import { Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
-import { dropTravelFolder, dropTravelPhoto, storeTravelFolder, useTravelFolders } from "../hooks/useTravelFolders";
+import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
 import { folderCountry, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
@@ -32,7 +32,6 @@ export default function TravelFolderPage() {
     const [lightbox, setLightbox] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);
     const [toDelete, setToDelete] = useState<DeleteTarget | null>(null);
-    const [actionError, setActionError] = useState<string | null>(null);
 
     if (!folder) {
         if (loading) {
@@ -51,16 +50,6 @@ export default function TravelFolderPage() {
     const others = folders.filter((f) => f.id !== folder.id);
     // a photo may have been deleted while the lightbox was open
     const shown = lightbox !== null && lightbox < count ? lightbox : null;
-
-    async function setCover(photoId: number) {
-        if (!folder) return;
-        setActionError(null);
-        try {
-            storeTravelFolder(await TravelController.setCover(folder.id, photoId));
-        } catch (err) {
-            setActionError(handleApiError(err));
-        }
-    }
 
     return (
         <div className="container">
@@ -88,7 +77,6 @@ export default function TravelFolderPage() {
             </PageHeader>
 
             {canManage && <TravelPhotoDropzone folderId={folder.id} />}
-            {actionError && <p className="form-message form-message--error" role="alert">{actionError}</p>}
 
             {count === 0 ? (
                 <div className="card empty-state">
@@ -100,7 +88,6 @@ export default function TravelFolderPage() {
                 <div className="gallery">
                     {folder.photos.map((photo, i) => {
                         const photoId = photo.id;
-                        const isCover = folder.coverPhotoId === photoId;
                         return (
                             <div key={photoId} className="gallery-item">
                                 <button
@@ -117,16 +104,6 @@ export default function TravelFolderPage() {
                                 </button>
                                 {canManage && (
                                     <div className="gallery-actions">
-                                        <button
-                                            type="button"
-                                            className={`gallery-action${isCover ? " is-active" : ""}`}
-                                            onClick={() => void setCover(photoId)}
-                                            disabled={isCover}
-                                            aria-label={isCover ? `Foto ${i + 1} ist das Titelbild` : `Foto ${i + 1} als Titelbild verwenden`}
-                                            title={isCover ? "Titelbild des Ordners" : "Als Titelbild verwenden"}
-                                        >
-                                            <Star size={18} fill={isCover ? "currentColor" : "none"} />
-                                        </button>
                                         <button
                                             type="button"
                                             className="gallery-action gallery-action--delete"

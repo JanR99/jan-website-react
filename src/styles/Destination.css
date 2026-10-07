@@ -33,7 +33,7 @@
     grid-column: span 3;
 }
 
-/* Titelbild wählen und löschen, nur für Admins */
+/* Foto löschen, nur für Admins */
 .gallery-actions {
     position: absolute;
     top: 8px;
@@ -58,11 +58,6 @@
 
 .gallery-action:hover {
     background: rgba(10, 8, 6, 0.85);
-}
-
-.gallery-action.is-active {
-    color: #ffc247;
-    cursor: default;
 }
 
 .gallery-action--delete:hover {
