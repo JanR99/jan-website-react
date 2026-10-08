@@ -8,8 +8,8 @@ public class TravelFolderDTO {
     private String name;
     private String country;
     private Long coverPhotoId;
-    private Double latitude;
-    private Double longitude;
+    private List<TravelStopDTO> stops;
+    private Long previousFolderId;
     private String startMonth;
     private String endMonth;
     private String text;
@@ -22,8 +22,8 @@ public class TravelFolderDTO {
         dto.id = folder.getId();
         dto.name = folder.getName();
         dto.country = folder.getCountry();
-        dto.latitude = folder.getLatitude();
-        dto.longitude = folder.getLongitude();
+        dto.stops = folder.getStops().stream().map(TravelStopDTO::from).toList();
+        dto.previousFolderId = folder.getPreviousFolderId();
         dto.startMonth = folder.getStartMonth();
         dto.endMonth = folder.getEndMonth();
         dto.text = folder.getText();
@@ -43,9 +43,10 @@ public class TravelFolderDTO {
     public String getCountry() { return country; }
     /** null if the folder has no photos yet */
     public Long getCoverPhotoId() { return coverPhotoId; }
-    /** null if the folder has no place on the map; then the longitude is null as well */
-    public Double getLatitude() { return latitude; }
-    public Double getLongitude() { return longitude; }
+    /** the places of the trip in its order; empty if the folder has no place on the map */
+    public List<TravelStopDTO> getStops() { return stops; }
+    /** the folder the trip came from, null if there is none */
+    public Long getPreviousFolderId() { return previousFolderId; }
     /** year and month like "2024-05", null if it is not known when the trip was */
     public String getStartMonth() { return startMonth; }
     /** null for a trip within one month */

@@ -3,6 +3,7 @@ package de.jan.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelStopRequest;
 import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeTag;
@@ -155,6 +156,11 @@ class BackupControllerTest extends ControllerTest {
             assertEquals("Japan", tokio.get("country").asText());
             assertEquals(35.6762, tokio.get("latitude").asDouble());
             assertEquals(139.6503, tokio.get("longitude").asDouble());
+            // all stops in their order; latitude and longitude above are the first one, for the seed data
+            assertEquals(2, tokio.get("stops").size());
+            assertEquals("Kyoto", tokio.get("stops").get(1).get("name").asText());
+            assertEquals(135.7681, tokio.get("stops").get(1).get("longitude").asDouble());
+            assertTrue(tokio.get("previousFolder").isNull());
             assertEquals("2025-04", tokio.get("startMonth").asText());
             assertEquals("2025-05", tokio.get("endMonth").asText());
             assertEquals("japanisch", tokio.get("cuisine").asText());
@@ -210,14 +216,13 @@ class BackupControllerTest extends ControllerTest {
         return inDatastore(() -> recipeRepository.create(request));
     }
 
-    /** A folder in Tokyo with the Japanese cuisine if it has a country, otherwise one with nothing but its name. */
+    /** A folder with stops in Tokyo and Kyoto and the Japanese cuisine if it has a country, otherwise one with nothing but its name. */
     private TravelFolderDTO storedFolder(String name, String country, String startMonth, String endMonth) {
         TravelFolderRequest request = new TravelFolderRequest();
         request.setName(name);
         request.setCountry(country);
         if (!country.isEmpty()) {
-            request.setLatitude(35.6762);
-            request.setLongitude(139.6503);
+            request.setStops(List.of(new TravelStopRequest("Tokio", 35.6762, 139.6503), new TravelStopRequest("Kyoto", 35.0116, 135.7681)));
             request.setCuisine("japanisch");
         }
         request.setStartMonth(startMonth);

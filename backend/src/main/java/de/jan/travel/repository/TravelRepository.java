@@ -1,6 +1,7 @@
 package de.jan.travel.repository;
 
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelStopRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.image.ImageType;
@@ -13,13 +14,16 @@ import de.jan.travel.TravelPhotoFile;
 import de.jan.travel.TravelPhotoFileDAO;
 import de.jan.travel.TravelSeedMarker;
 import de.jan.travel.TravelSeedMarkerDAO;
+import de.jan.travel.TravelStop;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,6 +48,7 @@ public class TravelRepository {
     private static final int NAME_MAX_LENGTH = 80;
     public static final int CAPTION_MAX_LENGTH = 200;
     public static final int TEXT_MAX_LENGTH = 10_000;
+    public static final int MAX_STOPS = 30;
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final Pattern MONTH = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])");
     private static final Pattern LINE_BREAK = Pattern.compile("\\r\\n?");
@@ -103,7 +108,7 @@ public class TravelRepository {
         return toDTO(saved, List.of());
     }
 
-    /** Changes name, country, the months of the trip, the place on the map and the cuisine; the text stays. */
+    /** Changes name, country, the months of the trip, the stops, the previous folder and the cuisine; the text stays. */
     public TravelFolderDTO updateFolder(Long id, TravelFolderRequest request) {
         TravelFolder folder = loadFolder(id);
         apply(folder, request);
@@ -149,6 +154,15 @@ public class TravelRepository {
             photoDAO.deleteAll(photos);
         }
         folderDAO.delete(folder);
+
+        // the trip no longer comes from here
+        List<TravelFolder> following = folderDAO.getAll().stream()
+                .filter(other -> id.equals(other.getPreviousFolderId()))
+                .toList();
+        following.forEach(other -> other.setPreviousFolderId(null));
+        if (!following.isEmpty()) {
+            folderDAO.saveAll(following);
+        }
         invalidateCache();
     }
 
@@ -257,14 +271,10 @@ public class TravelRepository {
         String country = collapse(request.getCountry());
         requireMaxLength(country, NAME_MAX_LENGTH, "Country");
 
-        Double latitude = request.getLatitude();
-        Double longitude = request.getLongitude();
-        if ((latitude == null) != (longitude == null)) {
-            throw new EntityStateException("Latitude and longitude must be given together");
-        }
-        if (latitude != null) {
-            requireRange(latitude, 90, "Latitude");
-            requireRange(longitude, 180, "Longitude");
+        List<TravelStop> stops = stops(request.getStops());
+        Long previousFolderId = request.getPreviousFolderId();
+        if (previousFolderId != null) {
+            requirePreviousFolder(folder.getId(), previousFolderId);
         }
 
         String startMonth = month(request.getStartMonth(), "Start month");
@@ -282,9 +292,62 @@ public class TravelRepository {
         folder.setName(name);
         folder.setCountry(country);
         folder.setCuisine(cuisine);
-        folder.setPosition(latitude, longitude);
+        folder.setStops(stops);
+        folder.setPreviousFolderId(previousFolderId);
         // a trip within one month has no end month
         folder.setPeriod(startMonth, Objects.equals(startMonth, endMonth) ? null : endMonth);
+    }
+
+    /** The stops of a request, checked and cleaned up. */
+    private static List<TravelStop> stops(List<TravelStopRequest> requests) {
+        if (requests == null) {
+            return List.of();
+        }
+        if (requests.size() > MAX_STOPS) {
+            throw new EntityStateException("A folder can have at most " + MAX_STOPS + " stops");
+        }
+        List<TravelStop> stops = new ArrayList<>();
+        for (TravelStopRequest stop : requests) {
+            if (stop == null || stop.getLatitude() == null || stop.getLongitude() == null) {
+                throw new EntityStateException("A stop needs a latitude and a longitude");
+            }
+            requireRange(stop.getLatitude(), 90, "Latitude");
+            requireRange(stop.getLongitude(), 180, "Longitude");
+            String name = collapse(stop.getName());
+            requireMaxLength(name, NAME_MAX_LENGTH, "Stop name");
+            stops.add(new TravelStop(name, stop.getLatitude(), stop.getLongitude()));
+        }
+        return stops;
+    }
+
+    /**
+     * The folder the trip came from must exist, and following the trip back from it must not lead to
+     * the folder itself, which would make the trip go in a circle.
+     *
+     * @param folderId null for a new folder
+     */
+    private void requirePreviousFolder(Long folderId, Long previousFolderId) {
+        if (previousFolderId.equals(folderId)) {
+            throw new EntityStateException("A folder cannot come from itself");
+        }
+        Map<Long, Long> previousOf = new HashMap<>();
+        for (TravelFolder other : folderDAO.getAll()) {
+            previousOf.put(other.getId(), other.getPreviousFolderId());
+        }
+        if (!previousOf.containsKey(previousFolderId)) {
+            throw new EntityStateException("The previous folder does not exist");
+        }
+        if (folderId == null) {
+            return;
+        }
+        Long current = previousFolderId;
+        // at most once through all folders, even if stored data were already circular
+        for (int steps = 0; current != null && steps <= previousOf.size(); steps++) {
+            if (current.equals(folderId)) {
+                throw new EntityStateException("The trip would go in a circle");
+            }
+            current = previousOf.get(current);
+        }
     }
 
     /** A year and a month like "2024-05", which also sorts by time; null if none is given. */
