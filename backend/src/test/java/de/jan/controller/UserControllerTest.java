@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.JsonNode;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -213,6 +214,28 @@ class UserControllerTest extends ControllerTest {
             }
 
             loginFrom("203.0.113.8", PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void withAPathParameterInTheAddress_theLimitStillApplies() throws Exception {
+            registered(EMAIL);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                // reaches the login like the plain address does
+                loginAt("/api/users/login;x=" + attempt, "wrong-password").andExpect(status().isBadRequest());
+            }
+
+            loginAt("/api/users/login;x=6", PASSWORD).andExpect(status().isTooManyRequests());
+        }
+
+        @Test
+        void withAnEncodedAddress_theLimitStillApplies() throws Exception {
+            registered(EMAIL);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                // %6c is an encoded "l"
+                loginAt("/api/users/%6cogin", "wrong-password").andExpect(status().isBadRequest());
+            }
+
+            loginAt("/api/users/%6cogin", PASSWORD).andExpect(status().isTooManyRequests());
         }
 
         @Test
@@ -974,6 +997,13 @@ class UserControllerTest extends ControllerTest {
     private ResultActions loginFrom(String forwardedFor, String password) throws Exception {
         return mockMvc.perform(post("/api/users/login")
                 .header("X-Forwarded-For", forwardedFor)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("email", UserControllerTest.EMAIL, "password", password))));
+    }
+
+    /** Logs in under another spelling of the login address. */
+    private ResultActions loginAt(String address, String password) throws Exception {
+        return mockMvc.perform(post(URI.create(address))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of("email", UserControllerTest.EMAIL, "password", password))));
     }

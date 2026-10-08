@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
+import org.springframework.http.server.PathContainer;
+import org.springframework.http.server.RequestPath;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -50,7 +52,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !LIMITS.containsKey(request.getRequestURI());
+        return !LIMITS.containsKey(pathOf(request));
     }
 
     @Override
@@ -60,7 +62,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        Limit limit = LIMITS.get(request.getRequestURI());
+        Limit limit = LIMITS.get(pathOf(request));
         String key = limit.name() + ":" + extractClientIp(request);
 
         if (!rateLimiter.tryConsume(key, limit.maxAttempts(), limit.window())) {
@@ -79,6 +81,22 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
                 rateLimiter.refund(key);
             }
         }
+    }
+
+    /**
+     * The path the way Spring matches it to a controller: decoded and without path parameters.
+     * Compared as it was sent, "/api/users/login;x=1" or "/api/users/%6cogin" would reach the login uncounted.
+     */
+    private static String pathOf(HttpServletRequest request) {
+        PathContainer path = RequestPath.parse(request.getRequestURI(), request.getContextPath())
+                .pathWithinApplication();
+        StringBuilder matched = new StringBuilder();
+        for (PathContainer.Element element : path.elements()) {
+            matched.append(element instanceof PathContainer.PathSegment segment
+                    ? segment.valueToMatch()
+                    : element.value());
+        }
+        return matched.toString();
     }
 
     private String extractClientIp(HttpServletRequest request) {
