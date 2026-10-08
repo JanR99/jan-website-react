@@ -20,7 +20,7 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.boot.version>3.5.16</spring.boot.version>
+        <spring.boot.version>4.1.1</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -47,7 +47,7 @@
         <!-- Spring Boot Web for REST endpoints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
         <!-- Google Cloud Datastore client -->
@@ -99,13 +99,20 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.9.1</version>
+            <version>3.1.1</version>
         </dependency>
 
-        <!-- Tests: JUnit 5, AssertJ, MockMvc -->
+        <!-- Tests: JUnit 6, AssertJ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Tests: MockMvc (@AutoConfigureMockMvc) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -125,7 +132,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- runs the JUnit 5 tests in src/test -->
+            <!-- runs the JUnit tests in src/test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

@@ -1,12 +1,12 @@
 package de.jan.travel;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.jan.config.TravelBootstrapConfig.SeedFolder;
 import de.jan.image.ImageType;
 import de.jan.travel.repository.TravelRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;

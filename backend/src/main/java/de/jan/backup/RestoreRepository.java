@@ -1,7 +1,5 @@
 package de.jan.backup;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.jan.backup.BackupRepository.FolderBackup;
 import de.jan.backup.BackupRepository.RecipeBackup;
 import de.jan.controller.requests.RecipeRequest;
@@ -18,6 +16,8 @@ import de.jan.recipe.repository.RecipeRepository;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ import java.util.zip.ZipFile;
  * Puts a backup of the BackupRepository back into the database: all recipes and travel folders are
  * deleted and replaced by the ones of the ZIP file, so a local database can be brought to the state of
  * the website. The recipes and photos get new ids; users, roles and feedback stay as they are.
- *
+ * <p>
  * Only on a local machine, never on Cloud Run: there it would overwrite the real data.
  */
 @Component
@@ -60,7 +60,7 @@ public class RestoreRepository {
     private final RecipeSeedMarkerDAO recipeSeedMarkerDAO = new RecipeSeedMarkerDAO();
 
     /** Cloud Run always sets K_SERVICE. Not final, so the tests can switch it. */
-    private boolean onCloudRun = System.getenv("K_SERVICE") != null;
+    private final boolean onCloudRun = System.getenv("K_SERVICE") != null;
 
     public RestoreRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
                              TravelRepository travelRepository, ObjectMapper objectMapper) {
@@ -267,7 +267,7 @@ public class RestoreRepository {
         List<T> list;
         try (InputStream in = zip.getInputStream(entry)) {
             list = objectMapper.readValue(in, objectMapper.getTypeFactory().constructCollectionType(List.class, type));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new EntityStateException("The file is not a backup of this website: " + name + " cannot be read");
         }
         if (list == null || list.contains(null)) {

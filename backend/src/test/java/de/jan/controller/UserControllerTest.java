@@ -1,6 +1,5 @@
 package de.jan.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.role.Permission;
 import de.jan.role.Role;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.JsonNode;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -150,7 +150,7 @@ class UserControllerTest extends ControllerTest {
                     .andReturn();
 
             // the token logs the user in
-            String token = objectMapper.readTree(result.getResponse().getContentAsString()).get("token").asText();
+            String token = objectMapper.readTree(result.getResponse().getContentAsString()).get("token").asString();
             mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                     .andExpect(status().isOk());
         }
@@ -988,11 +988,11 @@ class UserControllerTest extends ControllerTest {
     }
 
     private String tokenOf(MvcResult loginResult) throws Exception {
-        return objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asText();
+        return objectMapper.readTree(loginResult.getResponse().getContentAsString()).get("token").asString();
     }
 
     /** Seconds between "issued at" and "expires" in the payload of a token. */
-    private long lifetimeInSeconds(String token) throws Exception {
+    private long lifetimeInSeconds(String token) {
         JsonNode payload = objectMapper.readTree(Base64.getUrlDecoder().decode(token.split("\\.")[1]));
         return payload.get("exp").asLong() - payload.get("iat").asLong();
     }

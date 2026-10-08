@@ -1,8 +1,6 @@
 package de.jan.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
@@ -11,6 +9,8 @@ import de.jan.travel.repository.TravelRepository;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.Map;
  * (resources/travel/images) until all of them are in the database; then a TravelSeedMarker
  * is stored and the import never runs again
  * (so an interrupted import continues on the next start, and things deleted later don't come back).
- *
+ * <p>
  * Runs in afterSingletonsInstantiated, i.e. before the web server accepts requests, see RecipeBootstrapConfig.
  */
 @Configuration
