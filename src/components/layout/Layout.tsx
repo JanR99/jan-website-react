@@ -21,9 +21,8 @@ export default function Layout() {
 
     return (
         <div className="app-shell">
-            <a href="#main" className="visually-hidden">Zum Inhalt springen</a>
             <Navbar />
-            <main id="main" className="app-main">
+            <main className="app-main">
                 <ErrorBoundary resetKey={pathname}>
                     <Outlet />
                 </ErrorBoundary>
