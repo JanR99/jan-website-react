@@ -13,6 +13,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # typescript-eslint does not allow TypeScript 7 yet; remove this once it does
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
 
   # Backend (pom.xml and backend/pom.xml)
   - package-ecosystem: "maven"
