@@ -15,6 +15,7 @@ import java.util.Map;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -185,7 +186,7 @@ class RoleControllerTest extends ControllerTest {
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
 
-            assertTrue(inDatastore(() -> roleRepository.getById(role.getId())).getName().equals("Cooks"));
+            assertEquals("Cooks", inDatastore(() -> roleRepository.getById(role.getId())).getName());
         }
 
         @Test
