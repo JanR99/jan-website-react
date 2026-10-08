@@ -230,20 +230,31 @@ describe("crowdedFolders", () => {
     // one degree is ten pixels
     const toPoint = ({ latitude, longitude }: { latitude: number; longitude: number }) => ({ x: longitude * 10, y: -latitude * 10 });
 
-    it("finds the folders with two stops closer than the distance", () => {
-        const close = folder({ id: 1, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 0, longitude: 2 }] });
-        const apart = folder({ id: 2, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 5, longitude: 0 }] });
+    it("finds the folders whose stops are all closer than the size", () => {
+        const tiny = folder({ id: 1, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 0, longitude: 2 }] });
+        const large = folder({ id: 2, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 5, longitude: 0 }] });
         const single = folder({ id: 3, stops: [{ name: "a", latitude: 0, longitude: 0 }] });
-        expect(crowdedFolders([close, apart, single], toPoint, 30)).toEqual(new Set([1]));
+        expect(crowdedFolders([tiny, large, single], toPoint, 30)).toEqual(new Set([1]));
     });
 
-    it("also finds two stops that are not next to each other in the trip", () => {
+    it("shows all stops of a large folder, also if two of them are close to each other", () => {
         const stops = [
             { name: "a", latitude: 0, longitude: 0 },
             { name: "b", latitude: 0, longitude: 10 },
             { name: "c", latitude: 0, longitude: 1 },
         ];
-        expect(crowdedFolders([folder({ id: 4, stops })], toPoint, 30)).toEqual(new Set([4]));
+        expect(crowdedFolders([folder({ id: 4, stops })], toPoint, 30)).toEqual(new Set());
+    });
+
+    it("measures between the two stops furthest apart, not along the trip", () => {
+        // every step is 20 pixels, the whole trip 40
+        const stops = [
+            { name: "a", latitude: 0, longitude: 0 },
+            { name: "b", latitude: 0, longitude: 2 },
+            { name: "c", latitude: 0, longitude: 4 },
+        ];
+        expect(crowdedFolders([folder({ id: 5, stops })], toPoint, 30)).toEqual(new Set());
+        expect(crowdedFolders([folder({ id: 5, stops })], toPoint, 50)).toEqual(new Set([5]));
     });
 });
 

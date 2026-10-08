@@ -136,23 +136,27 @@ export function centralStop(stops: TravelStop[]): TravelStop {
 }
 
 /**
- * The folders whose stops would cover each other at the current zoom: two of their stops are closer
- * on the screen than minDistance pixels. Such a folder is shown as one pin.
+ * The folders that are tiny at the current zoom: even their two stops furthest apart are closer on the
+ * screen than minSize pixels. Such a folder is shown as one pin. As soon as the trip is larger, all its
+ * stops are shown, also if some of them still cover each other.
  *
+ * @param folders the folders including the travel information
  * @param toPoint where a place is on the screen at the current zoom, in pixels
+ * @param minSize the minimal size
  */
 export function crowdedFolders(
     folders: TravelFolder[],
     toPoint: (position: TravelPosition) => { x: number; y: number },
-    minDistance: number
+    minSize: number
 ): Set<number> {
     const crowded = new Set<number>();
     for (const folder of folders) {
         const points = folderStops(folder).map(toPoint);
-        const tooClose = points.some((a, i) =>
-            points.slice(i + 1).some((b) => Math.hypot(a.x - b.x, a.y - b.y) < minDistance)
+        if (points.length < 2) continue;
+        const largeEnough = points.some((a, i) =>
+            points.slice(i + 1).some((b) => Math.hypot(a.x - b.x, a.y - b.y) >= minSize)
         );
-        if (tooClose) crowded.add(folder.id);
+        if (!largeEnough) crowded.add(folder.id);
     }
     return crowded;
 }

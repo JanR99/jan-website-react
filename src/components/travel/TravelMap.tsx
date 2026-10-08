@@ -9,8 +9,8 @@ import { crowdedFolders, folderStops, folderSubtitle, mapLayout, photoCountLabel
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
 import { zoomWithModifierWheel } from "./modifierWheelZoom";
 
-/** Closer than this on the screen (in pixels), two pins of a folder would cover each other: the folder becomes one pin. */
-const MIN_PIN_DISTANCE = 28;
+/** A folder smaller than this on the screen (in pixels, between its two stops furthest apart) is one pin. */
+const MIN_FOLDER_SIZE = 60;
 
 const POPUP_OPTIONS: L.PopupOptions = { className: "travel-map-popup", closeButton: false, minWidth: 200, maxWidth: 200 };
 
@@ -21,8 +21,8 @@ const FOLDER_MAX_ZOOM = 12;
 
 /**
  * The map of the travel diary: a pin for every stop of a folder and a line along the stops of each trip,
- * also from the folder the trip came from. Where the stops of a folder would cover each other (zoomed
- * out), the folder is one pin; a click on it zooms in. A click on a stop shows its folder and leads into it.
+ * also from the folder the trip came from. While a whole folder is tiny on the screen (zoomed far out),
+ * it is one pin; a click on it zooms in. A click on a stop shows its folder and leads into it.
  * Loaded on demand (React.lazy), so Leaflet is only fetched where a map is shown.
  */
 export default function TravelMap({ folders }: { folders: TravelFolder[] }) {
@@ -36,7 +36,7 @@ export default function TravelMap({ folders }: { folders: TravelFolder[] }) {
         if (zoom === null) return null;
         const toPoint = (position: { latitude: number; longitude: number }) =>
             L.CRS.EPSG3857.latLngToPoint(L.latLng(position.latitude, position.longitude), zoom);
-        return [...crowdedFolders(folders, toPoint, MIN_PIN_DISTANCE)].sort((a, b) => a - b).join(",");
+        return [...crowdedFolders(folders, toPoint, MIN_FOLDER_SIZE)].sort((a, b) => a - b).join(",");
     }, [folders, zoom]);
 
     // Leaflet owns the markers and popups; React renders their content into these elements
