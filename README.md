@@ -26,6 +26,12 @@ The backend needs Java 25 (`JAVA_HOME` has to point to it) and [Docker](https://
 
 The frontend automatically talks to the backend on port 8080 of whichever host it's opened from (`localhost`, or your machine's IP when testing from a phone on the same network).
 
+### API documentation (Swagger UI)
+
+While the backend runs locally, the Swagger UI is on http://localhost:8080/swagger-ui/index.html. It lists all endpoints and lets you try them out. Endpoints that need a login answer with 401 there, because the page has no way to send a login token.
+
+On Cloud Run the Swagger UI is switched off (the backend checks `K_SERVICE`, which Cloud Run always sets). The API description on `/v3/api-docs` stays reachable there too, because the frontend builds its API client from it.
+
 ## Deployment
 
 - Nothing deploys on a push to `master`. Both workflows in `.github/workflows/` run when a GitHub release is published, or when started by hand in the Actions tab ("Run workflow").
