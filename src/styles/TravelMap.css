@@ -182,3 +182,19 @@
 .map-zoom-hint.is-visible {
     opacity: 1;
 }
+
+/* ---------- Linie entlang der Stopps einer Reise ---------- */
+
+.travel-map path.travel-route {
+    stroke: var(--color-accent);
+    stroke-width: 3;
+    stroke-opacity: 0.85;
+    stroke-dasharray: 6 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.travel-map-card-stop {
+    color: var(--color-text-muted);
+}

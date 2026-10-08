@@ -3,12 +3,12 @@ import type { FormEvent } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { useRecipes } from "../../hooks/useRecipes";
-import { storeTravelFolder } from "../../hooks/useTravelFolders";
-import { TravelFolder, TravelPosition } from "../../types/Travel";
-import { folderCountry, folderPosition, toMonth } from "../../utils/travel";
+import { storeTravelFolder, useTravelFolders } from "../../hooks/useTravelFolders";
+import { TravelFolder } from "../../types/Travel";
+import { folderCountry, toMonth } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
-import TravelLocationPicker from "./TravelLocationPicker";
 import TravelMonthField, { monthInput } from "./TravelMonthField";
+import TravelStopsEditor, { StopDraft } from "./TravelStopsEditor";
 
 interface TravelFolderDialogProps {
     open: boolean;
@@ -18,7 +18,7 @@ interface TravelFolderDialogProps {
     onSaved: (folder: TravelFolder) => void;
 }
 
-/** Creates a folder or changes name, country, cuisine, the time of the trip and the place on the map of an existing one. */
+/** Creates a folder or changes name, country, cuisine, the time of the trip, its stops and where it came from. */
 export default function TravelFolderDialog({ open, folder, onClose, onSaved }: TravelFolderDialogProps) {
     const [busy, setBusy] = useState(false);
     const close = () => {
@@ -46,7 +46,15 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
     const [cuisine, setCuisine] = useState(folder?.cuisine ?? "");
     const [start, setStart] = useState(() => monthInput(folder?.startMonth ?? null));
     const [end, setEnd] = useState(() => monthInput(folder?.endMonth ?? null));
-    const [position, setPosition] = useState<TravelPosition | null>(folder ? folderPosition(folder) : null);
+    // a new folder starts with one stop, so the place can be searched right away as before
+    const [stops, setStops] = useState<StopDraft[]>(() =>
+        folder
+            ? folder.stops.map(({ name, latitude, longitude }) => ({ name, position: { latitude, longitude } }))
+            : [{ name: "", position: null }]
+    );
+    const [previousFolderId, setPreviousFolderId] = useState<number | null>(folder?.previousFolderId ?? null);
+    const { folders } = useTravelFolders();
+    const otherFolders = folders.filter((other) => other.id !== folder?.id);
     const [error, setError] = useState<string | null>(null);
 
     const { recipes } = useRecipes();
@@ -74,12 +82,20 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
             return;
         }
 
+        // a stop nobody touched is left out; one with a name needs its place
+        const usedStops = stops.filter((stop) => stop.position || stop.name.trim());
+        const withoutPlace = usedStops.findIndex((stop) => !stop.position);
+        if (withoutPlace >= 0) {
+            setError(`Stopp ${stops.indexOf(usedStops[withoutPlace]) + 1} hat noch keinen Ort auf der Karte.`);
+            return;
+        }
+
         const request = {
             name: name.trim(),
             country: country.trim(),
             cuisine,
-            latitude: position?.latitude ?? null,
-            longitude: position?.longitude ?? null,
+            stops: usedStops.map((stop) => ({ name: stop.name.trim(), latitude: stop.position!.latitude, longitude: stop.position!.longitude })),
+            previousFolderId,
             startMonth,
             endMonth,
         };
@@ -138,9 +154,20 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
                 <TravelMonthField label="Von" value={start} onChange={setStart} />
                 <TravelMonthField label="Bis" value={end} onChange={setEnd} />
             </div>
-            <TravelLocationPicker
-                position={position}
-                onChange={setPosition}
+            <label className="field">
+                <span>Reise kommt aus <span className="muted travel-folder-optional">(optional, z. B. das Land davor; verbindet die Stopps auf der Karte)</span></span>
+                <select
+                    className="input"
+                    value={previousFolderId ?? ""}
+                    onChange={(e) => setPreviousFolderId(e.target.value ? Number(e.target.value) : null)}
+                >
+                    <option value="">Keinem anderen Ordner</option>
+                    {otherFolders.map((other) => <option key={other.id} value={other.id}>{other.name}</option>)}
+                </select>
+            </label>
+            <TravelStopsEditor
+                stops={stops}
+                onChange={setStops}
                 suggestion={[name.trim(), folderCountry({ name, country })].filter(Boolean).join(", ")}
             />
             {error && <p className="form-message form-message--error" role="alert">{error}</p>}

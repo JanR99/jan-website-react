@@ -1,5 +1,5 @@
 import { Recipe } from "../types/Recipe";
-import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition } from "../types/Travel";
+import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition, TravelStop } from "../types/Travel";
 
 export const TRAVEL_BASE = "/reisen";
 
@@ -118,11 +118,34 @@ function isCoordinate(value: unknown, limit: number): value is number {
     return typeof value === "number" && Math.abs(value) <= limit;
 }
 
-/** Where the folder is shown on the map, null if it has no place on it. */
-export function folderPosition(folder: Pick<TravelFolder, "latitude" | "longitude">): TravelPosition | null {
-    const { latitude, longitude } = folder;
-    return isCoordinate(latitude, 90) && isCoordinate(longitude, 180) ? { latitude, longitude } : null;
+/** The stops of a folder that can be shown on the map, in the order of the trip. */
+export function folderStops(folder: Pick<TravelFolder, "stops">): TravelStop[] {
+    return (folder.stops ?? []).filter((stop) => isCoordinate(stop.latitude, 90) && isCoordinate(stop.longitude, 180));
 }
+
+/**
+ * The lines of the trips on the map: one per folder through its stops, starting at the last stop of
+ * the folder the trip came from. A single point makes no line and is left out.
+ */
+export function routeLines(folders: TravelFolder[]): TravelPosition[][] {
+    const byId = new Map(folders.map((folder) => [folder.id, folder]));
+    return folders.flatMap((folder) => {
+        const stops = folderStops(folder);
+        if (stops.length === 0) return [];
+        const previous = folder.previousFolderId === null ? undefined : byId.get(folder.previousFolderId);
+        const previousStops = previous ? folderStops(previous) : [];
+        const from = previousStops.length > 0 ? [previousStops[previousStops.length - 1]] : [];
+        const line = [...from, ...stops].map(({ latitude, longitude }) => ({ latitude, longitude }));
+        return line.length > 1 ? [line] : [];
+    });
+}
+
+/** The name of a stop from a place the search found: its first part, "Sevilla" of "Sevilla, Andalusien, Spanien". */
+export function placeName(label: string): string {
+    return label.split(",")[0].trim();
+}
+
+export const MAX_STOPS = 30;
 
 /** Five decimals are about one metre, anything finer is noise. */
 export function roundPosition(latitude: number, longitude: number): TravelPosition {

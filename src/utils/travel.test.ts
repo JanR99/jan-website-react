@@ -4,13 +4,15 @@ import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
     cleanCaption,
     folderCountry,
-    folderPosition,
+    folderStops,
     folderRecipes,
     folderSubtitle,
     parsePlaces,
     photoCountLabel,
     photoDescription,
+    placeName,
     recipeFolders,
+    routeLines,
     roundPosition,
     sortFolders,
     textParagraphs,
@@ -30,8 +32,11 @@ function folder(overrides: Partial<TravelFolder> = {}): TravelFolder {
         name: "Porto",
         country: "Portugal",
         coverPhotoId: 10,
-        latitude: 41.1496,
-        longitude: -8.611,
+        stops: [
+            { name: "Porto", latitude: 41.1496, longitude: -8.611 },
+            { name: "Lissabon", latitude: 38.7223, longitude: -9.1393 },
+        ],
+        previousFolderId: null,
         startMonth: null,
         endMonth: null,
         text: "",
@@ -125,24 +130,67 @@ describe("photoCountLabel", () => {
     });
 });
 
-describe("folderPosition", () => {
-    it("is the place of the folder", () => {
-        expect(folderPosition(folder())).toEqual({ latitude: 41.1496, longitude: -8.611 });
+describe("folderStops", () => {
+    it("are the stops of the folder in their order", () => {
+        expect(folderStops(folder()).map((stop) => stop.name)).toEqual(["Porto", "Lissabon"]);
     });
 
-    it("knows a place on the equator and the prime meridian", () => {
-        expect(folderPosition(folder({ latitude: 0, longitude: 0 }))).toEqual({ latitude: 0, longitude: 0 });
+    it("know a place on the equator and the prime meridian", () => {
+        expect(folderStops(folder({ stops: [{ name: "Null", latitude: 0, longitude: 0 }] }))).toHaveLength(1);
     });
 
-    it("is null for a folder without a place", () => {
-        expect(folderPosition(folder({ latitude: null, longitude: null }))).toBeNull();
+    it("are empty for a folder without a place", () => {
+        expect(folderStops(folder({ stops: [] }))).toEqual([]);
     });
 
-    it("is null if one of the two values is missing or out of range", () => {
-        expect(folderPosition(folder({ longitude: null }))).toBeNull();
-        expect(folderPosition(folder({ latitude: 91 }))).toBeNull();
-        expect(folderPosition(folder({ longitude: -181 }))).toBeNull();
-        expect(folderPosition(folder({ latitude: Number.NaN }))).toBeNull();
+    it("leave out stops that are out of range", () => {
+        const stops = [
+            { name: "zu weit", latitude: 91, longitude: 0 },
+            { name: "auch", latitude: 0, longitude: -181 },
+            { name: "kaputt", latitude: Number.NaN, longitude: 0 },
+            { name: "gut", latitude: 10, longitude: 10 },
+        ];
+        expect(folderStops(folder({ stops })).map((stop) => stop.name)).toEqual(["gut"]);
+    });
+});
+
+describe("routeLines", () => {
+    const madrid = { name: "Madrid", latitude: 40.4168, longitude: -3.7038 };
+    const sevilla = { name: "Sevilla", latitude: 37.3891, longitude: -5.9845 };
+    const porto = { name: "Porto", latitude: 41.1496, longitude: -8.611 };
+    const lissabon = { name: "Lissabon", latitude: 38.7223, longitude: -9.1393 };
+    const point = ({ latitude, longitude }: { latitude: number; longitude: number }) => ({ latitude, longitude });
+
+    it("draws a line through the stops of a folder", () => {
+        expect(routeLines([folder({ stops: [porto, lissabon] })])).toEqual([[point(porto), point(lissabon)]]);
+    });
+
+    it("starts at the last stop of the folder the trip came from", () => {
+        const portugal = folder({ id: 1, stops: [porto, lissabon] });
+        const spanien = folder({ id: 2, stops: [sevilla, madrid], previousFolderId: 1 });
+        expect(routeLines([spanien, portugal])).toEqual([
+            [point(lissabon), point(sevilla), point(madrid)],
+            [point(porto), point(lissabon)],
+        ]);
+    });
+
+    it("connects a single stop to the folder before, but draws no line for it alone", () => {
+        const portugal = folder({ id: 1, stops: [lissabon] });
+        const spanien = folder({ id: 2, stops: [madrid], previousFolderId: 1 });
+        expect(routeLines([portugal, spanien])).toEqual([[point(lissabon), point(madrid)]]);
+    });
+
+    it("ignores a previous folder that is not there or has no stops", () => {
+        const empty = folder({ id: 1, stops: [] });
+        expect(routeLines([empty, folder({ id: 2, stops: [madrid], previousFolderId: 1 })])).toEqual([]);
+        expect(routeLines([folder({ id: 2, stops: [madrid], previousFolderId: 99 })])).toEqual([]);
+    });
+});
+
+describe("placeName", () => {
+    it("takes the first part of the label", () => {
+        expect(placeName("Sevilla, Andalusien, Spanien")).toBe("Sevilla");
+        expect(placeName("  Prag ")).toBe("Prag");
     });
 });
 

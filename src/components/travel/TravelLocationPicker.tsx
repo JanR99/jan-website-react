@@ -11,10 +11,14 @@ interface TravelLocationPickerProps {
     onChange: (position: TravelPosition | null) => void;
     /** searched for if the search field is empty, e.g. name and country of the folder */
     suggestion: string;
+    /** above the search field */
+    label?: string;
+    /** called as well when a place of the search is chosen, e.g. to take over its name */
+    onPlaceChosen?: (place: PlaceSearchResult) => void;
 }
 
 /** Chooses where a folder is shown on the map: search for a place, then move the pin if needed. */
-export default function TravelLocationPicker({ position, onChange, suggestion }: TravelLocationPickerProps) {
+export default function TravelLocationPicker({ position, onChange, suggestion, label = "Ort auf der Karte", onPlaceChosen }: TravelLocationPickerProps) {
     const [query, setQuery] = useState("");
     const [places, setPlaces] = useState<PlaceSearchResult[]>([]);
     const [searching, setSearching] = useState(false);
@@ -22,6 +26,7 @@ export default function TravelLocationPicker({ position, onChange, suggestion }:
 
     function choose(place: PlaceSearchResult) {
         onChange({ latitude: place.latitude, longitude: place.longitude });
+        onPlaceChosen?.(place);
     }
 
     async function search() {
@@ -57,7 +62,7 @@ export default function TravelLocationPicker({ position, onChange, suggestion }:
 
     return (
         <div className="field travel-location">
-            <span>Ort auf der Karte <span className="muted travel-folder-optional">(optional)</span></span>
+            <span>{label}</span>
 
             <div className="travel-location-search">
                 <input
