@@ -13,6 +13,7 @@ public class TravelFolderDTO {
     private String startMonth;
     private String endMonth;
     private String text;
+    private String cuisine;
     private List<TravelPhotoDTO> photos;
 
     /** @param photos the photos of the folder in the order they are shown */
@@ -26,6 +27,7 @@ public class TravelFolderDTO {
         dto.startMonth = folder.getStartMonth();
         dto.endMonth = folder.getEndMonth();
         dto.text = folder.getText();
+        dto.cuisine = folder.getCuisine();
         dto.photos = photos.stream().map(TravelPhotoDTO::from).toList();
         // the chosen cover, otherwise the first photo
         Long cover = folder.getCoverPhotoId();
@@ -50,5 +52,7 @@ public class TravelFolderDTO {
     public String getEndMonth() { return endMonth; }
     /** empty if the folder has none */
     public String getText() { return text; }
+    /** the cuisine of the cookbook that belongs to the trip, like "japanisch"; empty if there is none */
+    public String getCuisine() { return cuisine; }
     public List<TravelPhotoDTO> getPhotos() { return photos; }
 }

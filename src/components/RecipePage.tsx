@@ -4,8 +4,11 @@ import { adjustIngredient, renderIngredients, renderStepText } from './helper/Re
 import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
+import { useTravelFolders } from '../hooks/useTravelFolders';
 import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
+import { recipeFolders } from '../utils/travel';
 import RecipeCard from './RecipeCard';
+import TravelFolderLink from './travel/TravelFolderLink';
 import CookMode from './CookMode';
 import RecipePrintSheet from './RecipePrintSheet';
 import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer } from "lucide-react";
@@ -16,6 +19,7 @@ const RecipePage: React.FC = () => {
     const { recipeTitle } = useParams<{ recipeTitle: string }>();
     const recipeFromState = (location.state as { recipe?: Recipe } | null)?.recipe;
     const { recipes, loading } = useRecipes();
+    const { folders } = useTravelFolders();
     const { isFavorite, toggleFavorite } = useFavorites();
 
     const recipe =
@@ -97,6 +101,9 @@ const RecipePage: React.FC = () => {
     };
 
     const favorite = isFavorite(recipe.id);
+
+    // the trips with the cuisine of the recipe
+    const trips = recipeFolders(recipe, folders);
 
     return (
         <div className="container">
@@ -208,6 +215,15 @@ const RecipePage: React.FC = () => {
                     <h2 className="related-title">Passt dazu</h2>
                     <div className="recipe-grid">
                         {related.map(r => <RecipeCard key={r.id} recipe={r} />)}
+                    </div>
+                </section>
+            )}
+
+            {trips.length > 0 && (
+                <section className="section">
+                    <h2 className="related-title">{trips.length === 1 ? 'Passende Reise' : 'Passende Reisen'}</h2>
+                    <div className="other-destinations">
+                        {trips.map(trip => <TravelFolderLink key={trip.id} folder={trip} />)}
                     </div>
                 </section>
             )}

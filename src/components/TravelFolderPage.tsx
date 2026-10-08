@@ -4,25 +4,33 @@ import { Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
+import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
-import { folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE, travelFolderPath } from "../utils/travel";
+import { folderRecipes, folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
+import RecipeCard from "./RecipeCard";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
+import TravelFolderLink from "./travel/TravelFolderLink";
 import TravelFolderText from "./travel/TravelFolderText";
 import TravelLightbox from "./travel/TravelLightbox";
 import TravelPhotoDropzone from "./travel/TravelPhotoDropzone";
 import Dialog from "./ui/Dialog";
+import "../styles/Cookbook.css";
 import "../styles/Destination.css";
 import "../styles/Travel.css";
 
 /** What an admin is about to delete, shown in the confirm dialog. */
 type DeleteTarget = { kind: "photo"; photoId: number; number: number } | { kind: "folder" };
 
-/** One trip of the travel diary: its text and its photos as a gallery. Admins can write the text and add and remove photos here. */
+/**
+ * One trip of the travel diary: its text, its photos as a gallery and the recipes of its cuisine.
+ * Admins can write the text and add and remove photos here.
+ */
 export default function TravelFolderPage() {
     const { folderId } = useParams();
     const { folders, loading, error } = useTravelFolders();
+    const { recipes } = useRecipes();
     const { hasPermission } = useAuth();
     const canManage = hasPermission("MANAGE_TRAVEL");
     const navigate = useNavigate();
@@ -49,6 +57,7 @@ export default function TravelFolderPage() {
     }
 
     const others = folders.filter((f) => f.id !== folder.id);
+    const tripRecipes = folderRecipes(folder, recipes);
     // a photo may have been deleted while the lightbox was open
     const shown = lightbox !== null && lightbox < count ? lightbox : null;
 
@@ -125,26 +134,20 @@ export default function TravelFolderPage() {
                 </div>
             )}
 
+            {tripRecipes.length > 0 && (
+                <section className="section">
+                    <h2 className="other-destinations-title">Rezepte zur Reise</h2>
+                    <div className="recipe-grid">
+                        {tripRecipes.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)}
+                    </div>
+                </section>
+            )}
+
             {others.length > 0 && (
                 <section className="section">
                     <h2 className="other-destinations-title">Weitere Reisen</h2>
                     <div className="other-destinations">
-                        {others.map((other) => {
-                            const subtitle = folderSubtitle(other);
-                            return (
-                                <Link key={other.id} to={travelFolderPath(other)} className="other-destination">
-                                    {other.coverPhotoId !== null ? (
-                                        <img src={TravelController.photoUrl(other.coverPhotoId)} alt="" loading="lazy" />
-                                    ) : (
-                                        <span className="other-destination-empty" aria-hidden="true"><Images size={22} /></span>
-                                    )}
-                                    <span>
-                                        <strong>{other.name}</strong>
-                                        {subtitle && <small>{subtitle}</small>}
-                                    </span>
-                                </Link>
-                            );
-                        })}
+                        {others.map((other) => <TravelFolderLink key={other.id} folder={other} />)}
                     </div>
                 </section>
             )}

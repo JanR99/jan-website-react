@@ -311,6 +311,38 @@ class TravelControllerTest extends ControllerTest {
         }
 
         @Test
+        void withCuisine_storesTheCuisineOfTheTrip() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithCuisine("Japan", "  japanisch "))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.cuisine").value("japanisch"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].cuisine").value("japanisch"));
+        }
+
+        @Test
+        void withoutCuisine_storesAnEmptyCuisine() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithCuisine("Roadtrip", null))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.cuisine").value(""));
+        }
+
+        @Test
+        void withTooLongCuisine_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithCuisine("Japan", "x".repeat(81)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Cuisine must be at most 80 characters long"));
+        }
+
+        @Test
         void withEmptyName_returns400() throws Exception {
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -460,6 +492,30 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.startMonth", nullValue()))
                     .andExpect(jsonPath("$.endMonth", nullValue()));
+        }
+
+        @Test
+        void withCuisine_changesTheCuisineOfTheTrip() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithCuisine("Japan", "chinesisch")));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(requestWithCuisine("Japan", "japanisch"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.cuisine").value("japanisch"));
+        }
+
+        @Test
+        void withoutCuisine_removesIt() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithCuisine("Japan", "japanisch")));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Japan", ""))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.cuisine").value(""));
         }
 
         @Test
@@ -1129,6 +1185,13 @@ class TravelControllerTest extends ControllerTest {
         TravelFolderRequest request = request(name, "");
         request.setStartMonth(startMonth);
         request.setEndMonth(endMonth);
+        return request;
+    }
+
+    /** A folder without a country and a place on the map; the cuisine like "japanisch". */
+    private static TravelFolderRequest requestWithCuisine(String name, String cuisine) {
+        TravelFolderRequest request = request(name, "");
+        request.setCuisine(cuisine);
         return request;
     }
 

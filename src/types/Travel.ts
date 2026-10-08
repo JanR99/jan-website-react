@@ -33,6 +33,8 @@ export interface TravelFolder {
     endMonth: string | null;
     /** what the diary says about the trip, paragraphs separated by an empty line; empty if there is none */
     text: string;
+    /** the cuisine of the cookbook that belongs to the trip, like "japanisch"; empty if there is none */
+    cuisine: string;
     photos: TravelPhoto[];
 }
 
@@ -45,4 +47,6 @@ export interface TravelFolderRequest {
     /** year and month like "2024-05"; both null if it is not known when the trip was */
     startMonth: string | null;
     endMonth: string | null;
+    /** a cuisine of the cookbook like "japanisch", whose recipes are shown with the trip; empty for none */
+    cuisine: string;
 }
