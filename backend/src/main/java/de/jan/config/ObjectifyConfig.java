@@ -4,6 +4,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
+import de.jan.feedback.Feedback;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
@@ -33,7 +34,8 @@ public class ObjectifyConfig {
         TravelFolder.class,
         TravelPhoto.class,
         TravelPhotoFile.class,
-        TravelSeedMarker.class
+        TravelSeedMarker.class,
+        Feedback.class
     );
 
     @PostConstruct

@@ -4,6 +4,7 @@ export const PERMISSIONS = {
     MANAGE_TRAVEL: "Reisen verwalten",
     MANAGE_USERS: "Nutzer & Rollen verwalten",
     EXPORT_DATA: "Daten exportieren",
+    MANAGE_FEEDBACK: "Feedback verwalten",
 } as const;
 
 export type Permission = keyof typeof PERMISSIONS;

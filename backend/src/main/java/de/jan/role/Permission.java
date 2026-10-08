@@ -12,5 +12,7 @@ public enum Permission {
     /** manage roles and assign them to users */
     MANAGE_USERS,
     /** download a backup of the recipes and the travel diary */
-    EXPORT_DATA
+    EXPORT_DATA,
+    /** read the feedback of the users, mark it as done and delete it */
+    MANAGE_FEEDBACK
 }
