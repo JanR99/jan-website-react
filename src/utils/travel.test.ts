@@ -2,17 +2,19 @@ import { describe, expect, it } from "vitest";
 import { Recipe } from "../types/Recipe";
 import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
+    centralStop,
     cleanCaption,
+    crowdedFolders,
     folderCountry,
     folderStops,
     folderRecipes,
     folderSubtitle,
+    mapLayout,
     parsePlaces,
     photoCountLabel,
     photoDescription,
     placeName,
     recipeFolders,
-    routeLines,
     roundPosition,
     sortFolders,
     textParagraphs,
@@ -154,21 +156,25 @@ describe("folderStops", () => {
     });
 });
 
-describe("routeLines", () => {
+describe("mapLayout", () => {
     const madrid = { name: "Madrid", latitude: 40.4168, longitude: -3.7038 };
     const sevilla = { name: "Sevilla", latitude: 37.3891, longitude: -5.9845 };
+    const valencia = { name: "Valencia", latitude: 39.4699, longitude: -0.3763 };
     const porto = { name: "Porto", latitude: 41.1496, longitude: -8.611 };
     const lissabon = { name: "Lissabon", latitude: 38.7223, longitude: -9.1393 };
     const point = ({ latitude, longitude }: { latitude: number; longitude: number }) => ({ latitude, longitude });
+    const none = new Set<number>();
 
-    it("draws a line through the stops of a folder", () => {
-        expect(routeLines([folder({ stops: [porto, lissabon] })])).toEqual([[point(porto), point(lissabon)]]);
+    it("has a pin for every stop and a line through the stops of a folder", () => {
+        const { pins, lines } = mapLayout([folder({ stops: [porto, lissabon] })], none);
+        expect(pins.map((pin) => [pin.key, pin.stop.name, pin.wholeFolder])).toEqual([["1-0", "Porto", false], ["1-1", "Lissabon", false]]);
+        expect(lines).toEqual([[point(porto), point(lissabon)]]);
     });
 
-    it("starts at the last stop of the folder the trip came from", () => {
+    it("starts the line at the last stop of the folder the trip came from", () => {
         const portugal = folder({ id: 1, stops: [porto, lissabon] });
         const spanien = folder({ id: 2, stops: [sevilla, madrid], previousFolderId: 1 });
-        expect(routeLines([spanien, portugal])).toEqual([
+        expect(mapLayout([spanien, portugal], none).lines).toEqual([
             [point(lissabon), point(sevilla), point(madrid)],
             [point(porto), point(lissabon)],
         ]);
@@ -177,13 +183,67 @@ describe("routeLines", () => {
     it("connects a single stop to the folder before, but draws no line for it alone", () => {
         const portugal = folder({ id: 1, stops: [lissabon] });
         const spanien = folder({ id: 2, stops: [madrid], previousFolderId: 1 });
-        expect(routeLines([portugal, spanien])).toEqual([[point(lissabon), point(madrid)]]);
+        expect(mapLayout([portugal, spanien], none).lines).toEqual([[point(lissabon), point(madrid)]]);
     });
 
     it("ignores a previous folder that is not there or has no stops", () => {
         const empty = folder({ id: 1, stops: [] });
-        expect(routeLines([empty, folder({ id: 2, stops: [madrid], previousFolderId: 1 })])).toEqual([]);
-        expect(routeLines([folder({ id: 2, stops: [madrid], previousFolderId: 99 })])).toEqual([]);
+        expect(mapLayout([empty, folder({ id: 2, stops: [madrid], previousFolderId: 1 })], none).lines).toEqual([]);
+        expect(mapLayout([folder({ id: 2, stops: [madrid], previousFolderId: 99 })], none).lines).toEqual([]);
+    });
+
+    it("shows a crowded folder as one pin at its central stop, without a line of its own", () => {
+        const spanien = folder({ id: 2, stops: [sevilla, madrid, valencia] });
+        const { pins, lines } = mapLayout([spanien], new Set([2]));
+        expect(pins.map((pin) => [pin.key, pin.stop.name, pin.wholeFolder])).toEqual([["2-all", "Madrid", true]]);
+        expect(lines).toEqual([]);
+    });
+
+    it("keeps the line from country to country while the countries are one pin each", () => {
+        const coimbra = { name: "Coimbra", latitude: 40.2033, longitude: -8.4103 };
+        const portugal = folder({ id: 1, stops: [porto, coimbra, lissabon] });
+        const spanien = folder({ id: 2, stops: [sevilla, madrid, valencia], previousFolderId: 1 });
+        expect(mapLayout([portugal, spanien], new Set([1, 2])).lines).toEqual([[point(coimbra), point(madrid)]]);
+        // only Portugal is one pin: from it to the first stop in Spain and on
+        expect(mapLayout([portugal, spanien], new Set([1])).lines).toEqual([
+            [point(coimbra), point(sevilla), point(madrid), point(valencia)],
+        ]);
+    });
+});
+
+describe("centralStop", () => {
+    it("is the stop closest to the middle of all stops", () => {
+        const stops = [
+            { name: "West", latitude: 0, longitude: 0 },
+            { name: "Mitte", latitude: 1, longitude: 4.5 },
+            { name: "Ost", latitude: 0, longitude: 10 },
+        ];
+        expect(centralStop(stops).name).toBe("Mitte");
+    });
+
+    it("is the only stop of one", () => {
+        expect(centralStop([{ name: "Prag", latitude: 50, longitude: 14 }]).name).toBe("Prag");
+    });
+});
+
+describe("crowdedFolders", () => {
+    // one degree is ten pixels
+    const toPoint = ({ latitude, longitude }: { latitude: number; longitude: number }) => ({ x: longitude * 10, y: -latitude * 10 });
+
+    it("finds the folders with two stops closer than the distance", () => {
+        const close = folder({ id: 1, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 0, longitude: 2 }] });
+        const apart = folder({ id: 2, stops: [{ name: "a", latitude: 0, longitude: 0 }, { name: "b", latitude: 5, longitude: 0 }] });
+        const single = folder({ id: 3, stops: [{ name: "a", latitude: 0, longitude: 0 }] });
+        expect(crowdedFolders([close, apart, single], toPoint, 30)).toEqual(new Set([1]));
+    });
+
+    it("also finds two stops that are not next to each other in the trip", () => {
+        const stops = [
+            { name: "a", latitude: 0, longitude: 0 },
+            { name: "b", latitude: 0, longitude: 10 },
+            { name: "c", latitude: 0, longitude: 1 },
+        ];
+        expect(crowdedFolders([folder({ id: 4, stops })], toPoint, 30)).toEqual(new Set([4]));
     });
 });
 

@@ -123,21 +123,79 @@ export function folderStops(folder: Pick<TravelFolder, "stops">): TravelStop[] {
     return (folder.stops ?? []).filter((stop) => isCoordinate(stop.latitude, 90) && isCoordinate(stop.longitude, 180));
 }
 
+/** The stop closest to the middle of all stops: where a folder shown as one pin has it, always on a real place. */
+export function centralStop(stops: TravelStop[]): TravelStop {
+    const latitudes = stops.map((stop) => stop.latitude);
+    const longitudes = stops.map((stop) => stop.longitude);
+    const middle = {
+        latitude: (Math.min(...latitudes) + Math.max(...latitudes)) / 2,
+        longitude: (Math.min(...longitudes) + Math.max(...longitudes)) / 2,
+    };
+    const distance = (stop: TravelStop) => Math.hypot(stop.latitude - middle.latitude, stop.longitude - middle.longitude);
+    return stops.reduce((best, stop) => (distance(stop) < distance(best) ? stop : best));
+}
+
 /**
- * The lines of the trips on the map: one per folder through its stops, starting at the last stop of
- * the folder the trip came from. A single point makes no line and is left out.
+ * The folders whose stops would cover each other at the current zoom: two of their stops are closer
+ * on the screen than minDistance pixels. Such a folder is shown as one pin.
+ *
+ * @param toPoint where a place is on the screen at the current zoom, in pixels
  */
-export function routeLines(folders: TravelFolder[]): TravelPosition[][] {
-    const byId = new Map(folders.map((folder) => [folder.id, folder]));
-    return folders.flatMap((folder) => {
+export function crowdedFolders(
+    folders: TravelFolder[],
+    toPoint: (position: TravelPosition) => { x: number; y: number },
+    minDistance: number
+): Set<number> {
+    const crowded = new Set<number>();
+    for (const folder of folders) {
+        const points = folderStops(folder).map(toPoint);
+        const tooClose = points.some((a, i) =>
+            points.slice(i + 1).some((b) => Math.hypot(a.x - b.x, a.y - b.y) < minDistance)
+        );
+        if (tooClose) crowded.add(folder.id);
+    }
+    return crowded;
+}
+
+/** A pin on the map: a stop of a folder, or a whole folder shown as one pin. */
+export interface MapPin {
+    key: string;
+    folder: TravelFolder;
+    /** the stop; for a whole folder its central stop */
+    stop: TravelStop;
+    /** true if the pin stands for all stops of the folder */
+    wholeFolder: boolean;
+}
+
+/**
+ * What the map shows: the pins, and the lines along the trips. A folder in crowded is one pin at its
+ * central stop and has no line of its own; every folder's line starts at the folder the trip came
+ * from (its last stop, or its one pin). A single point makes no line and is left out.
+ */
+export function mapLayout(folders: TravelFolder[], crowded: Set<number>): { pins: MapPin[]; lines: TravelPosition[][] } {
+    // the places each folder is shown with, in the order of the trip
+    const shown = new Map<number, TravelStop[]>();
+    for (const folder of folders) {
         const stops = folderStops(folder);
-        if (stops.length === 0) return [];
-        const previous = folder.previousFolderId === null ? undefined : byId.get(folder.previousFolderId);
-        const previousStops = previous ? folderStops(previous) : [];
-        const from = previousStops.length > 0 ? [previousStops[previousStops.length - 1]] : [];
-        const line = [...from, ...stops].map(({ latitude, longitude }) => ({ latitude, longitude }));
-        return line.length > 1 ? [line] : [];
-    });
+        if (stops.length > 0) shown.set(folder.id, crowded.has(folder.id) ? [centralStop(stops)] : stops);
+    }
+
+    const pins: MapPin[] = [];
+    const lines: TravelPosition[][] = [];
+    for (const folder of folders) {
+        const places = shown.get(folder.id);
+        if (!places) continue;
+        const wholeFolder = crowded.has(folder.id);
+        places.forEach((stop, index) =>
+            pins.push({ key: wholeFolder ? `${folder.id}-all` : `${folder.id}-${index}`, folder, stop, wholeFolder })
+        );
+
+        const previous = folder.previousFolderId === null ? undefined : shown.get(folder.previousFolderId);
+        const from = previous ? [previous[previous.length - 1]] : [];
+        const line = [...from, ...places].map(({ latitude, longitude }) => ({ latitude, longitude }));
+        if (line.length > 1) lines.push(line);
+    }
+    return { pins, lines };
 }
 
 /** The name of a stop from a place the search found: its first part, "Sevilla" of "Sevilla, Andalusien, Spanien". */
