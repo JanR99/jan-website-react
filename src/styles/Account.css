@@ -580,3 +580,33 @@
         align-items: stretch;
     }
 }
+
+/* ---------- Feedback ---------- */
+
+.feedback-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.feedback-meta span,
+.feedback-meta small {
+    overflow-wrap: anywhere;
+}
+
+.feedback-text {
+    margin: 14px 0 16px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.feedback-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.feedback-item.is-done {
+    opacity: 0.7;
+}
