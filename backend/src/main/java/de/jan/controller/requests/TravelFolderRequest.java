@@ -13,6 +13,9 @@ public class TravelFolderRequest {
     private String startMonth;
     private String endMonth;
 
+    /** the cuisine of the cookbook that belongs to the trip, like "japanisch"; empty for none */
+    private String cuisine;
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -30,4 +33,7 @@ public class TravelFolderRequest {
 
     public String getEndMonth() { return endMonth; }
     public void setEndMonth(String endMonth) { this.endMonth = endMonth; }
+
+    public String getCuisine() { return cuisine; }
+    public void setCuisine(String cuisine) { this.cuisine = cuisine; }
 }
