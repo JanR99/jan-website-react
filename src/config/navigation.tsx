@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, DatabaseBackup, Heart, Plane, ShieldCheck, User } from "lucide-react";
+import { BookOpen, ChefHat, DatabaseBackup, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
 import UsersRolesSection from "../components/account/UsersRolesSection";
 import BackupSection from "../components/account/BackupSection";
+import FeedbackSection from "../components/account/FeedbackSection";
 import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
 
@@ -69,6 +70,14 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         description: "Rezepte und Reisen als Datei herunterladen und sichern.",
         element: <BackupSection />,
         requires: "EXPORT_DATA",
+    },
+    {
+        path: "feedback",
+        label: "Feedback",
+        icon: MessageSquare,
+        description: "Was Nutzer über „Feedback geben“ geschickt haben.",
+        element: <FeedbackSection />,
+        requires: "MANAGE_FEEDBACK",
     },
 ];
 
