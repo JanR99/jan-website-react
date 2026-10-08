@@ -1,8 +1,9 @@
-// vite.config.js
-import { defineConfig } from 'vite'
+// vite.config.ts
+// defineConfig from vitest/config knows the test section below as well
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import path from 'path'
+import path from 'node:path'
 
 export default defineConfig({
     plugins: [
