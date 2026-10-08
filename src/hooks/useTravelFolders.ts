@@ -42,6 +42,11 @@ function load(): Promise<void> {
     return pending;
 }
 
+/** Loads the folders again, e.g. after a backup was restored. */
+export function reloadTravelFolders(): Promise<void> {
+    return load();
+}
+
 /** Puts a folder the backend returned after a change (created, renamed, photo added, …) into the list. */
 export function storeTravelFolder(folder: TravelFolder): void {
     setState({ folders: sortFolders([...state.folders.filter((other) => other.id !== folder.id), folder]) });

@@ -166,6 +166,13 @@ public class TravelRepository {
         invalidateCache();
     }
 
+    /** Deletes every folder together with its photos, for restoring a backup. */
+    public void deleteAllFolders() {
+        for (TravelFolder folder : folderDAO.getAll()) {
+            deleteFolder(folder.getId());
+        }
+    }
+
     /** Adds a photo at the end of the folder. The browser has scaled it down already. */
     public TravelFolderDTO addPhoto(Long folderId, byte[] data) {
         TravelFolder folder = loadFolder(folderId);
