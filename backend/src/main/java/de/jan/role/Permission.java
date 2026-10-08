@@ -10,5 +10,7 @@ public enum Permission {
     /** create, rename and delete travel folders, add and remove their photos */
     MANAGE_TRAVEL,
     /** manage roles and assign them to users */
-    MANAGE_USERS
+    MANAGE_USERS,
+    /** download a backup of the recipes and the travel diary */
+    EXPORT_DATA
 }

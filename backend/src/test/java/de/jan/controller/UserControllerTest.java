@@ -715,7 +715,7 @@ class UserControllerTest extends ControllerTest {
             mockMvc.perform(get("/api/users/permissions")
                             .header(HttpHeaders.AUTHORIZATION, bearer(adminUser())))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", containsInAnyOrder("MANAGE_RECIPES", "MANAGE_TRAVEL", "MANAGE_USERS")));
+                    .andExpect(jsonPath("$", containsInAnyOrder("MANAGE_RECIPES", "MANAGE_TRAVEL", "MANAGE_USERS", "EXPORT_DATA")));
         }
     }
 
