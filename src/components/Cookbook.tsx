@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { capitalize } from '../utils/recipe';
 import { Diet, filterRecipes } from '../utils/recipeFilter';
 import PageHeader from './layout/PageHeader';
@@ -15,6 +16,7 @@ const DIETS: Diet[] = ['alle', 'vegetarisch', 'vegan'];
 const Cookbook: React.FC = () => {
     const { recipes, loading, error } = useRecipes();
     const { favorites } = useFavorites();
+    usePageTitle('Kochbuch');
 
     const [params, setParams] = useSearchParams();
     const dietParam = params.get('diet');

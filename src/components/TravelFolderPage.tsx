@@ -4,6 +4,7 @@ import { Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
+import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
 import { TravelFolder } from "../types/Travel";
@@ -37,6 +38,7 @@ export default function TravelFolderPage() {
 
     const folder = folders.find((f) => String(f.id) === folderId);
     const count = folder?.photos.length ?? 0;
+    usePageTitle(folder?.name);
 
     const [lightbox, setLightbox] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);

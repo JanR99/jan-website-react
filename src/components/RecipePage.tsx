@@ -4,6 +4,7 @@ import { adjustIngredient, renderIngredients, renderStepText } from './helper/Re
 import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { useTravelFolders } from '../hooks/useTravelFolders';
 import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
 import { recipeFolders } from '../utils/travel';
@@ -40,10 +41,7 @@ const RecipePage: React.FC = () => {
         setCookStep(0);
     }, [recipeTitle, defaultPortions]);
 
-    useEffect(() => {
-        if (recipe) document.title = `${recipe.title} · Jans Website`;
-        return () => { document.title = 'Jans Website'; };
-    }, [recipe]);
+    usePageTitle(recipe?.title);
 
     if (!recipe) {
         return (

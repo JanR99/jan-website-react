@@ -29,3 +29,6 @@ yarn-error.log*
 github-actions-key.json
 *-key.json
 .env
+
+# TypeScript build cache
+*.tsbuildinfo

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FolderPlus, Images } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import { useOnline } from "../hooks/useOnline";
+import { usePageTitle } from "../hooks/usePageTitle";
 import { useTravelFolders } from "../hooks/useTravelFolders";
 import { folderStops, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
@@ -21,6 +22,7 @@ export default function TravelDiary() {
     const [creating, setCreating] = useState(false);
     // the map tiles come from OpenStreetMap and are not stored for offline use, so no map without network
     const online = useOnline();
+    usePageTitle("Reisetagebuch");
     const onMap = useMemo(() => folders.filter((folder) => folderStops(folder).length > 0), [folders]);
 
     return (
