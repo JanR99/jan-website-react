@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, Heart, Plane, ShieldCheck, User } from "lucide-react";
+import { BookOpen, ChefHat, DatabaseBackup, Heart, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
 import UsersRolesSection from "../components/account/UsersRolesSection";
+import BackupSection from "../components/account/BackupSection";
 import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
 
@@ -60,6 +61,14 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         description: "Rollen mit Rechten festlegen und Nutzern zuweisen.",
         element: <UsersRolesSection />,
         requires: "MANAGE_USERS",
+    },
+    {
+        path: "backup",
+        label: "Backup",
+        icon: DatabaseBackup,
+        description: "Rezepte und Reisen als Datei herunterladen und sichern.",
+        element: <BackupSection />,
+        requires: "EXPORT_DATA",
     },
 ];
 

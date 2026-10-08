@@ -89,6 +89,14 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
         return query(filters).keys().list();
     }
 
+    /**
+     * Forgets the entities loaded so far. Objectify keeps every loaded entity until the end of the
+     * request, which is too much memory when many images are read one after the other.
+     */
+    public static void clearSession() {
+        ofy().clear();
+    }
+
     private Query<T> query(Filter... filters) {
         Query<T> query = ofy().load().type(clazz);
         for (Filter filter : filters) {
