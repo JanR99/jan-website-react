@@ -127,6 +127,21 @@ public class RecipeRepository {
         imageRepository.deleteQuietly(recipe.getImage());
     }
 
+    /** Deletes every recipe with its image, for restoring a backup. The favorites of all users go with them. */
+    public void deleteAll() {
+        for (User user : userDAO.getAll()) {
+            if (!user.getFavoriteRecipeIds().isEmpty()) {
+                user.getFavoriteRecipeIds().clear();
+                userDAO.save(user);
+            }
+        }
+        for (Recipe recipe : recipeDAO.getAll()) {
+            recipeDAO.delete(recipe);
+            imageRepository.deleteQuietly(recipe.getImage());
+        }
+        invalidateCache();
+    }
+
     public void saveAllUnchecked(List<Recipe> recipes) {
         recipeDAO.saveAll(recipes);
         invalidateCache();
