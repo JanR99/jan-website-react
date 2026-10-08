@@ -33,6 +33,9 @@ public class TravelFolder implements DatastoreEntity {
     /** what the diary says about the trip, paragraphs separated by an empty line */
     private String text;
 
+    /** the cuisine of the cookbook that belongs to the trip, like "japanisch"; its recipes are shown with the trip */
+    private String cuisine;
+
     private Date createdAt;
 
     public TravelFolder() {
@@ -69,6 +72,9 @@ public class TravelFolder implements DatastoreEntity {
 
     public String getText() { return text == null ? "" : text; }
     public void setText(String text) { this.text = text; }
+
+    public String getCuisine() { return cuisine == null ? "" : cuisine; }
+    public void setCuisine(String cuisine) { this.cuisine = cuisine; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }

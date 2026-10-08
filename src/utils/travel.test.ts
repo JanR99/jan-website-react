@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { Recipe } from "../types/Recipe";
 import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
     cleanCaption,
     folderCountry,
     folderPosition,
+    folderRecipes,
     folderSubtitle,
     parsePlaces,
     photoCountLabel,
     photoDescription,
+    recipeFolders,
     roundPosition,
     sortFolders,
     textParagraphs,
@@ -32,8 +35,23 @@ function folder(overrides: Partial<TravelFolder> = {}): TravelFolder {
         startMonth: null,
         endMonth: null,
         text: "",
+        cuisine: "",
         photos: photos(10, 11, 12),
         ...overrides,
+    };
+}
+
+function recipe(id: number, cuisine: string): Recipe {
+    return {
+        id,
+        title: `Rezept ${id}`,
+        image: "",
+        defaultPortions: 2,
+        ingredients: [],
+        preparation: [],
+        cuisine,
+        tags: [],
+        relatedRecipeIds: [],
     };
 }
 
@@ -239,6 +257,46 @@ describe("toMonth", () => {
         expect(toMonth("24", "05")).toBeUndefined();
         expect(toMonth("20245", "05")).toBeUndefined();
         expect(toMonth("1024", "05")).toBeUndefined();
+    });
+});
+
+describe("folderRecipes", () => {
+    const recipes = [recipe(1, "japanisch"), recipe(2, "italienisch"), recipe(3, "japanisch")];
+
+    it("returns the recipes of the cuisine of the trip in their order", () => {
+        expect(folderRecipes(folder({ cuisine: "japanisch" }), recipes).map((r) => r.id)).toEqual([1, 3]);
+    });
+
+    it("does not care how the cuisine is written", () => {
+        expect(folderRecipes(folder({ cuisine: " Japanisch " }), recipes).map((r) => r.id)).toEqual([1, 3]);
+    });
+
+    it("returns nothing for a trip without a cuisine, also for recipes without one", () => {
+        expect(folderRecipes(folder({ cuisine: "" }), [...recipes, recipe(4, "")])).toEqual([]);
+    });
+
+    it("returns nothing if no recipe has the cuisine", () => {
+        expect(folderRecipes(folder({ cuisine: "spanisch" }), recipes)).toEqual([]);
+    });
+});
+
+describe("recipeFolders", () => {
+    const folders = [
+        folder({ id: 1, name: "Japan", cuisine: "japanisch" }),
+        folder({ id: 2, name: "Porto" }),
+        folder({ id: 3, name: "Tokio", cuisine: "Japanisch" }),
+    ];
+
+    it("returns the trips with the cuisine of the recipe in the order of the folders", () => {
+        expect(recipeFolders(recipe(1, "japanisch"), folders).map((f) => f.name)).toEqual(["Japan", "Tokio"]);
+    });
+
+    it("returns nothing if no trip has the cuisine", () => {
+        expect(recipeFolders(recipe(1, "italienisch"), folders)).toEqual([]);
+    });
+
+    it("returns nothing for a recipe without a cuisine, also for trips without one", () => {
+        expect(recipeFolders(recipe(1, ""), folders)).toEqual([]);
     });
 });
 

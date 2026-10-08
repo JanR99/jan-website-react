@@ -103,7 +103,7 @@ public class TravelRepository {
         return toDTO(saved, List.of());
     }
 
-    /** Changes name, country, the months of the trip and the place on the map; the text stays. */
+    /** Changes name, country, the months of the trip, the place on the map and the cuisine; the text stays. */
     public TravelFolderDTO updateFolder(Long id, TravelFolderRequest request) {
         TravelFolder folder = loadFolder(id);
         apply(folder, request);
@@ -276,8 +276,12 @@ public class TravelRepository {
             throw new EntityStateException("The end month must not be before the start month");
         }
 
+        String cuisine = collapse(request.getCuisine());
+        requireMaxLength(cuisine, NAME_MAX_LENGTH, "Cuisine");
+
         folder.setName(name);
         folder.setCountry(country);
+        folder.setCuisine(cuisine);
         folder.setPosition(latitude, longitude);
         // a trip within one month has no end month
         folder.setPeriod(startMonth, Objects.equals(startMonth, endMonth) ? null : endMonth);

@@ -1,3 +1,4 @@
+import { Recipe } from "../types/Recipe";
 import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition } from "../types/Travel";
 
 export const TRAVEL_BASE = "/reisen";
@@ -84,6 +85,21 @@ export function toMonth(year: string, month: string): string | null | undefined 
     const value = `${yearText}-${month}`;
     const parsed = parseMonth(value);
     return parsed && parsed.year >= 1900 && parsed.year <= 2100 ? value : undefined;
+}
+
+/** A cuisine the way it is compared: "Japanisch " is the same one as "japanisch". */
+const cuisineKey = (cuisine: string | undefined) => (cuisine ?? "").trim().toLowerCase();
+
+/** The recipes shown with a trip: the ones of its cuisine, none if the trip has no cuisine. */
+export function folderRecipes(folder: Pick<TravelFolder, "cuisine">, recipes: Recipe[]): Recipe[] {
+    const cuisine = cuisineKey(folder.cuisine);
+    return cuisine ? recipes.filter((recipe) => cuisineKey(recipe.cuisine) === cuisine) : [];
+}
+
+/** The trips shown with a recipe: the ones with its cuisine, in the order of the folders. */
+export function recipeFolders(recipe: Pick<Recipe, "cuisine">, folders: TravelFolder[]): TravelFolder[] {
+    const cuisine = cuisineKey(recipe.cuisine);
+    return cuisine ? folders.filter((folder) => cuisineKey(folder.cuisine) === cuisine) : [];
 }
 
 export const TEXT_MAX_LENGTH = 10_000;

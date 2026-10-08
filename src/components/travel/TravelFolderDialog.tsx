@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { useRecipes } from "../../hooks/useRecipes";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { TravelFolder, TravelPosition } from "../../types/Travel";
 import { folderCountry, folderPosition, toMonth } from "../../utils/travel";
@@ -17,7 +18,7 @@ interface TravelFolderDialogProps {
     onSaved: (folder: TravelFolder) => void;
 }
 
-/** Creates a folder or changes name, country, the time of the trip and the place on the map of an existing one. */
+/** Creates a folder or changes name, country, cuisine, the time of the trip and the place on the map of an existing one. */
 export default function TravelFolderDialog({ open, folder, onClose, onSaved }: TravelFolderDialogProps) {
     const [busy, setBusy] = useState(false);
     const close = () => {
@@ -42,10 +43,19 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
 }) {
     const [name, setName] = useState(folder?.name ?? "");
     const [country, setCountry] = useState(folder?.country ?? "");
+    const [cuisine, setCuisine] = useState(folder?.cuisine ?? "");
     const [start, setStart] = useState(() => monthInput(folder?.startMonth ?? null));
     const [end, setEnd] = useState(() => monthInput(folder?.endMonth ?? null));
     const [position, setPosition] = useState<TravelPosition | null>(folder ? folderPosition(folder) : null);
     const [error, setError] = useState<string | null>(null);
+
+    const { recipes } = useRecipes();
+    // the cuisines of the cookbook; the one of the folder stays selectable even if no recipe has it (any more)
+    const cuisines = useMemo(
+        () => Array.from(new Set([...recipes.map((r) => r.cuisine), folder?.cuisine ?? ""].filter(Boolean)))
+            .sort((a, b) => a.localeCompare(b, "de")),
+        [recipes, folder]
+    );
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -67,6 +77,7 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
         const request = {
             name: name.trim(),
             country: country.trim(),
+            cuisine,
             latitude: position?.latitude ?? null,
             longitude: position?.longitude ?? null,
             startMonth,
@@ -114,6 +125,13 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
                     placeholder="z. B. Portugal"
                     maxLength={80}
                 />
+            </label>
+            <label className="field">
+                <span>Küche im Kochbuch <span className="muted travel-folder-optional">(optional, ihre Rezepte stehen dann bei der Reise)</span></span>
+                <select className="input" value={cuisine} onChange={(e) => setCuisine(e.target.value)}>
+                    <option value="">Keine</option>
+                    {cuisines.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
             </label>
             <div className="field travel-period">
                 <span>Zeitraum <span className="muted travel-folder-optional">(optional, „Bis“ nur bei mehreren Monaten)</span></span>
