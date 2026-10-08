@@ -1,10 +1,8 @@
 package de.jan.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.googlecode.objectify.annotation.AlsoLoad;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.IgnoreSave;
 import com.googlecode.objectify.annotation.Index;
 import de.jan.objectify.DatastoreEntity;
 
@@ -40,14 +38,6 @@ public class User implements DatastoreEntity {
      * so every login from before a password change stops working.
      */
     private int tokenVersion;
-
-    /**
-     * Favorites from before the recipes moved into the database, stored as recipe titles.
-     * Only loaded (never saved) so RecipeBootstrapConfig can migrate them to IDs; the next save drops them.
-     */
-    @AlsoLoad("favorites")
-    @IgnoreSave
-    private List<String> legacyFavoriteTitles;
 
     public User() {
 
@@ -131,13 +121,5 @@ public class User implements DatastoreEntity {
 
     public void setTokenVersion(int tokenVersion) {
         this.tokenVersion = tokenVersion;
-    }
-
-    public List<String> getLegacyFavoriteTitles() {
-        return legacyFavoriteTitles;
-    }
-
-    public void clearLegacyFavoriteTitles() {
-        this.legacyFavoriteTitles = null;
     }
 }

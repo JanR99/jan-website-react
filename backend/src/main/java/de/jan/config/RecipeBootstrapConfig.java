@@ -8,8 +8,6 @@ import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
-import de.jan.user.User;
-import de.jan.user.UserDAO;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -30,8 +28,7 @@ import java.util.stream.Collectors;
  * 1. imports the recipes of resources/recipes/recipes.json whose title is not in the database yet,
  *    until all of them are there; then a RecipeSeedMarker is stored and the import never runs again
  *    (so an interrupted import continues on the next start, and recipes deleted later don't come back),
- * 2. migrates favorites that are still stored as recipe titles to recipe IDs,
- * 3. deletes uploaded images that were never saved with a recipe.
+ * 2. deletes uploaded images that were never saved with a recipe.
  * <p>
  * Runs in afterSingletonsInstantiated, i.e. before the web server accepts requests: Cloud Run gives
  * the instance full CPU while it starts, but throttles it between requests once it is running.
@@ -76,11 +73,6 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
                 }
             } catch (Exception e) {
                 System.out.println("Bootstrap: recipe import failed: " + e.getMessage());
-            }
-            try {
-                migrateFavorites();
-            } catch (Exception e) {
-                System.out.println("Bootstrap: favorites migration failed: " + e.getMessage());
             }
             try {
                 deleteOrphanImages();
@@ -193,32 +185,5 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
         if (deleted > 0) {
             System.out.println("Bootstrap: deleted " + deleted + " unused uploaded images.");
         }
-    }
-
-    private void migrateFavorites() {
-        UserDAO userDAO = new UserDAO();
-        List<User> pending = userDAO.getAll().stream()
-                .filter(user -> user.getLegacyFavoriteTitles() != null)
-                .toList();
-        if (pending.isEmpty()) {
-            return;
-        }
-
-        Map<String, Long> idsByTitle = new HashMap<>();
-        for (Recipe recipe : recipeRepository.getAll()) {
-            idsByTitle.put(recipe.getTitle(), recipe.getId());
-        }
-
-        for (User user : pending) {
-            for (String title : user.getLegacyFavoriteTitles()) {
-                Long id = idsByTitle.get(title == null ? null : title.trim());
-                if (id != null && !user.getFavoriteRecipeIds().contains(id)) {
-                    user.getFavoriteRecipeIds().add(id);
-                }
-            }
-            user.clearLegacyFavoriteTitles();
-            userDAO.save(user);
-        }
-        System.out.println("Bootstrap: migrated favorites of " + pending.size() + " users to recipe IDs.");
     }
 }
