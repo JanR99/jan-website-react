@@ -127,14 +127,9 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
                 continue;
             }
 
-            RecipeRequest request = new RecipeRequest();
-            request.setTitle(seed.title());
-            request.setImage(image);
-            request.setDefaultPortions(seed.defaultPortions());
-            request.setCuisine(seed.cuisine());
-            request.setTags(seed.tags());
-            request.setIngredients(seed.ingredients());
-            request.setPreparation(seed.preparation());
+            RecipeRequest request = new RecipeRequest(
+                    image, seed.title, seed.defaultPortions, seed.cuisine, seed.tags, seed.ingredients, seed.preparation
+            );
             try {
                 Recipe recipe = recipeRepository.create(request, existing);
                 existing.add(recipe);

@@ -116,14 +116,10 @@ public class RestoreRepository {
             try {
                 image = imageRepository.upload(
                         readImage(zip, BackupRepository.RECIPE_IMAGE_DIR, backup.image(), ImageRepository.MAX_SIZE_BYTES));
-                RecipeRequest request = new RecipeRequest();
-                request.setTitle(backup.title());
-                request.setImage(image);
-                request.setDefaultPortions(backup.defaultPortions());
-                request.setCuisine(backup.cuisine());
-                request.setTags(backup.tags());
-                request.setIngredients(backup.ingredients());
-                request.setPreparation(backup.preparation());
+                RecipeRequest request = new RecipeRequest(
+                        image, backup.title(), backup.defaultPortions(), backup.cuisine(), backup.tags(),
+                        backup.ingredients(), backup.preparation()
+                );
                 Recipe recipe = recipeRepository.create(request, existing);
                 existing.add(recipe);
                 restored.add(new RestoredRecipe(recipe, backup.relatedRecipes() == null ? List.of() : backup.relatedRecipes()));

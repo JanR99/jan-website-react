@@ -463,14 +463,10 @@ class BackupControllerTest extends ControllerTest {
     }
 
     private Recipe storedRecipe(String title, byte[] image, List<Long> relatedRecipeIds) {
-        RecipeRequest request = new RecipeRequest();
-        request.setTitle(title);
-        request.setImage(inDatastore(() -> imageRepository.upload(image)));
-        request.setDefaultPortions(2);
-        request.setCuisine("deutsch");
-        request.setTags(List.of(RecipeTag.VEGETARIAN));
-        request.setIngredients(List.of("Teig:", "200 g Mehl"));
-        request.setPreparation(List.of("Alles mischen.", "Backen."));
+        RecipeRequest request = new RecipeRequest(
+                inDatastore(() -> imageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
+                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
+        );
         request.setRelatedRecipeIds(relatedRecipeIds);
         return inDatastore(() -> recipeRepository.create(request));
     }
