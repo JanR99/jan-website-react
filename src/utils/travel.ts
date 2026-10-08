@@ -25,6 +25,17 @@ export function withoutPhoto(folder: TravelFolder, photoId: number): TravelFolde
     return { ...folder, photos, coverPhotoId };
 }
 
+/**
+ * The list with the item at the place `from` moved to the place `to`; the ones in between move up.
+ * A copy in the same order if one of the places is not in the list.
+ */
+export function moveItem<T>(items: T[], from: number, to: number): T[] {
+    const moved = [...items];
+    if (from < 0 || from >= items.length || to < 0 || to >= items.length) return moved;
+    moved.splice(to, 0, ...moved.splice(from, 1));
+    return moved;
+}
+
 /** What a photo shows, for screen readers: its caption, otherwise the folder and its place in it. */
 export function photoDescription(folderName: string, photo: Pick<TravelPhoto, "caption">, index: number): string {
     return photo.caption.trim() || `${folderName} ${index + 1}`;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Images, Pencil, Trash2 } from "lucide-react";
+import { ArrowDownUp, Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
@@ -16,6 +16,7 @@ import TravelFolderLink from "./travel/TravelFolderLink";
 import TravelFolderText from "./travel/TravelFolderText";
 import TravelLightbox from "./travel/TravelLightbox";
 import TravelPhotoDropzone from "./travel/TravelPhotoDropzone";
+import TravelPhotoSorter from "./travel/TravelPhotoSorter";
 import Dialog from "./ui/Dialog";
 import "../styles/Cookbook.css";
 import "../styles/Destination.css";
@@ -42,6 +43,8 @@ export default function TravelFolderPage() {
 
     const [lightbox, setLightbox] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);
+    /** the folder whose photos an admin is sorting; kept by id, so opening another trip ends it */
+    const [sortingId, setSortingId] = useState<number | null>(null);
     const [toDelete, setToDelete] = useState<DeleteTarget | null>(null);
 
     if (!folder) {
@@ -59,6 +62,7 @@ export default function TravelFolderPage() {
     }
 
     const others = folders.filter((f) => f.id !== folder.id);
+    const sorting = canManage && sortingId === folder.id;
     const tripRecipes = folderRecipes(folder, recipes);
     // a photo may have been deleted while the lightbox was open
     const shown = lightbox !== null && lightbox < count ? lightbox : null;
@@ -76,6 +80,12 @@ export default function TravelFolderPage() {
                             <Pencil size={16} />
                             Ordner bearbeiten
                         </button>
+                        {count > 1 && !sorting && (
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSortingId(folder.id)}>
+                                <ArrowDownUp size={16} />
+                                Fotos sortieren
+                            </button>
+                        )}
                         <button
                             type="button"
                             className="btn btn-ghost btn-sm travel-delete"
@@ -91,9 +101,11 @@ export default function TravelFolderPage() {
             {/* the key ends writing the text when another trip is opened */}
             <TravelFolderText key={folder.id} folder={folder} canManage={canManage} />
 
-            {canManage && <TravelPhotoDropzone folderId={folder.id} />}
+            {canManage && !sorting && <TravelPhotoDropzone folderId={folder.id} />}
 
-            {count === 0 ? (
+            {sorting ? (
+                <TravelPhotoSorter key={folder.id} folder={folder} onClose={() => setSortingId(null)} />
+            ) : count === 0 ? (
                 <div className="card empty-state">
                     <span className="empty-state-icon"><Images size={26} /></span>
                     <h3>Noch keine Fotos</h3>

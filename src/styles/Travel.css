@@ -419,3 +419,112 @@
     flex: none;
     padding-inline: 6px;
 }
+
+/* ---------- Fotos sortieren (nur für Admins) ---------- */
+
+.photo-sorter-hint {
+    margin-bottom: 16px;
+}
+
+/* bleibt beim Scrollen am unteren Rand stehen, damit „Fertig“ auch bei vielen Fotos erreichbar ist */
+.photo-sorter-bar {
+    position: sticky;
+    bottom: 12px;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+
+.photo-sorter-bar .form-message {
+    flex: 1 1 100%;
+    margin: 0;
+}
+
+/* alle Fotos gleich groß, damit beim Ziehen jedes genau einen Platz weiterrückt */
+.photo-sorter {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.photo-sorter-item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.photo-sorter-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.photo-sorter-item.is-dragged {
+    z-index: 2;
+    cursor: grabbing;
+    opacity: 0.92;
+    box-shadow: var(--shadow-lg);
+}
+
+.photo-sorter-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: var(--radius-pill);
+    background: rgba(10, 8, 6, 0.6);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* mit dem Finger wird hier gezogen; überall sonst auf dem Foto scrollt die Seite */
+.photo-sorter-handle {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(10, 8, 6, 0.6);
+    color: #fff;
+    touch-action: none;
+}
+
+.photo-sorter-moves {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.photo-sorter-moves .gallery-action:disabled {
+    opacity: 0.35;
+    cursor: default;
+}

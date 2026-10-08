@@ -3,6 +3,7 @@ package de.jan.controller;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
+import de.jan.controller.requests.TravelPhotoOrderRequest;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
@@ -37,6 +38,7 @@ public class TravelController {
     private static final String UPDATE_TRAVEL_FOLDER = "updateTravelFolder";
     private static final String SET_TRAVEL_FOLDER_TEXT = "setTravelFolderText";
     private static final String SET_TRAVEL_FOLDER_COVER = "setTravelFolderCover";
+    private static final String SET_TRAVEL_PHOTO_ORDER = "setTravelPhotoOrder";
     private static final String DELETE_TRAVEL_FOLDER = "deleteTravelFolder";
     private static final String UPLOAD_TRAVEL_PHOTO = "uploadTravelPhoto";
     private static final String SET_TRAVEL_PHOTO_CAPTION = "setTravelPhotoCaption";
@@ -96,6 +98,18 @@ public class TravelController {
     ) {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
         return ResponseEntity.ok(travelRepository.setCover(id, photoId));
+    }
+
+    /** Puts the photos of the folder into a new order; the body names every one of them once. */
+    @Operation(operationId = SET_TRAVEL_PHOTO_ORDER)
+    @PostMapping("/folders/setPhotoOrder")
+    public ResponseEntity<TravelFolderDTO> setTravelPhotoOrder(
+            @CurrentUser User user,
+            @RequestParam("id") Long id,
+            @RequestBody TravelPhotoOrderRequest body
+    ) {
+        Authorization.with(user).require(Permission.MANAGE_TRAVEL);
+        return ResponseEntity.ok(travelRepository.setPhotoOrder(id, body.getPhotoIds()));
     }
 
     @Operation(operationId = DELETE_TRAVEL_FOLDER)

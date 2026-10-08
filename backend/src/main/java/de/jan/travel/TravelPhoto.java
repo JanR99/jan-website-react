@@ -20,8 +20,14 @@ public class TravelPhoto implements DatastoreEntity {
     @Index
     private Long folderId;
 
-    /** photos are shown in the order they were added */
+    /** photos are shown in the order they were added, unless an admin has sorted them, see position */
     private Date createdAt;
+
+    /**
+     * the place of the photo in its folder, set for all photos of the folder when an admin sorts them;
+     * null for a photo added since then, which comes after the sorted ones
+     */
+    private Integer position;
 
     /** shown below the photo in the large view; empty if the photo has none */
     private String caption;
@@ -38,6 +44,9 @@ public class TravelPhoto implements DatastoreEntity {
     public Long getId() { return id; }
     public Long getFolderId() { return folderId; }
     public Date getCreatedAt() { return createdAt; }
+
+    public Integer getPosition() { return position; }
+    public void setPosition(Integer position) { this.position = position; }
 
     public String getCaption() { return caption == null ? "" : caption; }
     public void setCaption(String caption) { this.caption = caption; }

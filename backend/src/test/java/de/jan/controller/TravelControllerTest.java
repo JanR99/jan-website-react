@@ -3,6 +3,7 @@ package de.jan.controller;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
+import de.jan.controller.requests.TravelPhotoOrderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class TravelControllerTest extends ControllerTest {
 
     private static final String MISSING_PERMISSION = "Missing permission MANAGE_TRAVEL";
+    private static final String INCOMPLETE_ORDER = "The order must name every photo of the folder exactly once";
 
     private static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 1, 2, 3};
     private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3};
@@ -961,6 +963,176 @@ class TravelControllerTest extends ControllerTest {
     }
 
     @Nested
+    class SetTravelPhotoOrder {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(second, first))))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutPermission_returns403AndKeepsTheOrder() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(second, first))))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(MISSING_PERMISSION));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(first))
+                    .andExpect(jsonPath("$[0].photos[1].id").value(second));
+        }
+
+        @Test
+        void withPermission_putsThePhotosIntoTheOrder() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+            Long third = storedPhoto(folder.getId());
+            inDatastore(() -> travelRepository.setCaption(third, "Blick auf den Douro"));
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(third, first, second))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.photos", hasSize(3)))
+                    .andExpect(jsonPath("$.photos[0].id").value(third))
+                    .andExpect(jsonPath("$.photos[1].id").value(first))
+                    .andExpect(jsonPath("$.photos[2].id").value(second))
+                    // a photo keeps its caption wherever it goes
+                    .andExpect(jsonPath("$.photos[0].caption").value("Blick auf den Douro"))
+                    // the first photo is the one shown on the folder
+                    .andExpect(jsonPath("$.coverPhotoId").value(third));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(third))
+                    .andExpect(jsonPath("$[0].photos[1].id").value(first))
+                    .andExpect(jsonPath("$[0].photos[2].id").value(second))
+                    .andExpect(jsonPath("$[0].coverPhotoId").value(third));
+        }
+
+        @Test
+        void aPhotoAddedLater_comesAfterTheSortedOnes() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+            inDatastore(() -> travelRepository.setPhotoOrder(folder.getId(), List.of(second, first)));
+
+            Long third = storedPhoto(folder.getId());
+            Long fourth = storedPhoto(folder.getId());
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos", hasSize(4)))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(second))
+                    .andExpect(jsonPath("$[0].photos[1].id").value(first))
+                    .andExpect(jsonPath("$[0].photos[2].id").value(third))
+                    .andExpect(jsonPath("$[0].photos[3].id").value(fourth));
+        }
+
+        @Test
+        void endsAnEarlierChoiceOfTheCover() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+            Long third = storedPhoto(folder.getId());
+            inDatastore(() -> travelRepository.setCover(folder.getId(), second));
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(third, second, first))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.coverPhotoId").value(third));
+        }
+
+        @Test
+        void withAPhotoMissing_returns400AndKeepsTheOrder() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            Long second = storedPhoto(folder.getId());
+            Long third = storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(third, first))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INCOMPLETE_ORDER));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].photos[0].id").value(first))
+                    .andExpect(jsonPath("$[0].photos[1].id").value(second))
+                    .andExpect(jsonPath("$[0].photos[2].id").value(third));
+        }
+
+        @Test
+        void withAPhotoTwice_returns400() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(first, first))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INCOMPLETE_ORDER));
+        }
+
+        @Test
+        void withPhotoOfAnotherFolder_returns400() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long first = storedPhoto(folder.getId());
+            storedPhoto(folder.getId());
+            Long foreign = storedPhoto(storedFolder("Prag", "").getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(foreign, first))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INCOMPLETE_ORDER));
+        }
+
+        @Test
+        void withoutPhotoIds_returns400() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            storedPhoto(folder.getId());
+
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INCOMPLETE_ORDER));
+        }
+
+        @Test
+        void withUnknownFolder_returns404() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", "999")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(orderRequest(1L))))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Folder 999 not found"));
+        }
+    }
+
+    @Nested
     class DeleteTravelFolder {
 
         @Test
@@ -1400,6 +1572,12 @@ class TravelControllerTest extends ControllerTest {
     private static TravelPhotoCaptionRequest captionRequest(String caption) {
         TravelPhotoCaptionRequest request = new TravelPhotoCaptionRequest();
         request.setCaption(caption);
+        return request;
+    }
+
+    private static TravelPhotoOrderRequest orderRequest(Long... photoIds) {
+        TravelPhotoOrderRequest request = new TravelPhotoOrderRequest();
+        request.setPhotoIds(List.of(photoIds));
         return request;
     }
 

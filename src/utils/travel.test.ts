@@ -10,6 +10,7 @@ import {
     folderRecipes,
     folderSubtitle,
     mapLayout,
+    moveItem,
     parsePlaces,
     photoCountLabel,
     photoDescription,
@@ -431,5 +432,30 @@ describe("textParagraphs", () => {
     it("is empty for a folder without a text", () => {
         expect(textParagraphs("")).toEqual([]);
         expect(textParagraphs(" \n ")).toEqual([]);
+    });
+});
+
+describe("moveItem", () => {
+    it("moves an item back and lets the ones in between move up", () => {
+        expect(moveItem(["a", "b", "c", "d"], 0, 2)).toEqual(["b", "c", "a", "d"]);
+        expect(moveItem(["a", "b", "c", "d"], 1, 3)).toEqual(["a", "c", "d", "b"]);
+    });
+
+    it("moves an item forward and lets the ones in between move back", () => {
+        expect(moveItem(["a", "b", "c", "d"], 3, 0)).toEqual(["d", "a", "b", "c"]);
+        expect(moveItem(["a", "b", "c", "d"], 2, 1)).toEqual(["a", "c", "b", "d"]);
+    });
+
+    it("does not change the list it was given", () => {
+        const items = ["a", "b", "c"];
+        moveItem(items, 0, 2);
+        expect(items).toEqual(["a", "b", "c"]);
+    });
+
+    it("keeps the order if the item stays or a place is not in the list", () => {
+        expect(moveItem(["a", "b", "c"], 1, 1)).toEqual(["a", "b", "c"]);
+        expect(moveItem(["a", "b", "c"], 0, -1)).toEqual(["a", "b", "c"]);
+        expect(moveItem(["a", "b", "c"], 2, 3)).toEqual(["a", "b", "c"]);
+        expect(moveItem(["a", "b", "c"], 5, 0)).toEqual(["a", "b", "c"]);
     });
 });
