@@ -1,5 +1,6 @@
 package de.jan.config;
 
+import com.google.cloud.NoCredentials;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
@@ -43,14 +44,23 @@ public class ObjectifyConfig {
         // Refuse to start outside Cloud Run unless the Datastore emulator is configured.
         // Cloud Run always sets K_SERVICE; the emulator setup sets DATASTORE_EMULATOR_HOST.
         boolean onCloudRun = System.getenv("K_SERVICE") != null;
-        boolean usingEmulator = System.getenv("DATASTORE_EMULATOR_HOST") != null;
+        String emulatorHost = System.getenv("DATASTORE_EMULATOR_HOST");
+        boolean usingEmulator = emulatorHost != null;
         if (!onCloudRun && !usingEmulator) {
             throw new IllegalStateException(
                     "Refusing to start: not running on Cloud Run and DATASTORE_EMULATOR_HOST is not set. "
                             + "Start the app via start-dev.ps1 / start-dev.sh so it uses the emulator.");
         }
 
-        Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+        // The emulator host is set explicitly: since google-cloud-datastore 3.x the default options
+        // ignore DATASTORE_EMULATOR_HOST and would talk to the real Datastore.
+        DatastoreOptions options = usingEmulator
+                ? DatastoreOptions.newBuilder()
+                        .setHost(emulatorHost)
+                        .setCredentials(NoCredentials.getInstance())
+                        .build()
+                : DatastoreOptions.getDefaultInstance();
+        Datastore datastore = options.getService();
         ObjectifyService.init(new ObjectifyFactory(datastore));
         for (Class<? extends DatastoreEntity> objectifyEntityClass : datastoreEntities) {
             ObjectifyService.register(objectifyEntityClass);
