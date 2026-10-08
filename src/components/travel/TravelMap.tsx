@@ -7,6 +7,7 @@ import TravelController from "../../controller/TravelController";
 import { TravelFolder } from "../../types/Travel";
 import { folderPosition, folderSubtitle, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
+import { zoomWithModifierWheel } from "./modifierWheelZoom";
 
 /**
  * The map of the travel diary: a pin for every folder that has a place; a click on it shows the folder
@@ -31,13 +32,16 @@ export default function TravelMap({ folders }: { folders: TravelFolder[] }) {
     useEffect(() => {
         if (!containerRef.current) return;
         const map = createMap(containerRef.current, {
-            // the page keeps scrolling over the map: zooming with the buttons, a double click or two fingers
-            scrollWheelZoom: false,
+            // the mouse wheel zooms only with Ctrl/Cmd, see below; otherwise the buttons, a double click or two fingers
+            scrollWheelZoom: true,
             dragging: !window.matchMedia("(pointer: coarse)").matches,
             minZoom: 2,
         });
+        // without the key the page keeps scrolling over the map
+        const removeWheelZoom = zoomWithModifierWheel(containerRef.current);
         mapRef.current = map;
         return () => {
+            removeWheelZoom();
             map.remove();
             mapRef.current = null;
         };
