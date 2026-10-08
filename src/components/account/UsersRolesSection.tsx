@@ -25,20 +25,21 @@ export default function UsersRolesSection() {
     const [userToEdit, setUserToEdit] = useState<UserAdminDTO | null>(null);
     const [search, setSearch] = useState("");
 
-    const load = useCallback(async () => {
-        try {
-            const [loadedRoles, loadedUsers] = await Promise.all([RoleController.listRoles(), UserController.listUsers()]);
-            setRoles(loadedRoles);
-            setUsers(loadedUsers);
-        } catch (err) {
-            setError(handleApiError(err));
-            setRoles((prev) => prev ?? []);
-            setUsers((prev) => prev ?? []);
-        }
+    const load = useCallback(() => {
+        Promise.all([RoleController.listRoles(), UserController.listUsers()])
+            .then(([loadedRoles, loadedUsers]) => {
+                setRoles(loadedRoles);
+                setUsers(loadedUsers);
+            })
+            .catch((err) => {
+                setError(handleApiError(err));
+                setRoles((prev) => prev ?? []);
+                setUsers((prev) => prev ?? []);
+            });
     }, []);
 
     useEffect(() => {
-        if (canManage) void load();
+        if (canManage) load();
     }, [canManage, load]);
 
     const roleById = useMemo(() => new Map((roles ?? []).map((role) => [role.id, role])), [roles]);
@@ -54,7 +55,7 @@ export default function UsersRolesSection() {
     function done(message: string) {
         setError(null);
         setNotice(message);
-        void load();
+        load();
     }
 
     if (permissions === null) {
@@ -210,7 +211,9 @@ export default function UsersRolesSection() {
                 }}
             />
 
+            {/* the key starts the dialog from scratch for every user: their roles, no old error */}
             <UserRolesDialog
+                key={userToEdit?.id ?? "closed"}
                 user={userToEdit}
                 roles={roles ?? []}
                 onClose={() => setUserToEdit(null)}
@@ -332,14 +335,9 @@ function UserRolesDialog({ user, roles, onClose, onSaved }: {
     onClose: () => void;
     onSaved: (user: UserAdminDTO) => void;
 }) {
-    const [selected, setSelected] = useState<number[]>([]);
+    const [selected, setSelected] = useState<number[]>(user?.roleIds ?? []);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        setSelected(user?.roleIds ?? []);
-        setError(null);
-    }, [user]);
 
     function close() {
         if (!busy) onClose();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderStepText } from './helper/RecipeHelper';
 import { Recipe } from '../types/Recipe';
@@ -20,26 +20,10 @@ const RecipePage: React.FC = () => {
     const { recipeTitle } = useParams<{ recipeTitle: string }>();
     const recipeFromState = (location.state as { recipe?: Recipe } | null)?.recipe;
     const { recipes, loading } = useRecipes();
-    const { folders } = useTravelFolders();
-    const { isFavorite, toggleFavorite } = useFavorites();
 
     const recipe =
         recipes.find(r => recipeSlug(r.title) === recipeTitle) ??
         (recipeFromState && recipeSlug(recipeFromState.title) === recipeTitle ? recipeFromState : undefined);
-
-    const defaultPortions = recipe?.defaultPortions ?? 2;
-    const [portions, setPortions] = useState<number>(defaultPortions);
-    const [checked, setChecked] = useState<Set<number>>(new Set());
-    const [cooking, setCooking] = useState(false);
-    const [cookStep, setCookStep] = useState(0);
-
-    // Beim Wechsel auf ein anderes Rezept zurücksetzen
-    useEffect(() => {
-        setPortions(defaultPortions);
-        setChecked(new Set());
-        setCooking(false);
-        setCookStep(0);
-    }, [recipeTitle, defaultPortions]);
 
     usePageTitle(recipe?.title);
 
@@ -57,6 +41,20 @@ const RecipePage: React.FC = () => {
             </div>
         );
     }
+
+    return <RecipeView key={`${recipe.id}-${recipe.defaultPortions}`} recipe={recipe} recipes={recipes} />;
+};
+
+/** A recipe with what the visitor has set on its page: the portions, the ticked ingredients and the cook mode. */
+const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, recipes }) => {
+    const { folders } = useTravelFolders();
+    const { isFavorite, toggleFavorite } = useFavorites();
+
+    const defaultPortions = recipe.defaultPortions ?? 2;
+    const [portions, setPortions] = useState<number>(defaultPortions);
+    const [checked, setChecked] = useState<Set<number>>(new Set());
+    const [cooking, setCooking] = useState(false);
+    const [cookStep, setCookStep] = useState(0);
 
     const toggleChecked = (index: number) =>
         setChecked(prev => {

@@ -8,9 +8,10 @@ import "../styles/AccountMenu.css";
 
 export default function AccountMenu() {
     const { user, logout, openAuthDialog, permissions } = useAuth();
-    const [open, setOpen] = useState(false);
-    const rootRef = useRef<HTMLDivElement>(null);
     const { pathname } = useLocation();
+    const [open, setOpen] = useState(false);
+    const [openedOn, setOpenedOn] = useState(pathname);
+    const rootRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!open) return;
@@ -26,7 +27,10 @@ export default function AccountMenu() {
         };
     }, [open]);
 
-    useEffect(() => setOpen(false), [pathname]);
+    if (openedOn !== pathname) {
+        setOpenedOn(pathname);
+        setOpen(false);
+    }
 
     if (!user) {
         return (

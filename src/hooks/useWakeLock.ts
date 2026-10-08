@@ -8,17 +8,12 @@ export type WakeLockStatus = "inactive" | "active" | "unsupported" | "failed";
  * again when the tab becomes visible.
  */
 export function useWakeLock(enabled: boolean): WakeLockStatus {
-    const [status, setStatus] = useState<WakeLockStatus>("inactive");
+    /** what asking for the lock led to; null while it is not asked for or the answer is still open */
+    const [result, setResult] = useState<"active" | "failed" | null>(null);
+    const supported = "wakeLock" in navigator;
 
     useEffect(() => {
-        if (!enabled) {
-            setStatus("inactive");
-            return;
-        }
-        if (!("wakeLock" in navigator)) {
-            setStatus("unsupported");
-            return;
-        }
+        if (!enabled || !supported) return;
 
         let cancelled = false;
         let sentinel: WakeLockSentinel | null = null;
@@ -32,10 +27,10 @@ export function useWakeLock(enabled: boolean): WakeLockStatus {
                     return;
                 }
                 sentinel = lock;
-                setStatus("active");
+                setResult("active");
             } catch {
                 // e.g. battery saver mode or no permission
-                if (!cancelled) setStatus("failed");
+                if (!cancelled) setResult("failed");
             }
         };
 
@@ -50,8 +45,11 @@ export function useWakeLock(enabled: boolean): WakeLockStatus {
             cancelled = true;
             document.removeEventListener("visibilitychange", onVisibilityChange);
             void sentinel?.release().catch(() => undefined);
+            setResult(null);
         };
-    }, [enabled]);
+    }, [enabled, supported]);
 
-    return status;
+    if (!enabled) return "inactive";
+    if (!supported) return "unsupported";
+    return result ?? "inactive";
 }

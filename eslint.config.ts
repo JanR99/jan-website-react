@@ -17,8 +17,6 @@ export default defineConfig([
             globals: globals.browser,
         },
         rules: {
-            // existing code still has these patterns: shown as warnings until they are cleaned up one by one
-            'react-hooks/set-state-in-effect': 'warn',
             'react-hooks/preserve-manual-memoization': 'warn',
         },
     },

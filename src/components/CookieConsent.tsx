@@ -7,17 +7,15 @@ const OPEN_EVENT = 'cookie-consent:open';
 export const openCookieSettings = () => window.dispatchEvent(new Event(OPEN_EVENT));
 
 const CookieConsent: React.FC = () => {
-    const [showConsent, setShowConsent] = useState(false);
+    const [showConsent, setShowConsent] = useState(() => {
+        try {
+            return !localStorage.getItem(CONSENT_KEY);
+        } catch {
+            return true;
+        }
+    });
 
     useEffect(() => {
-        try {
-            if (!localStorage.getItem(CONSENT_KEY)) {
-                setShowConsent(true);
-            }
-        } catch {
-            setShowConsent(true);
-        }
-
         const open = () => setShowConsent(true);
         window.addEventListener(OPEN_EVENT, open);
         return () => window.removeEventListener(OPEN_EVENT, open);

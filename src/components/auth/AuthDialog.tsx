@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { AuthDialogMode, useAuth } from "./AuthContext.tsx";
 import Dialog from "../ui/Dialog.tsx";
@@ -18,13 +18,16 @@ export default function AuthDialog() {
     const [firstname, setFirstname] = useState("");
     const [lastname, setLastname] = useState("");
 
-    useEffect(() => {
+    const [openedAs, setOpenedAs] = useState(authDialog);
+
+    if (openedAs !== authDialog) {
+        setOpenedAs(authDialog);
         if (authDialog) {
             setMode(authDialog);
             setMessage(null);
             setResetSent(false);
         }
-    }, [authDialog]);
+    }
 
     function switchMode(next: AuthDialogMode) {
         setMode(next);
