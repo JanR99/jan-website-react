@@ -369,3 +369,53 @@
         font-size: 1.3rem;
     }
 }
+
+/* ---------- Stopps im Ordner-Dialog ---------- */
+
+.travel-stops {
+    gap: 10px;
+}
+
+.travel-stop-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.travel-stop-list li {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.travel-stop-list .input {
+    flex: 1;
+    min-width: 0;
+}
+
+.travel-stop-number {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    margin-right: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.travel-stop-list li.is-selected .travel-stop-number {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+}
+
+.travel-stop-action {
+    flex: none;
+    padding-inline: 6px;
+}

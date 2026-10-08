@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.TravelFolderRequest;
+import de.jan.controller.requests.TravelStopRequest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -87,8 +88,9 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
                     TravelFolderRequest request = new TravelFolderRequest();
                     request.setName(seed.name());
                     request.setCountry(seed.country());
-                    request.setLatitude(seed.latitude());
-                    request.setLongitude(seed.longitude());
+                    if (seed.latitude() != null && seed.longitude() != null) {
+                        request.setStops(List.of(new TravelStopRequest(seed.name(), seed.latitude(), seed.longitude())));
+                    }
                     folder = travelRepository.createFolder(request);
                 }
                 // photos are imported in order, so the ones an interrupted start already stored are skipped

@@ -61,15 +61,18 @@ public class BackupRepository {
     }
 
     /**
-     * A folder the way folders.json of the seed data has it (name, country, place on the map and the
-     * photos as the names of their files), plus what the seed data doesn't know: when the trip was,
-     * its cuisine and text, the photo shown on the folder and the captions by the name of the photo.
+     * A folder the way folders.json of the seed data has it (name, country, place on the map as the first
+     * stop and the photos as the names of their files), plus what the seed data doesn't know: all stops,
+     * the name of the folder the trip came from, when the trip was, its cuisine and text, the photo shown
+     * on the folder and the captions by the name of the photo.
      */
     public record FolderBackup(
             String name,
             String country,
             Double latitude,
             Double longitude,
+            List<StopBackup> stops,
+            String previousFolder,
             String startMonth,
             String endMonth,
             String cuisine,
@@ -78,6 +81,10 @@ public class BackupRepository {
             List<String> photos,
             Map<String, String> captions
     ) {
+    }
+
+    /** A stop of a folder, in the order of the trip. */
+    public record StopBackup(String name, double latitude, double longitude) {
     }
 
     private final RecipeRepository recipeRepository;
@@ -143,7 +150,12 @@ public class BackupRepository {
     /** Writes the photos of the travel diary and returns the folders for folders.json. */
     private List<FolderBackup> writeTravelPhotos(ZipOutputStream zip) throws IOException {
         List<FolderBackup> result = new ArrayList<>();
-        for (TravelFolderDTO folder : travelRepository.getFolders()) {
+        List<TravelFolderDTO> folders = travelRepository.getFolders();
+        Map<Long, String> names = new HashMap<>();
+        for (TravelFolderDTO folder : folders) {
+            names.put(folder.getId(), folder.getName());
+        }
+        for (TravelFolderDTO folder : folders) {
             List<String> photos = new ArrayList<>();
             Map<String, String> captions = new LinkedHashMap<>();
             String cover = null;
@@ -161,7 +173,13 @@ public class BackupRepository {
                     cover = fileName;
                 }
             }
-            result.add(new FolderBackup(folder.getName(), folder.getCountry(), folder.getLatitude(), folder.getLongitude(),
+            List<StopBackup> stops = folder.getStops().stream()
+                    .map(stop -> new StopBackup(stop.getName(), stop.getLatitude(), stop.getLongitude()))
+                    .toList();
+            StopBackup first = stops.isEmpty() ? null : stops.getFirst();
+            result.add(new FolderBackup(folder.getName(), folder.getCountry(),
+                    first == null ? null : first.latitude(), first == null ? null : first.longitude(),
+                    stops, names.get(folder.getPreviousFolderId()),
                     folder.getStartMonth(), folder.getEndMonth(), folder.getCuisine(), folder.getText(), cover, photos, captions));
         }
         return result;

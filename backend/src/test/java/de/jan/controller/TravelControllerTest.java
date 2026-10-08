@@ -3,8 +3,11 @@ package de.jan.controller;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
+import de.jan.controller.requests.TravelStopRequest;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
+import de.jan.travel.TravelFolder;
+import de.jan.travel.TravelFolderDAO;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -69,11 +75,10 @@ class TravelControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$[0].photos[0].caption").value(""))
                     .andExpect(jsonPath("$[0].coverPhotoId").value(first))
                     // no place on the map
-                    .andExpect(jsonPath("$[0].latitude", nullValue()))
-                    .andExpect(jsonPath("$[0].longitude", nullValue()))
+                    .andExpect(jsonPath("$[0].stops", hasSize(0)))
                     .andExpect(jsonPath("$[1].country").value("Tschechien"))
-                    .andExpect(jsonPath("$[1].latitude").value(50.0755))
-                    .andExpect(jsonPath("$[1].longitude").value(14.4378))
+                    .andExpect(jsonPath("$[1].stops[0].latitude").value(50.0755))
+                    .andExpect(jsonPath("$[1].stops[0].longitude").value(14.4378))
                     .andExpect(jsonPath("$[1].photos", hasSize(0)))
                     .andExpect(jsonPath("$[1].coverPhotoId", nullValue()));
         }
@@ -134,8 +139,7 @@ class TravelControllerTest extends ControllerTest {
                     // name and country are cleaned up
                     .andExpect(jsonPath("$.name").value("Porto 2024"))
                     .andExpect(jsonPath("$.country").value("Portugal"))
-                    .andExpect(jsonPath("$.latitude", nullValue()))
-                    .andExpect(jsonPath("$.longitude", nullValue()))
+                    .andExpect(jsonPath("$.stops", hasSize(0)))
                     .andExpect(jsonPath("$.photos", hasSize(0)))
                     .andExpect(jsonPath("$.coverPhotoId", nullValue()));
 
@@ -239,12 +243,12 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal", 41.1496, -8.611))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.latitude").value(41.1496))
-                    .andExpect(jsonPath("$.longitude").value(-8.611));
+                    .andExpect(jsonPath("$.stops[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$.stops[0].longitude").value(-8.611));
 
             mockMvc.perform(get("/api/travel/folders/list"))
-                    .andExpect(jsonPath("$[0].latitude").value(41.1496))
-                    .andExpect(jsonPath("$[0].longitude").value(-8.611));
+                    .andExpect(jsonPath("$[0].stops[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$[0].stops[0].longitude").value(-8.611));
         }
 
         @Test
@@ -254,8 +258,8 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Antarktis", "", -90.0, 180.0))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.latitude").value(-90.0))
-                    .andExpect(jsonPath("$.longitude").value(180.0));
+                    .andExpect(jsonPath("$.stops[0].latitude").value(-90.0))
+                    .andExpect(jsonPath("$.stops[0].longitude").value(180.0));
         }
 
         @Test
@@ -265,7 +269,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "", 41.1496, null))))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Latitude and longitude must be given together"));
+                    .andExpect(content().string("A stop needs a latitude and a longitude"));
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$", hasSize(0)));
         }
@@ -277,7 +281,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "", null, -8.611))))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Latitude and longitude must be given together"));
+                    .andExpect(content().string("A stop needs a latitude and a longitude"));
         }
 
         @Test
@@ -431,12 +435,12 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal", 41.1496, -8.611))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.latitude").value(41.1496))
-                    .andExpect(jsonPath("$.longitude").value(-8.611));
+                    .andExpect(jsonPath("$.stops[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$.stops[0].longitude").value(-8.611));
 
             mockMvc.perform(get("/api/travel/folders/list"))
-                    .andExpect(jsonPath("$[0].latitude").value(41.1496))
-                    .andExpect(jsonPath("$[0].longitude").value(-8.611));
+                    .andExpect(jsonPath("$[0].stops[0].latitude").value(41.1496))
+                    .andExpect(jsonPath("$[0].stops[0].longitude").value(-8.611));
         }
 
         @Test
@@ -448,8 +452,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal"))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.latitude", nullValue()))
-                    .andExpect(jsonPath("$.longitude", nullValue()));
+                    .andExpect(jsonPath("$.stops", hasSize(0)));
         }
 
         @Test
@@ -465,7 +468,7 @@ class TravelControllerTest extends ControllerTest {
 
             mockMvc.perform(get("/api/travel/folders/list"))
                     .andExpect(jsonPath("$[0].name").value("Porto"))
-                    .andExpect(jsonPath("$[0].latitude").value(41.1496));
+                    .andExpect(jsonPath("$[0].stops[0].latitude").value(41.1496));
         }
 
         @Test
@@ -579,6 +582,174 @@ class TravelControllerTest extends ControllerTest {
                             .content(json(request("Porto", ""))))
                     .andExpect(status().isNotFound())
                     .andExpect(content().string("Folder 999 not found"));
+        }
+    }
+
+    @Nested
+    class StopsAndRoute {
+
+        @Test
+        void withSeveralStops_keepsThemInTheirOrderWithCleanedNames() throws Exception {
+            TravelFolderRequest request = withStops(request("Spanien", "Spanien"),
+                    new TravelStopRequest("  Sevilla ", 37.3891, -5.9845),
+                    new TravelStopRequest("Granada", 37.1773, -3.5986),
+                    new TravelStopRequest(null, 40.4168, -3.7038));
+
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.stops[*].name", contains("Sevilla", "Granada", "")))
+                    .andExpect(jsonPath("$.stops[1].latitude").value(37.1773))
+                    .andExpect(jsonPath("$.stops[1].longitude").value(-3.5986))
+                    .andExpect(jsonPath("$.previousFolderId", nullValue()));
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].stops[*].name", contains("Sevilla", "Granada", "")));
+        }
+
+        @Test
+        void withMostStops_isAllowed() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(withStops(request("Spanien", ""), stops(TravelRepository.MAX_STOPS)))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.stops", hasSize(TravelRepository.MAX_STOPS)));
+        }
+
+        @Test
+        void withTooManyStops_returns400AndStoresNothing() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(withStops(request("Spanien", ""), stops(TravelRepository.MAX_STOPS + 1)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A folder can have at most 30 stops"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void withTooLongStopName_returns400() throws Exception {
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(withStops(request("Spanien", ""), new TravelStopRequest("x".repeat(81), 37.0, -5.0)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Stop name must be at most 80 characters long"));
+        }
+
+        @Test
+        void withFewerStops_replacesThem() throws Exception {
+            TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(withStops(request("Spanien", ""), stops(3))));
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(withStops(request("Spanien", ""), new TravelStopRequest("Madrid", 40.4168, -3.7038)))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.stops[*].name", contains("Madrid")));
+        }
+
+        @Test
+        void folderStoredBeforeThereWereStops_showsItsPlaceAsTheOnlyStop() throws Exception {
+            TravelFolder legacy = storedLegacyFolder("Prag", 50.0755, 14.4378);
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[0].stops", hasSize(1)))
+                    .andExpect(jsonPath("$[0].stops[0].name").value("Prag"))
+                    .andExpect(jsonPath("$[0].stops[0].latitude").value(50.0755))
+                    .andExpect(jsonPath("$[0].stops[0].longitude").value(14.4378));
+
+            // saved again with stops, the old place is gone
+            mockMvc.perform(post("/api/travel/folders/update").param("id", legacy.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request("Prag", ""))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.stops", hasSize(0)));
+        }
+
+        @Test
+        void withPreviousFolder_storesWhereTheTripCameFrom() throws Exception {
+            TravelFolderDTO portugal = storedFolder("Portugal", "");
+            TravelFolderRequest request = request("Spanien", "");
+            request.setPreviousFolderId(portugal.getId());
+
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.previousFolderId").value(portugal.getId()));
+        }
+
+        @Test
+        void withUnknownPreviousFolder_returns400AndStoresNothing() throws Exception {
+            TravelFolderRequest request = request("Spanien", "");
+            request.setPreviousFolderId(12345L);
+
+            mockMvc.perform(post("/api/travel/folders/create")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("The previous folder does not exist"));
+
+            mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void withItselfAsPreviousFolder_returns400() throws Exception {
+            TravelFolderDTO spanien = storedFolder("Spanien", "");
+            TravelFolderRequest request = request("Spanien", "");
+            request.setPreviousFolderId(spanien.getId());
+
+            mockMvc.perform(post("/api/travel/folders/update").param("id", spanien.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A folder cannot come from itself"));
+        }
+
+        @Test
+        void withPreviousFolderThatComesFromThisOne_returns400AndKeepsTheRoute() throws Exception {
+            TravelFolderDTO portugal = storedFolder("Portugal", "");
+            TravelFolderRequest spanienRequest = request("Spanien", "");
+            spanienRequest.setPreviousFolderId(portugal.getId());
+            TravelFolderDTO spanien = inDatastore(() -> travelRepository.createFolder(spanienRequest));
+            TravelFolderRequest frankreichRequest = request("Frankreich", "");
+            frankreichRequest.setPreviousFolderId(spanien.getId());
+            TravelFolderDTO frankreich = inDatastore(() -> travelRepository.createFolder(frankreichRequest));
+
+            // Portugal would come from Frankreich, which comes from Spanien, which comes from Portugal
+            TravelFolderRequest request = request("Portugal", "");
+            request.setPreviousFolderId(frankreich.getId());
+            mockMvc.perform(post("/api/travel/folders/update").param("id", portugal.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("The trip would go in a circle"));
+        }
+
+        @Test
+        void deletingThePreviousFolder_removesItFromTheNextOne() throws Exception {
+            TravelFolderDTO portugal = storedFolder("Portugal", "");
+            TravelFolderRequest request = request("Spanien", "");
+            request.setPreviousFolderId(portugal.getId());
+            inDatastore(() -> travelRepository.createFolder(request));
+
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", portugal.getId().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
+                    .andExpect(status().isNoContent());
+
+            mockMvc.perform(get("/api/travel/folders/list"))
+                    .andExpect(jsonPath("$[*].name", contains("Spanien")))
+                    .andExpect(jsonPath("$[0].previousFolderId", nullValue()));
         }
     }
 
@@ -1175,9 +1346,34 @@ class TravelControllerTest extends ControllerTest {
         TravelFolderRequest request = new TravelFolderRequest();
         request.setName(name);
         request.setCountry(country);
-        request.setLatitude(latitude);
-        request.setLongitude(longitude);
+        if (latitude != null || longitude != null) {
+            request.setStops(List.of(new TravelStopRequest(name, latitude, longitude)));
+        }
         return request;
+    }
+
+    private static TravelFolderRequest withStops(TravelFolderRequest request, TravelStopRequest... stops) {
+        request.setStops(List.of(stops));
+        return request;
+    }
+
+    /** Stops named "Stopp 1", "Stopp 2", … */
+    private static TravelStopRequest[] stops(int count) {
+        List<TravelStopRequest> stops = new ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+            stops.add(new TravelStopRequest("Stopp " + i, 40.0 + i / 100.0, -3.0));
+        }
+        return stops.toArray(new TravelStopRequest[0]);
+    }
+
+    /** A folder as it was stored before there were stops: with one place of its own. */
+    private TravelFolder storedLegacyFolder(String name, double latitude, double longitude) {
+        return inDatastore(() -> {
+            TravelFolder folder = new TravelFolder();
+            folder.setName(name);
+            folder.setLegacyPosition(latitude, longitude);
+            return new TravelFolderDAO().save(folder);
+        });
     }
 
     /** A folder without a country and a place on the map; the months as year and month like "2024-05". */

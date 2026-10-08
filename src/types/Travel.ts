@@ -4,6 +4,12 @@ export interface TravelPosition {
     longitude: number;
 }
 
+/** A place the trip went to; the stops of a folder are in the order of the trip. */
+export interface TravelStop extends TravelPosition {
+    /** like "Sevilla"; empty if the stop has none */
+    name: string;
+}
+
 /** A place the place search found. */
 export interface PlaceSearchResult extends TravelPosition {
     label: string;
@@ -24,9 +30,10 @@ export interface TravelFolder {
     country: string;
     /** photo shown on the folder, null while the folder is empty */
     coverPhotoId: number | null;
-    /** where the trip is shown on the map; both null if the folder has no place on it */
-    latitude: number | null;
-    longitude: number | null;
+    /** the places of the trip in its order; empty if the folder has no place on the map */
+    stops: TravelStop[];
+    /** the folder the trip came from: the line on the map goes from its last stop to the first one here */
+    previousFolderId: number | null;
     /** when the trip was, as year and month like "2024-05"; both null if that is not known */
     startMonth: string | null;
     /** null for a trip within one month */
@@ -41,9 +48,9 @@ export interface TravelFolder {
 export interface TravelFolderRequest {
     name: string;
     country: string;
-    /** both null for a folder without a place on the map */
-    latitude: number | null;
-    longitude: number | null;
+    /** empty for a folder without a place on the map */
+    stops: TravelStop[];
+    previousFolderId: number | null;
     /** year and month like "2024-05"; both null if it is not known when the trip was */
     startMonth: string | null;
     endMonth: string | null;

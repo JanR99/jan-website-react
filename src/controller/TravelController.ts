@@ -1,15 +1,25 @@
 import { apiClient, apiUrl } from "./APIClient.ts";
 import { TravelFolder, TravelFolderRequest } from "../types/Travel.ts";
 
-/** A folder as the service worker may still have it stored from an older version: without captions, date, text and cuisine. */
-type StoredTravelFolder = Omit<TravelFolder, "photos" | "startMonth" | "endMonth" | "text" | "cuisine">
-    & Partial<Pick<TravelFolder, "photos" | "startMonth" | "endMonth" | "text" | "cuisine">>
-    & { photoIds?: number[] };
+type OptionalField = "photos" | "startMonth" | "endMonth" | "text" | "cuisine" | "stops" | "previousFolderId";
+
+/**
+ * A folder as the service worker may still have it stored from an older version: without captions,
+ * date, text, cuisine and stops, but with one place of its own.
+ */
+type StoredTravelFolder = Omit<TravelFolder, OptionalField>
+    & Partial<Pick<TravelFolder, OptionalField>>
+    & { photoIds?: number[]; latitude?: number | null; longitude?: number | null };
 
 /** Without this, such a stored list would break the pages while offline; online the list is always the new one. */
-function fromStored({ photoIds, photos, ...folder }: StoredTravelFolder): TravelFolder {
+function fromStored({ photoIds, photos, latitude, longitude, ...folder }: StoredTravelFolder): TravelFolder {
+    const oldPlace = typeof latitude === "number" && typeof longitude === "number"
+        ? [{ name: folder.name, latitude, longitude }]
+        : [];
     return {
         ...folder,
+        stops: folder.stops ?? oldPlace,
+        previousFolderId: folder.previousFolderId ?? null,
         startMonth: folder.startMonth ?? null,
         endMonth: folder.endMonth ?? null,
         text: folder.text ?? "",
