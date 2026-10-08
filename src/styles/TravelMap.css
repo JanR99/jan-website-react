@@ -95,7 +95,7 @@
 }
 
 .travel-map-card strong {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 1.2rem;
     font-weight: 600;
 }
@@ -159,4 +159,26 @@
 
 :root[data-theme="dark"] .travel-map .leaflet-tile-pane {
     filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+}
+
+/* ---------- Hinweis "Strg + Mausrad zum Zoomen" (modifierWheelZoom.ts) ---------- */
+
+.map-zoom-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.map-zoom-hint.is-visible {
+    opacity: 1;
 }
