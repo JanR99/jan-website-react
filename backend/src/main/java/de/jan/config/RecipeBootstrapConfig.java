@@ -1,8 +1,6 @@
 package de.jan.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.image.ImageRepository;
@@ -15,6 +13,8 @@ import de.jan.user.UserDAO;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  *    (so an interrupted import continues on the next start, and recipes deleted later don't come back),
  * 2. migrates favorites that are still stored as recipe titles to recipe IDs,
  * 3. deletes uploaded images that were never saved with a recipe.
- *
+ * <p>
  * Runs in afterSingletonsInstantiated, i.e. before the web server accepts requests: Cloud Run gives
  * the instance full CPU while it starts, but throttles it between requests once it is running.
  */
@@ -127,14 +127,9 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
                 continue;
             }
 
-            RecipeRequest request = new RecipeRequest();
-            request.setTitle(seed.title());
-            request.setImage(image);
-            request.setDefaultPortions(seed.defaultPortions());
-            request.setCuisine(seed.cuisine());
-            request.setTags(seed.tags());
-            request.setIngredients(seed.ingredients());
-            request.setPreparation(seed.preparation());
+            RecipeRequest request = new RecipeRequest(
+                    image, seed.title, seed.defaultPortions, seed.cuisine, seed.tags, seed.ingredients, seed.preparation
+            );
             try {
                 Recipe recipe = recipeRepository.create(request, existing);
                 existing.add(recipe);

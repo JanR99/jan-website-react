@@ -319,16 +319,10 @@ class RecipeControllerTest extends ControllerTest {
 
     /** A valid request; its image is uploaded first, like the editor does. */
     private RecipeRequest request(String title) {
-        RecipeRequest request = new RecipeRequest();
-        request.setTitle(title);
-        request.setImage(uploadedImage());
-        request.setDefaultPortions(2);
-        request.setCuisine("deutsch");
-        request.setTags(List.of(RecipeTag.VEGETARIAN));
-        request.setIngredients(List.of("Teig:", "200 g Mehl"));
-        request.setPreparation(List.of("Alles mischen.", "Backen."));
-        request.setRelatedRecipeIds(List.of());
-        return request;
+        return new RecipeRequest(
+                uploadedImage(), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
+                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
+        );
     }
 
     private String uploadedImage() {

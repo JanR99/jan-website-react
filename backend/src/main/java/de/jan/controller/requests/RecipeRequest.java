@@ -2,6 +2,7 @@ package de.jan.controller.requests;
 
 import de.jan.recipe.RecipeTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeRequest {
@@ -14,6 +15,18 @@ public class RecipeRequest {
     private List<String> ingredients;
     private List<String> preparation;
     private List<Long> relatedRecipeIds;
+
+    public RecipeRequest(String image, String title, Integer defaultPortions, String cuisine, List<RecipeTag> tags,
+                         List<String> ingredients, List<String> preparation) {
+        this.image = image;
+        this.title = title;
+        this.defaultPortions = defaultPortions;
+        this.cuisine = cuisine;
+        this.tags = tags;
+        this.ingredients = ingredients;
+        this.preparation = preparation;
+        this.relatedRecipeIds = new ArrayList<>();
+    }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

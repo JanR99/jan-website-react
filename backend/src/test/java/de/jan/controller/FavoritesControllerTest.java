@@ -218,13 +218,10 @@ class FavoritesControllerTest extends ControllerTest {
         // the first bytes of a JPEG are enough for the type check
         byte[] jpeg = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0};
         return inDatastore(() -> {
-            RecipeRequest request = new RecipeRequest();
-            request.setTitle(title);
-            request.setImage(imageRepository.upload(jpeg));
-            request.setDefaultPortions(2);
-            request.setCuisine("deutsch");
-            request.setIngredients(List.of("200 g Mehl"));
-            request.setPreparation(List.of("Backen."));
+            RecipeRequest request = new RecipeRequest(
+                    imageRepository.upload(jpeg), title, 2, "deutsch", List.of(),
+                    List.of("200 g Mehl"), List.of("Backen.")
+            );
             return recipeRepository.create(request);
         });
     }

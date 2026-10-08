@@ -1,6 +1,5 @@
 package de.jan.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import de.jan.backup.BackupRepository.FolderBackup;
 import de.jan.backup.BackupRepository.RecipeBackup;
 import de.jan.backup.BackupRepository.StopBackup;
@@ -25,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import tools.jackson.databind.JsonNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -136,10 +136,10 @@ class BackupControllerTest extends ControllerTest {
             JsonNode recipes = objectMapper.readTree(files.get(RECIPES_FILE));
             assertEquals(2, recipes.size());
             JsonNode first = recipes.get(0);
-            assertEquals("Pasta", first.get("title").asText());
-            assertEquals(pastaImage, first.get("image").asText());
+            assertEquals("Pasta", first.get("title").asString());
+            assertEquals(pastaImage, first.get("image").asString());
             assertEquals(2, first.get("defaultPortions").asInt());
-            assertEquals("deutsch", first.get("cuisine").asText());
+            assertEquals("deutsch", first.get("cuisine").asString());
             assertEquals(List.of("VEGETARIAN"), texts(first.get("tags")));
             assertEquals(List.of("Teig:", "200 g Mehl"), texts(first.get("ingredients")));
             assertEquals(List.of("Alles mischen.", "Backen."), texts(first.get("preparation")));
@@ -147,8 +147,8 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(List.of("Pesto"), texts(first.get("relatedRecipes")));
 
             JsonNode second = recipes.get(1);
-            assertEquals("Pesto", second.get("title").asText());
-            assertEquals(pestoImage, second.get("image").asText());
+            assertEquals("Pesto", second.get("title").asString());
+            assertEquals(pestoImage, second.get("image").asString());
             assertEquals(List.of(), texts(second.get("relatedRecipes")));
         }
 
@@ -173,28 +173,28 @@ class BackupControllerTest extends ControllerTest {
             JsonNode folders = objectMapper.readTree(files.get(FOLDERS_FILE));
             assertEquals(2, folders.size());
             JsonNode tokio = folders.get(0);
-            assertEquals("Tokio", tokio.get("name").asText());
-            assertEquals("Japan", tokio.get("country").asText());
+            assertEquals("Tokio", tokio.get("name").asString());
+            assertEquals("Japan", tokio.get("country").asString());
             assertEquals(35.6762, tokio.get("latitude").asDouble());
             assertEquals(139.6503, tokio.get("longitude").asDouble());
             // all stops in their order; latitude and longitude above are the first one, for the seed data
             assertEquals(2, tokio.get("stops").size());
-            assertEquals("Kyoto", tokio.get("stops").get(1).get("name").asText());
+            assertEquals("Kyoto", tokio.get("stops").get(1).get("name").asString());
             assertEquals(135.7681, tokio.get("stops").get(1).get("longitude").asDouble());
             assertTrue(tokio.get("previousFolder").isNull());
-            assertEquals("2025-04", tokio.get("startMonth").asText());
-            assertEquals("2025-05", tokio.get("endMonth").asText());
-            assertEquals("japanisch", tokio.get("cuisine").asText());
-            assertEquals("Erster Absatz.\n\nZweiter Absatz.", tokio.get("text").asText());
-            assertEquals(second + ".png", tokio.get("cover").asText());
+            assertEquals("2025-04", tokio.get("startMonth").asString());
+            assertEquals("2025-05", tokio.get("endMonth").asString());
+            assertEquals("japanisch", tokio.get("cuisine").asString());
+            assertEquals("Erster Absatz.\n\nZweiter Absatz.", tokio.get("text").asString());
+            assertEquals(second + ".png", tokio.get("cover").asString());
             // in the order they are shown
             assertEquals(List.of(first + ".jpg", second + ".png"), texts(tokio.get("photos")));
             // only the photos that have one
             assertEquals(1, tokio.get("captions").size());
-            assertEquals("Fuji", tokio.get("captions").get(second + ".png").asText());
+            assertEquals("Fuji", tokio.get("captions").get(second + ".png").asString());
 
             JsonNode andorra = folders.get(1);
-            assertEquals("Andorra", andorra.get("name").asText());
+            assertEquals("Andorra", andorra.get("name").asString());
             assertTrue(andorra.get("latitude").isNull());
             assertTrue(andorra.get("startMonth").isNull());
             assertTrue(andorra.get("cover").isNull());
@@ -439,11 +439,11 @@ class BackupControllerTest extends ControllerTest {
             List<Recipe> recipes = inDatastore(() -> recipeRepository.getAll());
             assertEquals(List.of("Pasta"), recipes.stream().map(Recipe::getTitle).toList());
             // "Passt dazu" of a recipe that is not there
-            assertEquals(List.of(), recipes.get(0).getRelatedRecipeIds());
+            assertEquals(List.of(), recipes.getFirst().getRelatedRecipeIds());
             List<TravelFolderDTO> folders = inDatastore(() -> travelRepository.getFolders());
             assertEquals(1, folders.size());
-            assertEquals("Japan", folders.get(0).getCountry());
-            assertEquals(1, folders.get(0).getPhotos().size());
+            assertEquals("Japan", folders.getFirst().getCountry());
+            assertEquals(1, folders.getFirst().getPhotos().size());
         }
     }
 
@@ -458,19 +458,15 @@ class BackupControllerTest extends ControllerTest {
 
     private static List<String> texts(JsonNode array) {
         List<String> texts = new ArrayList<>();
-        array.forEach(node -> texts.add(node.asText()));
+        array.forEach(node -> texts.add(node.asString()));
         return texts;
     }
 
     private Recipe storedRecipe(String title, byte[] image, List<Long> relatedRecipeIds) {
-        RecipeRequest request = new RecipeRequest();
-        request.setTitle(title);
-        request.setImage(inDatastore(() -> imageRepository.upload(image)));
-        request.setDefaultPortions(2);
-        request.setCuisine("deutsch");
-        request.setTags(List.of(RecipeTag.VEGETARIAN));
-        request.setIngredients(List.of("Teig:", "200 g Mehl"));
-        request.setPreparation(List.of("Alles mischen.", "Backen."));
+        RecipeRequest request = new RecipeRequest(
+                inDatastore(() -> imageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
+                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
+        );
         request.setRelatedRecipeIds(relatedRecipeIds);
         return inDatastore(() -> recipeRepository.create(request));
     }
@@ -541,12 +537,12 @@ class BackupControllerTest extends ControllerTest {
      * The files of a backup with every image named by its place in the lists instead of by its id,
      * which is a new one after restoring. Two backups with the same content are equal that way.
      */
-    private Map<String, Object> withoutIds(Map<String, byte[]> files) throws Exception {
+    private Map<String, Object> withoutIds(Map<String, byte[]> files) {
         Map<String, Object> result = new LinkedHashMap<>();
         String recipes = new String(files.get(RECIPES_FILE), StandardCharsets.UTF_8);
         int number = 0;
         for (JsonNode recipe : objectMapper.readTree(recipes)) {
-            String image = recipe.get("image").asText();
+            String image = recipe.get("image").asString();
             String name = "recipe-image-" + number++;
             recipes = recipes.replace('"' + image + '"', '"' + name + '"');
             result.put(name, HexFormat.of().formatHex(files.get("recipes/images/" + image)));
