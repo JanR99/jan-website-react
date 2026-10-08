@@ -61,6 +61,16 @@ export default class TravelController {
         return response.body;
     }
 
+    /** Puts the photos of a folder into a new order; photoIds are all of them, each one once. */
+    static async setPhotoOrder(id: number, photoIds: number[]): Promise<TravelFolder> {
+        const apis = await apiClient;
+        const response: { body: TravelFolder } = await apis.travel.setTravelPhotoOrder.execute(
+            { id },
+            { requestBody: { photoIds } }
+        );
+        return response.body;
+    }
+
     static async deleteFolder(id: number): Promise<void> {
         const apis = await apiClient;
         await apis.travel.deleteTravelFolder.execute({ id });

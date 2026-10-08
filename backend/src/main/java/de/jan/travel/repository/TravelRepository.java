@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,8 +55,10 @@ public class TravelRepository {
     private static final Pattern LINE_BREAK = Pattern.compile("\\r\\n?");
     private static final Pattern SPACES_AT_LINE_END = Pattern.compile("[ \\t]+\\n");
     private static final Pattern EMPTY_LINES = Pattern.compile("\\n{3,}");
+    /** The sorted photos by their position, then the ones added since in the order they were added. */
     private static final Comparator<TravelPhoto> PHOTO_ORDER = Comparator
-            .comparing(TravelPhoto::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
+            .comparing(TravelPhoto::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(TravelPhoto::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(TravelPhoto::getId);
 
     private final TravelFolderDAO folderDAO;
@@ -202,6 +205,34 @@ public class TravelRepository {
         } finally {
             invalidateCache();
         }
+        return getFolder(folderId);
+    }
+
+    /**
+     * Puts the photos of a folder into a new order. The first one is then the photo shown on the folder,
+     * so an earlier choice of another one ends.
+     *
+     * @param photoIds the ids of all photos of the folder, each one once
+     */
+    public TravelFolderDTO setPhotoOrder(Long folderId, List<Long> photoIds) {
+        TravelFolder folder = loadFolder(folderId);
+        List<TravelPhoto> photos = photoDAO.getByFolderId(folderId);
+        Map<Long, TravelPhoto> byId = photos.stream()
+                .collect(Collectors.toMap(TravelPhoto::getId, photo -> photo));
+        if (photoIds == null || photoIds.size() != photos.size() || !new HashSet<>(photoIds).equals(byId.keySet())) {
+            throw new EntityStateException("The order must name every photo of the folder exactly once");
+        }
+        for (int i = 0; i < photoIds.size(); i++) {
+            byId.get(photoIds.get(i)).setPosition(i);
+        }
+        if (!photos.isEmpty()) {
+            photoDAO.saveAll(photos);
+        }
+        if (folder.getCoverPhotoId() != null) {
+            folder.setCoverPhotoId(null);
+            folderDAO.save(folder);
+        }
+        invalidateCache();
         return getFolder(folderId);
     }
 
