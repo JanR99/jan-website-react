@@ -4,6 +4,7 @@ import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
     centralStop,
     cleanCaption,
+    collagePhotos,
     crowdedFolders,
     folderCountry,
     folderStops,
@@ -108,6 +109,41 @@ describe("withoutPhoto", () => {
 
     it("changes nothing for a photo of another folder", () => {
         expect(withoutPhoto(folder(), 99)).toEqual(folder());
+    });
+});
+
+describe("collagePhotos", () => {
+    const japan = folder({ id: 1, photos: photos(11, 12, 13, 14, 15, 16) });
+    const porto = folder({ id: 2, photos: photos(21, 22, 23) });
+    const prag = folder({ id: 3, photos: photos(31, 32, 33) });
+    const empty = folder({ id: 4, photos: [] });
+    const folders = [japan, porto, prag, empty];
+    const folderOf = (photoId: number) => folders.find((each) => each.photos.some((photo) => photo.id === photoId))?.id;
+
+    it("takes its photos from different trips", () => {
+        for (const seed of [0.05, 0.37, 0.61, 0.93]) {
+            const chosen = collagePhotos(folders, 2, seed);
+
+            expect(chosen).toHaveLength(2);
+            expect(folderOf(chosen[0].id)).not.toBe(folderOf(chosen[1].id));
+        }
+    });
+
+    it("chooses the same photos again for the same seed", () => {
+        expect(collagePhotos(folders, 2, 0.37)).toEqual(collagePhotos(folders, 2, 0.37));
+    });
+
+    it("chooses other photos for other seeds, also within a trip", () => {
+        const seeds = Array.from({ length: 200 }, (_, i) => (i + 0.5) / 200);
+        const chosen = new Set(seeds.flatMap((seed) => collagePhotos(folders, 2, seed).map((photo) => photo.id)));
+
+        expect(chosen.size).toBe(12);
+    });
+
+    it("has fewer photos when fewer trips have any", () => {
+        expect(collagePhotos([japan, empty], 2, 0.37)).toHaveLength(1);
+        expect(collagePhotos([empty], 2, 0.37)).toEqual([]);
+        expect(collagePhotos([], 2, 0.37)).toEqual([]);
     });
 });
 
