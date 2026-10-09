@@ -1,0 +1,41 @@
+/* Above the dialogs, the cook mode and the photo view: it has to be reachable while something is written there */
+.session-notice {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 3500;
+    width: min(360px, calc(100vw - 32px));
+    padding: 18px 48px 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    animation: pop-in 220ms ease;
+}
+
+.session-notice p {
+    font-size: 0.95rem;
+}
+
+.session-notice .form-message {
+    margin-top: 10px;
+}
+
+.session-notice-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.session-notice-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+@media (max-width: 480px) {
+    .session-notice {
+        right: 16px;
+        bottom: 16px;
+    }
+}

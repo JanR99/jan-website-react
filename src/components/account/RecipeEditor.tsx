@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
+import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import { Recipe, RecipeRequest, RECIPE_TAGS, RecipeTag } from "../../types/Recipe";
 import { recipeImage } from "../../utils/recipe";
 import RecipeImageDropzone from "./RecipeImageDropzone";
@@ -31,6 +32,11 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
     const [uploading, setUploading] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const mayDiscard = useUnsavedChanges({ title, image, portions, cuisine, tags, ingredients, preparation, related });
+    const cancel = () => {
+        if (mayDiscard()) onCancel();
+    };
 
     const cuisines = useMemo(
         () => Array.from(new Set(allRecipes.map((r) => r.cuisine).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
@@ -88,7 +94,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
         <form className="card card-pad recipe-editor" onSubmit={handleSubmit}>
             <div className="account-card-head">
                 <h2 className="account-card-title">{recipe ? `„${recipe.title}“ bearbeiten` : "Neues Rezept"}</h2>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel} disabled={busy}>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={cancel} disabled={busy}>
                     <ArrowLeft size={16} />
                     Zur Liste
                 </button>
@@ -223,7 +229,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
             {error && <p className="form-message form-message--error" role="alert">{error}</p>}
 
             <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
+                <button type="button" className="btn btn-ghost" onClick={cancel} disabled={busy}>
                     Abbrechen
                 </button>
                 <button type="submit" className="btn" disabled={busy || uploading}>

@@ -3,6 +3,7 @@ import { NotebookPen } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
+import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import { TravelFolder } from "../../types/Travel";
 import { TEXT_MAX_LENGTH, textParagraphs } from "../../utils/travel";
 
@@ -41,6 +42,7 @@ function TravelTextEditor({ folder, onDone }: { folder: TravelFolder; onDone: ()
     const [draft, setDraft] = useState(folder.text);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const mayDiscard = useUnsavedChanges(draft);
 
     async function save() {
         setBusy(true);
@@ -73,7 +75,7 @@ function TravelTextEditor({ folder, onDone }: { folder: TravelFolder; onDone: ()
                 <span className="muted travel-text-count">
                     {draft.length.toLocaleString("de-DE")} / {TEXT_MAX_LENGTH.toLocaleString("de-DE")} Zeichen
                 </span>
-                <button type="button" className="btn btn-ghost" onClick={onDone} disabled={busy}>
+                <button type="button" className="btn btn-ghost" onClick={() => mayDiscard() && onDone()} disabled={busy}>
                     Abbrechen
                 </button>
                 <button type="button" className="btn" onClick={() => void save()} disabled={busy}>

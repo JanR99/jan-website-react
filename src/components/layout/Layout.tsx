@@ -4,6 +4,7 @@ import Navbar from "../Navbar";
 import Footer from "./Footer";
 import CookieConsent from "../CookieConsent";
 import AuthDialog from "../auth/AuthDialog";
+import SessionExpiryNotice from "../auth/SessionExpiryNotice";
 import ErrorBoundary from "./ErrorBoundary";
 import { appUpdateArrived } from "../../utils/appUpdate";
 import { useScrollMemory } from "../../hooks/useScrollMemory";
@@ -27,6 +28,7 @@ export default function Layout() {
             </main>
             <Footer />
             <AuthDialog />
+            <SessionExpiryNotice />
             <CookieConsent />
         </div>
     );
