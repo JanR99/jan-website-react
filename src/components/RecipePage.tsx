@@ -5,6 +5,7 @@ import { Recipe } from '../types/Recipe';
 import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { useHistoryOverlay } from '../hooks/useHistoryOverlay';
 import { useTravelFolders } from '../hooks/useTravelFolders';
 import {
     COOKBOOK_BASE, isVegan, isVegetarian, openedFromCookbook, recipeImage, RecipeLinkState, recipePath, recipeSlug,
@@ -84,7 +85,8 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
     const defaultPortions = recipe.defaultPortions ?? 2;
     const [portions, setPortions] = useState<number>(defaultPortions);
     const [checked, setChecked] = useState<Set<number>>(new Set());
-    const [cooking, setCooking] = useState(false);
+    // in the browser history, so the back button closes the cook mode instead of leaving the recipe
+    const cookMode = useHistoryOverlay("cook");
     const [cookStep, setCookStep] = useState(0);
 
     const toggleChecked = (index: number) =>
@@ -179,7 +181,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
 
                     <div className="recipe-hero-actions">
                         {recipe.preparation?.length > 0 && (
-                            <button type="button" className="btn" onClick={() => setCooking(true)}>
+                            <button type="button" className="btn" onClick={() => cookMode.show(true)}>
                                 <CookingPot size={18} />
                                 {cookStep > 0 ? 'Weiterkochen' : 'Kochmodus'}
                             </button>
@@ -255,7 +257,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                 </section>
             )}
 
-            {cooking && (
+            {cookMode.open && (
                 <CookMode
                     recipe={recipe}
                     portions={portions}
@@ -263,7 +265,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                     onStepChange={setCookStep}
                     checked={checked}
                     onToggleChecked={toggleChecked}
-                    onClose={() => setCooking(false)}
+                    onClose={cookMode.close}
                 />
             )}
 

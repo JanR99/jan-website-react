@@ -4,6 +4,7 @@ import { ArrowDownUp, Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
+import { useHistoryOverlay } from "../hooks/useHistoryOverlay";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
@@ -42,7 +43,15 @@ export default function TravelFolderPage() {
     const count = folder?.photos.length ?? 0;
     usePageTitle(folder?.name);
 
-    const [lightbox, setLightbox] = useState<number | null>(null);
+    // The large view is in the browser history, so the back button closes it instead of leaving the trip.
+    // It is opened with one photo; browsing from there doesn't add entries, so one step back always closes it.
+    const photoView = useHistoryOverlay<number>("photo");
+    const [browsedTo, setBrowsedTo] = useState<number | null>(null);
+    const lightbox = photoView.open ? (browsedTo ?? photoView.value ?? 0) : null;
+    const openPhoto = (index: number) => {
+        setBrowsedTo(null);
+        photoView.show(index);
+    };
     const [editing, setEditing] = useState(false);
     /** the folder whose photos an admin is sorting; kept by id, so opening another trip ends it */
     const [sortingId, setSortingId] = useState<number | null>(null);
@@ -128,7 +137,7 @@ export default function TravelFolderPage() {
                                 <button
                                     type="button"
                                     className="gallery-open"
-                                    onClick={() => setLightbox(i)}
+                                    onClick={() => openPhoto(i)}
                                     aria-label={`${folder.name} – Foto ${i + 1} vergrößern`}
                                 >
                                     <img
@@ -180,8 +189,8 @@ export default function TravelFolderPage() {
                     photos={folder.photos}
                     canManage={canManage}
                     index={shown}
-                    onIndexChange={setLightbox}
-                    onClose={() => setLightbox(null)}
+                    onIndexChange={setBrowsedTo}
+                    onClose={photoView.close}
                 />
             )}
 
