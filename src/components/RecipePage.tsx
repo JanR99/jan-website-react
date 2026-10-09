@@ -8,7 +8,7 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { useHistoryOverlay } from '../hooks/useHistoryOverlay';
 import { useTravelFolders } from '../hooks/useTravelFolders';
 import {
-    COOKBOOK_BASE, isVegan, isVegetarian, openedFromCookbook, recipeImage, RecipeLinkState, recipePath, recipeSlug,
+    COOKBOOK_BASE, isVegan, isVegetarian, openedFromCookbook, recipeByAddress, recipeImage, RecipeLinkState, recipePath,
 } from '../utils/recipe';
 import { recipeFolders } from '../utils/travel';
 import RecipeCard from './RecipeCard';
@@ -47,13 +47,13 @@ const CookbookLink: React.FC<{ className: string; style?: React.CSSProperties; c
 
 const RecipePage: React.FC = () => {
     const location = useLocation();
-    const { recipeTitle } = useParams<{ recipeTitle: string }>();
+    const { recipeAddress } = useParams<{ recipeAddress: string }>();
     const recipeFromState = (location.state as RecipeLinkState | null)?.recipe;
     const { recipes, loading, error } = useRecipes();
 
     const recipe =
-        recipes.find(r => recipeSlug(r.title) === recipeTitle) ??
-        (recipeFromState && recipeSlug(recipeFromState.title) === recipeTitle ? recipeFromState : undefined);
+        recipeByAddress(recipes, recipeAddress) ??
+        (recipeFromState && recipeByAddress([recipeFromState], recipeAddress));
 
     usePageTitle(recipe?.title);
 

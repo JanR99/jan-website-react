@@ -30,7 +30,7 @@ const App: React.FC = () => {
                 <Route element={<Layout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/cookbook" element={<Cookbook />} />
-                    <Route path="/cookbook/:recipeTitle" element={<RecipePage />} />
+                    <Route path="/cookbook/:recipeAddress" element={<RecipePage />} />
                     <Route path={TRAVEL_BASE} element={<TravelDiary />} />
                     <Route path={`${TRAVEL_BASE}/:folderId`} element={<TravelFolderPage />} />
                     {/* links to the old pages, where trips had no ids yet */}
