@@ -6,17 +6,15 @@ import CookieConsent from "../CookieConsent";
 import AuthDialog from "../auth/AuthDialog";
 import ErrorBoundary from "./ErrorBoundary";
 import { appUpdateArrived } from "../../utils/appUpdate";
+import { useScrollMemory } from "../../hooks/useScrollMemory";
 
 export default function Layout() {
     const { pathname } = useLocation();
+    useScrollMemory();
 
     useEffect(() => {
         // a release arrived while the page was open: a page change is a good moment to load the new version
-        if (appUpdateArrived()) {
-            window.location.reload();
-            return;
-        }
-        window.scrollTo(0, 0);
+        if (appUpdateArrived()) window.location.reload();
     }, [pathname]);
 
     return (

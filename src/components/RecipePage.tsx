@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderStepText } from './helper/RecipeHelper';
 import { Recipe } from '../types/Recipe';
 import { useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useTravelFolders } from '../hooks/useTravelFolders';
-import { isVegan, isVegetarian, recipeImage, recipePath, recipeSlug } from '../utils/recipe';
+import {
+    COOKBOOK_BASE, isVegan, isVegetarian, openedFromCookbook, recipeImage, RecipeLinkState, recipePath, recipeSlug,
+} from '../utils/recipe';
 import { recipeFolders } from '../utils/travel';
 import RecipeCard from './RecipeCard';
 import TravelFolderLink from './travel/TravelFolderLink';
@@ -15,10 +17,36 @@ import RecipePrintSheet from './RecipePrintSheet';
 import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer } from "lucide-react";
 import '../styles/Recipe.css';
 
+/**
+ * Leads to the cookbook. When the recipe was opened from there it goes one step back instead,
+ * so that search, filters and the place in the list are as they were left.
+ */
+const CookbookLink: React.FC<{ className: string; style?: React.CSSProperties; children: React.ReactNode }> = (
+    { className, style, children }
+) => {
+    const navigate = useNavigate();
+    const cameFromCookbook = openedFromCookbook(useLocation().state);
+
+    const goBack = (event: React.MouseEvent) => {
+        // a click that opens a new tab or window stays a normal link
+        const plainClick = event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
+        if (cameFromCookbook && plainClick) {
+            event.preventDefault();
+            navigate(-1);
+        }
+    };
+
+    return (
+        <Link to={COOKBOOK_BASE} className={className} style={style} onClick={goBack}>
+            {children}
+        </Link>
+    );
+};
+
 const RecipePage: React.FC = () => {
     const location = useLocation();
     const { recipeTitle } = useParams<{ recipeTitle: string }>();
-    const recipeFromState = (location.state as { recipe?: Recipe } | null)?.recipe;
+    const recipeFromState = (location.state as RecipeLinkState | null)?.recipe;
     const { recipes, loading } = useRecipes();
 
     const recipe =
@@ -35,7 +63,7 @@ const RecipePage: React.FC = () => {
                 ) : (
                     <div className="card empty-state" style={{ marginTop: 48 }}>
                         <h3>Rezept nicht gefunden</h3>
-                        <Link to="/cookbook" className="btn">Zum Kochbuch</Link>
+                        <Link to={COOKBOOK_BASE} className="btn">Zum Kochbuch</Link>
                     </div>
                 )}
             </div>
@@ -103,10 +131,10 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
 
     return (
         <div className="container">
-            <Link to="/cookbook" className="back-link" style={{ marginTop: 28 }}>
+            <CookbookLink className="back-link" style={{ marginTop: 28 }}>
                 <ArrowLeft size={16} />
                 Zum Kochbuch
-            </Link>
+            </CookbookLink>
 
             {/* Kopfbereich */}
             <section className="recipe-hero">
@@ -239,9 +267,9 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
             <RecipePrintSheet recipe={recipe} portions={portions} />
 
             <p className="recipe-footer-link">
-                <Link to="/cookbook" className="btn btn-secondary">
+                <CookbookLink className="btn btn-secondary">
                     <ArrowLeft size={18} /> Alle Rezepte
-                </Link>
+                </CookbookLink>
             </p>
         </div>
     );

@@ -1,17 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Recipe } from '../types/Recipe';
 import { useFavorites } from '../hooks/useFavorites';
-import { isVegan, isVegetarian, recipePath, recipeImage } from '../utils/recipe';
+import { isVegan, isVegetarian, recipePath, recipeImage, RecipeLinkState } from '../utils/recipe';
 import { Heart, Leaf } from "lucide-react";
 
 export default function RecipeCard({ recipe }: { recipe: Recipe }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const favorite = isFavorite(recipe.id);
     const ingredientCount = recipe.ingredients?.filter(i => !String(i).trim().endsWith(':')).length ?? 0;
+    const linkState: RecipeLinkState = { recipe, from: useLocation().pathname };
 
     return (
         <article className="recipe-card">
-            <Link to={recipePath(recipe)} state={{ recipe }} className="recipe-card-link">
+            <Link to={recipePath(recipe)} state={linkState} className="recipe-card-link">
                 <div className="recipe-card-image">
                     <img src={recipeImage(recipe)} alt="" loading="lazy" decoding="async" />
                 </div>
