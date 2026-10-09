@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, ExternalLink, Lock, MessageSquare, RotateCcw, Trash2 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
+import PermissionsPending from "./PermissionsPending";
 import FeedbackController from "../../controller/FeedbackController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { FeedbackDTO } from "../../types/feedback";
@@ -39,7 +40,7 @@ export default function FeedbackSection() {
     }
 
     if (permissions === null) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <PermissionsPending />;
     }
 
     if (!canManage) {

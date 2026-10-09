@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import PermissionsPending from "./PermissionsPending";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
@@ -27,7 +28,11 @@ export default function RecipeAdminSection() {
             : recipes;
     }, [recipes, search]);
 
-    if (permissions === null || loading) {
+    if (permissions === null) {
+        return <PermissionsPending />;
+    }
+
+    if (loading) {
         return <div className="loading"><div className="spinner" /></div>;
     }
 

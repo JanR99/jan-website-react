@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
+import PermissionsPending from "./PermissionsPending";
 import RoleController from "../../controller/RoleController";
 import UserController from "../../controller/UserController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
@@ -59,7 +60,7 @@ export default function UsersRolesSection() {
     }
 
     if (permissions === null) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <PermissionsPending />;
     }
 
     if (!canManage) {
