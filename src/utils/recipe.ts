@@ -3,7 +3,21 @@ import ImageController from "../controller/ImageController";
 
 export const recipeSlug = (title: string) => title.toLowerCase().replace(/\s+/g, "-");
 
-export const recipePath = (recipe: Pick<Recipe, "title">) => `/cookbook/${recipeSlug(recipe.title)}`;
+export const COOKBOOK_BASE = "/cookbook";
+
+export const recipePath = (recipe: Pick<Recipe, "title">) => `${COOKBOOK_BASE}/${recipeSlug(recipe.title)}`;
+
+/** What a link to a recipe hands to the recipe page. */
+export interface RecipeLinkState {
+    /** shown until the list of recipes is loaded */
+    recipe?: Recipe;
+    /** the page the link is on, like "/cookbook" */
+    from?: string;
+}
+
+/** Whether the recipe page was reached by a link in the cookbook, so that one step back leads there again. */
+export const openedFromCookbook = (linkState: unknown) =>
+    (linkState as RecipeLinkState | null)?.from === COOKBOOK_BASE;
 
 export const recipeImage = (recipe: Pick<Recipe, "image">) => ImageController.getImageUrl(recipe.image);
 

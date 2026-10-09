@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Recipe } from '../types/Recipe';
-import { capitalize, isVegan, isVegetarian, randomRecipe, recipeImage, recipePath, recipeSlug } from './recipe';
+import { capitalize, isVegan, isVegetarian, openedFromCookbook, randomRecipe, recipeImage, recipePath, recipeSlug } from './recipe';
 
 const recipe = (overrides: Partial<Recipe> = {}): Recipe => ({
     id: 1,
@@ -13,6 +13,23 @@ const recipe = (overrides: Partial<Recipe> = {}): Recipe => ({
     tags: [],
     relatedRecipeIds: [],
     ...overrides,
+});
+
+describe('openedFromCookbook', () => {
+    it('is true for a link in the cookbook', () => {
+        expect(openedFromCookbook({ recipe: recipe(), from: '/cookbook' })).toBe(true);
+    });
+
+    it('is false for a link on another page, like "Passt dazu" on a recipe or a trip', () => {
+        expect(openedFromCookbook({ recipe: recipe(), from: '/cookbook/ramen' })).toBe(false);
+        expect(openedFromCookbook({ recipe: recipe(), from: '/reisen/7' })).toBe(false);
+    });
+
+    it('is false when the page was not reached by such a link', () => {
+        expect(openedFromCookbook(null)).toBe(false);
+        expect(openedFromCookbook(undefined)).toBe(false);
+        expect(openedFromCookbook({ recipe: recipe() })).toBe(false);
+    });
 });
 
 describe('recipeSlug', () => {
