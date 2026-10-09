@@ -131,3 +131,44 @@ class APIClient {
 }
 
 export const apiClient = new APIClient();
+
+/** What a controller awaits to get the operations: apiClient asks the backend, storedApi doesn't. */
+export type Api = PromiseLike<any>;
+
+/** What the service worker has stored for a URL; fails when there is nothing. */
+async function stored(url: string): Promise<any> {
+    const response = await caches.match(url, { ignoreVary: true });
+    if (!response) throw new Error(`Nothing stored for ${url}`);
+    return response.json();
+}
+
+async function loadStoredApis() {
+    const { paths = {} } = await stored(DISCOVERY_URL);
+    const apis: any = {};
+    for (const [path, methods] of Object.entries<any>(paths)) {
+        // only answers to GET are stored
+        const operation = methods.get;
+        for (const tag of operation?.tags ?? []) {
+            apis[tag] ??= {};
+            apis[tag][operation.operationId] = {
+                ...operation,
+                httpMethod: "GET",
+                path,
+                execute: async () => ({ body: await stored(apiUrl(path)) }),
+            };
+        }
+    }
+    return apis;
+}
+
+/**
+ * Looks like apiClient to a controller, but never asks the backend: the operations come from the API
+ * description the service worker has stored, and execute answers with the stored copy of the response.
+ * So it answers at once, also while the backend still wakes up.
+ *
+ * Fails when the description or the answer is not stored (first visit, dev server, operation that
+ * isn't kept for offline use), so that "nothing stored" can't be mistaken for an empty answer.
+ */
+export const storedApi: Api = {
+    then: (onfulfilled, onrejected) => loadStoredApis().then(onfulfilled, onrejected),
+};

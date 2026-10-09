@@ -1,6 +1,8 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { Recipe } from "../types/Recipe";
 import RecipeController from "../controller/RecipeController";
+import { storedApi } from "../controller/APIClient";
+import { storedThenFresh } from "../utils/storedFirst";
 
 interface RecipesState {
     recipes: Recipe[];
@@ -25,10 +27,15 @@ function subscribe(listener: () => void) {
 
 function load(): Promise<void> {
     if (!pending) {
-        pending = RecipeController.listRecipes()
-            .then((recipes) => {
-                loaded = true;
-                setState({ recipes, loading: false, error: null });
+        // only the first load starts with the stored copy; after that the page already shows something newer
+        const readStored = loaded ? async () => null : () => RecipeController.listRecipes(storedApi);
+        pending = storedThenFresh(
+            readStored,
+            () => RecipeController.listRecipes(),
+            (recipes) => setState({ recipes, loading: false, error: null }),
+        )
+            .then((freshArrived) => {
+                if (freshArrived) loaded = true;
             })
             .catch((err) => {
                 console.error("Error loading recipes:", err);

@@ -1,10 +1,11 @@
-import { apiClient } from "./APIClient.ts";
+import { Api, apiClient } from "./APIClient.ts";
 import { Recipe, RecipeRequest } from "../types/Recipe.ts";
 
 export default class RecipeController {
 
-    static async listRecipes(): Promise<Recipe[]> {
-        const apis = await apiClient;
+    /** @param api storedApi for the list as it was stored on an earlier visit; that fails when there is none */
+    static async listRecipes(api: Api = apiClient): Promise<Recipe[]> {
+        const apis = await api;
         const response: { body: Recipe[] } = await apis.recipes.listRecipes.execute({});
         return response.body ?? [];
     }

@@ -1,7 +1,9 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { TravelFolder } from "../types/Travel";
 import TravelController from "../controller/TravelController";
+import { storedApi } from "../controller/APIClient";
 import { sortFolders, withoutPhoto } from "../utils/travel";
+import { storedThenFresh } from "../utils/storedFirst";
 
 interface TravelFoldersState {
     folders: TravelFolder[];
@@ -26,10 +28,15 @@ function subscribe(listener: () => void) {
 
 function load(): Promise<void> {
     if (!pending) {
-        pending = TravelController.listFolders()
-            .then((folders) => {
-                loaded = true;
-                setState({ folders, loading: false, error: null });
+        // only the first load starts with the stored copy; after that the page already shows something newer
+        const readStored = loaded ? async () => null : () => TravelController.listFolders(storedApi);
+        pending = storedThenFresh(
+            readStored,
+            () => TravelController.listFolders(),
+            (folders) => setState({ folders, loading: false, error: null }),
+        )
+            .then((freshArrived) => {
+                if (freshArrived) loaded = true;
             })
             .catch((err) => {
                 console.error("Error loading travel folders:", err);

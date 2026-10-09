@@ -5,6 +5,14 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'node:path'
 
+// a server error (e.g. 503 while Cloud Run is down) counts as "no answer"
+const serverErrorIsNoAnswer = {
+    fetchDidSucceed: async ({ response }: { response: Response }) => {
+        if (response.status >= 500) throw new Error(`backend answered ${response.status}`)
+        return response
+    },
+}
+
 export default defineConfig({
     plugins: [
         react(),
@@ -18,22 +26,26 @@ export default defineConfig({
                 globPatterns: ['**/*.{js,css,html,ico,png,woff2}', 'manifest.json'],
                 runtimeCaching: [
                     {
-                        // recipes, travel folders and the API description: network first, the stored copy when the backend doesn't answer
-                        urlPattern: ({ url }) => ['/v3/api-docs', '/api/recipes/list', '/api/travel/folders/list'].includes(url.pathname),
+                        // the API description: network first, the stored copy when the backend doesn't answer within 3 seconds
+                        urlPattern: ({ url }) => url.pathname === '/v3/api-docs',
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'api',
                             networkTimeoutSeconds: 3,
                             cacheableResponse: { statuses: [200] },
-                            plugins: [
-                                {
-                                    // a server error (e.g. 503 while Cloud Run is down) counts as "no answer"
-                                    fetchDidSucceed: async ({ response }) => {
-                                        if (response.status >= 500) throw new Error(`backend answered ${response.status}`)
-                                        return response
-                                    },
-                                },
-                            ],
+                            plugins: [serverErrorIsNoAnswer],
+                        },
+                    },
+                    {
+                        // recipes and travel folders: network first, the stored copy when the backend can't be reached.
+                        // No time limit: while the backend wakes up the pages show the stored copy themselves
+                        // (storedThenFresh) and need the real answer from here, however long it takes.
+                        urlPattern: ({ url }) => ['/api/recipes/list', '/api/travel/folders/list'].includes(url.pathname),
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'api',
+                            cacheableResponse: { statuses: [200] },
+                            plugins: [serverErrorIsNoAnswer],
                         },
                     },
                     {
