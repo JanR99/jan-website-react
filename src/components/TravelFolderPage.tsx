@@ -6,7 +6,8 @@ import TravelController from "../controller/TravelController";
 import { handleApiError } from "../controller/util/ErrorHandler";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
-import { dropTravelFolder, dropTravelPhoto, useTravelFolders } from "../hooks/useTravelFolders";
+import { dropTravelFolder, dropTravelPhoto, reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
+import LoadError from "./ui/LoadError";
 import { TravelFolder } from "../types/Travel";
 import { folderRecipes, folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
@@ -51,10 +52,17 @@ export default function TravelFolderPage() {
         if (loading) {
             return <div className="container"><div className="loading"><div className="spinner" /></div></div>;
         }
+        if (error) {
+            return (
+                <div className="container">
+                    <LoadError message={error} onRetry={() => void reloadTravelFolders()} style={{ marginTop: 48 }} />
+                </div>
+            );
+        }
         return (
             <div className="container">
                 <div className="card empty-state" style={{ marginTop: 48 }}>
-                    <h3>{error ?? "Reise nicht gefunden"}</h3>
+                    <h3>Reise nicht gefunden</h3>
                     <Link to={TRAVEL_BASE} className="btn">Zu allen Reisen</Link>
                 </div>
             </div>

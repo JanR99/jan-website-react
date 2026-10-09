@@ -94,6 +94,16 @@
     z-index: 1;
 }
 
+/* The hint that the recipes couldn't be loaded; its button lies on top of that link like the ones below */
+.cookbook-teaser-error {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
 /* The buttons lie on top of that link and stay clickable on their own */
 .cookbook-teaser-actions {
     position: relative;

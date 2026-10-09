@@ -28,6 +28,8 @@ function subscribe(listener: () => void) {
 
 function load(): Promise<void> {
     if (!pending) {
+        // a new try after a failure: back to the loading state, so the visitor sees that something happens
+        if (state.error) setState({ loading: true, error: null });
         // only the first load starts with the stored copy; after that the page already shows something newer
         const readStored = loaded ? async () => null : () => TravelController.listFolders(storedApi);
         pending = storedThenFresh(
