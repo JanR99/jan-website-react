@@ -1,5 +1,6 @@
 import { Recipe } from "../types/Recipe";
 import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition, TravelStop } from "../types/Travel";
+import { chosenByChance } from "./chance";
 
 export const TRAVEL_BASE = "/reisen";
 
@@ -111,6 +112,19 @@ export function folderRecipes(folder: Pick<TravelFolder, "cuisine">, recipes: Re
 export function recipeFolders(recipe: Pick<Recipe, "cuisine">, folders: TravelFolder[]): TravelFolder[] {
     const cuisine = cuisineKey(recipe.cuisine);
     return cuisine ? folders.filter((folder) => cuisineKey(folder.cuisine) === cuisine) : [];
+}
+
+/**
+ * Photos for the collage on the home page, chosen by chance: one photo each from as many different
+ * trips as asked for. With fewer trips that have photos there are fewer photos.
+ *
+ * @param folders the TravelFolders
+ * @param count the maximum number
+ * @param seed a random number from 0 to 1, drawn once per visit
+ */
+export function collagePhotos(folders: Pick<TravelFolder, "id" | "photos">[], count: number, seed: number): TravelPhoto[] {
+    const withPhotos = folders.filter((folder) => folder.photos.length > 0);
+    return chosenByChance(withPhotos, count, seed).map((folder) => chosenByChance(folder.photos, 1, seed)[0]);
 }
 
 export const TEXT_MAX_LENGTH = 10_000;

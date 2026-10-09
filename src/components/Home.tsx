@@ -3,13 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import TravelController from '../controller/TravelController';
 import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { reloadTravelFolders, useTravelFolders } from '../hooks/useTravelFolders';
+import { chosenByChance } from '../utils/chance';
 import { randomRecipe, recipePath, recipeImage } from '../utils/recipe';
-import { TRAVEL_BASE } from '../utils/travel';
+import { collagePhotos, TRAVEL_BASE } from '../utils/travel';
 import TravelFolderCard from './travel/TravelFolderCard';
 import { ArrowRight, BookOpen, Dices, Plane } from "lucide-react";
 import '../styles/Home.css';
 
-const TEASER_TITLES = ['Char Koay Teow', 'Baozi 包子', 'Falafel Wrap', 'Abura Soba'];
+/** The cookbook teaser shows a few recipes chosen by chance, the collage at the top a few travel photos. */
+const TEASER_RECIPES = 4;
+const COLLAGE_PHOTOS = 2;
+/** drawn once per visit, so the choice stays while the page is open, also when coming back to the home page */
+const VISIT_SEED = Math.random();
 /** The home page only shows a few trips, the travel diary has all of them. */
 const TEASER_FOLDERS = 4;
 /** last random recipe, so it does not suggest the same recipe twice in a row. */
@@ -17,13 +22,11 @@ let lastSurpriseId: number | undefined;
 
 const Home: React.FC = () => {
     const { recipes, loading: recipesLoading, error: recipesError } = useRecipes();
-    const teaser = TEASER_TITLES
-        .map(title => recipes.find(r => r.title === title))
-        .filter((r): r is NonNullable<typeof r> => Boolean(r));
+    const teaser = chosenByChance(recipes, TEASER_RECIPES, VISIT_SEED);
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
 
     const { folders, error: foldersError } = useTravelFolders();
-    const covers = folders.flatMap(folder => (folder.coverPhotoId !== null ? [folder.coverPhotoId] : []));
+    const collage = collagePhotos(folders, COLLAGE_PHOTOS, VISIT_SEED);
 
     // the trips are missing as well when the backend can't be reached, so one try gets both
     const retry = () => {
@@ -63,9 +66,9 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className="home-hero-collage" aria-hidden="true">
-                    {covers[0] !== undefined && <img src={TravelController.photoUrl(covers[0])} alt="" />}
+                    {collage[0] && <img src={TravelController.photoUrl(collage[0].id)} alt="" />}
                     {teaser[0] && <img src={recipeImage(teaser[0])} alt="" />}
-                    {covers[1] !== undefined && <img src={TravelController.photoUrl(covers[1])} alt="" />}
+                    {collage[1] && <img src={TravelController.photoUrl(collage[1].id)} alt="" />}
                 </div>
             </section>
 
