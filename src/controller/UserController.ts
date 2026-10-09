@@ -20,7 +20,7 @@ export default class UserController {
         return response.body;
     }
 
-    /** Only for a login with "Angemeldet bleiben": the new token is valid for another 30 days. */
+    /** A new token for the login, so its time starts again: 2 hours, or 30 days with "Angemeldet bleiben". */
     static async renewToken() : Promise<LoginResponse> {
         const apis = await apiClient;
         const response: { body: LoginResponse } = await apis.user.renewToken.execute({});

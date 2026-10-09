@@ -286,10 +286,20 @@ class UserControllerTest extends ControllerTest {
         }
 
         @Test
-        void withALoginThatEndsAfterTwoHours_returns400() throws Exception {
-            renewToken(bearer(registered(EMAIL)))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Only a login that stays logged in can be renewed"));
+        void withALoginThatEndsAfterTwoHours_returnsANewTokenThatEndsAfterTwoHours() throws Exception {
+            User user = registered(EMAIL);
+
+            MvcResult result = renewToken(bearer(user))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.token").isString())
+                    .andExpect(jsonPath("$.user.id").value(user.getId()))
+                    .andExpect(jsonPath("$.user.email").value(EMAIL))
+                    .andReturn();
+
+            // renewing doesn't turn it into a login that stays logged in; the new token can be renewed itself
+            String token = tokenOf(result);
+            assertEquals(TWO_HOURS, lifetimeInSeconds(token));
+            renewToken("Bearer " + token).andExpect(status().isOk());
         }
 
         @Test

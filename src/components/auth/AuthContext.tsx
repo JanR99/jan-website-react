@@ -8,11 +8,31 @@ import {
     ChangePasswordRequest, LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest
 } from "../../types/userController.ts";
 import { Permission } from "../../types/roles.ts";
-import { getTokenExpiry, loadSession, needsRenewal, saveSession, Session } from "./sessionStore.ts";
+import {
+    getExpiryWarningTime, getTokenExpiry, loadSession, needsRenewal, saveSession, Session,
+} from "./sessionStore.ts";
 import { retryPause } from "../../utils/retry.ts";
 
 // setTimeout runs at once when its delay is longer than this (about 24.8 days)
 const MAX_TIMEOUT = 2 ** 31 - 1;
+
+/**
+ * Runs the action at the given time. 30 days are more than one setTimeout can wait, so for a long
+ * login the time is checked again in between.
+ *
+ * @returns cancels it
+ */
+function runAt(time: number, action: () => void): () => void {
+    let timeout = window.setTimeout(function check() {
+        const remaining = time - Date.now();
+        if (remaining <= 0) {
+            action();
+        } else {
+            timeout = window.setTimeout(check, Math.min(remaining, MAX_TIMEOUT));
+        }
+    }, Math.max(0, Math.min(time - Date.now(), MAX_TIMEOUT)));
+    return () => window.clearTimeout(timeout);
+}
 
 export type LoginResult =
     | { ok: true }
@@ -20,14 +40,16 @@ export type LoginResult =
 
 export type AuthDialogMode = "login" | "register" | "forgot";
 
-/** What the user may do. */
+/** What a user may do. */
 interface Rights {
+    /** whose permissions these are; they only count while that user is logged in */
+    userId: number | null;
     /** null as long as it isn't known: still loading, or it couldn't be loaded so far */
     permissions: Permission[] | null;
     failed: boolean;
 }
 
-const UNKNOWN: Rights = { permissions: null, failed: false };
+const UNKNOWN: Rights = { userId: null, permissions: null, failed: false };
 
 interface AuthContextValue {
     user: UserDTO | null;
@@ -39,6 +61,10 @@ interface AuthContextValue {
     /** tries to load them again right now */
     retryPermissions: () => void;
     hasPermission: (permission: Permission) => boolean;
+    /** when the login ends, once that is only minutes away; null before that */
+    sessionEndsAt: number | null;
+    /** renews the login, so its time starts again */
+    extendSession: () => Promise<LoginResult>;
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
     logout: () => void;
@@ -60,10 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return restored;
     });
     const [authDialog, setAuthDialog] = useState<AuthDialogMode | null>(null);
-    const [{ permissions, failed: permissionsFailed }, setRights] = useState(UNKNOWN);
+    const [rights, setRights] = useState(UNKNOWN);
+    /** the token whose end is only minutes away */
+    const [endingToken, setEndingToken] = useState<string | null>(null);
     /** counts the tries the user asked for; each one starts the loading below again */
     const [permissionsTry, setPermissionsTry] = useState(0);
     const token = session?.token ?? null;
+    const userId = session?.user.id ?? null;
+    // Kept across a renewed token of the same user: an admin area shown with them must not start over
+    // (and lose what is being written there) just because the login was extended.
+    const { permissions, failed: permissionsFailed } = userId !== null && rights.userId === userId ? rights : UNKNOWN;
 
     const startSession = useCallback((response: LoginResponse) => {
         apiClient.setToken(response.token);
@@ -79,8 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        setRights(UNKNOWN);
-        if (!token) return;
+        if (!token || userId === null) return;
         let active = true;
         let loading = false;
         let failedTries = 0;
@@ -91,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             loading = true;
             window.clearTimeout(nextTry);
             UserController.getPermissions()
-                .then((result) => active && setRights({ permissions: result, failed: false }))
+                .then((result) => active && setRights({ userId, permissions: result, failed: false }))
                 .catch((error) => {
                     if (!active) return;
                     if (isUnauthenticated(error)) {
@@ -100,9 +131,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         return;
                     }
                     // A failed request (backend still waking up, offline) doesn't mean "no permissions":
-                    // they stay unknown and it is tried again, so the admin functions appear without a reload.
+                    // they stay unknown (or as they were known for this user) and it is tried again,
+                    // so the admin functions appear without a reload.
                     failedTries++;
-                    setRights({ permissions: null, failed: true });
+                    setRights((known) =>
+                        known.userId === userId && known.permissions !== null
+                            ? known
+                            : { userId, permissions: null, failed: true }
+                    );
                     nextTry = window.setTimeout(load, retryPause(failedTries));
                 })
                 .finally(() => {
@@ -118,9 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             window.clearTimeout(nextTry);
             window.removeEventListener("online", load);
         };
-    }, [token, logout, permissionsTry]);
+    }, [token, userId, logout, permissionsTry]);
 
-    const retryPermissions = useCallback(() => setPermissionsTry((tries) => tries + 1), []);
+    const retryPermissions = useCallback(() => {
+        // back to "loading", so the user sees that something happens
+        setRights(UNKNOWN);
+        setPermissionsTry((tries) => tries + 1);
+    }, []);
 
     // A login with "Angemeldet bleiben" gets a fresh token on a visit, so its 30 days start again.
     useEffect(() => {
@@ -193,21 +233,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: true };
     }, [logout]);
 
+    // The login ends by itself; shortly before, the user is told and can extend it (SessionExpiryNotice).
     useEffect(() => {
-        if (!session) return;
-        const expiry = getTokenExpiry(session.token);
-        if (expiry === null) return;
-        // 30 days are more than one setTimeout can wait, so a long login is checked again in between
-        let timeout = window.setTimeout(function check() {
-            const remaining = expiry - Date.now();
-            if (remaining <= 0) {
-                logout();
-            } else {
-                timeout = window.setTimeout(check, Math.min(remaining, MAX_TIMEOUT));
-            }
-        }, Math.max(0, Math.min(expiry - Date.now(), MAX_TIMEOUT)));
-        return () => window.clearTimeout(timeout);
-    }, [session, logout]);
+        if (!token) return;
+        const expiry = getTokenExpiry(token);
+        const warning = getExpiryWarningTime(token);
+        if (expiry === null || warning === null) return;
+        const cancelWarning = runAt(warning, () => setEndingToken(token));
+        const cancelLogout = runAt(expiry, logout);
+        return () => {
+            cancelWarning();
+            cancelLogout();
+        };
+    }, [token, logout]);
+
+    const sessionEndsAt = token !== null && token === endingToken ? getTokenExpiry(token) : null;
+
+    const extendSession = useCallback(async (): Promise<LoginResult> => {
+        try {
+            startSession(await UserController.renewToken());
+            return { ok: true };
+        } catch (error) {
+            if (isUnauthenticated(error)) logout();
+            return { ok: false, error: handleApiError(error) };
+        }
+    }, [startSession, logout]);
 
     const openAuthDialog = useCallback((mode: AuthDialogMode = "login") => setAuthDialog(mode), []);
     const closeAuthDialog = useCallback(() => setAuthDialog(null), []);
@@ -220,6 +270,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             permissionsFailed,
             retryPermissions,
             hasPermission: (permission: Permission) => permissions?.includes(permission) ?? false,
+            sessionEndsAt,
+            extendSession,
             login,
             register,
             logout,
@@ -231,8 +283,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             closeAuthDialog,
         }),
         [
-            session, permissions, permissionsFailed, retryPermissions, login, register, logout, updateProfile,
-            changePassword, deleteAccount, authDialog, openAuthDialog, closeAuthDialog,
+            session, permissions, permissionsFailed, retryPermissions, sessionEndsAt, extendSession, login, register,
+            logout, updateProfile, changePassword, deleteAccount, authDialog, openAuthDialog, closeAuthDialog,
         ]
     );
 

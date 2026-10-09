@@ -1,6 +1,5 @@
 package de.jan.security;
 
-import de.jan.exceptions.EntityStateException;
 import de.jan.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,8 +24,9 @@ public class JwtService {
             System.getenv().getOrDefault("JWT_SECRET", "dev-only-insecure-secret-change-me-32chars!").getBytes()
     );
 
+    // the frontend offers to renew the token shortly before it ends, so the time starts again
     private static final Duration EXPIRATION = Duration.ofHours(2);
-    // for a login with "Angemeldet bleiben"; the frontend renews the token on a visit, so the time starts again
+    // for a login with "Angemeldet bleiben"; the frontend renews that token by itself on a visit
     private static final Duration REMEMBER_ME_EXPIRATION = Duration.ofDays(30);
 
     private static final String VERSION_CLAIM = "ver";
@@ -57,15 +57,10 @@ public class JwtService {
         return new Token(claims.getSubject(), version == null ? 0 : version, Boolean.TRUE.equals(rememberMe));
     }
 
-    /** A fresh token for a login with "Angemeldet bleiben", so its 30 days start again. */
-    public String renewToken(User user, String token) {
-        if (!parse(token).rememberMe()) {
-            throw new EntityStateException("Only a login that stays logged in can be renewed");
-        }
-        return generateToken(user, true);
-    }
-
-    /** A new token of the same kind as the given one: with "Angemeldet bleiben" or without. */
+    /**
+     * A new token of the same kind as the given one: with "Angemeldet bleiben" or without.
+     * Its time starts again, so this is also how a login is renewed.
+     */
     public String reissueToken(User user, String token) {
         return generateToken(user, parse(token).rememberMe());
     }

@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getTokenExpiry, loadSession, needsRenewal, saveSession, staysLoggedIn } from './sessionStore';
+import {
+    getExpiryWarningTime, getTokenExpiry, loadSession, needsRenewal, saveSession, staysLoggedIn,
+} from './sessionStore';
 
 const STORAGE_KEY = 'jan-website-session';
 const HOUR = 60 * 60;
@@ -137,5 +139,23 @@ describe('getTokenExpiry', () => {
     it('returns null for something that is not a token', () => {
         expect(getTokenExpiry('not-a-token')).toBeNull();
         expect(getTokenExpiry('')).toBeNull();
+    });
+});
+
+describe('getExpiryWarningTime', () => {
+    it('is 5 minutes before the login ends', () => {
+        const warning = getExpiryWarningTime(token({ expiresIn: 2 * HOUR }));
+
+        expect(warning).toBe(Date.now() + (2 * HOUR - 5 * 60) * 1000);
+    });
+
+    it('is already over for a login that ends within the next 5 minutes', () => {
+        const warning = getExpiryWarningTime(token({ expiresIn: 3 * 60 }));
+
+        expect(warning).toBeLessThan(Date.now());
+    });
+
+    it('is null for a token that names no end', () => {
+        expect(getExpiryWarningTime('not-a-token')).toBeNull();
     });
 });

@@ -81,7 +81,7 @@ public class UserController {
             // hidden: the frontend sends this header with every request anyway, it is not a parameter of its own
             @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization
     ) {
-        String token = jwtService.renewToken(user, authorization.substring(JwtService.BEARER_PREFIX.length()));
+        String token = jwtService.reissueToken(user, authorization.substring(JwtService.BEARER_PREFIX.length()));
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
     }
 

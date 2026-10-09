@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { useRecipes } from "../../hooks/useRecipes";
 import { storeTravelFolder, useTravelFolders } from "../../hooks/useTravelFolders";
+import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import { TravelFolder } from "../../types/Travel";
 import { folderCountry, toMonth } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
@@ -20,27 +21,12 @@ interface TravelFolderDialogProps {
 
 /** Creates a folder or changes name, country, cuisine, the time of the trip, its stops and where it came from. */
 export default function TravelFolderDialog({ open, folder, onClose, onSaved }: TravelFolderDialogProps) {
-    const [busy, setBusy] = useState(false);
-    const close = () => {
-        if (!busy) onClose();
-    };
-
-    return (
-        <Dialog open={open} onClose={close} labelledBy="travel-folder-title" className="confirm-dialog">
-            <h2 id="travel-folder-title">{folder ? "Ordner bearbeiten" : "Neuer Ordner"}</h2>
-            {/* only mounted while the dialog is open, so the fields start fresh every time */}
-            <TravelFolderForm folder={folder} busy={busy} onBusyChange={setBusy} onCancel={close} onSaved={onSaved} />
-        </Dialog>
-    );
+    // only mounted while the dialog is open, so the fields start fresh every time
+    return open ? <OpenTravelFolderDialog folder={folder} onClose={onClose} onSaved={onSaved} /> : null;
 }
 
-function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
-    folder: TravelFolder | null;
-    busy: boolean;
-    onBusyChange: (busy: boolean) => void;
-    onCancel: () => void;
-    onSaved: (folder: TravelFolder) => void;
-}) {
+function OpenTravelFolderDialog({ folder, onClose, onSaved }: Omit<TravelFolderDialogProps, "open">) {
+    const [busy, setBusy] = useState(false);
     const [name, setName] = useState(folder?.name ?? "");
     const [country, setCountry] = useState(folder?.country ?? "");
     const [cuisine, setCuisine] = useState(folder?.cuisine ?? "");
@@ -56,6 +42,12 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
     const { folders } = useTravelFolders();
     const otherFolders = folders.filter((other) => other.id !== folder?.id);
     const [error, setError] = useState<string | null>(null);
+
+    // closing by a click next to the dialog, Escape, the X or "Abbrechen" asks first when something was entered
+    const mayDiscard = useUnsavedChanges({ name, country, cuisine, start, end, stops, previousFolderId });
+    const close = useCallback(() => {
+        if (!busy && mayDiscard()) onClose();
+    }, [busy, mayDiscard, onClose]);
 
     const { recipes } = useRecipes();
     // the cuisines of the cookbook; the one of the folder stays selectable even if no recipe has it (any more)
@@ -104,22 +96,22 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
             return;
         }
 
-        onBusyChange(true);
+        setBusy(true);
         setError(null);
         try {
             const saved = folder
                 ? await TravelController.updateFolder(folder.id, request)
                 : await TravelController.createFolder(request);
             storeTravelFolder(saved);
-            onBusyChange(false);
+            setBusy(false);
             onSaved(saved);
         } catch (err) {
-            onBusyChange(false);
+            setBusy(false);
             setError(handleApiError(err));
         }
     }
 
-    return (
+    const form = (
         <form className="travel-folder-form" onSubmit={handleSubmit}>
             <label className="field">
                 Name
@@ -172,7 +164,7 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
             />
             {error && <p className="form-message form-message--error" role="alert">{error}</p>}
             <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
+                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                     Abbrechen
                 </button>
                 <button type="submit" className="btn" disabled={busy}>
@@ -180,5 +172,12 @@ function TravelFolderForm({ folder, busy, onBusyChange, onCancel, onSaved }: {
                 </button>
             </div>
         </form>
+    );
+
+    return (
+        <Dialog open onClose={close} labelledBy="travel-folder-title" className="confirm-dialog">
+            <h2 id="travel-folder-title">{folder ? "Ordner bearbeiten" : "Neuer Ordner"}</h2>
+            {form}
+        </Dialog>
     );
 }

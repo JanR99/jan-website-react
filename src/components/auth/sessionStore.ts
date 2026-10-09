@@ -2,6 +2,7 @@ import { UserDTO } from "../../types/entities.ts";
 
 const STORAGE_KEY = "jan-website-session";
 const ONE_DAY = 24 * 60 * 60 * 1000;
+const EXPIRY_WARNING = 5 * 60 * 1000;
 
 export interface Session {
     token: string;
@@ -29,6 +30,12 @@ function readClaims(token: string): TokenClaims {
 export function getTokenExpiry(token: string): number | null {
     const { exp } = readClaims(token);
     return typeof exp === "number" ? exp * 1000 : null;
+}
+
+/** When to tell the user that the login is about to end: 5 minutes before it does. */
+export function getExpiryWarningTime(token: string): number | null {
+    const expiry = getTokenExpiry(token);
+    return expiry === null ? null : expiry - EXPIRY_WARNING;
 }
 
 function isExpired(token: string): boolean {
