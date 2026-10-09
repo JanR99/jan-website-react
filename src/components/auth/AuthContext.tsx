@@ -9,6 +9,7 @@ import {
 } from "../../types/userController.ts";
 import { Permission } from "../../types/roles.ts";
 import { getTokenExpiry, loadSession, needsRenewal, saveSession, Session } from "./sessionStore.ts";
+import { retryPause } from "../../utils/retry.ts";
 
 // setTimeout runs at once when its delay is longer than this (about 24.8 days)
 const MAX_TIMEOUT = 2 ** 31 - 1;
@@ -19,10 +20,24 @@ export type LoginResult =
 
 export type AuthDialogMode = "login" | "register" | "forgot";
 
+/** What the user may do. */
+interface Rights {
+    /** null as long as it isn't known: still loading, or it couldn't be loaded so far */
+    permissions: Permission[] | null;
+    failed: boolean;
+}
+
+const UNKNOWN: Rights = { permissions: null, failed: false };
+
 interface AuthContextValue {
     user: UserDTO | null;
     isAuthenticated: boolean;
+    /** null as long as they are not known, which is not the same as having none */
     permissions: Permission[] | null;
+    /** the permissions couldn't be loaded so far; that is tried again by itself */
+    permissionsFailed: boolean;
+    /** tries to load them again right now */
+    retryPermissions: () => void;
     hasPermission: (permission: Permission) => boolean;
     login: (request: LoginRequest) => Promise<LoginResult>;
     register: (request: RegisterRequest) => Promise<LoginResult>;
@@ -45,7 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return restored;
     });
     const [authDialog, setAuthDialog] = useState<AuthDialogMode | null>(null);
-    const [permissions, setPermissions] = useState<Permission[] | null>(null);
+    const [{ permissions, failed: permissionsFailed }, setRights] = useState(UNKNOWN);
+    /** counts the tries the user asked for; each one starts the loading below again */
+    const [permissionsTry, setPermissionsTry] = useState(0);
     const token = session?.token ?? null;
 
     const startSession = useCallback((response: LoginResponse) => {
@@ -62,24 +79,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        setPermissions(null);
+        setRights(UNKNOWN);
         if (!token) return;
         let active = true;
-        UserController.getPermissions()
-            .then((result) => active && setPermissions(result))
-            .catch((error) => {
-                if (!active) return;
-                if (isUnauthenticated(error)) {
-                    // the backend no longer accepts this login, e.g. after the password was reset on another device
-                    logout();
-                } else {
-                    setPermissions([]);
-                }
-            });
+        let loading = false;
+        let failedTries = 0;
+        let nextTry: number | undefined;
+
+        const load = () => {
+            if (loading) return;
+            loading = true;
+            window.clearTimeout(nextTry);
+            UserController.getPermissions()
+                .then((result) => active && setRights({ permissions: result, failed: false }))
+                .catch((error) => {
+                    if (!active) return;
+                    if (isUnauthenticated(error)) {
+                        // the backend no longer accepts this login, e.g. after the password was reset on another device
+                        logout();
+                        return;
+                    }
+                    // A failed request (backend still waking up, offline) doesn't mean "no permissions":
+                    // they stay unknown and it is tried again, so the admin functions appear without a reload.
+                    failedTries++;
+                    setRights({ permissions: null, failed: true });
+                    nextTry = window.setTimeout(load, retryPause(failedTries));
+                })
+                .finally(() => {
+                    loading = false;
+                });
+        };
+
+        load();
+        // no need to wait for the next try when the connection is back
+        window.addEventListener("online", load);
         return () => {
             active = false;
+            window.clearTimeout(nextTry);
+            window.removeEventListener("online", load);
         };
-    }, [token, logout]);
+    }, [token, logout, permissionsTry]);
+
+    const retryPermissions = useCallback(() => setPermissionsTry((tries) => tries + 1), []);
 
     // A login with "Angemeldet bleiben" gets a fresh token on a visit, so its 30 days start again.
     useEffect(() => {
@@ -176,6 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user: session?.user ?? null,
             isAuthenticated: session !== null,
             permissions,
+            permissionsFailed,
+            retryPermissions,
             hasPermission: (permission: Permission) => permissions?.includes(permission) ?? false,
             login,
             register,
@@ -187,7 +230,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             openAuthDialog,
             closeAuthDialog,
         }),
-        [session, permissions, login, register, logout, updateProfile, changePassword, deleteAccount, authDialog, openAuthDialog, closeAuthDialog]
+        [
+            session, permissions, permissionsFailed, retryPermissions, login, register, logout, updateProfile,
+            changePassword, deleteAccount, authDialog, openAuthDialog, closeAuthDialog,
+        ]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Download, Lock, Upload } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
+import PermissionsPending from "./PermissionsPending";
 import BackupController from "../../controller/BackupController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
@@ -51,7 +52,7 @@ export default function BackupSection() {
     }
 
     if (permissions === null) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <PermissionsPending />;
     }
 
     if (!hasPermission("EXPORT_DATA")) {
