@@ -1,4 +1,4 @@
-import { apiClient, apiUrl } from "./APIClient.ts";
+import { Api, apiClient, apiUrl } from "./APIClient.ts";
 import { TravelFolder, TravelFolderRequest } from "../types/Travel.ts";
 
 type OptionalField = "photos" | "startMonth" | "endMonth" | "text" | "cuisine" | "stops" | "previousFolderId";
@@ -30,8 +30,9 @@ function fromStored({ photoIds, photos, latitude, longitude, ...folder }: Stored
 
 export default class TravelController {
 
-    static async listFolders(): Promise<TravelFolder[]> {
-        const apis = await apiClient;
+    /** @param api storedApi for the list as it was stored on an earlier visit; that fails when there is none */
+    static async listFolders(api: Api = apiClient): Promise<TravelFolder[]> {
+        const apis = await api;
         const response: { body: StoredTravelFolder[] } = await apis.travel.listTravelFolders.execute({});
         return (response.body ?? []).map(fromStored);
     }
