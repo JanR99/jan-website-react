@@ -4,11 +4,12 @@ import { FolderPlus, Images } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import { useOnline } from "../hooks/useOnline";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { useTravelFolders } from "../hooks/useTravelFolders";
+import { reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
 import { folderStops, travelFolderPath } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import TravelFolderCard from "./travel/TravelFolderCard";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
+import LoadError from "./ui/LoadError";
 import "../styles/Travel.css";
 
 const TravelMap = lazy(() => import("./travel/TravelMap"));
@@ -47,7 +48,8 @@ export default function TravelDiary() {
                 )}
             </PageHeader>
 
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            {/* a failed reload while the folders are shown; without folders the card below says it */}
+            {error && folders.length > 0 && <p className="form-message form-message--error" role="alert">{error}</p>}
 
             {online && onMap.length > 0 && (
                 <Suspense fallback={<div className="travel-map" aria-hidden="true" />}>
@@ -61,7 +63,9 @@ export default function TravelDiary() {
                 <div className="destination-grid">
                     {folders.map((folder) => <TravelFolderCard key={folder.id} folder={folder} />)}
                 </div>
-            ) : !error && (
+            ) : error ? (
+                <LoadError message={error} onRetry={() => void reloadTravelFolders()} />
+            ) : (
                 <div className="card empty-state">
                     <span className="empty-state-icon"><Images size={26} /></span>
                     <h3>Noch keine Reisen</h3>

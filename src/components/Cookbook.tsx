@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useRecipes } from '../hooks/useRecipes';
+import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { capitalize } from '../utils/recipe';
@@ -8,6 +8,7 @@ import { Diet, filterRecipes } from '../utils/recipeFilter';
 import PageHeader from './layout/PageHeader';
 import RecipeCard from './RecipeCard';
 import BackToTop from './ui/BackToTop';
+import LoadError from './ui/LoadError';
 import { Heart, Search, Utensils, X } from "lucide-react";
 import '../styles/Cookbook.css';
 
@@ -114,7 +115,7 @@ const Cookbook: React.FC = () => {
             {/* Ergebnis */}
             <div className="results-bar">
                 <span className="muted">
-                    {loading ? 'Rezepte werden geladen …' : `${filteredRecipes.length} ${filteredRecipes.length === 1 ? 'Rezept' : 'Rezepte'}`}
+                    {error ? '' : loading ? 'Rezepte werden geladen …' : `${filteredRecipes.length} ${filteredRecipes.length === 1 ? 'Rezept' : 'Rezepte'}`}
                 </span>
                 {hasFilters && (
                     <button type="button" className="btn btn-ghost btn-sm" onClick={() => setParams({}, { replace: true })}>
@@ -124,7 +125,7 @@ const Cookbook: React.FC = () => {
             </div>
 
             {error ? (
-                <div className="card empty-state"><h3>Ups</h3><p>{error}</p></div>
+                <LoadError message={error} onRetry={() => void reloadRecipes()} />
             ) : loading ? (
                 <div className="recipe-grid">
                     {Array.from({ length: 6 }, (_, i) => <div key={i} className="recipe-card-skeleton skeleton" />)}

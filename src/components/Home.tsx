@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import TravelController from '../controller/TravelController';
-import { useRecipes } from '../hooks/useRecipes';
-import { useTravelFolders } from '../hooks/useTravelFolders';
+import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
+import { reloadTravelFolders, useTravelFolders } from '../hooks/useTravelFolders';
 import { randomRecipe, recipePath, recipeImage } from '../utils/recipe';
 import { TRAVEL_BASE } from '../utils/travel';
 import TravelFolderCard from './travel/TravelFolderCard';
@@ -16,14 +16,20 @@ const TEASER_FOLDERS = 4;
 let lastSurpriseId: number | undefined;
 
 const Home: React.FC = () => {
-    const { recipes } = useRecipes();
+    const { recipes, loading: recipesLoading, error: recipesError } = useRecipes();
     const teaser = TEASER_TITLES
         .map(title => recipes.find(r => r.title === title))
         .filter((r): r is NonNullable<typeof r> => Boolean(r));
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
 
-    const { folders } = useTravelFolders();
+    const { folders, error: foldersError } = useTravelFolders();
     const covers = folders.flatMap(folder => (folder.coverPhotoId !== null ? [folder.coverPhotoId] : []));
+
+    // the trips are missing as well when the backend can't be reached, so one try gets both
+    const retry = () => {
+        void reloadRecipes();
+        if (foldersError) void reloadTravelFolders();
+    };
 
     const navigate = useNavigate();
     const openRandomRecipe = () => {
@@ -92,11 +98,22 @@ const Home: React.FC = () => {
                     <div className="cookbook-teaser-text">
                         <span className="eyebrow">Kochbuch</span>
                         <h2>Was koche ich heute?</h2>
-                        <p className="muted">
-                            {recipes.length > 0
-                                ? `${recipes.length} Rezepte aus ${cuisineCount} Küchen – filterbar nach Zutaten, Küche und Ernährung.`
-                                : 'Meine Rezeptsammlung – filterbar nach Zutaten, Küche und Ernährung.'}
-                        </p>
+                        {recipes.length === 0 && recipesError ? (
+                            <p className="muted cookbook-teaser-error" role="alert">
+                                Die Rezepte konnten gerade nicht geladen werden.
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={retry}>
+                                    Erneut versuchen
+                                </button>
+                            </p>
+                        ) : (
+                            <p className="muted">
+                                {recipes.length > 0
+                                    ? `${recipes.length} Rezepte aus ${cuisineCount} Küchen – filterbar nach Zutaten, Küche und Ernährung.`
+                                    : recipesLoading
+                                        ? 'Rezepte werden geladen …'
+                                        : 'Meine Rezeptsammlung – filterbar nach Zutaten, Küche und Ernährung.'}
+                            </p>
+                        )}
                         <div className="cookbook-teaser-actions">
                             <Link to="/cookbook" className="btn">
                                 Rezepte entdecken <ArrowRight size={18} />

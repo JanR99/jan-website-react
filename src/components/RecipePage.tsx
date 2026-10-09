@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { adjustIngredient, renderIngredients, renderStepText } from './helper/RecipeHelper';
 import { Recipe } from '../types/Recipe';
-import { useRecipes } from '../hooks/useRecipes';
+import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useTravelFolders } from '../hooks/useTravelFolders';
@@ -13,6 +13,7 @@ import { recipeFolders } from '../utils/travel';
 import RecipeCard from './RecipeCard';
 import TravelFolderLink from './travel/TravelFolderLink';
 import CookMode from './CookMode';
+import LoadError from './ui/LoadError';
 import RecipePrintSheet from './RecipePrintSheet';
 import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer } from "lucide-react";
 import '../styles/Recipe.css';
@@ -47,7 +48,7 @@ const RecipePage: React.FC = () => {
     const location = useLocation();
     const { recipeTitle } = useParams<{ recipeTitle: string }>();
     const recipeFromState = (location.state as RecipeLinkState | null)?.recipe;
-    const { recipes, loading } = useRecipes();
+    const { recipes, loading, error } = useRecipes();
 
     const recipe =
         recipes.find(r => recipeSlug(r.title) === recipeTitle) ??
@@ -60,6 +61,8 @@ const RecipePage: React.FC = () => {
             <div className="container">
                 {loading ? (
                     <div className="loading"><div className="spinner" /></div>
+                ) : error ? (
+                    <LoadError message={error} onRetry={() => void reloadRecipes()} style={{ marginTop: 48 }} />
                 ) : (
                     <div className="card empty-state" style={{ marginTop: 48 }}>
                         <h3>Rezept nicht gefunden</h3>
