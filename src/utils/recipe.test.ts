@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Recipe } from '../types/Recipe';
-import { capitalize, isVegan, isVegetarian, openedFromCookbook, randomRecipe, recipeImage, recipePath, recipeSlug } from './recipe';
+import {
+    capitalize, isVegan, isVegetarian, openedFromCookbook, randomRecipe, recipeByAddress, recipeImage, recipePath, recipeSlug,
+} from './recipe';
 
 const recipe = (overrides: Partial<Recipe> = {}): Recipe => ({
     id: 1,
@@ -50,8 +52,60 @@ describe('recipeSlug', () => {
 });
 
 describe('recipePath', () => {
-    it('builds the cookbook path from the title', () => {
-        expect(recipePath({ title: 'Falafel Wrap' })).toBe('/cookbook/falafel-wrap');
+    it('builds the cookbook path from the id and the title', () => {
+        expect(recipePath({ id: 12, title: 'Falafel Wrap' })).toBe('/cookbook/12-falafel-wrap');
+    });
+
+    it('keeps letters of other alphabets and umlauts', () => {
+        expect(recipePath({ id: 3, title: 'Käsespätzle' })).toBe('/cookbook/3-käsespätzle');
+        expect(recipePath({ id: 4, title: 'Baozi 包子' })).toBe('/cookbook/4-baozi-包子');
+    });
+
+    it('leaves out what would break an address', () => {
+        expect(recipePath({ id: 7, title: 'Fish & Chips / Pommes?' })).toBe('/cookbook/7-fish-chips-pommes');
+        expect(recipePath({ id: 8, title: 'Was ist #1?' })).toBe('/cookbook/8-was-ist-1');
+    });
+
+    it('is only the id for a title without letters or digits', () => {
+        expect(recipePath({ id: 9, title: '???' })).toBe('/cookbook/9');
+    });
+});
+
+describe('recipeByAddress', () => {
+    const wrap = { id: 12, title: 'Falafel Wrap' };
+    const bread = { id: 30, title: '5 Minuten Brot' };
+    const curry = { id: 5, title: 'Curry' };
+    const recipes = [wrap, bread, curry];
+
+    it('finds the recipe of an address as recipePath builds it', () => {
+        for (const each of recipes) {
+            expect(recipeByAddress(recipes, recipePath(each).replace('/cookbook/', ''))).toBe(each);
+        }
+    });
+
+    it('still finds the recipe after it was renamed', () => {
+        const renamed = [{ id: 12, title: 'Falafel im Fladenbrot' }, bread, curry];
+
+        expect(recipeByAddress(renamed, '12-falafel-wrap')).toBe(renamed[0]);
+    });
+
+    it('finds the recipe by the id alone', () => {
+        expect(recipeByAddress(recipes, '12')).toBe(wrap);
+    });
+
+    it('finds the recipe of an old link, which only has the title', () => {
+        expect(recipeByAddress(recipes, 'falafel-wrap')).toBe(wrap);
+    });
+
+    it('does not take the number at the start of an old link for an id', () => {
+        expect(recipeByAddress(recipes, '5-minuten-brot')).toBe(bread);
+    });
+
+    it('finds nothing for an unknown address', () => {
+        expect(recipeByAddress(recipes, 'gibt-es-nicht')).toBeUndefined();
+        expect(recipeByAddress(recipes, '99-falafel-wrap')).toBeUndefined();
+        expect(recipeByAddress(recipes, undefined)).toBeUndefined();
+        expect(recipeByAddress(recipes, '')).toBeUndefined();
     });
 });
 
