@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CompositionEvent, CSSProperties, FormEvent, KeyboardEvent } from "react";
-import { Check, ChevronLeft, ChevronRight, CircleHelp, Delete, Eye, Lightbulb, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, ChevronLeft, ChevronRight, CircleHelp, Delete, Eye, Lightbulb, RefreshCw, Trophy } from "lucide-react";
 import { toRomaji } from "wanakana";
+import { useCrosswordStats } from "../../hooks/useCrosswordStats";
 import { useJapaneseWords } from "../../hooks/useJapaneseWords";
+import type { CrosswordScript } from "../../types/games";
+import { useAuth } from "../auth/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
     CEFR_LEVELS, cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo,
@@ -24,6 +28,9 @@ const LEVELS = CEFR_LEVELS.slice(0, 5);
 interface Puzzle {
     id: number;
     crossword: Crossword;
+    /** the script the words are in; with "both" chosen, the one drawn for this puzzle */
+    script: CrosswordScript;
+    level: string;
 }
 
 let nextPuzzleId = 1;
@@ -40,7 +47,12 @@ function newPuzzle(words: JapaneseWord[], level: string, script: Script): Puzzle
     // hiragana and katakana words never share a character, so they can't cross: "both" picks one of them by chance
     const katakana = script === "both" ? Math.random() < 0.5 : script === "katakana";
     const inScript = words.filter((word) => isKatakanaWord(word.w) === katakana);
-    return { id: nextPuzzleId++, crossword: generateCrossword(wordsUpTo(inScript, level, MAX_WORD_LENGTH), WORD_COUNT, MAX_SIZE) };
+    return {
+        id: nextPuzzleId++,
+        crossword: generateCrossword(wordsUpTo(inScript, level, MAX_WORD_LENGTH), WORD_COUNT, MAX_SIZE),
+        script: katakana ? "katakana" : "hiragana",
+        level,
+    };
 }
 
 /** A crossword of Japanese words: the squares take kana, chosen on a small kana keyboard below the grid. */
@@ -68,6 +80,8 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
     const [level, setLevel] = useState("A1");
     const [script, setScript] = useState<Script>("hiragana");
     const [puzzle, setPuzzle] = useState(() => newPuzzle(words, level, script));
+    const { stats, loggedIn, record } = useCrosswordStats();
+    const { openAuthDialog } = useAuth();
 
     const start = (nextLevel: string, nextScript: Script) => {
         setLevel(nextLevel);
@@ -106,10 +120,28 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
                     </p>
                 </details>
             </div>
+            <p className="crossword-stats muted">
+                {!loggedIn ? (
+                    <>
+                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>
+                        , damit deine gelösten Rätsel gezählt werden.
+                    </>
+                ) : stats && (
+                    <>
+                        <Trophy size={15} /> {stats.solved} Rätsel gelöst · {stats.words} Wörter richtig ·
+                        Serie {stats.currentStreak} (beste {stats.bestStreak}) · <Link to={GAMES_BASE}>mehr</Link>
+                    </>
+                )}
+            </p>
             {puzzle.crossword.entries.length === 0 ? (
                 <div className="card empty-state"><p>Für dieses Niveau gibt es nicht genug Wörter.</p></div>
             ) : (
-                <CrosswordBoard key={puzzle.id} crossword={puzzle.crossword} onNew={() => start(level, script)} />
+                <CrosswordBoard
+                    key={puzzle.id}
+                    crossword={puzzle.crossword}
+                    onNew={() => start(level, script)}
+                    onFinished={(solved, rightWords) => record({ script: puzzle.script, level: puzzle.level, solved, rightWords })}
+                />
             )}
         </>
     );
@@ -129,7 +161,15 @@ interface Position {
     col: number;
 }
 
-function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () => void }) {
+function CrosswordBoard({ crossword, onNew, onFinished }: {
+    crossword: Crossword;
+    onNew: () => void;
+    /**
+     * once, when the crossword is finished; solved: without any help ("Feld aufdecken" or "Lösung zeigen"),
+     * rightWords: the words the player got without help
+     */
+    onFinished: (solved: boolean, rightWords: number) => void;
+}) {
     const solution = useMemo(() => solutionGrid(crossword), [crossword]);
     const numbers = useMemo(
         () => new Map(crossword.entries.map((entry) => [cellKey(entry.row, entry.col), entry.number])),
@@ -177,6 +217,25 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
 
     const solved = [...solution].every(([position, char]) => filled[position] === char);
     const done = solved || revealed;
+
+    /** squares shown by "Feld aufdecken": their words don't count as got right */
+    const hinted = useRef(new Set<string>());
+    /** the words got right, counted when "Lösung zeigen" fills in the rest */
+    const rightBeforeReveal = useRef(0);
+    const reported = useRef(false);
+
+    const rightWords = (grid: Record<string, string>) => crossword.entries.filter((entry) =>
+        entryCells(entry).every(([r, c]) => {
+            const position = cellKey(r, c);
+            return grid[position] === solution.get(position) && !hinted.current.has(position);
+        })).length;
+
+    useEffect(() => {
+        if (!done || reported.current) return;
+        reported.current = true;
+        // a revealed square makes it a crossword solved with help, which doesn't count as solved
+        onFinished(!revealed && hinted.current.size === 0, revealed ? rightBeforeReveal.current : rightWords(filled));
+    });
 
     const select = (position: Position, dir: Direction) => {
         setPending("");
@@ -383,6 +442,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setFilled(next);
         setWrong(nextWrong);
         setLocked(nextLocked);
+        hinted.current.add(position);
         setPending("");
         setCheckedAll(false);
 
@@ -402,6 +462,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     };
 
     const reveal = () => {
+        rightBeforeReveal.current = rightWords(filled);
         setFilled(Object.fromEntries(solution));
         setPending("");
         setWrong(new Set());
