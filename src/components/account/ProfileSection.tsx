@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -56,7 +56,7 @@ function PersonalDataCard() {
         setEditing(true);
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         const first = firstname.trim();
         const last = lastname.trim();
@@ -182,7 +182,7 @@ function PasswordCard() {
         setEditing(true);
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         if (newPassword.length < PASSWORD_MIN_LENGTH) {
             setError(`Das neue Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein.`);
@@ -307,7 +307,7 @@ function DangerZoneCard() {
         if (!busy) setOpen(false);
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         setBusy(true);
         setError(null);

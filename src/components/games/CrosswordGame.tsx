@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CompositionEvent, CSSProperties, FormEvent, KeyboardEvent } from "react";
+import type { CompositionEvent, CSSProperties, InputEvent, KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, CircleHelp, Delete, Eye, Lightbulb, RefreshCw, Trophy } from "lucide-react";
 import { toRomaji } from "wanakana";
@@ -399,8 +399,8 @@ function CrosswordBoard({ crossword, onNew, onFinished }: {
         }
     };
 
-    const handleInput = (event: FormEvent<HTMLInputElement>) => {
-        if ((event.nativeEvent as InputEvent).isComposing) return;
+    const handleInput = (event: InputEvent<HTMLInputElement>) => {
+        if (event.nativeEvent.isComposing) return;
         const value = event.currentTarget.value;
         event.currentTarget.value = SENTINEL;
         if (value === "") {

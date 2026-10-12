@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
 import PermissionsPending from "./PermissionsPending";
 import RoleController from "../../controller/RoleController";
@@ -241,7 +241,7 @@ function RoleForm({ role, onCancel, onSaved }: {
         setSelected((prev) => (prev.includes(permission) ? prev.filter((p) => p !== permission) : [...prev, permission]));
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         if (!name.trim()) {
             setError("Der Name darf nicht leer sein.");
@@ -348,7 +348,7 @@ function UserRolesDialog({ user, roles, onClose, onSaved }: {
         setSelected((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]));
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         if (!user) return;
         setBusy(true);

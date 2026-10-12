@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { useRecipes } from "../../hooks/useRecipes";
@@ -57,7 +57,7 @@ function OpenTravelFolderDialog({ folder, onClose, onSaved }: Omit<TravelFolderD
         [recipes, folder]
     );
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         const startMonth = toMonth(start.year, start.month);
         const endMonth = toMonth(end.year, end.month);

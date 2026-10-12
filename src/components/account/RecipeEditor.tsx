@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
@@ -45,7 +45,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
     const byId = useMemo(() => new Map(allRecipes.map((r) => [r.id, r])), [allRecipes]);
     const selectable = allRecipes.filter((r) => r.id !== recipe?.id && !related.includes(r.id));
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         setError(null);
 

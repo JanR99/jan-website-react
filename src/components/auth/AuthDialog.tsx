@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { AuthDialogMode, useAuth } from "./AuthContext.tsx";
 import Dialog from "../ui/Dialog.tsx";
 import UserController from "../../controller/UserController.ts";
@@ -36,7 +36,7 @@ export default function AuthDialog() {
         setResetSent(false);
     }
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         setMessage(null);
 

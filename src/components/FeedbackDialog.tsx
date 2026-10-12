@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { useLocation } from "react-router-dom";
 import { Send } from "lucide-react";
 import FeedbackController from "../controller/FeedbackController";
@@ -27,7 +27,7 @@ function OpenFeedbackDialog({ onClose }: { onClose: () => void }) {
         if (!busy && mayDiscard()) onClose();
     }, [busy, mayDiscard, onClose]);
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         if (!text.trim()) {
             setError("Bitte schreib kurz, worum es geht.");
