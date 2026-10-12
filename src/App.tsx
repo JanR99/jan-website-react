@@ -10,6 +10,7 @@ import RecipePage from './components/RecipePage';
 import AccountPage from './components/account/AccountPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PasswordResetPage from './components/auth/PasswordResetPage';
+import PrivacyPage from './components/PrivacyPage';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
 import { TRAVEL_BASE } from './utils/travel';
 
@@ -36,6 +37,7 @@ const App: React.FC = () => {
                     {/* links to the old pages, where trips had no ids yet */}
                     <Route path="/destination/*" element={<Navigate to={TRAVEL_BASE} replace />} />
                     <Route path="/passwort-zuruecksetzen" element={<PasswordResetPage />} />
+                    <Route path="/datenschutz" element={<PrivacyPage />} />
 
                     {/* paths for logged-in users */}
                     <Route
