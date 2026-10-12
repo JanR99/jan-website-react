@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo, type JapaneseWord } from "./crossword";
+import { bestCrossword, cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo, type JapaneseWord } from "./crossword";
 import { isKatakanaWord, modifyKana, toKatakanaChar, typedKana } from "./kana";
 
 const words: JapaneseWord[] = [
@@ -59,6 +59,29 @@ describe("generateCrossword", () => {
 
     it("gives an empty crossword without words", () => {
         expect(generateCrossword([], 5).entries).toEqual([]);
+    });
+
+    it("starts with a word that isn't to be avoided", () => {
+        const avoid = new Set(words.map((word) => word.w).filter((w) => w !== "まいにち" && w !== "らいおん"));
+        for (const seed of [3, 9, 27]) {
+            const crossword = generateCrossword(words, 1, 10, seeded(seed), avoid);
+            expect(crossword.entries).toHaveLength(1);
+            expect(["まいにち", "らいおん"]).toContain(crossword.entries[0].word);
+        }
+    });
+});
+
+describe("bestCrossword", () => {
+    it("takes the attempt with the most words", () => {
+        for (const seed of [1, 5, 11]) {
+            const single = generateCrossword(words, 8, 10, seeded(seed));
+            const best = bestCrossword(words, 8, 10, 6, seeded(seed));
+            expect(best.entries.length).toBeGreaterThanOrEqual(single.entries.length);
+        }
+    });
+
+    it("gives an empty crossword without words", () => {
+        expect(bestCrossword([], 5).entries).toEqual([]);
     });
 });
 

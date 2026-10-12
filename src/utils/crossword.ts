@@ -89,14 +89,17 @@ function bounds(placements: Placement[]) {
  * @param words the words to choose from
  * @param count how many words the crossword should have; fewer if no more fit
  * @param random a function like Math.random, replaceable for tests
+ * @param avoid words used shortly before: they only come in when the others don't fit
  */
 export function generateCrossword(
     words: JapaneseWord[],
     count: number,
     maxSize = 10,
     random: () => number = Math.random,
+    avoid: ReadonlySet<string> = new Set(),
 ): Crossword {
-    const pool = shuffle(words.filter((word) => word.w.length <= maxSize), random);
+    const shuffled = shuffle(words.filter((word) => word.w.length <= maxSize), random);
+    const pool = [...shuffled.filter((word) => !avoid.has(word.w)), ...shuffled.filter((word) => avoid.has(word.w))];
     const placements: Placement[] = [];
     const grid: Grid = new Map();
     const used = new Set<string>();
@@ -108,8 +111,9 @@ export function generateCrossword(
         used.add(placement.word.w);
     };
 
-    // the longest of the first few words in the middle, so the others have something to cross
-    const first = pool.slice(0, 20).sort((a, b) => b.w.length - a.w.length)[0];
+    // a word of at least 4 characters in the middle, so the others have something to cross; not always
+    // the longest one, or the few long words would be in nearly every crossword
+    const first = pool.find((word) => word.w.length >= 4) ?? pool[0];
     if (!first) return { width: 0, height: 0, entries: [] };
     place({ word: first, row: 0, col: 0, direction: "across" });
 
@@ -165,6 +169,34 @@ function numbered(placements: Placement[]): Crossword {
         .sort((a, b) => a.number - b.number || (a.direction === "across" ? -1 : 1));
 
     return { width: right - left + 1, height: bottom - top + 1, entries };
+}
+
+/**
+ * The fullest of a few crosswords built by generateCrossword: the one with the most words, and of those
+ * the one with the most squares shared by two words.
+ */
+export function bestCrossword(
+    words: JapaneseWord[],
+    count: number,
+    maxSize = 10,
+    attempts = 6,
+    random: () => number = Math.random,
+    avoid: ReadonlySet<string> = new Set(),
+): Crossword {
+    let best: Crossword | null = null;
+    let bestScore = -1;
+    for (let i = 0; i < attempts; i++) {
+        const crossword = generateCrossword(words, count, maxSize, random, avoid);
+        const letters = crossword.entries.reduce((sum, entry) => sum + entry.word.length, 0);
+        const shared = letters - solutionGrid(crossword).size;
+        const score = crossword.entries.length * 100 + shared;
+        if (score > bestScore) {
+            best = crossword;
+            bestScore = score;
+        }
+        if (crossword.entries.length >= count && shared >= count) break;
+    }
+    return best ?? { width: 0, height: 0, entries: [] };
 }
 
 function shuffle<T>(items: T[], random: () => number): T[] {

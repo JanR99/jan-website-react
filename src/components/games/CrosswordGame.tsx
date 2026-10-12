@@ -9,7 +9,7 @@ import type { CrosswordScript } from "../../types/games";
 import { useAuth } from "../auth/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
-    CEFR_LEVELS, cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo,
+    bestCrossword, CEFR_LEVELS, cellKey, entryCells, solutionGrid, wordsUpTo,
     type Crossword, type CrosswordEntry, type Direction, type JapaneseWord,
 } from "../../utils/crossword";
 import { isKatakanaWord, KANA_TABLE, modifyKana, toKatakanaChar, typedKana, type KanaModifier } from "../../utils/kana";
@@ -20,7 +20,7 @@ import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
 import "../../styles/Games.css";
 
-const WORD_COUNT = 8;
+const WORD_COUNT = 10;
 const MAX_SIZE = 10;
 const MAX_WORD_LENGTH = 6;
 /** The levels to choose from; C2 has hardly any words of its own. */
@@ -36,6 +36,11 @@ interface Puzzle {
 
 let nextPuzzleId = 1;
 
+/** The words of the last crosswords of this visit, oldest first; a new crossword takes others where it can. */
+const recentWords: string[] = [];
+/** how much of the words of a level is remembered as recent, so a small level doesn't run out of words */
+const RECENT_SHARE = 0.6;
+
 type Script = "hiragana" | "katakana" | "both";
 
 const SCRIPTS: { value: Script; label: string }[] = [
@@ -48,9 +53,13 @@ function newPuzzle(words: JapaneseWord[], level: string, script: Script): Puzzle
     // hiragana and katakana words never share a character, so they can't cross: "both" picks one of them by chance
     const katakana = script === "both" ? Math.random() < 0.5 : script === "katakana";
     const inScript = words.filter((word) => isKatakanaWord(word.w) === katakana);
+    const pool = wordsUpTo(inScript, level, MAX_WORD_LENGTH);
+    const crossword = bestCrossword(pool, WORD_COUNT, MAX_SIZE, 6, Math.random, new Set(recentWords));
+    recentWords.push(...crossword.entries.map((entry) => entry.word));
+    recentWords.splice(0, Math.max(0, recentWords.length - Math.floor(pool.length * RECENT_SHARE)));
     return {
         id: nextPuzzleId++,
-        crossword: generateCrossword(wordsUpTo(inScript, level, MAX_WORD_LENGTH), WORD_COUNT, MAX_SIZE),
+        crossword,
         script: katakana ? "katakana" : "hiragana",
         level,
     };
