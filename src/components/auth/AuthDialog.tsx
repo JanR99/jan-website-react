@@ -83,9 +83,7 @@ export default function AuthDialog() {
     const title = isForgot ? "Passwort vergessen" : isLogin ? "Willkommen zurück" : "Konto erstellen";
     const intro = isForgot
         ? "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link, mit dem du ein neues Passwort festlegen kannst."
-        : isLogin
-            ? "Melde dich an, um auf dein Konto zuzugreifen."
-            : "Mit einem Konto kannst du bald noch mehr auf der Seite machen.";
+        : "Melde dich an, um auf dein Konto zuzugreifen."
     const submitLabel = isForgot ? "Link senden" : isLogin ? "Anmelden" : "Konto erstellen";
 
     return (
