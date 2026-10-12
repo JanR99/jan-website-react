@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CompositionEvent, CSSProperties, FormEvent, KeyboardEvent } from "react";
-import { Check, CircleHelp, Delete, Eye, Lightbulb, RefreshCw } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, CircleHelp, Delete, Eye, Lightbulb, RefreshCw } from "lucide-react";
 import { toRomaji } from "wanakana";
 import { useJapaneseWords } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
@@ -121,6 +121,9 @@ const SENTINEL = " ";
 /** Typing on the keyboard is for computers; phones get no system keyboard, the kana keyboard is enough there. */
 const hasMouse = () => window.matchMedia("(pointer: fine)").matches;
 
+/** Same width as the phone layout in Games.css, where the keyboard sits at the bottom of the screen. */
+const isPhoneLayout = () => window.matchMedia("(max-width: 760px)").matches;
+
 interface Position {
     row: number;
     col: number;
@@ -150,9 +153,17 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         if (hasMouse()) inputRef.current?.focus({ preventScroll: true });
     };
 
-    // on a computer one can start typing right away
+    const boardRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
+        // on a computer one can start typing right away
         focusInput();
+        // on a phone the grid is moved up to just below the header, so it isn't hidden behind the keyboard
+        if (isPhoneLayout() && boardRef.current) {
+            const header = document.querySelector<HTMLElement>(".site-header")?.offsetHeight ?? 0;
+            const top = boardRef.current.getBoundingClientRect().top + window.scrollY - header - 8;
+            window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        }
     }, []);
 
     const entryAt = (position: Position, dir: Direction): CrosswordEntry | undefined =>
@@ -403,12 +414,15 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     return (
         <div className="crossword">
             <div className="crossword-main">
-                <p className="crossword-active-clue" aria-live="polite">
-                    <strong>{active.number} {label(active.direction)}</strong> · {active.clue}
-                    <span className="muted"> ({active.word.length} Zeichen)</span>
-                </p>
+                <ActiveClue
+                    className="crossword-active-clue--top"
+                    entry={active}
+                    label={label(active.direction)}
+                    onPrevious={() => { nextEntry(-1); focusInput(); }}
+                    onNext={() => { nextEntry(1); focusInput(); }}
+                />
 
-                <div className="crossword-board">
+                <div className="crossword-board" ref={boardRef}>
                     <div
                         className="crossword-grid"
                         style={{ "--cols": crossword.width, "--rows": crossword.height } as CSSProperties}
@@ -484,16 +498,24 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                     </div>
                 ) : (
                     <>
+                    {/* on a phone the clue sits here, right above the keyboard at the bottom of the screen */}
+                    <ActiveClue
+                        className="crossword-active-clue--panel"
+                        entry={active}
+                        label={label(active.direction)}
+                        onPrevious={() => nextEntry(-1)}
+                        onNext={() => nextEntry(1)}
+                    />
                     <KanaKeyboard katakana={katakana} onKey={press} onErase={erase} />
                     <div className="crossword-actions">
                         <button type="button" className="btn btn-secondary btn-sm" onClick={check}>
                             <Check size={16} /> Prüfen
                         </button>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={revealSquare}>
-                            <Lightbulb size={16} /> Feld aufdecken
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={revealSquare} title="Feld aufdecken">
+                            <Lightbulb size={16} /> <span className="label-long">Feld aufdecken</span><span className="label-short">Tipp</span>
                         </button>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={reveal}>
-                            <Eye size={16} /> Lösung zeigen
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={reveal} title="Lösung zeigen">
+                            <Eye size={16} /> <span className="label-long">Lösung zeigen</span><span className="label-short">Lösung</span>
                         </button>
                         {checkedAll && (
                             <span className="muted" role="status">
@@ -530,6 +552,30 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                     </section>
                 ))}
             </div>
+        </div>
+    );
+}
+
+/** The clue of the marked word, with buttons to the word before and after it. */
+function ActiveClue({ className, entry, label, onPrevious, onNext }: {
+    className: string;
+    entry: CrosswordEntry;
+    label: string;
+    onPrevious: () => void;
+    onNext: () => void;
+}) {
+    return (
+        <div className={`crossword-active-clue ${className}`}>
+            <button type="button" className="icon-btn" onClick={onPrevious} aria-label="Vorheriges Wort">
+                <ChevronLeft size={18} />
+            </button>
+            <p aria-live="polite">
+                <strong>{entry.number} {label}</strong> · {entry.clue}
+                <span className="muted"> ({entry.word.length} Zeichen)</span>
+            </p>
+            <button type="button" className="icon-btn" onClick={onNext} aria-label="Nächstes Wort">
+                <ChevronRight size={18} />
+            </button>
         </div>
     );
 }

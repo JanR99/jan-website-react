@@ -133,8 +133,27 @@
 }
 
 .crossword-active-clue {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     min-height: 2.8em;
+}
+
+.crossword-active-clue p {
+    flex: 1;
     margin: 0;
+    line-height: 1.35;
+}
+
+.crossword-active-clue .icon-btn {
+    flex: none;
+    width: 34px;
+    height: 34px;
+}
+
+.crossword-active-clue--panel,
+.label-short {
+    display: none;
 }
 
 .crossword-board {
@@ -162,6 +181,7 @@
 
 .crossword-cell {
     position: relative;
+    touch-action: manipulation; /* no zoom on a quick double tap */
     display: grid;
     place-items: center;
     padding: 0;
@@ -399,6 +419,46 @@
 
     .crossword-side {
         padding-top: 0;
+        gap: 8px;
+    }
+
+    /* the clue goes from above the grid to the keyboard panel at the bottom */
+    .crossword-active-clue--top {
+        display: none;
+    }
+
+    .crossword-active-clue--panel {
+        display: flex;
+        min-height: 0;
+        font-size: 0.9rem;
+    }
+
+    /* shorter button labels, so the actions fit in one row */
+    .label-long {
+        display: none;
+    }
+
+    .label-short {
+        display: inline;
+    }
+
+    .crossword-actions {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .kana-key {
+        height: 34px;
+    }
+
+    .crossword-toolbar {
+        gap: 8px;
+    }
+
+    .crossword-toolbar .segmented button {
+        height: 30px;
+        padding: 0 10px;
+        font-size: 0.85rem;
     }
 
     /* the keyboard stays at the bottom of the screen while the page scrolls */
@@ -414,11 +474,11 @@
     }
 
     .crossword-grid {
-        /* on phones the keyboard (about 290px) sits below the grid */
+        /* on phones the header and the keyboard panel at the bottom take about 450px */
         --cell: min(
             46px,
             calc((100vw - 2 * var(--gutter) - (var(--cols) - 1) * 2px - 4px) / var(--cols)),
-            max(24px, calc((100dvh - var(--header-height) - 400px - (var(--rows) - 1) * 2px) / var(--rows)))
+            max(24px, calc((100dvh - 450px - (var(--rows) - 1) * 2px) / var(--rows)))
         );
     }
 }
