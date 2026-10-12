@@ -52,6 +52,10 @@ public class UserRepository {
             throw new EntityStateException("Invalid email address format");
         }
 
+        if (req.getFirstname().trim().isEmpty() || req.getLastname().trim().isEmpty()) {
+            throw new EntityStateException("First name or last name is empty");
+        }
+
         validatePassword(req.getPassword());
 
         String email = normalizeEmail(req.getEmail());
