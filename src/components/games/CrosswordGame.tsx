@@ -102,7 +102,7 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
                     <summary><CircleHelp size={16} /> So geht's</summary>
                     <p>
                         Wähle ein Feld und setze die Zeichen mit der Tastatur. Ein zweiter Klick auf dasselbe Feld wechselt
-                        die Richtung. Für が, ぱ oder っ zuerst ゛, ゜ oder 小 drücken und dann か, は oder つ. Am Computer kannst du auch Romaji tippen: „ka“ wird か, „da“ wird だ, für ん am Wortende „nn“; Pfeiltasten bewegen, Enter springt zum nächsten Wort.
+                        die Richtung. Für が, ぱ oder っ zuerst ゛, ゜ oder 小 drücken und dann か, は oder つ. Am Computer kannst du auch Romaji tippen: „ka“ wird か, „da“ wird だ, für ん am Wortende „nn“; Pfeiltasten bewegen, Enter springt zum nächsten Wort. „Prüfen“ färbt richtige Felder grün und macht sie fest, falsche rot.
                     </p>
                 </details>
             </div>
@@ -138,6 +138,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     const [cursor, setCursor] = useState<Position>({ row: first.row, col: first.col });
     const [direction, setDirection] = useState<Direction>(first.direction);
     const [wrong, setWrong] = useState<Set<string>>(new Set());
+    const [locked, setLocked] = useState<Set<string>>(new Set());
     const [checkedAll, setCheckedAll] = useState(false);
     const [revealed, setRevealed] = useState(false);
     /** romaji typed on the computer keyboard that is not a kana yet ("k", "ky", "n") */
@@ -193,19 +194,22 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setCheckedAll(false);
     };
 
-    /** Puts the characters into the squares of the word from the cursor on and moves the cursor along. */
+    const isLocked = (index: number) => locked.has(cellKey(...activeCells[index]));
+
     const write = (kana: string) => {
         if (done || !kana) return;
         let index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
         const next = { ...filled };
         const nextWrong = new Set(wrong);
         for (const char of kana) {
+            while (index < activeCells.length && isLocked(index)) index++;
             if (index >= activeCells.length) break;
             const position = cellKey(...activeCells[index]);
             next[position] = char;
             nextWrong.delete(position);
             index++;
         }
+        while (index < activeCells.length - 1 && isLocked(index)) index++;
         const [row, col] = activeCells[Math.min(index, activeCells.length - 1)];
         setFilled(next);
         setWrong(nextWrong);
@@ -237,8 +241,11 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
             return;
         }
         let index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
-        // an empty square: the one before it is deleted, like a backspace
-        if (!filled[cellKey(cursor.row, cursor.col)] && index > 0) index--;
+        if (!filled[cellKey(cursor.row, cursor.col)] || isLocked(index)) {
+            index--;
+            while (index >= 0 && isLocked(index)) index--;
+            if (index < 0) return;
+        }
         const [row, col] = activeCells[index];
         setCell(cellKey(row, col), null);
         setCursor({ row, col });
@@ -316,7 +323,10 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         const mistakes = new Set(
             [...solution].filter(([position, char]) => filled[position] && filled[position] !== char).map(([position]) => position),
         );
+        const right = [...solution].filter(([position, char]) => filled[position] === char).map(([position]) => position);
         setWrong(mistakes);
+        setLocked(new Set([...locked, ...right]));
+        setPending("");
         setCheckedAll(true);
     };
 
@@ -355,6 +365,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                                     activeKeys.has(position) && "is-active-word",
                                     isCursor && "is-cursor",
                                     wrong.has(position) && "is-wrong",
+                                    locked.has(position) && "is-locked",
                                     revealed && "is-revealed",
                                     solved && "is-solved",
                                 ].filter(Boolean).join(" ");

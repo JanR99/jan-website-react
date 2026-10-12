@@ -188,6 +188,12 @@
     color: var(--color-danger);
 }
 
+.crossword-cell.is-locked {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+    color: var(--color-success);
+}
+
 .crossword-cell.is-solved {
     border-color: var(--color-success);
 }
