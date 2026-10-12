@@ -209,6 +209,24 @@
     line-height: 1;
 }
 
+.crossword-pending {
+    font-size: 0.55em;
+    color: var(--color-text-muted);
+}
+
+/* takes the typing on a computer; invisible and not clickable, it only keeps the keyboard focus */
+.crossword-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    border: 0;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* ---------- Kana-Tastatur ---------- */
 
 .kana-keyboard {

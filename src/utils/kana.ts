@@ -1,4 +1,4 @@
-import { isKatakana } from "wanakana";
+import { isKatakana, toHiragana, toKatakana } from "wanakana";
 
 /**
  * The basic hiragana as a table, one column per consonant (あ か さ … わ) and one row per vowel
@@ -63,4 +63,24 @@ export function modifyKana(char: string, modifier: KanaModifier): string {
 export function isKatakanaWord(word: string): boolean {
     const letters = word.replace(/ー/g, "");
     return letters.length > 0 && isKatakana(letters);
+}
+
+/** What typed letters turned into: the finished characters and the letters still waiting for more ("k", "ky", "n"). */
+export interface TypedKana {
+    kana: string;
+    pending: string;
+}
+
+/**
+ * Turns romaji typed on a computer keyboard into kana of the kind of the word: "ka" gives か in a hiragana word
+ * and カ in a katakana word, "kya" gives two characters. Letters that can still become something ("k", "n")
+ * stay pending; kana typed with a Japanese keyboard are taken as they are.
+ *
+ * @param finish true when nothing more follows, so a pending "n" becomes ん
+ */
+export function typedKana(typed: string, katakana: boolean, finish = false): TypedKana {
+    const convert = katakana ? toKatakana : toHiragana;
+    const converted = convert(typed.toLowerCase(), { IMEMode: !finish });
+    const match = /^(.*?)([a-z']*)$/.exec(converted)!;
+    return { kana: match[1], pending: match[2] };
 }

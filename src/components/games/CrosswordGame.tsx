@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CompositionEvent, CSSProperties, FormEvent, KeyboardEvent } from "react";
 import { Check, CircleHelp, Delete, Eye, RefreshCw } from "lucide-react";
 import { toRomaji } from "wanakana";
 import { useJapaneseWords } from "../../hooks/useJapaneseWords";
@@ -8,7 +8,7 @@ import {
     CEFR_LEVELS, cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo,
     type Crossword, type CrosswordEntry, type Direction, type JapaneseWord,
 } from "../../utils/crossword";
-import { isKatakanaWord, KANA_TABLE, modifyKana, toKatakanaChar, type KanaModifier } from "../../utils/kana";
+import { isKatakanaWord, KANA_TABLE, modifyKana, toKatakanaChar, typedKana, type KanaModifier } from "../../utils/kana";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
 import { GAMES_BASE } from "./paths";
@@ -102,7 +102,7 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
                     <summary><CircleHelp size={16} /> So geht's</summary>
                     <p>
                         Wähle ein Feld und setze die Zeichen mit der Tastatur. Ein zweiter Klick auf dasselbe Feld wechselt
-                        die Richtung. Für が, ぱ oder っ zuerst ゛, ゜ oder 小 drücken und dann か, は oder つ.
+                        die Richtung. Für が, ぱ oder っ zuerst ゛, ゜ oder 小 drücken und dann か, は oder つ. Am Computer kannst du auch Romaji tippen: „ka“ wird か, „da“ wird だ, für ん am Wortende „nn“; Pfeiltasten bewegen, Enter springt zum nächsten Wort.
                     </p>
                 </details>
             </div>
@@ -114,6 +114,12 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
         </>
     );
 }
+
+/** Kept in the hidden input, so a backspace still arrives as a change. */
+const SENTINEL = " ";
+
+/** Typing on the keyboard is for computers; phones get no system keyboard, the kana keyboard is enough there. */
+const hasMouse = () => window.matchMedia("(pointer: fine)").matches;
 
 interface Position {
     row: number;
@@ -134,6 +140,19 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     const [wrong, setWrong] = useState<Set<string>>(new Set());
     const [checkedAll, setCheckedAll] = useState(false);
     const [revealed, setRevealed] = useState(false);
+    /** romaji typed on the computer keyboard that is not a kana yet ("k", "ky", "n") */
+    const [pending, setPending] = useState("");
+    const inputRef = useRef<HTMLInputElement>(null);
+    const skipEmptyInput = useRef(false);
+
+    const focusInput = () => {
+        if (hasMouse()) inputRef.current?.focus({ preventScroll: true });
+    };
+
+    // on a computer one can start typing right away
+    useEffect(() => {
+        focusInput();
+    }, []);
 
     const entryAt = (position: Position, dir: Direction): CrosswordEntry | undefined =>
         crossword.entries.find((entry) => entry.direction === dir
@@ -148,6 +167,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     const done = solved || revealed;
 
     const select = (position: Position, dir: Direction) => {
+        setPending("");
         setCursor(position);
         setDirection(entryAt(position, dir) ? dir : other(dir));
     };
@@ -157,6 +177,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         // a second tap on the same square switches to the word going the other way, if there is one
         const dir = sameCell && entryAt(cursor, other(active.direction)) ? other(active.direction) : active.direction;
         select({ row, col }, dir);
+        focusInput();
     };
 
     const setCell = (position: string, char: string | null) => {
@@ -172,19 +193,49 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setCheckedAll(false);
     };
 
-    /** Puts the character into the square of the cursor and moves on to the next square of the word. */
-    const press = (char: string) => {
-        if (done) return;
-        const position = cellKey(cursor.row, cursor.col);
-        setCell(position, char);
-        const index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
-        const [row, col] = activeCells[Math.min(index + 1, activeCells.length - 1)];
+    /** Puts the characters into the squares of the word from the cursor on and moves the cursor along. */
+    const write = (kana: string) => {
+        if (done || !kana) return;
+        let index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
+        const next = { ...filled };
+        const nextWrong = new Set(wrong);
+        for (const char of kana) {
+            if (index >= activeCells.length) break;
+            const position = cellKey(...activeCells[index]);
+            next[position] = char;
+            nextWrong.delete(position);
+            index++;
+        }
+        const [row, col] = activeCells[Math.min(index, activeCells.length - 1)];
+        setFilled(next);
+        setWrong(nextWrong);
+        setCheckedAll(false);
         setCursor({ row, col });
         setDirection(active.direction);
     };
 
+    /** A key of the kana keyboard. */
+    const press = (char: string) => {
+        setPending("");
+        write(char);
+        focusInput();
+    };
+
+    /** Romaji (or kana from a Japanese keyboard) typed on the computer keyboard. */
+    const type = (text: string) => {
+        if (done) return;
+        const finish = /\s/.test(text);
+        const { kana, pending: rest } = typedKana(pending + text.replace(/\s/g, ""), katakana, finish);
+        write(kana);
+        setPending(rest);
+    };
+
     const erase = () => {
         if (done) return;
+        if (pending) {
+            setPending(pending.slice(0, -1));
+            return;
+        }
         let index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
         // an empty square: the one before it is deleted, like a backspace
         if (!filled[cellKey(cursor.row, cursor.col)] && index > 0) index--;
@@ -194,7 +245,72 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setDirection(active.direction);
     };
 
-    const selectEntry = (entry: CrosswordEntry) => select({ row: entry.row, col: entry.col }, entry.direction);
+    const selectEntry = (entry: CrosswordEntry) => {
+        select({ row: entry.row, col: entry.col }, entry.direction);
+        focusInput();
+    };
+
+    const move = (dr: number, dc: number) => {
+        const dir: Direction = dc !== 0 ? "across" : "down";
+        for (let r = cursor.row + dr, c = cursor.col + dc; r >= 0 && c >= 0 && r < crossword.height && c < crossword.width; r += dr, c += dc) {
+            if (solution.has(cellKey(r, c))) {
+                select({ row: r, col: c }, dir);
+                return;
+            }
+        }
+        if (entryAt(cursor, dir)) setDirection(dir);
+    };
+
+    const nextEntry = (delta: number) => {
+        const index = crossword.entries.indexOf(active);
+        const entry = crossword.entries[(index + delta + crossword.entries.length) % crossword.entries.length];
+        select({ row: entry.row, col: entry.col }, entry.direction);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        const keys: Record<string, () => void> = {
+            ArrowLeft: () => move(0, -1),
+            ArrowRight: () => move(0, 1),
+            ArrowUp: () => move(-1, 0),
+            ArrowDown: () => move(1, 0),
+            Backspace: () => {
+                skipEmptyInput.current = true;
+                erase();
+            },
+            Enter: () => {
+                if (pending) type(" ");
+                nextEntry(event.shiftKey ? -1 : 1);
+            },
+            Tab: () => {
+                if (pending) type(" ");
+                nextEntry(event.shiftKey ? -1 : 1);
+            },
+        };
+        const action = keys[event.key];
+        if (action) {
+            event.preventDefault();
+            action();
+        }
+    };
+
+    const handleInput = (event: FormEvent<HTMLInputElement>) => {
+        if ((event.nativeEvent as InputEvent).isComposing) return;
+        const value = event.currentTarget.value;
+        event.currentTarget.value = SENTINEL;
+        if (value === "") {
+            if (!skipEmptyInput.current) erase();
+        } else {
+            const text = value.startsWith(SENTINEL) ? value.slice(SENTINEL.length) : value;
+            if (text) type(text);
+        }
+        skipEmptyInput.current = false;
+    };
+
+    // a Japanese keyboard: the finished characters arrive here
+    const handleCompositionEnd = (event: CompositionEvent<HTMLInputElement>) => {
+        event.currentTarget.value = SENTINEL;
+        if (event.data) type(event.data);
+    };
 
     const check = () => {
         const mistakes = new Set(
@@ -206,6 +322,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
 
     const reveal = () => {
         setFilled(Object.fromEntries(solution));
+        setPending("");
         setWrong(new Set());
         setRevealed(true);
     };
@@ -250,12 +367,28 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                                         aria-label={`Feld ${row + 1}/${col + 1}${filled[position] ? `: ${filled[position]}` : ""}`}
                                     >
                                         {numbers.has(position) && <span className="crossword-number">{numbers.get(position)}</span>}
-                                        <span className="crossword-char">{filled[position] ?? ""}</span>
+                                        <span className="crossword-char">
+                                            {filled[position] ?? (isCursor && pending ? <span className="crossword-pending">{pending}</span> : "")}
+                                        </span>
                                     </button>
                                 );
                             }),
                         )}
                     </div>
+                    <input
+                        ref={inputRef}
+                        className="crossword-input"
+                        defaultValue={SENTINEL}
+                        onKeyDown={handleKeyDown}
+                        onInput={handleInput}
+                        onCompositionEnd={handleCompositionEnd}
+                        autoCapitalize="off"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        tabIndex={-1}
+                        aria-label="Eingabe mit der Tastatur: Romaji, z. B. ka für か"
+                    />
                 </div>
             </div>
 

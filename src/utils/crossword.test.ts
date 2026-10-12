@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cellKey, entryCells, generateCrossword, solutionGrid, wordsUpTo, type JapaneseWord } from "./crossword";
-import { isKatakanaWord, modifyKana, toKatakanaChar } from "./kana";
+import { isKatakanaWord, modifyKana, toKatakanaChar, typedKana } from "./kana";
 
 const words: JapaneseWord[] = [
     "かさ", "さくら", "らいおん", "おかし", "しかく", "くるま", "まいにち", "ちから", "テレビ", "ビール", "ルール", "テスト",
@@ -94,5 +94,27 @@ describe("kana keys", () => {
     it("knows katakana words", () => {
         expect(isKatakanaWord("ゲーム")).toBe(true);
         expect(isKatakanaWord("さくら")).toBe(false);
+    });
+});
+
+describe("typedKana", () => {
+    it("turns romaji into the kind of kana of the word", () => {
+        expect(typedKana("ka", false)).toEqual({ kana: "か", pending: "" });
+        expect(typedKana("ka", true)).toEqual({ kana: "カ", pending: "" });
+        expect(typedKana("da", false)).toEqual({ kana: "だ", pending: "" });
+        expect(typedKana("kya", false)).toEqual({ kana: "きゃ", pending: "" });
+        expect(typedKana("te-", true)).toEqual({ kana: "テー", pending: "" });
+    });
+
+    it("keeps letters that can still become something", () => {
+        expect(typedKana("k", false)).toEqual({ kana: "", pending: "k" });
+        expect(typedKana("kak", false)).toEqual({ kana: "か", pending: "k" });
+        expect(typedKana("n", false)).toEqual({ kana: "", pending: "n" });
+        expect(typedKana("n", false, true)).toEqual({ kana: "ん", pending: "" });
+        expect(typedKana("kko", false)).toEqual({ kana: "っこ", pending: "" });
+    });
+
+    it("takes kana as they are", () => {
+        expect(typedKana("さ", false)).toEqual({ kana: "さ", pending: "" });
     });
 });
