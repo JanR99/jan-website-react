@@ -202,6 +202,10 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         const next = { ...filled };
         const nextWrong = new Set(wrong);
         for (const char of kana) {
+            if (index < activeCells.length && isLocked(index) && next[cellKey(...activeCells[index])] === char) {
+                index++;
+                continue;
+            }
             while (index < activeCells.length && isLocked(index)) index++;
             if (index >= activeCells.length) break;
             const position = cellKey(...activeCells[index]);
@@ -214,25 +218,30 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setWrong(nextWrong);
         setCheckedAll(false);
 
-        // a full word: on to the first empty square of the next word that still has one
-        const nextOpen = activeCells.every(([r, c]) => next[cellKey(r, c)]) ? openEntryAfter(active, next) : null;
+        // a finished word (no empty or red square left): on to the first open square of the next word that has one
+        const nextOpen = activeCells.every(([r, c]) => !isOpen(cellKey(r, c), next, nextWrong)) ? openEntryAfter(active, next, nextWrong) : null;
         if (nextOpen) {
-            const [row, col] = entryCells(nextOpen).find(([r, c]) => !next[cellKey(r, c)])!;
+            const [row, col] = entryCells(nextOpen).find(([r, c]) => isOpen(cellKey(r, c), next, nextWrong))!;
             setCursor({ row, col });
             setDirection(nextOpen.direction);
             return;
         }
-        const [row, col] = activeCells[Math.min(index, activeCells.length - 1)];
+        const [row, col] = index >= activeCells.length
+            ? activeCells.find(([r, c]) => isOpen(cellKey(r, c), next, nextWrong)) ?? activeCells[activeCells.length - 1]
+            : activeCells[index];
         setCursor({ row, col });
         setDirection(active.direction);
     };
 
-    /** The next word in the order of the clues that still has an empty square, null if all are full. */
-    const openEntryAfter = (entry: CrosswordEntry, grid: Record<string, string>): CrosswordEntry | null => {
+    const isOpen = (position: string, grid: Record<string, string>, wrongSquares: Set<string>) =>
+        !grid[position] || wrongSquares.has(position);
+
+    /** The next word in the order of the clues that still has an open square, null if there is none. */
+    const openEntryAfter = (entry: CrosswordEntry, grid: Record<string, string>, wrongSquares: Set<string>): CrosswordEntry | null => {
         const start = crossword.entries.indexOf(entry);
         for (let i = 1; i < crossword.entries.length; i++) {
             const candidate = crossword.entries[(start + i) % crossword.entries.length];
-            if (entryCells(candidate).some(([r, c]) => !grid[cellKey(r, c)])) return candidate;
+            if (entryCells(candidate).some(([r, c]) => isOpen(cellKey(r, c), grid, wrongSquares))) return candidate;
         }
         return null;
     };
@@ -347,6 +356,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setLocked(new Set([...locked, ...right]));
         setPending("");
         setCheckedAll(true);
+        focusInput();
     };
 
     const revealSquare = () => {
@@ -365,9 +375,9 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setPending("");
         setCheckedAll(false);
 
-        const nextOpen = activeCells.every(([r, c]) => next[cellKey(r, c)]) ? openEntryAfter(active, next) : null;
+        const nextOpen = activeCells.every(([r, c]) => !isOpen(cellKey(r, c), next, nextWrong)) ? openEntryAfter(active, next, nextWrong) : null;
         if (nextOpen) {
-            const [row, col] = entryCells(nextOpen).find(([r, c]) => !next[cellKey(r, c)])!;
+            const [row, col] = entryCells(nextOpen).find(([r, c]) => isOpen(cellKey(r, c), next, nextWrong))!;
             setCursor({ row, col });
             setDirection(nextOpen.direction);
         } else {
