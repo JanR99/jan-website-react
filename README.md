@@ -34,7 +34,7 @@ On Cloud Run the Swagger UI is switched off (the backend checks `K_SERVICE`, whi
 
 ## Deployment
 
-- Nothing deploys on a push to `master`. Both workflows in `.github/workflows/` run when a GitHub release is published, or when started by hand in the Actions tab ("Run workflow").
+- Nothing deploys on a push to `master`. The workflow `deploy.yml` runs when a GitHub release is published, or when started by hand in the Actions tab ("Run workflow"), where frontend, backend or both can be chosen. It runs the checks once and then deploys both parts side by side.
 - **Frontend** deploys to GitHub Pages.
 - **Backend** deploys to [Cloud Run](https://cloud.google.com/run), building the Docker image from the repo root `Dockerfile`.
 

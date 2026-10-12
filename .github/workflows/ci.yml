@@ -6,9 +6,18 @@ on:
       - '**'
   workflow_call:
 
+permissions:
+  contents: read
+
+# a new push to a branch replaces its checks that are still running; called by the deploy, they always finish
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -37,6 +46,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository

@@ -1,17 +1,38 @@
-name: Deploy React App to GitHub Pages
+name: Deploy
 
 on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      target:
+        description: What to deploy
+        type: choice
+        options:
+          - both
+          - frontend
+          - backend
+        default: both
+
+permissions:
+  contents: read
 
 jobs:
   checks:
     uses: ./.github/workflows/ci.yml
 
-  build-and-deploy:
+  frontend:
     needs: checks
+    if: github.event_name == 'release' || inputs.target != 'backend'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # a second deploy waits for the running one instead of cutting it off halfway
+    concurrency:
+      group: deploy-frontend
+      cancel-in-progress: false
+    permissions:
+      # pushes the build to the gh-pages branch
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -21,6 +42,7 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: '24'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -35,3 +57,52 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+  backend:
+    needs: checks
+    if: github.event_name == 'release' || inputs.target != 'frontend'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: deploy-backend
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Read frontend domain from CNAME
+        run: echo "FRONTEND_URL=https://$(tr -d '[:space:]' < public/CNAME)" >> "$GITHUB_ENV"
+
+      - name: Write environment variables file
+        env:
+          BOOTSTRAP_ADMIN_EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
+          BOOTSTRAP_ADMIN_PASSWORD: ${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          keys = ["BOOTSTRAP_ADMIN_EMAIL", "BOOTSTRAP_ADMIN_PASSWORD", "JWT_SECRET", "BREVO_API_KEY", "FRONTEND_URL"]
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "env.yaml"), "w") as f:
+              for k in keys:
+                  f.write(f"{k}: {json.dumps(os.environ.get(k, ''))}\n")
+          PY
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy jan-website-backend \
+            --source=. \
+            --region=europe-west1 \
+            --allow-unauthenticated \
+            --env-vars-file="$RUNNER_TEMP/env.yaml"
