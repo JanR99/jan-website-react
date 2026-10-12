@@ -26,6 +26,15 @@ export default defineConfig({
                 globPatterns: ['**/*.{js,css,html,ico,png,woff2}', 'manifest.json'],
                 runtimeCaching: [
                     {
+                        // the word list of the games: loaded only when a game is opened, then kept for offline use
+                        urlPattern: ({ url }) => url.pathname === '/games/japanese-words.json',
+                        handler: 'StaleWhileRevalidate',
+                        options: {
+                            cacheName: 'games',
+                            cacheableResponse: { statuses: [200] },
+                        },
+                    },
+                    {
                         // the API description: network first, the stored copy when the backend doesn't answer within 3 seconds
                         urlPattern: ({ url }) => url.pathname === '/v3/api-docs',
                         handler: 'NetworkFirst',

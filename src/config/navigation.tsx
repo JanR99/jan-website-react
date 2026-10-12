@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, DatabaseBackup, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
+import { BookOpen, ChefHat, DatabaseBackup, Gamepad2, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
@@ -9,6 +9,7 @@ import BackupSection from "../components/account/BackupSection";
 import FeedbackSection from "../components/account/FeedbackSection";
 import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
+import { GAMES_BASE } from "../components/games/paths";
 
 export interface NavItem {
     to: string;
@@ -20,6 +21,7 @@ export interface NavItem {
 export const MAIN_NAV: NavItem[] = [
     { to: "/cookbook", label: "Kochbuch", icon: BookOpen },
     { to: TRAVEL_BASE, label: "Reisen", icon: Plane },
+    { to: GAMES_BASE, label: "Spiele", icon: Gamepad2 },
 ];
 
 export interface AccountSection {
