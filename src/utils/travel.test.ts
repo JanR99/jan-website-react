@@ -118,14 +118,20 @@ describe("collagePhotos", () => {
     const prag = folder({ id: 3, photos: photos(31, 32, 33) });
     const empty = folder({ id: 4, photos: [] });
     const folders = [japan, porto, prag, empty];
-    const folderOf = (photoId: number) => folders.find((each) => each.photos.some((photo) => photo.id === photoId))?.id;
+    const folderOf = (photoId: number) => folders.find((each) => each.photos.some((photo) => photo.id === photoId));
 
     it("takes its photos from different trips", () => {
         for (const seed of [0.05, 0.37, 0.61, 0.93]) {
             const chosen = collagePhotos(folders, 2, seed);
 
             expect(chosen).toHaveLength(2);
-            expect(folderOf(chosen[0].id)).not.toBe(folderOf(chosen[1].id));
+            expect(chosen[0].folder).not.toBe(chosen[1].folder);
+        }
+    });
+
+    it("tells the trip of each photo", () => {
+        for (const { folder: trip, photo } of collagePhotos(folders, 3, 0.37)) {
+            expect(folderOf(photo.id)).toBe(trip);
         }
     });
 
@@ -135,7 +141,7 @@ describe("collagePhotos", () => {
 
     it("chooses other photos for other seeds, also within a trip", () => {
         const seeds = Array.from({ length: 200 }, (_, i) => (i + 0.5) / 200);
-        const chosen = new Set(seeds.flatMap((seed) => collagePhotos(folders, 2, seed).map((photo) => photo.id)));
+        const chosen = new Set(seeds.flatMap((seed) => collagePhotos(folders, 2, seed).map(({ photo }) => photo.id)));
 
         expect(chosen.size).toBe(12);
     });
