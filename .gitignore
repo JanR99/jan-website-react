@@ -25,6 +25,7 @@ yarn-debug.log*
 yarn-error.log*
 
 /backend/target
+/Claude outputs
 
 github-actions-key.json
 *-key.json
