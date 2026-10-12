@@ -154,7 +154,7 @@ export default function AuthDialog() {
                     </label>
                     {!isForgot && (
                         <label className="field">
-                            Passwort
+                            Passwort (mind. 8 Zeichen)
                             <input
                                 className="input"
                                 type="password"
