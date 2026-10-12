@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CompositionEvent, CSSProperties, FormEvent, KeyboardEvent } from "react";
-import { Check, CircleHelp, Delete, Eye, RefreshCw } from "lucide-react";
+import { Check, CircleHelp, Delete, Eye, Lightbulb, RefreshCw } from "lucide-react";
 import { toRomaji } from "wanakana";
 import { useJapaneseWords } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
@@ -349,6 +349,37 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setCheckedAll(true);
     };
 
+    const revealSquare = () => {
+        if (done) return;
+        const here = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
+        const index = isLocked(here) ? activeCells.findIndex((_, i) => !isLocked(i)) : here;
+        if (index < 0) return;
+        const position = cellKey(...activeCells[index]);
+        const next = { ...filled, [position]: solution.get(position)! };
+        const nextWrong = new Set(wrong);
+        nextWrong.delete(position);
+        const nextLocked = new Set(locked).add(position);
+        setFilled(next);
+        setWrong(nextWrong);
+        setLocked(nextLocked);
+        setPending("");
+        setCheckedAll(false);
+
+        const nextOpen = activeCells.every(([r, c]) => next[cellKey(r, c)]) ? openEntryAfter(active, next) : null;
+        if (nextOpen) {
+            const [row, col] = entryCells(nextOpen).find(([r, c]) => !next[cellKey(r, c)])!;
+            setCursor({ row, col });
+            setDirection(nextOpen.direction);
+        } else {
+            let after = index + 1;
+            while (after < activeCells.length - 1 && nextLocked.has(cellKey(...activeCells[after]))) after++;
+            const [row, col] = activeCells[Math.min(after, activeCells.length - 1)];
+            setCursor({ row, col });
+            setDirection(active.direction);
+        }
+        focusInput();
+    };
+
     const reveal = () => {
         setFilled(Object.fromEntries(solution));
         setPending("");
@@ -447,6 +478,9 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                     <div className="crossword-actions">
                         <button type="button" className="btn btn-secondary btn-sm" onClick={check}>
                             <Check size={16} /> Prüfen
+                        </button>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={revealSquare}>
+                            <Lightbulb size={16} /> Feld aufdecken
                         </button>
                         <button type="button" className="btn btn-ghost btn-sm" onClick={reveal}>
                             <Eye size={16} /> Lösung zeigen

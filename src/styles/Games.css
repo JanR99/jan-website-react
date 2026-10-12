@@ -376,8 +376,6 @@
 .crossword-clue.is-done {
     color: var(--color-text-muted);
     text-decoration: line-through;
-    text-decoration-color: var(--color-success);
-    text-decoration-thickness: 2px;
 }
 
 .crossword-clue strong {
