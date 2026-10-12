@@ -36,6 +36,30 @@ describe('handleApiError', () => {
         expect(handleApiError({ response: { body: { message: 42 }, text: 'Bad Gateway' } })).toBe('Bad Gateway');
     });
 
+    it('returns the fallback text instead of the JSON Spring answers with on its own', () => {
+        const springError = {
+            timestamp: '2026-10-12T08:00:00.000+00:00',
+            status: 500,
+            error: 'Internal Server Error',
+            path: '/api/users/register',
+        };
+
+        expect(handleApiError({ response: { status: 500, body: springError, text: JSON.stringify(springError) } })).toBe(FALLBACK);
+        expect(handleApiError({ response: { status: 400, text: JSON.stringify({ ...springError, status: 400, error: 'Bad Request' }) } }))
+            .toBe(FALLBACK);
+    });
+
+    it('returns the fallback text instead of an HTML error page', () => {
+        const page = '<!DOCTYPE html>\n<html lang=en><title>Error 502 (Server Error)!!1</title><p>That’s an error.</p></html>';
+
+        expect(handleApiError({ response: { status: 502, text: page } })).toBe(FALLBACK);
+        expect(handleApiError({ response: { status: 502, text: '  <html><body>Bad Gateway</body></html>' } })).toBe(FALLBACK);
+    });
+
+    it('returns the fallback text for a JSON message that is empty', () => {
+        expect(handleApiError({ response: { text: '{"message":"  "}' } })).toBe(FALLBACK);
+    });
+
     it('returns the fallback text when the response says nothing', () => {
         expect(handleApiError({ response: {} })).toBe(FALLBACK);
         expect(handleApiError({ response: { body: '', text: '  ' } })).toBe(FALLBACK);
