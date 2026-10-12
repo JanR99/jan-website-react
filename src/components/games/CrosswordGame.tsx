@@ -65,9 +65,9 @@ export default function CrosswordGame() {
 
 /** The level and the current puzzle; a new puzzle starts a fresh board. */
 function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
-    const [level, setLevel] = useState("A2");
+    const [level, setLevel] = useState("A1");
     const [script, setScript] = useState<Script>("hiragana");
-    const [puzzle, setPuzzle] = useState(() => newPuzzle(words, "A2", "hiragana"));
+    const [puzzle, setPuzzle] = useState(() => newPuzzle(words, level, script));
 
     const start = (nextLevel: string, nextScript: Script) => {
         setLevel(nextLevel);
