@@ -28,8 +28,19 @@ interface Puzzle {
 
 let nextPuzzleId = 1;
 
-function newPuzzle(words: JapaneseWord[], level: string): Puzzle {
-    return { id: nextPuzzleId++, crossword: generateCrossword(wordsUpTo(words, level, MAX_WORD_LENGTH), WORD_COUNT, MAX_SIZE) };
+type Script = "hiragana" | "katakana" | "both";
+
+const SCRIPTS: { value: Script; label: string }[] = [
+    { value: "hiragana", label: "Hiragana" },
+    { value: "katakana", label: "Katakana" },
+    { value: "both", label: "Beide" },
+];
+
+function newPuzzle(words: JapaneseWord[], level: string, script: Script): Puzzle {
+    // hiragana and katakana words never share a character, so they can't cross: "both" picks one of them by chance
+    const katakana = script === "both" ? Math.random() < 0.5 : script === "katakana";
+    const inScript = words.filter((word) => isKatakanaWord(word.w) === katakana);
+    return { id: nextPuzzleId++, crossword: generateCrossword(wordsUpTo(inScript, level, MAX_WORD_LENGTH), WORD_COUNT, MAX_SIZE) };
 }
 
 /** A crossword of Japanese words: the squares take kana, chosen on a small kana keyboard below the grid. */
@@ -55,27 +66,36 @@ export default function CrosswordGame() {
 /** The level and the current puzzle; a new puzzle starts a fresh board. */
 function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
     const [level, setLevel] = useState("A2");
-    const [puzzle, setPuzzle] = useState(() => newPuzzle(words, "A2"));
+    const [script, setScript] = useState<Script>("hiragana");
+    const [puzzle, setPuzzle] = useState(() => newPuzzle(words, "A2", "hiragana"));
 
-    const start = (nextLevel: string) => {
+    const start = (nextLevel: string, nextScript: Script) => {
         setLevel(nextLevel);
-        setPuzzle(newPuzzle(words, nextLevel));
+        setScript(nextScript);
+        setPuzzle(newPuzzle(words, nextLevel, nextScript));
     };
 
     return (
         <>
             <div className="crossword-toolbar">
+                <div className="segmented" role="group" aria-label="Schrift">
+                    {SCRIPTS.map(({ value, label }) => (
+                        <button key={value} type="button" aria-pressed={script === value} onClick={() => start(level, value)}>
+                            {label}
+                        </button>
+                    ))}
+                </div>
                 <div className="crossword-level">
                     <span className="muted" id="crossword-level-label">Niveau bis</span>
                     <div className="segmented" role="group" aria-labelledby="crossword-level-label">
                         {LEVELS.map((l) => (
-                            <button key={l} type="button" aria-pressed={level === l} onClick={() => start(l)}>
+                            <button key={l} type="button" aria-pressed={level === l} onClick={() => start(l, script)}>
                                 {l}
                             </button>
                         ))}
                     </div>
                 </div>
-                <button type="button" className="btn btn-secondary btn-sm" onClick={() => start(level)}>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={() => start(level, script)}>
                     <RefreshCw size={16} /> Neues Rätsel
                 </button>
                 <details className="crossword-help">
@@ -89,7 +109,7 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
             {puzzle.crossword.entries.length === 0 ? (
                 <div className="card empty-state"><p>Für dieses Niveau gibt es nicht genug Wörter.</p></div>
             ) : (
-                <CrosswordBoard key={puzzle.id} crossword={puzzle.crossword} onNew={() => start(level)} />
+                <CrosswordBoard key={puzzle.id} crossword={puzzle.crossword} onNew={() => start(level, script)} />
             )}
         </>
     );
