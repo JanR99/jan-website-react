@@ -20,13 +20,14 @@ export function handleApiError(error: unknown): string {
     if (typeof text === "string" && text.trim().length > 0) {
         try {
             const parsed = JSON.parse(text);
-            if (parsed && typeof parsed === "object" && typeof parsed.message === "string") {
+            if (parsed && typeof parsed === "object" && typeof parsed.message === "string" && parsed.message.trim().length > 0) {
                 return parsed.message;
             }
+            // JSON without a message, like Spring's own answer to a server error or broken request: nothing to show
         } catch {
-            // not JSON, fall through and use the raw text
+            // Not JSON: a message the backend wrote in plain text, unless it is an HTML error page
+            if (!text.trimStart().startsWith("<")) return text;
         }
-        return text;
     }
 
     return "Gerade nicht verfügbar. Bitte später erneut versuchen.";
