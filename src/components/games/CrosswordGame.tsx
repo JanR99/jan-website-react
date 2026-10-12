@@ -210,12 +210,31 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
             index++;
         }
         while (index < activeCells.length - 1 && isLocked(index)) index++;
-        const [row, col] = activeCells[Math.min(index, activeCells.length - 1)];
         setFilled(next);
         setWrong(nextWrong);
         setCheckedAll(false);
+
+        // a full word: on to the first empty square of the next word that still has one
+        const nextOpen = activeCells.every(([r, c]) => next[cellKey(r, c)]) ? openEntryAfter(active, next) : null;
+        if (nextOpen) {
+            const [row, col] = entryCells(nextOpen).find(([r, c]) => !next[cellKey(r, c)])!;
+            setCursor({ row, col });
+            setDirection(nextOpen.direction);
+            return;
+        }
+        const [row, col] = activeCells[Math.min(index, activeCells.length - 1)];
         setCursor({ row, col });
         setDirection(active.direction);
+    };
+
+    /** The next word in the order of the clues that still has an empty square, null if all are full. */
+    const openEntryAfter = (entry: CrosswordEntry, grid: Record<string, string>): CrosswordEntry | null => {
+        const start = crossword.entries.indexOf(entry);
+        for (let i = 1; i < crossword.entries.length; i++) {
+            const candidate = crossword.entries[(start + i) % crossword.entries.length];
+            if (entryCells(candidate).some(([r, c]) => !grid[cellKey(r, c)])) return candidate;
+        }
+        return null;
     };
 
     /** A key of the kana keyboard. */
@@ -451,7 +470,12 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                                 <li key={entry.number}>
                                     <button
                                         type="button"
-                                        className={`crossword-clue${entry === active ? " is-active" : ""}`}
+                                        className={[
+                                            "crossword-clue",
+                                            entry === active && "is-active",
+                                            // found right by "Prüfen": crossed out
+                                            entryCells(entry).every(([r, c]) => locked.has(cellKey(r, c))) && "is-done",
+                                        ].filter(Boolean).join(" ")}
                                         onClick={() => selectEntry(entry)}
                                     >
                                         <strong>{entry.number}</strong> {entry.clue}
