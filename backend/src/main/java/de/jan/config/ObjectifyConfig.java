@@ -6,6 +6,7 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.feedback.Feedback;
+import de.jan.games.CrosswordStats;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
@@ -36,7 +37,8 @@ public class ObjectifyConfig {
         TravelPhoto.class,
         TravelPhotoFile.class,
         TravelSeedMarker.class,
-        Feedback.class
+        Feedback.class,
+        CrosswordStats.class
     );
 
     @PostConstruct

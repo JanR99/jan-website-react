@@ -21,6 +21,13 @@ export default defineConfig([
         },
     },
     {
+        // run with Node, not in the browser
+        files: ['scripts/**/*.ts'],
+        languageOptions: {
+            globals: globals.node,
+        },
+    },
+    {
         // swagger-client has no types, so the API client works with `any`
         files: ['src/controller/APIClient.ts'],
         rules: {

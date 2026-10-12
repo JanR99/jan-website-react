@@ -442,11 +442,13 @@
 
 .site-footer nav {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 8px 20px;
 }
 
 .site-footer a,
 .site-footer button {
+    white-space: nowrap;
     padding: 0;
     border: 0;
     background: none;

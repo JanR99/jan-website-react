@@ -11,6 +11,9 @@ import AccountPage from './components/account/AccountPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PasswordResetPage from './components/auth/PasswordResetPage';
 import PrivacyPage from './components/PrivacyPage';
+import GamesPage from './components/games/GamesPage';
+import CrosswordGame from './components/games/CrosswordGame';
+import { CROSSWORD_PATH, GAMES_BASE } from './components/games/paths';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
 import { TRAVEL_BASE } from './utils/travel';
 
@@ -38,6 +41,8 @@ const App: React.FC = () => {
                     <Route path="/destination/*" element={<Navigate to={TRAVEL_BASE} replace />} />
                     <Route path="/passwort-zuruecksetzen" element={<PasswordResetPage />} />
                     <Route path="/datenschutz" element={<PrivacyPage />} />
+                    <Route path={GAMES_BASE} element={<GamesPage />} />
+                    <Route path={CROSSWORD_PATH} element={<CrosswordGame />} />
 
                     {/* paths for logged-in users */}
                     <Route

@@ -1,0 +1,606 @@
+/* ---------- Spiele: Übersicht ---------- */
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 48px;
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.game-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.game-card strong {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+}
+
+.game-card-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+}
+
+.game-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+    color: var(--color-accent-strong);
+    font-weight: 600;
+}
+
+.game-stats {
+    margin-bottom: 48px;
+}
+
+.account-content .game-stats {
+    margin-bottom: 16px;
+}
+
+.account-games-play {
+    margin: 0;
+}
+
+.game-stats h2 {
+    margin: 0 0 14px;
+    font-size: 1.2rem;
+}
+
+.game-stats-totals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+.game-stats-totals dt {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.game-stats-totals dd {
+    margin: 2px 0 0;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+}
+
+.game-stats-scroll {
+    overflow-x: auto;
+}
+
+.game-stats-table {
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.game-stats-table th,
+.game-stats-table td {
+    padding: 6px 12px;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.game-stats-hint {
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+}
+
+/* ---------- Kreuzworträtsel ---------- */
+
+.crossword-page {
+    padding-bottom: 32px;
+}
+
+.crossword-page .page-header {
+    padding-block: 20px 12px;
+}
+
+.crossword-page .page-header .back-link {
+    margin-bottom: 6px;
+}
+
+.crossword-page .page-header h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+}
+
+.crossword-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    margin-bottom: 14px;
+}
+
+.crossword-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: -4px 0 12px;
+    font-size: 0.88rem;
+}
+
+.crossword-stats-login {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent-strong);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.crossword-help {
+    font-size: 0.9rem;
+}
+
+.crossword-help summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    list-style: none;
+}
+
+.crossword-help summary::-webkit-details-marker {
+    display: none;
+}
+
+.crossword-help p {
+    max-width: 60ch;
+    margin: 8px 0 0;
+}
+
+.crossword-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.crossword-level .segmented button {
+    padding: 0 12px;
+}
+
+/*
+ * Wide screens: grid, keyboard and clues side by side, so everything fits without scrolling.
+ * Narrower: the clues go below; on phones the keyboard stays at the bottom of the screen.
+ */
+.crossword {
+    display: grid;
+    grid-template-columns: auto minmax(300px, 400px) minmax(200px, 1fr);
+    gap: 20px 28px;
+    align-items: start;
+}
+
+.crossword-main {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.crossword-side {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* lines the keyboard up with the grid, below the active clue */
+    padding-top: calc(2.8em + 10px);
+}
+
+.crossword-active-clue {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 2.8em;
+}
+
+.crossword-active-clue p {
+    flex: 1;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.crossword-active-clue .icon-btn {
+    flex: none;
+    width: 34px;
+    height: 34px;
+}
+
+.crossword-active-clue--panel,
+.label-short {
+    display: none;
+}
+
+.crossword-board {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.crossword-grid {
+    /* as large as fits: at most 46px, smaller when the screen is narrow or low (header, toolbar and clue above it) */
+    --cell: min(
+        46px,
+        calc((100vw - 2 * var(--gutter) - (var(--cols) - 1) * 2px - 4px) / var(--cols)),
+        max(26px, calc((100dvh - var(--header-height) - 290px - (var(--rows) - 1) * 2px) / var(--rows)))
+    );
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    grid-auto-rows: var(--cell);
+    gap: 2px;
+}
+
+.crossword-gap {
+    display: block;
+}
+
+.crossword-cell {
+    position: relative;
+    touch-action: manipulation; /* no zoom on a quick double tap */
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: calc(var(--cell) * 0.5);
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.crossword-cell.is-active-word {
+    background: var(--color-accent-soft);
+}
+
+.crossword-cell.is-cursor {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.crossword-cell.is-wrong {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+.crossword-cell.is-locked {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+    color: var(--color-success);
+}
+
+/* the whole crossword solved: every square green */
+.crossword-cell.is-solved {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+    color: var(--color-success);
+    box-shadow: none;
+}
+
+/* ---------- Konfetti ---------- */
+
+.confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -20px;
+    left: var(--x);
+    width: var(--size);
+    height: calc(var(--size) * 0.45);
+    border-radius: 2px;
+    background: var(--color);
+    opacity: 0;
+    animation: confetti-fall var(--duration) cubic-bezier(0.3, 0.5, 0.5, 1) var(--delay) forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0);
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--drift), 105vh) rotate(var(--spin));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confetti {
+        display: none;
+    }
+}
+
+.crossword-cell.is-revealed {
+    color: var(--color-text-muted);
+}
+
+.crossword-number {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-size: max(9px, calc(var(--cell) * 0.22));
+    line-height: 1;
+    color: var(--color-text-muted);
+}
+
+.crossword-char {
+    line-height: 1;
+}
+
+.crossword-pending {
+    font-size: 0.55em;
+    color: var(--color-text-muted);
+}
+
+/* takes the typing on a computer; invisible and not clickable, it only keeps the keyboard focus */
+.crossword-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    border: 0;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---------- Kana-Tastatur ---------- */
+
+.kana-keyboard {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+}
+
+.kana-keys {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+}
+
+.kana-keys-extra {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+}
+
+.kana-key {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    touch-action: manipulation; /* no zoom on a quick double tap */
+    transition: background-color var(--transition);
+}
+
+.kana-key:hover {
+    background: var(--color-surface-2);
+}
+
+.kana-key:active {
+    background: var(--color-accent-soft);
+}
+
+.kana-key:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.kana-key--modifier[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+}
+
+.kana-key--modifier,
+.kana-key--erase {
+    background: var(--color-surface-2);
+}
+
+/* ゛ and ゜ alone are tiny in most fonts */
+.kana-key--modifier {
+    font-size: 1.4rem;
+}
+
+.kana-key-gap {
+    display: block;
+}
+
+.crossword-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.crossword-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.crossword-result p {
+    margin: 0;
+}
+
+.crossword-solution {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.crossword-solution li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
+}
+
+.crossword-clues {
+    display: grid;
+    gap: 20px;
+}
+
+.crossword-clues h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.crossword-clues ol {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.crossword-clue {
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.crossword-clue:hover {
+    background: var(--color-surface-2);
+}
+
+.crossword-clue.is-active {
+    background: var(--color-accent-soft);
+}
+
+.crossword-clue.is-done {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
+.crossword-clue strong {
+    margin-right: 6px;
+}
+
+@media (max-width: 1180px) {
+    .crossword {
+        grid-template-columns: auto minmax(300px, 400px);
+    }
+
+    .crossword-clues {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .crossword {
+        grid-template-columns: 1fr;
+    }
+
+    .crossword-side {
+        padding-top: 0;
+        gap: 8px;
+    }
+
+    /* the clue goes from above the grid to the keyboard panel at the bottom */
+    .crossword-active-clue--top {
+        display: none;
+    }
+
+    .crossword-active-clue--panel {
+        display: flex;
+        min-height: 0;
+        font-size: 0.9rem;
+    }
+
+    /* shorter button labels, so the actions fit in one row */
+    .label-long {
+        display: none;
+    }
+
+    .label-short {
+        display: inline;
+    }
+
+    .crossword-actions {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .kana-key {
+        height: 34px;
+    }
+
+    .crossword-toolbar {
+        gap: 8px;
+    }
+
+    .crossword-toolbar .segmented button {
+        height: 30px;
+        padding: 0 10px;
+        font-size: 0.85rem;
+    }
+
+    /* the keyboard stays at the bottom of the screen while the page scrolls */
+    .crossword-side:has(.kana-keyboard) {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        margin-inline: calc(-1 * var(--gutter));
+        padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--color-border);
+        background: var(--color-bg);
+        box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .crossword-grid {
+        /* on phones the header and the keyboard panel at the bottom take about 450px */
+        --cell: min(
+            46px,
+            calc((100vw - 2 * var(--gutter) - (var(--cols) - 1) * 2px - 4px) / var(--cols)),
+            max(24px, calc((100dvh - 450px - (var(--rows) - 1) * 2px) / var(--rows)))
+        );
+    }
+}

@@ -7,6 +7,14 @@ A personal website with a cooking recipe collection, built with [React](https://
 - `src/` – React frontend
 - `backend/` – Spring Boot backend (Java 25, Maven)
 
+## Games
+
+The Japanese crossword (`/spiele`) uses `public/games/japanese-words.json`. It is built with `npm run words`
+(`scripts/build-japanese-words.ts`) from the word lists of [japanese-practice](https://github.com/JanR99/japanese-practice)
+in `data/japanese-practice/`: only the hiragana and katakana words marked `useful_for_flashcard`, with 2–6 characters,
+without unsuitable words and without second spellings of the same word (ウィンナー/ウインナー), as
+`{ w: word, en: English meanings, l: CEFR level }`.
+
 ## Getting Started (local development)
 
 The backend needs Java 25 (`JAVA_HOME` has to point to it) and [Docker](https://www.docker.com/products/docker-desktop/) (the start script runs the local Datastore emulator and its admin UI as containers). The backend tests (`mvn test`) start their own emulator with the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install).

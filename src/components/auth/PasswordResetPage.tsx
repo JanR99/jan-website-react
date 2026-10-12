@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHeader from "../layout/PageHeader";
 import UserController from "../../controller/UserController.ts";
@@ -19,7 +19,7 @@ export default function PasswordResetPage() {
     const [message, setMessage] = useState<string | null>(null);
     const [done, setDone] = useState(false);
 
-    async function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         setMessage(null);
 

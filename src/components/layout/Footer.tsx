@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import FeedbackDialog from "../FeedbackDialog";
 import { TRAVEL_BASE } from "../../utils/travel";
+import { GAMES_BASE } from "../games/paths";
 
 export default function Footer() {
     const { user, openAuthDialog } = useAuth();
@@ -18,6 +19,7 @@ export default function Footer() {
                 <nav aria-label="Footer">
                     <Link to={TRAVEL_BASE}>Reisen</Link>
                     <Link to="/cookbook">Kochbuch</Link>
+                    <Link to={GAMES_BASE}>Spiele</Link>
                     <button type="button" onClick={openFeedback}>Feedback geben</button>
                     <Link to="/datenschutz">Datenschutz</Link>
                 </nav>

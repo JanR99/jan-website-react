@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, DatabaseBackup, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
+import { BookOpen, ChefHat, DatabaseBackup, Gamepad2, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
 import UsersRolesSection from "../components/account/UsersRolesSection";
 import BackupSection from "../components/account/BackupSection";
 import FeedbackSection from "../components/account/FeedbackSection";
+import GamesSection from "../components/account/GamesSection";
 import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
+import { GAMES_BASE } from "../components/games/paths";
 
 export interface NavItem {
     to: string;
@@ -20,6 +22,7 @@ export interface NavItem {
 export const MAIN_NAV: NavItem[] = [
     { to: "/cookbook", label: "Kochbuch", icon: BookOpen },
     { to: TRAVEL_BASE, label: "Reisen", icon: Plane },
+    { to: GAMES_BASE, label: "Spiele", icon: Gamepad2 },
 ];
 
 export interface AccountSection {
@@ -46,6 +49,13 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         icon: Heart,
         description: "Rezepte, die du im Kochbuch mit einem Herz markiert hast.",
         element: <FavoritesSection />,
+    },
+    {
+        path: "spiele",
+        label: "Spiele",
+        icon: Gamepad2,
+        description: "Deine Bilanz in den Spielen.",
+        element: <GamesSection />,
     },
     {
         path: "rezepte",
