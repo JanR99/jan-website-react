@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "./Footer";
-import CookieConsent from "../CookieConsent";
 import AuthDialog from "../auth/AuthDialog";
 import SessionExpiryNotice from "../auth/SessionExpiryNotice";
 import ErrorBoundary from "./ErrorBoundary";
@@ -29,7 +28,6 @@ export default function Layout() {
             <Footer />
             <AuthDialog />
             <SessionExpiryNotice />
-            <CookieConsent />
         </div>
     );
 }

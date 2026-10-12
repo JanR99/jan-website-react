@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { openCookieSettings } from "../CookieConsent";
 import FeedbackDialog from "../FeedbackDialog";
 import { TRAVEL_BASE } from "../../utils/travel";
 
@@ -20,7 +19,7 @@ export default function Footer() {
                     <Link to={TRAVEL_BASE}>Reisen</Link>
                     <Link to="/cookbook">Kochbuch</Link>
                     <button type="button" onClick={openFeedback}>Feedback geben</button>
-                    <button type="button" onClick={openCookieSettings}>Cookie-Einstellungen</button>
+                    <Link to="/datenschutz">Datenschutz</Link>
                 </nav>
             </div>
             <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
