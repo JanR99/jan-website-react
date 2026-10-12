@@ -15,6 +15,7 @@ import {
 import { isKatakanaWord, KANA_TABLE, modifyKana, toKatakanaChar, typedKana, type KanaModifier } from "../../utils/kana";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
+import Confetti from "./Confetti";
 import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
 import "../../styles/Games.css";
@@ -122,10 +123,10 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
             </div>
             <p className="crossword-stats muted">
                 {!loggedIn ? (
-                    <>
-                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>
-                        , damit deine gelösten Rätsel gezählt werden.
-                    </>
+                    <span>
+                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>,
+                        damit deine gelösten Rätsel gezählt werden.
+                    </span>
                 ) : stats && (
                     <>
                         <Trophy size={15} /> {stats.solved} Rätsel gelöst · {stats.words} Wörter richtig ·
@@ -502,7 +503,7 @@ function CrosswordBoard({ crossword, onNew, onFinished }: {
                                     wrong.has(position) && "is-wrong",
                                     locked.has(position) && "is-locked",
                                     revealed && "is-revealed",
-                                    solved && "is-solved",
+                                    solved && !revealed && "is-solved",
                                 ].filter(Boolean).join(" ");
                                 return (
                                     <button
@@ -541,6 +542,7 @@ function CrosswordBoard({ crossword, onNew, onFinished }: {
             <div className="crossword-side">
                 {done ? (
                     <div className="crossword-result card card-pad" role="status">
+                        {solved && !revealed && <Confetti />}
                         <p className={solved && !revealed ? "form-message form-message--success" : "muted"}>
                             {revealed ? "Das ist die Lösung." : "Geschafft – alles richtig!"}
                         </p>
@@ -601,7 +603,7 @@ function CrosswordBoard({ crossword, onNew, onFinished }: {
                                             "crossword-clue",
                                             entry === active && "is-active",
                                             // found right by "Prüfen": crossed out
-                                            entryCells(entry).every(([r, c]) => locked.has(cellKey(r, c))) && "is-done",
+                                            ((solved && !revealed) || entryCells(entry).every(([r, c]) => locked.has(cellKey(r, c)))) && "is-done",
                                         ].filter(Boolean).join(" ")}
                                         onClick={() => selectEntry(entry)}
                                     >
