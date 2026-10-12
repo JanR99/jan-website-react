@@ -102,7 +102,7 @@ function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
                     <summary><CircleHelp size={16} /> So geht's</summary>
                     <p>
                         Wähle ein Feld und setze die Zeichen mit der Tastatur. Ein zweiter Klick auf dasselbe Feld wechselt
-                        die Richtung. ゛, ゜ und 小 ändern das zuletzt gesetzte Zeichen: か wird が, は wird ぱ, つ wird っ.
+                        die Richtung. Für が, ぱ oder っ zuerst ゛, ゜ oder 小 drücken und dann か, は oder つ.
                     </p>
                 </details>
             </div>
@@ -131,8 +131,6 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     const [filled, setFilled] = useState<Record<string, string>>({});
     const [cursor, setCursor] = useState<Position>({ row: first.row, col: first.col });
     const [direction, setDirection] = useState<Direction>(first.direction);
-    /** the square set last, which the ゛ ゜ 小 keys change */
-    const [lastSet, setLastSet] = useState<string | null>(null);
     const [wrong, setWrong] = useState<Set<string>>(new Set());
     const [checkedAll, setCheckedAll] = useState(false);
     const [revealed, setRevealed] = useState(false);
@@ -152,7 +150,6 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
     const select = (position: Position, dir: Direction) => {
         setCursor(position);
         setDirection(entryAt(position, dir) ? dir : other(dir));
-        setLastSet(null);
     };
 
     const clickCell = (row: number, col: number) => {
@@ -180,16 +177,10 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         if (done) return;
         const position = cellKey(cursor.row, cursor.col);
         setCell(position, char);
-        setLastSet(position);
         const index = activeCells.findIndex(([r, c]) => r === cursor.row && c === cursor.col);
         const [row, col] = activeCells[Math.min(index + 1, activeCells.length - 1)];
         setCursor({ row, col });
         setDirection(active.direction);
-    };
-
-    const modify = (modifier: KanaModifier) => {
-        if (done || !lastSet || !filled[lastSet]) return;
-        setCell(lastSet, modifyKana(filled[lastSet], modifier));
     };
 
     const erase = () => {
@@ -201,7 +192,6 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
         setCell(cellKey(row, col), null);
         setCursor({ row, col });
         setDirection(active.direction);
-        setLastSet(null);
     };
 
     const selectEntry = (entry: CrosswordEntry) => select({ row: entry.row, col: entry.col }, entry.direction);
@@ -290,7 +280,7 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
                     </div>
                 ) : (
                     <>
-                    <KanaKeyboard katakana={katakana} onKey={press} onModify={modify} onErase={erase} />
+                    <KanaKeyboard katakana={katakana} onKey={press} onErase={erase} />
                     <div className="crossword-actions">
                         <button type="button" className="btn btn-secondary btn-sm" onClick={check}>
                             <Check size={16} /> Prüfen
@@ -333,29 +323,57 @@ function CrosswordBoard({ crossword, onNew }: { crossword: Crossword; onNew: () 
 }
 
 const MODIFIER_KEYS: { modifier: KanaModifier; label: string; title: string }[] = [
-    { modifier: "dakuten", label: "゛", title: "゛ (か → が)" },
-    { modifier: "handakuten", label: "゜", title: "゜ (は → ぱ)" },
-    { modifier: "small", label: "小", title: "klein (つ → っ)" },
+    { modifier: "dakuten", label: "゛", title: "゛ – danach z. B. か für が" },
+    { modifier: "handakuten", label: "゜", title: "゜ – danach z. B. は für ぱ" },
+    { modifier: "small", label: "小", title: "klein – danach z. B. つ für っ" },
 ];
 
-/** The kana table as buttons, in hiragana or in katakana like the active word. */
-function KanaKeyboard({ katakana, onKey, onModify, onErase }: {
+/**
+ * The kana table as buttons, in hiragana or in katakana like the active word. ゛ ゜ 小 come first:
+ * pressed, the table shows が ぱ っ … for the next key, and the keys they don't apply to are off.
+ */
+function KanaKeyboard({ katakana, onKey, onErase }: {
     katakana: boolean;
     onKey: (char: string) => void;
-    onModify: (modifier: KanaModifier) => void;
     onErase: () => void;
 }) {
-    const show = (char: string) => (katakana ? toKatakanaChar(char) : char);
+    const [armed, setArmed] = useState<KanaModifier | null>(null);
+    const show = (char: string) => {
+        const shown = katakana ? toKatakanaChar(char) : char;
+        return armed ? modifyKana(shown, armed) : shown;
+    };
+
+    const pressKey = (char: string) => {
+        onKey(show(char));
+        setArmed(null);
+    };
+
     return (
         <div className="kana-keyboard" role="group" aria-label={katakana ? "Katakana-Tastatur" : "Hiragana-Tastatur"} lang="ja">
             <div className="kana-keys">
-                {KANA_TABLE.flatMap((row, r) => row.map((char, c) => char
-                    ? <button key={`${r}-${c}`} type="button" className="kana-key" onClick={() => onKey(show(char))}>{show(char)}</button>
-                    : <span key={`${r}-${c}`} className="kana-key-gap" />))}
+                {KANA_TABLE.flatMap((row, r) => row.map((char, c) => {
+                    if (!char) return <span key={`${r}-${c}`} className="kana-key-gap" />;
+                    const shown = show(char);
+                    // with ゛ ゜ 小 pressed, only the keys that change are of use
+                    const off = armed !== null && shown === (katakana ? toKatakanaChar(char) : char);
+                    return (
+                        <button key={`${r}-${c}`} type="button" className="kana-key" onClick={() => pressKey(char)} disabled={off}>
+                            {shown}
+                        </button>
+                    );
+                }))}
             </div>
             <div className="kana-keys-extra">
                 {MODIFIER_KEYS.map(({ modifier, label, title }) => (
-                    <button key={modifier} type="button" className="kana-key kana-key--modifier" onClick={() => onModify(modifier)} title={title} aria-label={title}>
+                    <button
+                        key={modifier}
+                        type="button"
+                        className="kana-key kana-key--modifier"
+                        onClick={() => setArmed(armed === modifier ? null : modifier)}
+                        aria-pressed={armed === modifier}
+                        title={title}
+                        aria-label={title}
+                    >
                         {label}
                     </button>
                 ))}

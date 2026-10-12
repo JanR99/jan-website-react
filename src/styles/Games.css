@@ -253,6 +253,17 @@
     background: var(--color-accent-soft);
 }
 
+.kana-key:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.kana-key--modifier[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+}
+
 .kana-key--modifier,
 .kana-key--erase {
     background: var(--color-surface-2);
