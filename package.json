@@ -21,6 +21,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json",
     "lint": "eslint .",
     "test": "vitest run",
+    "words": "node scripts/build-japanese-words.ts",
     "preview": "vite preview"
   },
   "keywords": [],
