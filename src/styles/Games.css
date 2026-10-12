@@ -51,6 +51,14 @@
     margin-bottom: 48px;
 }
 
+.account-content .game-stats {
+    margin-bottom: 16px;
+}
+
+.account-games-play {
+    margin: 0;
+}
+
 .game-stats h2 {
     margin: 0 0 14px;
     font-size: 1.2rem;

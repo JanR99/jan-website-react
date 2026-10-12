@@ -7,6 +7,7 @@ import RecipeAdminSection from "../components/account/RecipeAdminSection";
 import UsersRolesSection from "../components/account/UsersRolesSection";
 import BackupSection from "../components/account/BackupSection";
 import FeedbackSection from "../components/account/FeedbackSection";
+import GamesSection from "../components/account/GamesSection";
 import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
 import { GAMES_BASE } from "../components/games/paths";
@@ -48,6 +49,13 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         icon: Heart,
         description: "Rezepte, die du im Kochbuch mit einem Herz markiert hast.",
         element: <FavoritesSection />,
+    },
+    {
+        path: "spiele",
+        label: "Spiele",
+        icon: Gamepad2,
+        description: "Deine Bilanz in den Spielen.",
+        element: <GamesSection />,
     },
     {
         path: "rezepte",
