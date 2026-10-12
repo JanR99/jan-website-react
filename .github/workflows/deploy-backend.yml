@@ -30,10 +30,25 @@ jobs:
       - name: Read frontend domain from CNAME
         run: echo "FRONTEND_URL=https://$(tr -d '[:space:]' < public/CNAME)" >> "$GITHUB_ENV"
 
+      - name: Write environment variables file
+        env:
+          BOOTSTRAP_ADMIN_EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
+          BOOTSTRAP_ADMIN_PASSWORD: ${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          keys = ["BOOTSTRAP_ADMIN_EMAIL", "BOOTSTRAP_ADMIN_PASSWORD", "JWT_SECRET", "BREVO_API_KEY", "FRONTEND_URL"]
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "env.yaml"), "w") as f:
+              for k in keys:
+                  f.write(f"{k}: {json.dumps(os.environ.get(k, ''))}\n")
+          PY
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy jan-website-backend \
             --source=. \
             --region=europe-west1 \
             --allow-unauthenticated \
-            --set-env-vars="^#^BOOTSTRAP_ADMIN_EMAIL=${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}#BOOTSTRAP_ADMIN_PASSWORD=${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}#JWT_SECRET=${{ secrets.JWT_SECRET }}#BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}#FRONTEND_URL=${{ env.FRONTEND_URL }}"
+            --env-vars-file="$RUNNER_TEMP/env.yaml"
