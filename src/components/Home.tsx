@@ -5,7 +5,7 @@ import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { reloadTravelFolders, useTravelFolders } from '../hooks/useTravelFolders';
 import { chosenByChance } from '../utils/chance';
 import { randomRecipe, recipePath, recipeImage } from '../utils/recipe';
-import { collagePhotos, TRAVEL_BASE } from '../utils/travel';
+import { collagePhotos, TRAVEL_BASE, travelFolderPath } from '../utils/travel';
 import TravelFolderCard from './travel/TravelFolderCard';
 import { ArrowRight, BookOpen, Dices, Plane } from "lucide-react";
 import '../styles/Home.css';
@@ -65,10 +65,23 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="home-hero-collage" aria-hidden="true">
-                    {collage[0] && <img src={TravelController.photoUrl(collage[0].id)} alt="" />}
-                    {teaser[0] && <img src={recipeImage(teaser[0])} alt="" />}
-                    {collage[1] && <img src={TravelController.photoUrl(collage[1].id)} alt="" />}
+                {/* each picture leads to its trip or recipe */}
+                <div className="home-hero-collage">
+                    {collage[0] && (
+                        <Link to={travelFolderPath(collage[0].folder)} aria-label={collage[0].folder.name} title={collage[0].folder.name}>
+                            <img src={TravelController.photoUrl(collage[0].photo.id)} alt="" />
+                        </Link>
+                    )}
+                    {teaser[0] && (
+                        <Link to={recipePath(teaser[0])} state={{ recipe: teaser[0] }} aria-label={teaser[0].title} title={teaser[0].title}>
+                            <img src={recipeImage(teaser[0])} alt="" />
+                        </Link>
+                    )}
+                    {collage[1] && (
+                        <Link to={travelFolderPath(collage[1].folder)} aria-label={collage[1].folder.name} title={collage[1].folder.name}>
+                            <img src={TravelController.photoUrl(collage[1].photo.id)} alt="" />
+                        </Link>
+                    )}
                 </div>
             </section>
 
@@ -132,9 +145,12 @@ const Home: React.FC = () => {
                             </button>
                         </div>
                     </div>
+                    {/* each picture leads to its recipe; for keyboards and screen readers the links below the card do that */}
                     <div className="cookbook-teaser-images" aria-hidden="true">
                         {teaser.map(recipe => (
-                            <img key={recipe.id} src={recipeImage(recipe)} alt="" loading="lazy" />
+                            <Link key={recipe.id} to={recipePath(recipe)} state={{ recipe }} tabIndex={-1} title={recipe.title}>
+                                <img src={recipeImage(recipe)} alt="" loading="lazy" />
+                            </Link>
                         ))}
                     </div>
                 </div>

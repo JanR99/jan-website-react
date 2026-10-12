@@ -116,15 +116,19 @@ export function recipeFolders(recipe: Pick<Recipe, "cuisine">, folders: TravelFo
 
 /**
  * Photos for the collage on the home page, chosen by chance: one photo each from as many different
- * trips as asked for. With fewer trips that have photos there are fewer photos.
+ * trips as asked for, together with its trip. With fewer trips that have photos there are fewer photos.
  *
  * @param folders the TravelFolders
  * @param count the maximum number
  * @param seed a random number from 0 to 1, drawn once per visit
  */
-export function collagePhotos(folders: Pick<TravelFolder, "id" | "photos">[], count: number, seed: number): TravelPhoto[] {
+export function collagePhotos<F extends Pick<TravelFolder, "id" | "photos">>(
+    folders: F[],
+    count: number,
+    seed: number,
+): { folder: F; photo: TravelPhoto }[] {
     const withPhotos = folders.filter((folder) => folder.photos.length > 0);
-    return chosenByChance(withPhotos, count, seed).map((folder) => chosenByChance(folder.photos, 1, seed)[0]);
+    return chosenByChance(withPhotos, count, seed).map((folder) => ({ folder, photo: chosenByChance(folder.photos, 1, seed)[0] }));
 }
 
 export const TEXT_MAX_LENGTH = 10_000;
