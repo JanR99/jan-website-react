@@ -41,7 +41,7 @@ public class AdminBootstrapConfig {
                     request.setEmail(email);
                     request.setPassword(password);
                     request.setFirstname("Admin");
-                    request.setLastname("");
+                    request.setLastname("Admin");
 
                     try {
                         User newUser = userRepository.register(request);
