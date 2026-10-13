@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, Check, CircleHelp, RefreshCw, RotateCcw, Trophy, X } from "lucide-react";
@@ -8,6 +8,7 @@ import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import type { KanjiMistake } from "../../types/games";
 import { CEFR_LEVELS } from "../../utils/crossword";
+import { kanjiChoices } from "../../utils/kanjiChoices";
 import { isRightReading, otherReadings, readingAsKana, type KanjiWord } from "../../utils/kanjiReading";
 import { useAuth } from "../auth/AuthContext";
 import PageHeader from "../layout/PageHeader";
@@ -28,10 +29,19 @@ const recentKanji: string[] = [];
 /** how much of the words of a level is remembered as recent, so a small level doesn't run out of words */
 const RECENT_SHARE = 0.6;
 
+/** type: the reading is typed for the kanji; choose: the kanji is picked out of four for reading and meaning */
+type Mode = "type" | "choose";
+
+const MODES: { value: Mode; label: string }[] = [
+    { value: "type", label: "Lesung tippen" },
+    { value: "choose", label: "Kanji wählen" },
+];
+
 interface Round {
     id: number;
     words: KanjiWord[];
     level: string;
+    mode: Mode;
     /** a round of the own mistakes: it changes only the list of mistakes, not the numbers */
     practice: boolean;
 }
@@ -49,9 +59,14 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 /** Ten words up to the level (A2 means A1 and A2), words of the last rounds only when there are too few others. */
-function newRound(words: KanjiWord[], level: string): Round {
+/** The words up to the level: A2 means A1 and A2. */
+function wordsUpTo(words: KanjiWord[], level: string): KanjiWord[] {
     const allowed = LEVELS.slice(0, LEVELS.indexOf(level as (typeof LEVELS)[number]) + 1) as readonly string[];
-    const pool = words.filter((word) => allowed.includes(word.l));
+    return words.filter((word) => allowed.includes(word.l));
+}
+
+function newRound(words: KanjiWord[], level: string, mode: Mode): Round {
+    const pool = wordsUpTo(words, level);
     const recent = new Set(recentKanji);
     const picked = [
         ...shuffle(pool.filter((word) => !recent.has(word.k))),
@@ -59,18 +74,18 @@ function newRound(words: KanjiWord[], level: string): Round {
     ].slice(0, ROUND_LENGTH);
     recentKanji.push(...picked.map((word) => word.k));
     recentKanji.splice(0, Math.max(0, recentKanji.length - Math.floor(pool.length * RECENT_SHARE)));
-    return { id: nextRoundId++, words: picked, level, practice: false };
+    return { id: nextRoundId++, words: picked, level, mode, practice: false };
 }
 
 /**
  * Up to ten of the own mistakes, most often wrong first. The word list gives the example sentence; a word that
  * isn't in it any more is asked with the reading and meaning stored with the mistake.
  */
-function practiceRound(mistakes: KanjiMistake[], wordByKanji: Map<string, KanjiWord>, level: string): Round {
+function practiceRound(mistakes: KanjiMistake[], wordByKanji: Map<string, KanjiWord>, level: string, mode: Mode): Round {
     const picked = mistakes.slice(0, ROUND_LENGTH).map((mistake) =>
         wordByKanji.get(mistake.word) ?? { k: mistake.word, r: mistake.reading, en: mistake.meaning, l: "" },
     );
-    return { id: nextRoundId++, words: shuffle(picked), level, practice: true };
+    return { id: nextRoundId++, words: shuffle(picked), level, mode, practice: true };
 }
 
 /** Kanji words with their meaning; the reading is typed in romaji. */
@@ -95,7 +110,8 @@ export default function KanjiGame() {
 /** The level and the current round; a new round starts fresh. */
 function KanjiSetup({ words }: { words: KanjiWord[] }) {
     const [level, setLevel] = useState("A1");
-    const [round, setRound] = useState(() => newRound(words, level));
+    const [mode, setMode] = useState<Mode>("type");
+    const [round, setRound] = useState(() => newRound(words, level, mode));
     const { stats, loggedIn, record } = useKanjiStats();
     const { mistakes, reload: reloadMistakes } = useKanjiMistakes();
     const { openAuthDialog } = useAuth();
@@ -104,30 +120,48 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
     const [wantsPractice, setWantsPractice] = useState(() => searchParams.has(PRACTICE_PARAM));
     const wordByKanji = useMemo(() => new Map(words.map((word) => [word.k, word])), [words]);
     const mistakeCount = mistakes?.length ?? 0;
+    // the wrong choices come from the words up to the level, so they aren't much harder than the right one
+    const choicePool = useMemo(() => wordsUpTo(words, level), [words, level]);
 
-    const start = (nextLevel: string) => {
+    const start = (nextLevel: string, nextMode = mode) => {
         setLevel(nextLevel);
-        setRound(newRound(words, nextLevel));
+        setMode(nextMode);
+        setRound(newRound(words, nextLevel, nextMode));
     };
 
-    const practice = () => {
-        if (mistakes && mistakes.length > 0) setRound(practiceRound(mistakes, wordByKanji, level));
-        else start(level);
+    const practice = (nextMode = mode) => {
+        setMode(nextMode);
+        if (mistakes && mistakes.length > 0) setRound(practiceRound(mistakes, wordByKanji, level, nextMode));
+        else start(level, nextMode);
     };
 
     if (wantsPractice && mistakes !== null) {
         setWantsPractice(false);
-        if (mistakes.length > 0) setRound(practiceRound(mistakes, wordByKanji, level));
+        if (mistakes.length > 0) setRound(practiceRound(mistakes, wordByKanji, level, mode));
     }
 
     const finish = (answers: boolean[]) => {
         const played = round.words.map((word) => ({ word: word.k, reading: word.r, meaning: word.en }));
-        void record({ level: round.level, answers, words: played, practice: round.practice }).then(reloadMistakes);
+        // choosing is easier than typing: it changes the list of mistakes, but not the numbers
+        const practiceOnly = round.practice || round.mode === "choose";
+        void record({ level: round.level, answers, words: played, practice: practiceOnly }).then(reloadMistakes);
     };
 
     return (
         <>
             <div className="crossword-toolbar">
+                <div className="segmented" role="group" aria-label="Art der Abfrage">
+                    {MODES.map(({ value, label }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            aria-pressed={mode === value}
+                            onClick={() => (round.practice ? practice(value) : start(level, value))}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
                 <div className="crossword-level">
                     <span className="muted" id="kanji-level-label">Niveau bis</span>
                     <div className="segmented" role="group" aria-labelledby="kanji-level-label">
@@ -142,7 +176,7 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
                     <RefreshCw size={16} /> Neue Runde
                 </button>
                 {mistakeCount > 0 && (
-                    <button type="button" className="btn btn-secondary btn-sm" aria-pressed={round.practice} onClick={practice}>
+                    <button type="button" className="btn btn-secondary btn-sm" aria-pressed={round.practice} onClick={() => practice()}>
                         <RotateCcw size={16} /> Meine Fehler ({mistakeCount})
                     </button>
                 )}
@@ -154,6 +188,11 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
                         („kyo“, „kyou“ oder „kyoo“ für kyō), Kana gehen auch. Eine Runde hat zehn Wörter.
                         Angemeldet kommen falsch gelesene Wörter auf deine Fehlerliste; „Meine Fehler“ fragt sie ab.
                         Zweimal in Folge richtig, und ein Wort ist wieder runter.
+                    </p>
+                    <p>
+                        „Kanji wählen“ dreht es um: Lesung und Bedeutung stehen da, du wählst das Kanji aus vier aus
+                        (auch mit den Tasten 1 bis 4). Falsch gewählte Wörter kommen auf die Fehlerliste, in Runden,
+                        Quote und Serie zählt nur das Tippen.
                     </p>
                 </details>
             </div>
@@ -177,9 +216,11 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
                     key={round.id}
                     words={round.words}
                     allWords={words}
+                    choicePool={choicePool}
+                    mode={round.mode}
                     practice={round.practice}
                     newLabel={round.practice && mistakeCount > 0 ? `Weiter üben (${mistakeCount})` : "Neue Runde"}
-                    onNew={round.practice ? practice : () => start(level)}
+                    onNew={round.practice ? () => practice() : () => start(level)}
                     onFinished={finish}
                 />
             )}
@@ -192,10 +233,13 @@ interface Answer {
     right: boolean;
 }
 
-function KanjiRound({ words, allWords, practice, newLabel, onNew, onFinished }: {
+function KanjiRound({ words, allWords, choicePool, mode, practice, newLabel, onNew, onFinished }: {
     words: KanjiWord[];
     /** the whole word list, for other words with the same kanji */
     allWords: KanjiWord[];
+    /** the words the wrong choices are taken from */
+    choicePool: KanjiWord[];
+    mode: Mode;
     /** a round of the own mistakes */
     practice: boolean;
     /** the label of the button for the next round on the result */
@@ -215,16 +259,39 @@ function KanjiRound({ words, allWords, practice, newLabel, onNew, onFinished }: 
     const word = words[Math.min(index, words.length - 1)];
     const answer = showing ? answers[answers.length - 1] : null;
     const others = useMemo(() => (showing ? otherReadings(word, allWords) : []), [showing, word, allWords]);
+    const choices = useMemo(() => (mode === "choose" ? kanjiChoices(word, choicePool) : []), [mode, word, choicePool]);
+    const nextRef = useRef<HTMLButtonElement>(null);
 
-    // the field keeps the focus, also after "Weiß ich nicht": Enter checks, then goes on to the next word
+    // typing: the field keeps the focus, also after "Weiß ich nicht": Enter checks, then goes on to the next word;
+    // choosing: after a choice "Weiter" has it, so Enter goes on
     useEffect(() => {
-        if (!finished) inputRef.current?.focus({ preventScroll: true });
-    }, [index, finished, showing]);
+        if (finished) return;
+        if (mode === "type") inputRef.current?.focus({ preventScroll: true });
+        else if (showing) nextRef.current?.focus({ preventScroll: true });
+    }, [index, finished, showing, mode]);
 
     const answerWith = (text: string) => {
         setAnswers([...answers, { typed: text, right: isRightReading(text, word.r) }]);
         setShowing(true);
     };
+
+    const choose = (choice: KanjiWord | null) => {
+        setAnswers([...answers, { typed: choice?.k ?? "", right: choice?.k === word.k }]);
+        setShowing(true);
+    };
+
+    // choosing with the keys 1 to 4
+    const onKey = useEffectEvent((event: KeyboardEvent) => {
+        const number = Number(event.key);
+        if (!event.ctrlKey && !event.metaKey && !event.altKey && number >= 1 && number <= choices.length) {
+            choose(choices[number - 1]);
+        }
+    });
+    useEffect(() => {
+        if (mode !== "choose" || showing || finished) return;
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [mode, showing, finished]);
 
     const next = () => {
         setShowing(false);
@@ -276,45 +343,85 @@ function KanjiRound({ words, allWords, practice, newLabel, onNew, onFinished }: 
                 ))}
             </ol>
 
-            <p className="kanji-word" lang="ja">{word.k}</p>
-            <p className="kanji-meaning">{word.en}</p>
+            {mode === "choose" ? (
+                <>
+                    <p className="kanji-word kanji-word--reading">
+                        {word.r.toLowerCase()} <SpeakButton text={readingAsKana(word.r)} label="Lesung vorlesen" />
+                    </p>
+                    <p className="kanji-meaning">{word.en}</p>
+                    <div className="kanji-choices" role="group" aria-label="Welches Kanji passt?">
+                        {choices.map((choice, i) => (
+                            <button
+                                key={choice.k}
+                                type="button"
+                                lang="ja"
+                                className={`kanji-choice${
+                                    answer && choice.k === word.k ? " is-right" : answer && choice.k === answer.typed ? " is-wrong" : ""
+                                }`}
+                                disabled={showing}
+                                onClick={() => choose(choice)}
+                            >
+                                <span className="kanji-choice-key" aria-hidden="true">{i + 1}</span>
+                                {choice.k}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="kanji-form">
+                        {showing ? (
+                            <button type="button" className="btn" ref={nextRef} onClick={next}>
+                                {index + 1 < words.length ? <>Weiter <ArrowRight size={16} /></> : "Ergebnis"}
+                            </button>
+                        ) : (
+                            <button type="button" className="btn btn-secondary" onClick={() => choose(null)}>
+                                Weiß ich nicht
+                            </button>
+                        )}
+                    </div>
+                </>
+            ) : (
+                <>
+                    <p className="kanji-word" lang="ja">{word.k}</p>
+                    <p className="kanji-meaning">{word.en}</p>
 
-            <form className="kanji-form" onSubmit={submit}>
-                <input
-                    ref={inputRef}
-                    className={`input kanji-input${answer ? (answer.right ? " is-right" : " is-wrong") : ""}`}
-                    type="text"
-                    value={typed}
-                    onChange={(event) => !showing && setTyped(event.target.value)}
-                    readOnly={showing}
-                    placeholder="Lesung in Romaji"
-                    aria-label="Lesung in Romaji"
-                    autoComplete="off"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    enterKeyHint={showing ? "next" : "done"}
-                />
-                {showing ? (
-                    <button type="submit" className="btn">
-                        {index + 1 < words.length ? <>Weiter <ArrowRight size={16} /></> : "Ergebnis"}
-                    </button>
-                ) : (
-                    <>
-                        <button type="submit" className="btn" disabled={!typed.trim()}>
-                            <Check size={16} /> Prüfen
-                        </button>
-                        <button type="button" className="btn btn-secondary" onClick={() => answerWith("")}>
-                            Weiß ich nicht
-                        </button>
-                    </>
-                )}
-            </form>
+                    <form className="kanji-form" onSubmit={submit}>
+                        <input
+                            ref={inputRef}
+                            className={`input kanji-input${answer ? (answer.right ? " is-right" : " is-wrong") : ""}`}
+                            type="text"
+                            value={typed}
+                            onChange={(event) => !showing && setTyped(event.target.value)}
+                            readOnly={showing}
+                            placeholder="Lesung in Romaji"
+                            aria-label="Lesung in Romaji"
+                            autoComplete="off"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
+                            enterKeyHint={showing ? "next" : "done"}
+                        />
+                        {showing ? (
+                            <button type="submit" className="btn">
+                                {index + 1 < words.length ? <>Weiter <ArrowRight size={16} /></> : "Ergebnis"}
+                            </button>
+                        ) : (
+                            <>
+                                <button type="submit" className="btn" disabled={!typed.trim()}>
+                                    <Check size={16} /> Prüfen
+                                </button>
+                                <button type="button" className="btn btn-secondary" onClick={() => answerWith("")}>
+                                    Weiß ich nicht
+                                </button>
+                            </>
+                        )}
+                    </form>
+                </>
+            )}
 
             {answer && (
                 <div className={`kanji-feedback ${answer.right ? "is-right" : "is-wrong"}`}>
                     <p>
                         {answer.right ? <><Check size={18} /> Richtig: </> : <><X size={18} /> Richtig wäre: </>}
+                        {mode === "choose" && <span lang="ja" className="kanji-feedback-word">{word.k}</span>}
                         <strong>{word.r.toLowerCase()}</strong>
                         <SpeakButton text={readingAsKana(word.r)} label={`${word.k} vorlesen`} />
                     </p>
