@@ -13,7 +13,8 @@ import PasswordResetPage from './components/auth/PasswordResetPage';
 import PrivacyPage from './components/PrivacyPage';
 import GamesPage from './components/games/GamesPage';
 import CrosswordGame from './components/games/CrosswordGame';
-import { CROSSWORD_PATH, GAMES_BASE } from './components/games/paths';
+import KanjiGame from './components/games/KanjiGame';
+import { CROSSWORD_PATH, GAMES_BASE, KANJI_PATH } from './components/games/paths';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
 import { TRAVEL_BASE } from './utils/travel';
 
@@ -43,6 +44,7 @@ const App: React.FC = () => {
                     <Route path="/datenschutz" element={<PrivacyPage />} />
                     <Route path={GAMES_BASE} element={<GamesPage />} />
                     <Route path={CROSSWORD_PATH} element={<CrosswordGame />} />
+                    <Route path={KANJI_PATH} element={<KanjiGame />} />
 
                     {/* paths for logged-in users */}
                     <Route
