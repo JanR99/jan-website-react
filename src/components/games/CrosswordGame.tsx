@@ -3,7 +3,7 @@ import type { CompositionEvent, CSSProperties, InputEvent, KeyboardEvent } from 
 import { Link } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, CircleHelp, Delete, Eye, Lightbulb, RefreshCw, Trophy } from "lucide-react";
 import { toRomaji } from "wanakana";
-import { useCrosswordStats } from "../../hooks/useCrosswordStats";
+import { useCrosswordStats } from "../../hooks/useGameStats";
 import { useJapaneseWords } from "../../hooks/useJapaneseWords";
 import type { CrosswordScript } from "../../types/games";
 import { useAuth } from "../auth/AuthContext";

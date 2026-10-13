@@ -2,7 +2,7 @@
 
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 18px;
     margin-bottom: 48px;
 }
@@ -47,16 +47,51 @@
     font-weight: 600;
 }
 
-.game-stats {
-    margin-bottom: 48px;
+.game-card-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.88rem;
 }
 
-.account-content .game-stats {
+.games-stats-link {
+    margin: -30px 0 48px;
+}
+
+.games-stats-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-accent-strong);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.games-stats-link a:hover {
+    text-decoration: underline;
+}
+
+.game-stats {
     margin-bottom: 16px;
 }
 
 .account-games-play {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
     margin: 0;
+}
+
+.account-games-play:not(:last-child) {
+    margin-bottom: 32px;
+}
+
+.account-content > .account-games-play {
+    justify-content: flex-start;
 }
 
 .game-stats h2 {
@@ -603,4 +638,191 @@
             max(24px, calc((100dvh - 450px - (var(--rows) - 1) * 2px) / var(--rows)))
         );
     }
+}
+
+/* ---------- Kanji lesen ---------- */
+
+.kanji-page {
+    padding-bottom: 32px;
+}
+
+.kanji-page .page-header {
+    padding-block: 20px 12px;
+}
+
+.kanji-page .page-header .back-link {
+    margin-bottom: 6px;
+}
+
+.kanji-page .page-header h1 {
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+}
+
+.kanji-card,
+.kanji-result {
+    max-width: 560px;
+}
+
+.kanji-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.kanji-progress {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 8px;
+    padding: 0;
+    list-style: none;
+}
+
+.kanji-progress li {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-surface-2);
+}
+
+.kanji-progress li.is-current {
+    background: var(--color-accent);
+}
+
+.kanji-progress li.is-right {
+    background: var(--color-success);
+}
+
+.kanji-progress li.is-wrong {
+    background: var(--color-danger);
+}
+
+.kanji-word {
+    margin: 12px 0 4px;
+    font-size: clamp(3.2rem, 14vw, 5.5rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.kanji-meaning {
+    margin: 0 0 20px;
+    color: var(--color-text-muted);
+}
+
+.kanji-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.kanji-input {
+    flex: 1 1 200px;
+    max-width: 280px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.kanji-input.is-right {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.kanji-input.is-wrong {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+    text-decoration: line-through;
+}
+
+.kanji-feedback {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface));
+}
+
+.kanji-feedback.is-wrong {
+    background: var(--color-danger-soft);
+}
+
+.kanji-feedback p {
+    margin: 0;
+}
+
+.kanji-feedback > p:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.kanji-feedback.is-right > p:first-child svg {
+    color: var(--color-success);
+}
+
+.kanji-feedback.is-wrong > p:first-child svg {
+    color: var(--color-danger);
+}
+
+.kanji-example {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px !important;
+    font-size: 0.92rem;
+}
+
+.kanji-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.kanji-result h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.kanji-summary {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.kanji-summary li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+}
+
+.kanji-summary li svg {
+    align-self: center;
+    flex-shrink: 0;
+}
+
+.kanji-summary li.is-right svg {
+    color: var(--color-success);
+}
+
+.kanji-summary li.is-wrong svg {
+    color: var(--color-danger);
+}
+
+.kanji-summary-word {
+    font-size: 1.25rem;
+}
+
+.kanji-summary-typed {
+    flex-basis: 100%;
+    padding-left: 26px;
+    font-size: 0.85rem;
+    color: var(--color-danger);
 }
