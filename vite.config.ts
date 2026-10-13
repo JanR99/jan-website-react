@@ -96,5 +96,12 @@ export default defineConfig({
     test: {
         // the app reads window.location while loading (APIClient), so tests need a browser-like environment
         environment: 'jsdom',
+        // npm run coverage: a summary in the console, coverage/coverage-summary.json for the badge, coverage/index.html to look at
+        coverage: {
+            provider: 'v8',
+            include: ['src/**/*.{ts,tsx}'],
+            exclude: ['src/**/*.test.{ts,tsx}', 'src/main.tsx', 'src/vite-env.d.ts', 'src/types/**'],
+            reporter: ['text-summary', 'json-summary', 'html'],
+        },
     },
 })

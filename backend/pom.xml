@@ -138,8 +138,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <!-- Hides JDK warnings about Mockito's agent and Tomcat's native library -->
-                    <argLine>-XX:+EnableDynamicAgentLoading -Xshare:off --enable-native-access=ALL-UNNAMED</argLine>
+                    <!-- Hides JDK warnings about Mockito's agent and Tomcat's native library;
+                         @{argLine} adds the JaCoCo agent that records the coverage -->
+                    <argLine>@{argLine} -XX:+EnableDynamicAgentLoading -Xshare:off --enable-native-access=ALL-UNNAMED</argLine>
                     <!-- The controller tests start their own Datastore emulator on this port
                          (see DatastoreEmulatorExtension), separate from the one of start-dev (8081). -->
                     <environmentVariables>
@@ -147,6 +148,26 @@
                         <GOOGLE_CLOUD_PROJECT>jan-website-test</GOOGLE_CLOUD_PROJECT>
                     </environmentVariables>
                 </configuration>
+            </plugin>
+            <!-- test coverage: mvn verify writes target/site/jacoco (index.html to look at, jacoco.csv for the badge) -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.15</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
