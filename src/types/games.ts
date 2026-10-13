@@ -51,8 +51,31 @@ export interface KanjiStats {
     levels: KanjiLevelStats[];
 }
 
-/** The end of a round of "Kanji lesen": for each word, in order, whether it was read right. */
+/** A word of a round of "Kanji lesen", as the game showed it. */
+export interface KanjiResultWord {
+    word: string;
+    reading: string;
+    meaning: string;
+}
+
+/**
+ * The end of a round of "Kanji lesen": for each word, in order, whether it was read right.
+ * A round of mistakes (practice) changes only the list of mistakes, not the numbers, and needs no level.
+ */
 export interface KanjiResult {
-    level: string;
+    level?: string;
     answers: boolean[];
+    words?: KanjiResultWord[];
+    practice?: boolean;
+}
+
+/** A word read wrong and not yet read right twice in a row since; the list comes most often wrong first. */
+export interface KanjiMistake {
+    word: string;
+    reading: string;
+    meaning: string;
+    /** how often it was read wrong */
+    wrong: number;
+    /** how often it was read right since the last time it was wrong; at 2 it leaves the list */
+    rightInRow: number;
 }

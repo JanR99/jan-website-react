@@ -4,7 +4,9 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import de.jan.objectify.DatastoreEntity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** What a user has achieved in "Kanji lesen"; one per user, with the user's id as its id. */
@@ -30,6 +32,9 @@ public class KanjiStats implements DatastoreEntity {
     private int currentStreak;
 
     private int bestStreak;
+
+    /** the words read wrong and not yet read right twice in a row since */
+    private List<KanjiMistake> mistakes = new ArrayList<>();
 
     public KanjiStats() {
     }
@@ -58,6 +63,11 @@ public class KanjiStats implements DatastoreEntity {
     public Map<String, Integer> getAskedWords() {
         if (askedWords == null) askedWords = new HashMap<>();
         return askedWords;
+    }
+
+    public List<KanjiMistake> getMistakes() {
+        if (mistakes == null) mistakes = new ArrayList<>();
+        return mistakes;
     }
 
     public int getCurrentStreak() { return currentStreak; }

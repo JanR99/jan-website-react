@@ -17,6 +17,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -325,6 +326,166 @@ class GamesControllerTest extends ControllerTest {
             });
 
             assertNull(inDatastore(() -> new KanjiStatsDAO().getById(user.getId())));
+        }
+    }
+
+    /** A round with the given words; a word starting with "!" was read wrong, like "!本". */
+    private static KanjiResultRequest kanjiRound(String level, boolean practice, String... words) {
+        KanjiResultRequest result = new KanjiResultRequest();
+        result.setLevel(level);
+        result.setPractice(practice);
+        result.setAnswers(Arrays.stream(words).map(word -> !word.startsWith("!")).toList());
+        result.setWords(Arrays.stream(words).map(word -> {
+            KanjiResultRequest.Word entry = new KanjiResultRequest.Word();
+            entry.setWord(word.replace("!", ""));
+            entry.setReading("reading of " + entry.getWord());
+            entry.setMeaning("meaning of " + entry.getWord());
+            return entry;
+        }).toList());
+        return result;
+    }
+
+    @Nested
+    class KanjiMistakes {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(get("/api/games/kanji/mistakes"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+            mockMvc.perform(delete("/api/games/kanji/mistakes").param("word", "本"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutRounds_isEmpty() throws Exception {
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void wrongWords_goOnTheList_mostOftenWrongFirst() throws Exception {
+            User user = userWith();
+            recordKanji(user, kanjiRound("A1", false, "本", "!日", "!月"));
+            recordKanji(user, kanjiRound("A1", false, "!月", "人"));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].word").value("月"))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[0].reading").value("reading of 月"))
+                    .andExpect(jsonPath("$[0].meaning").value("meaning of 月"))
+                    .andExpect(jsonPath("$[1].word").value("日"))
+                    .andExpect(jsonPath("$[1].wrong").value(1));
+        }
+
+        @Test
+        void twoRightInARow_takeAWordOff() throws Exception {
+            User user = userWith();
+            recordKanji(user, kanjiRound("A1", false, "!日"));
+            recordKanji(user, kanjiRound("A1", false, "日"));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].rightInRow").value(1));
+
+            recordKanji(user, kanjiRound("B1", false, "日"));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void wrongAgain_startsCountingAgain() throws Exception {
+            User user = userWith();
+            recordKanji(user, kanjiRound("A1", false, "!日"));
+            recordKanji(user, kanjiRound("A1", false, "日"));
+            recordKanji(user, kanjiRound("A1", false, "!日"));
+            recordKanji(user, kanjiRound("A1", false, "日"));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[0].rightInRow").value(1));
+        }
+
+        @Test
+        void practiceRound_changesOnlyTheList() throws Exception {
+            User user = userWith();
+            recordKanji(user, kanjiRound("A1", false, "!日", "!月"));
+
+            mockMvc.perform(post("/api/games/kanji/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanjiRound(null, true, "日", "!月"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(1))
+                    .andExpect(jsonPath("$.askedWords").value(2))
+                    .andExpect(jsonPath("$.rightWords").value(0));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].word").value("月"))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[1].word").value("日"))
+                    .andExpect(jsonPath("$[1].rightInRow").value(1));
+        }
+
+        @Test
+        void wordsNotMatchingTheAnswers_return400() throws Exception {
+            KanjiResultRequest result = kanjiRound("A1", false, "日", "月");
+            result.setAnswers(List.of(true));
+            mockMvc.perform(post("/api/games/kanji/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(result)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A round must have as many words as answers"));
+        }
+
+        @Test
+        void tooLongWord_returns400() throws Exception {
+            mockMvc.perform(post("/api/games/kanji/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanjiRound("A1", false, "日".repeat(21)))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Words must have 1 to 20 characters, readings at most 60 and meanings at most 200"));
+        }
+
+        @Test
+        void delete_takesTheWordOffOnlyForTheCaller() throws Exception {
+            User user = userWith();
+            User other = userWith();
+            recordKanji(user, kanjiRound("A1", false, "!日", "!月"));
+            recordKanji(other, kanjiRound("A1", false, "!日"));
+
+            mockMvc.perform(delete("/api/games/kanji/mistakes")
+                            .param("word", "日")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].word").value("月"));
+
+            mockMvc.perform(delete("/api/games/kanji/mistakes")
+                            .param("word", "本")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)));
+
+            mockMvc.perform(get("/api/games/kanji/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(other)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].word").value("日"));
         }
     }
 

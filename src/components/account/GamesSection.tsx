@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { Gamepad2 } from "lucide-react";
 import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
+import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
 import CrosswordStatsTable from "../games/CrosswordStatsTable";
+import KanjiMistakesList from "../games/KanjiMistakesList";
 import KanjiStatsTable from "../games/KanjiStatsTable";
 import { CROSSWORD_PATH, KANJI_PATH } from "../games/paths";
 import LoadError from "../ui/LoadError";
@@ -10,21 +12,23 @@ import LoadError from "../ui/LoadError";
 export default function GamesSection() {
     const crossword = useCrosswordStats();
     const kanji = useKanjiStats();
+    const kanjiMistakes = useKanjiMistakes();
 
-    if (crossword.failed || kanji.failed) {
+    if (crossword.failed || kanji.failed || kanjiMistakes.failed) {
         const retry = () => {
             if (crossword.failed) crossword.reload();
             if (kanji.failed) kanji.reload();
+            if (kanjiMistakes.failed) kanjiMistakes.reload();
         };
         return <LoadError message="Deine Bilanz konnte nicht geladen werden." onRetry={retry} />;
     }
 
-    if (!crossword.stats || !kanji.stats) {
+    if (!crossword.stats || !kanji.stats || !kanjiMistakes.mistakes) {
         return <div className="loading"><div className="spinner" /></div>;
     }
 
     const playedCrossword = crossword.stats.solved > 0 || crossword.stats.words > 0;
-    const playedKanji = kanji.stats.rounds > 0;
+    const playedKanji = kanji.stats.rounds > 0 || kanjiMistakes.mistakes.length > 0;
 
     if (!playedCrossword && !playedKanji) {
         return (
@@ -53,6 +57,9 @@ export default function GamesSection() {
             {playedKanji && (
                 <>
                     <KanjiStatsTable stats={kanji.stats} title="Kanji lesen" />
+                    {kanjiMistakes.mistakes.length > 0 && (
+                        <KanjiMistakesList mistakes={kanjiMistakes.mistakes} onRemove={kanjiMistakes.remove} />
+                    )}
                     <p className="account-games-play">
                         <Link to={KANJI_PATH} className="btn">Weiterspielen</Link>
                     </p>
