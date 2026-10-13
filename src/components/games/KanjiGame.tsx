@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
-import { ArrowRight, Check, CircleHelp, RefreshCw, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Check, CircleHelp, RefreshCw, Trophy, X } from "lucide-react";
+import { useKanjiStats } from "../../hooks/useGameStats";
 import { useJapaneseKanji } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { CEFR_LEVELS } from "../../utils/crossword";
 import { isRightReading, type KanjiWord } from "../../utils/kanjiReading";
+import { useAuth } from "../auth/AuthContext";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
 import Confetti from "./Confetti";
+import { hitRate } from "./KanjiStatsTable";
 import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
 import "../../styles/Games.css";
@@ -24,6 +28,7 @@ const RECENT_SHARE = 0.6;
 interface Round {
     id: number;
     words: KanjiWord[];
+    level: string;
 }
 
 let nextRoundId = 1;
@@ -48,7 +53,7 @@ function newRound(words: KanjiWord[], level: string): Round {
     ].slice(0, ROUND_LENGTH);
     recentKanji.push(...picked.map((word) => word.k));
     recentKanji.splice(0, Math.max(0, recentKanji.length - Math.floor(pool.length * RECENT_SHARE)));
-    return { id: nextRoundId++, words: picked };
+    return { id: nextRoundId++, words: picked, level };
 }
 
 /** Kanji words with their meaning; the reading is typed in romaji. */
@@ -74,6 +79,8 @@ export default function KanjiGame() {
 function KanjiSetup({ words }: { words: KanjiWord[] }) {
     const [level, setLevel] = useState("A1");
     const [round, setRound] = useState(() => newRound(words, level));
+    const { stats, loggedIn, record } = useKanjiStats();
+    const { openAuthDialog } = useAuth();
 
     const start = (nextLevel: string) => {
         setLevel(nextLevel);
@@ -105,10 +112,28 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
                     </p>
                 </details>
             </div>
+            <p className="crossword-stats muted">
+                {!loggedIn ? (
+                    <span>
+                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>,
+                        damit deine Runden gezählt werden.
+                    </span>
+                ) : stats && (
+                    <>
+                        <Trophy size={15} /> {stats.rounds} Runden · {hitRate(stats.rightWords, stats.askedWords)} richtig ·
+                        Serie {stats.currentStreak} (beste {stats.bestStreak}) · <Link to={GAMES_BASE}>mehr</Link>
+                    </>
+                )}
+            </p>
             {round.words.length === 0 ? (
                 <div className="card empty-state"><p>Für dieses Niveau gibt es keine Wörter.</p></div>
             ) : (
-                <KanjiRound key={round.id} words={round.words} onNew={() => start(level)} />
+                <KanjiRound
+                    key={round.id}
+                    words={round.words}
+                    onNew={() => start(level)}
+                    onFinished={(answers) => record({ level: round.level, answers })}
+                />
             )}
         </>
     );
@@ -119,7 +144,12 @@ interface Answer {
     right: boolean;
 }
 
-function KanjiRound({ words, onNew }: { words: KanjiWord[]; onNew: () => void }) {
+function KanjiRound({ words, onNew, onFinished }: {
+    words: KanjiWord[];
+    onNew: () => void;
+    /** once, when the last word is answered and the result is opened: for each word whether it was read right */
+    onFinished: (answers: boolean[]) => void;
+}) {
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [typed, setTyped] = useState("");
     /** whether the current word is answered and its solution shown */
@@ -144,6 +174,7 @@ function KanjiRound({ words, onNew }: { words: KanjiWord[]; onNew: () => void })
     const next = () => {
         setShowing(false);
         setTyped("");
+        if (answers.length === words.length) onFinished(answers.map((a) => a.right));
     };
 
     const submit = (event: SubmitEvent<HTMLFormElement>) => {

@@ -56,7 +56,19 @@
 }
 
 .account-games-play {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
     margin: 0;
+}
+
+.account-content .account-games-play:not(:last-child) {
+    margin-bottom: 32px;
+}
+
+.account-content > .account-games-play {
+    justify-content: flex-start;
 }
 
 .game-stats h2 {

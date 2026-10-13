@@ -1,39 +1,63 @@
 import { Link } from "react-router-dom";
-import { Grid3x3 } from "lucide-react";
-import { useCrosswordStats } from "../../hooks/useCrosswordStats";
+import { Gamepad2 } from "lucide-react";
+import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
 import CrosswordStatsTable from "../games/CrosswordStatsTable";
-import { CROSSWORD_PATH } from "../games/paths";
+import KanjiStatsTable from "../games/KanjiStatsTable";
+import { CROSSWORD_PATH, KANJI_PATH } from "../games/paths";
 import LoadError from "../ui/LoadError";
 
-/** The account's numbers in the games, for now the crossword. */
+/** The account's numbers in the games; a game shows up once it has been played. */
 export default function GamesSection() {
-    const { stats, failed, reload } = useCrosswordStats();
+    const crossword = useCrosswordStats();
+    const kanji = useKanjiStats();
 
-    if (failed) {
-        return <LoadError message="Deine Bilanz konnte nicht geladen werden." onRetry={reload} />;
+    if (crossword.failed || kanji.failed) {
+        const retry = () => {
+            if (crossword.failed) crossword.reload();
+            if (kanji.failed) kanji.reload();
+        };
+        return <LoadError message="Deine Bilanz konnte nicht geladen werden." onRetry={retry} />;
     }
 
-    if (!stats) {
+    if (!crossword.stats || !kanji.stats) {
         return <div className="loading"><div className="spinner" /></div>;
     }
 
-    if (stats.solved === 0 && stats.words === 0) {
+    const playedCrossword = crossword.stats.solved > 0 || crossword.stats.words > 0;
+    const playedKanji = kanji.stats.rounds > 0;
+
+    if (!playedCrossword && !playedKanji) {
         return (
             <div className="card empty-state">
-                <span className="empty-state-icon"><Grid3x3 size={26} /></span>
+                <span className="empty-state-icon"><Gamepad2 size={26} /></span>
                 <h3>Noch nichts gespielt</h3>
-                <p>Löse ein Kreuzworträtsel, dann siehst du hier deine Bilanz.</p>
-                <Link to={CROSSWORD_PATH} className="btn">Zum Kreuzworträtsel</Link>
+                <p>Spiel ein Kreuzworträtsel oder eine Runde „Kanji lesen“, dann siehst du hier deine Bilanz.</p>
+                <p className="account-games-play">
+                    <Link to={CROSSWORD_PATH} className="btn">Zum Kreuzworträtsel</Link>
+                    <Link to={KANJI_PATH} className="btn btn-secondary">Zu „Kanji lesen“</Link>
+                </p>
             </div>
         );
     }
 
     return (
         <>
-            <CrosswordStatsTable stats={stats} title="Kreuzworträtsel" />
-            <p className="account-games-play">
-                <Link to={CROSSWORD_PATH} className="btn">Weiterspielen</Link>
-            </p>
+            {playedCrossword && (
+                <>
+                    <CrosswordStatsTable stats={crossword.stats} title="Kreuzworträtsel" />
+                    <p className="account-games-play">
+                        <Link to={CROSSWORD_PATH} className="btn">Weiterspielen</Link>
+                    </p>
+                </>
+            )}
+            {playedKanji && (
+                <>
+                    <KanjiStatsTable stats={kanji.stats} title="Kanji lesen" />
+                    <p className="account-games-play">
+                        <Link to={KANJI_PATH} className="btn">Weiterspielen</Link>
+                    </p>
+                </>
+            )}
         </>
     );
 }

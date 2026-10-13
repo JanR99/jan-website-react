@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Grid3x3, Languages } from "lucide-react";
-import { useCrosswordStats } from "../../hooks/useCrosswordStats";
+import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import CrosswordStatsTable from "./CrosswordStatsTable";
+import KanjiStatsTable from "./KanjiStatsTable";
 import { CROSSWORD_PATH, KANJI_PATH } from "./paths";
 import "../../styles/Games.css";
 
@@ -11,6 +12,7 @@ import "../../styles/Games.css";
 export default function GamesPage() {
     usePageTitle("Spiele");
     const { stats, loggedIn } = useCrosswordStats();
+    const { stats: kanjiStats } = useKanjiStats();
 
     return (
         <div className="container">
@@ -32,6 +34,7 @@ export default function GamesPage() {
             </div>
 
             {loggedIn && stats && <CrosswordStatsTable stats={stats} title="Deine Bilanz im Kreuzworträtsel" />}
+            {loggedIn && kanjiStats && <KanjiStatsTable stats={kanjiStats} title="Deine Bilanz in „Kanji lesen“" />}
         </div>
     );
 }
