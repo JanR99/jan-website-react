@@ -38,8 +38,21 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
-        run: npm test
+      - name: Test with coverage
+        run: npm run coverage
+
+      - name: Coverage badge
+        run: node scripts/coverage-badge.mjs "frontend coverage" coverage/coverage-summary.json badges/frontend-coverage.svg
+
+      # the badge for the README (see coverage-badges.yml) and the report to look at
+      - name: Upload coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-frontend
+          path: |
+            badges/frontend-coverage.svg
+            coverage/
+          retention-days: 7
 
       - name: Build
         run: npm run build
@@ -66,3 +79,16 @@ jobs:
 
       - name: Build and test
         run: mvn -B -pl backend -am verify
+
+      - name: Coverage badge
+        run: node scripts/coverage-badge.mjs "backend coverage" backend/target/site/jacoco/jacoco.csv badges/backend-coverage.svg
+
+      # the badge for the README (see coverage-badges.yml) and the report to look at
+      - name: Upload coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-backend
+          path: |
+            badges/backend-coverage.svg
+            backend/target/site/jacoco/
+          retention-days: 7

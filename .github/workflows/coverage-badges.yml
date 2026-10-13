@@ -1,0 +1,49 @@
+name: Coverage badges
+
+# After the checks of a push to master: puts the coverage badges they drew on the branch "badges",
+# where the README shows them from. Separate from ci.yml, as this needs to write to the repository.
+on:
+  workflow_run:
+    workflows: [Checks]
+    types: [completed]
+    branches: [master]
+
+permissions:
+  contents: write
+  # to download the badges from the run of the checks
+  actions: read
+
+concurrency:
+  group: coverage-badges
+  cancel-in-progress: true
+
+jobs:
+  badges:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Download the badges of the checks
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: coverage
+
+      - name: Push them to the badges branch
+        env:
+          COMMIT: ${{ github.event.workflow_run.head_sha }}
+          TOKEN: ${{ github.token }}
+        run: |
+          mkdir badges
+          cp coverage/coverage-frontend/badges/frontend-coverage.svg coverage/coverage-backend/badges/backend-coverage.svg badges/
+          cd badges
+          git init -q -b badges
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -q -m "Coverage badges for ${COMMIT::7}"
+          # one commit only: the branch holds just the latest badges
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" badges
