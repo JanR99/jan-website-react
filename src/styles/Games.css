@@ -894,3 +894,15 @@
     color: var(--color-accent-strong);
     vertical-align: middle;
 }
+
+.kanji-others {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px !important;
+    font-size: 0.92rem;
+}
+
+.kanji-others-word {
+    white-space: nowrap;
+}

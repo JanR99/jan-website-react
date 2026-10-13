@@ -8,7 +8,7 @@ import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import type { KanjiMistake } from "../../types/games";
 import { CEFR_LEVELS } from "../../utils/crossword";
-import { isRightReading, readingAsKana, type KanjiWord } from "../../utils/kanjiReading";
+import { isRightReading, otherReadings, readingAsKana, type KanjiWord } from "../../utils/kanjiReading";
 import { useAuth } from "../auth/AuthContext";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
@@ -176,6 +176,7 @@ function KanjiSetup({ words }: { words: KanjiWord[] }) {
                 <KanjiRound
                     key={round.id}
                     words={round.words}
+                    allWords={words}
                     practice={round.practice}
                     newLabel={round.practice && mistakeCount > 0 ? `Weiter üben (${mistakeCount})` : "Neue Runde"}
                     onNew={round.practice ? practice : () => start(level)}
@@ -191,8 +192,10 @@ interface Answer {
     right: boolean;
 }
 
-function KanjiRound({ words, practice, newLabel, onNew, onFinished }: {
+function KanjiRound({ words, allWords, practice, newLabel, onNew, onFinished }: {
     words: KanjiWord[];
+    /** the whole word list, for other words with the same kanji */
+    allWords: KanjiWord[];
     /** a round of the own mistakes */
     practice: boolean;
     /** the label of the button for the next round on the result */
@@ -211,6 +214,7 @@ function KanjiRound({ words, practice, newLabel, onNew, onFinished }: {
     const finished = index >= words.length;
     const word = words[Math.min(index, words.length - 1)];
     const answer = showing ? answers[answers.length - 1] : null;
+    const others = useMemo(() => (showing ? otherReadings(word, allWords) : []), [showing, word, allWords]);
 
     // the field keeps the focus, also after "Weiß ich nicht": Enter checks, then goes on to the next word
     useEffect(() => {
@@ -314,6 +318,21 @@ function KanjiRound({ words, practice, newLabel, onNew, onFinished }: {
                         <strong>{word.r.toLowerCase()}</strong>
                         <SpeakButton text={readingAsKana(word.r)} label={`${word.k} vorlesen`} />
                     </p>
+                    {others.length > 0 && (
+                        <p className="kanji-others">
+                            <span><span lang="ja">{word.k.replace(/[^\u4e00-\u9fff々]/g, "")}</span> wird auch anders gelesen:</span>
+                            <span>
+                                {others.map((other, i) => (
+                                    <span key={other.k}>
+                                        {i > 0 && " · "}
+                                        <span className="kanji-others-word">
+                                            <span lang="ja">{other.k}</span> <span className="muted">{other.r.toLowerCase()}</span>
+                                        </span>
+                                    </span>
+                                ))}
+                            </span>
+                        </p>
+                    )}
                     {word.ex && (
                         <p className="kanji-example">
                             <span lang="ja">

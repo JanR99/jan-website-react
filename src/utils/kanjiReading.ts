@@ -75,3 +75,41 @@ export function readingAsKana(reading: string): string {
     const typed = first.replace(/[āīūēō]/g, (char) => ({ ā: "aa", ī: "ii", ū: "uu", ē: "ee", ō: "ou" })[char] ?? char);
     return toHiragana(typed.replace(/[\s-]/g, ""));
 }
+
+const KANJI = /[\u4e00-\u9fff々]/;
+const LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+/** Kana without ゛ and ゜, so a sound change in compounds still counts as the same reading: ばこ (ごみ箱) as はこ. */
+const withoutMarks = (kana: string) => kana.normalize("NFD").replace(/[\u3099\u309a]/g, "");
+
+/**
+ * For a word with a single kanji (maybe with kana around it, like 高い or お金): up to `max` other words of the
+ * list with that kanji where it is read differently, easiest first. 人 (hito) gives 日本人 (nihonjin) or 人気 (ninki),
+ * but not 人々 (hitobito). Empty for words with several kanji and for kanji always read the same in the list.
+ */
+export function otherReadings(word: KanjiWord, words: KanjiWord[], max = 3): KanjiWord[] {
+    const kanji = [...word.k].filter((char) => KANJI.test(char));
+    if (new Set(kanji).size !== 1) return [];
+    const [char] = kanji;
+    // the reading of the kanji alone: the kana around it taken off, as in 高い → たか, お金 → かね
+    const before = word.k.slice(0, word.k.indexOf(char));
+    const after = word.k.slice(word.k.lastIndexOf(char) + 1);
+    let stem = readingAsKana(word.r);
+    if (before && stem.startsWith(before)) stem = stem.slice(before.length);
+    if (after && stem.endsWith(after)) stem = stem.slice(0, stem.length - after.length);
+    if (!stem) return [];
+    stem = withoutMarks(stem);
+
+    const candidates = words
+        .filter((other) => other.k !== word.k && other.k.includes(char) && !withoutMarks(readingAsKana(other.r)).includes(stem))
+        .sort((a, b) => LEVEL_ORDER.indexOf(a.l) - LEVEL_ORDER.indexOf(b.l) || a.k.length - b.k.length);
+    // different examples: not the same reading twice (開園, 開演 kaien), not a word inside another (下手, 下手だ)
+    const picked: KanjiWord[] = [];
+    for (const other of candidates) {
+        if (picked.length === max) break;
+        const repeats = picked.some((chosen) =>
+            readingAsKana(chosen.r) === readingAsKana(other.r) || chosen.k.includes(other.k) || other.k.includes(chosen.k));
+        if (!repeats) picked.push(other);
+    }
+    return picked;
+}
