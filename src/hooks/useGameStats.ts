@@ -33,9 +33,10 @@ function useGameStats<Stats, Result>(load: () => Promise<Stats>, save: (result: 
         setAttempt((current) => current + 1);
     };
 
-    const record = (result: Result) => {
-        if (userId === null) return;
-        save(result)
+    /** resolves once the result is saved (or saving failed), so what depends on it can be loaded again */
+    const record = (result: Result): Promise<void> => {
+        if (userId === null) return Promise.resolve();
+        return save(result)
             .then((stats) => setLoaded({ userId, stats }))
             .catch((error) => console.error(`Error saving ${name} result:`, error));
     };

@@ -826,3 +826,62 @@
     font-size: 0.85rem;
     color: var(--color-danger);
 }
+
+.kanji-mode {
+    margin: 0 0 8px;
+    color: var(--color-accent-strong);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.kanji-mistakes {
+    display: grid;
+    margin: 12px 0 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.kanji-mistakes li {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr auto auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.kanji-mistakes-word {
+    font-size: 1.3rem;
+    overflow-wrap: anywhere;
+}
+
+.kanji-mistakes-text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    min-width: 0;
+}
+
+.kanji-mistakes-count {
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+    .kanji-mistakes li {
+        grid-template-columns: 3.5rem 1fr auto;
+    }
+
+    .kanji-mistakes-count {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .kanji-mistakes li .icon-btn {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+    }
+}
