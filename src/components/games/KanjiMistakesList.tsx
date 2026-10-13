@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { RotateCcw, X } from "lucide-react";
 import type { KanjiMistake } from "../../types/games";
+import { readingAsKana } from "../../utils/kanjiReading";
+import SpeakButton from "../ui/SpeakButton";
 import { KANJI_PRACTICE_PATH } from "./paths";
 import "../../styles/Games.css";
 
@@ -21,6 +23,7 @@ export default function KanjiMistakesList({ mistakes, onRemove }: {
                         <span lang="ja" className="kanji-mistakes-word">{mistake.word}</span>
                         <span className="kanji-mistakes-text">
                             <strong>{mistake.reading.toLowerCase()}</strong>
+                            <SpeakButton text={readingAsKana(mistake.reading)} label={`${mistake.word} vorlesen`} />
                             <span className="muted">{mistake.meaning}</span>
                         </span>
                         <span className="kanji-mistakes-count muted">

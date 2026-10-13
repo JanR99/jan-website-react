@@ -15,6 +15,7 @@ import {
 import { isKatakanaWord, KANA_TABLE, modifyKana, toKatakanaChar, typedKana, type KanaModifier } from "../../utils/kana";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
+import SpeakButton from "../ui/SpeakButton";
 import Confetti from "./Confetti";
 import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
@@ -559,6 +560,7 @@ function CrosswordBoard({ crossword, onNew, onFinished }: {
                             {crossword.entries.map((entry) => (
                                 <li key={`${entry.number}-${entry.direction}`}>
                                     <strong lang="ja">{entry.word}</strong>
+                                    <SpeakButton text={entry.word} label={`${entry.word} vorlesen`} />
                                     <span className="muted">{toRomaji(entry.word)}</span>
                                     <span>{entry.clue}</span>
                                 </li>

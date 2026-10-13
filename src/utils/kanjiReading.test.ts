@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isRightReading } from "./kanjiReading";
+import { isRightReading, readingAsKana } from "./kanjiReading";
 
 describe("isRightReading", () => {
     it("takes the reading as it is", () => {
@@ -41,5 +41,20 @@ describe("isRightReading", () => {
         expect(isRightReading("shi", "shi / yon")).toBe(true);
         expect(isRightReading("yon", "shi / yon")).toBe(true);
         expect(isRightReading("shiyon", "shi / yon")).toBe(false);
+    });
+});
+
+describe("readingAsKana", () => {
+    it("writes the reading in hiragana", () => {
+        expect(readingAsKana("hon")).toBe("ほん");
+        expect(readingAsKana("Nihon")).toBe("にほん");
+        expect(readingAsKana("kyō")).toBe("きょう");
+        expect(readingAsKana("jū")).toBe("じゅう");
+        expect(readingAsKana("kon'ya")).toBe("こんや");
+        expect(readingAsKana("hontō ni")).toBe("ほんとうに");
+    });
+
+    it("takes the first of several readings", () => {
+        expect(readingAsKana("shi / yon")).toBe("し");
     });
 });

@@ -8,10 +8,11 @@ import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import type { KanjiMistake } from "../../types/games";
 import { CEFR_LEVELS } from "../../utils/crossword";
-import { isRightReading, type KanjiWord } from "../../utils/kanjiReading";
+import { isRightReading, readingAsKana, type KanjiWord } from "../../utils/kanjiReading";
 import { useAuth } from "../auth/AuthContext";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
+import SpeakButton from "../ui/SpeakButton";
 import Confetti from "./Confetti";
 import { hitRate } from "./KanjiStatsTable";
 import { GAMES_BASE, PRACTICE_PARAM } from "./paths";
@@ -246,6 +247,7 @@ function KanjiRound({ words, practice, newLabel, onNew, onFinished }: {
                             {answers[i].right ? <Check size={16} aria-label="richtig" /> : <X size={16} aria-label="falsch" />}
                             <span lang="ja" className="kanji-summary-word">{w.k}</span>
                             <strong>{w.r.toLowerCase()}</strong>
+                            <SpeakButton text={readingAsKana(w.r)} label={`${w.k} vorlesen`} />
                             <span className="muted">{w.en}</span>
                             {!answers[i].right && answers[i].typed && <span className="kanji-summary-typed">deine Antwort: {answers[i].typed}</span>}
                         </li>
@@ -310,10 +312,13 @@ function KanjiRound({ words, practice, newLabel, onNew, onFinished }: {
                     <p>
                         {answer.right ? <><Check size={18} /> Richtig: </> : <><X size={18} /> Richtig wäre: </>}
                         <strong>{word.r.toLowerCase()}</strong>
+                        <SpeakButton text={readingAsKana(word.r)} label={`${word.k} vorlesen`} />
                     </p>
                     {word.ex && (
                         <p className="kanji-example">
-                            <span lang="ja">{word.ex}</span>
+                            <span lang="ja">
+                                {word.ex} <SpeakButton text={word.ex} label="Beispielsatz vorlesen" />
+                            </span>
                             <span className="muted">{word.exEn}</span>
                         </p>
                     )}

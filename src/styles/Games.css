@@ -885,3 +885,12 @@
         grid-row: 1 / span 2;
     }
 }
+
+/* loudspeaker next to a word: small, so it fits into a line of text */
+.speak-btn {
+    width: 28px;
+    height: 28px;
+    margin: -4px 0;
+    color: var(--color-accent-strong);
+    vertical-align: middle;
+}

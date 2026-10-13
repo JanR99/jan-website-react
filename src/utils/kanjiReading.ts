@@ -65,3 +65,13 @@ export function isRightReading(typed: string, reading: string): boolean {
     const typedNoSpaces = input.replace(/[\s-]/g, "");
     return [plain(input), toHiragana(typedNoSpaces), toHiragana(typedNoSpaces, { IMEMode: true })].some((key) => keys.has(key));
 }
+
+/**
+ * The (first) reading in hiragana, for reading it aloud: "kyō" → "きょう", "kon'ya" → "こんや".
+ * A long o is written おう, which sounds the same as おお.
+ */
+export function readingAsKana(reading: string): string {
+    const first = reading.split("/")[0].trim().toLowerCase().replace(/ï/g, "i");
+    const typed = first.replace(/[āīūēō]/g, (char) => ({ ā: "aa", ī: "ii", ū: "uu", ē: "ee", ō: "ou" })[char] ?? char);
+    return toHiragana(typed.replace(/[\s-]/g, ""));
+}
