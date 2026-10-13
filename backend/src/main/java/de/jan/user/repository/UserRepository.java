@@ -5,6 +5,7 @@ import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.games.repository.CrosswordStatsRepository;
+import de.jan.games.repository.KanjiStatsRepository;
 import de.jan.mail.RegistrationMailService;
 import de.jan.role.Permission;
 import de.jan.role.Role;
@@ -35,15 +36,18 @@ public class UserRepository {
     private final RegistrationMailService registrationMailService;
     private final RoleRepository roleRepository;
     private final CrosswordStatsRepository crosswordStatsRepository;
+    private final KanjiStatsRepository kanjiStatsRepository;
 
     public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService,
-                          RoleRepository roleRepository, CrosswordStatsRepository crosswordStatsRepository) {
+                          RoleRepository roleRepository, CrosswordStatsRepository crosswordStatsRepository,
+                          KanjiStatsRepository kanjiStatsRepository) {
         this.userDAO = new UserDAO();
         this.passwordResetTokenDAO = new PasswordResetTokenDAO();
         this.passwordEncoder = passwordEncoder;
         this.registrationMailService = registrationMailService;
         this.roleRepository = roleRepository;
         this.crosswordStatsRepository = crosswordStatsRepository;
+        this.kanjiStatsRepository = kanjiStatsRepository;
     }
 
     private static String normalizeEmail(String email) {
@@ -127,6 +131,7 @@ public class UserRepository {
 
         deleteResetTokensOf(user);
         crosswordStatsRepository.delete(user);
+        kanjiStatsRepository.delete(user);
         userDAO.delete(user);
     }
 
