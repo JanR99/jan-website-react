@@ -2,7 +2,7 @@
 
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 18px;
     margin-bottom: 48px;
 }
@@ -47,11 +47,34 @@
     font-weight: 600;
 }
 
-.game-stats {
-    margin-bottom: 48px;
+.game-card-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.88rem;
 }
 
-.account-content .game-stats {
+.games-stats-link {
+    margin: -30px 0 48px;
+}
+
+.games-stats-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-accent-strong);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.games-stats-link a:hover {
+    text-decoration: underline;
+}
+
+.game-stats {
     margin-bottom: 16px;
 }
 
@@ -63,7 +86,7 @@
     margin: 0;
 }
 
-.account-content .account-games-play:not(:last-child) {
+.account-games-play:not(:last-child) {
     margin-bottom: 32px;
 }
 
