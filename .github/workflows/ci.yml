@@ -44,13 +44,17 @@ jobs:
       - name: Coverage badge
         run: node scripts/coverage-badge.mjs "frontend coverage" coverage/coverage-summary.json badges/frontend-coverage.svg
 
-      # the badge for the README (see coverage-badges.yml) and the report to look at
+      - name: Coverage overview
+        run: node scripts/coverage-report.mjs frontend coverage/lcov.info badges/coverage-frontend.md
+
+      # badge and overview for the README (see coverage-badges.yml) and the report to look at
       - name: Upload coverage
         uses: actions/upload-artifact@v7
         with:
           name: coverage-frontend
           path: |
             badges/frontend-coverage.svg
+            badges/coverage-frontend.md
             coverage/
           retention-days: 7
 
@@ -83,12 +87,16 @@ jobs:
       - name: Coverage badge
         run: node scripts/coverage-badge.mjs "backend coverage" backend/target/site/jacoco/jacoco.csv badges/backend-coverage.svg
 
-      # the badge for the README (see coverage-badges.yml) and the report to look at
+      - name: Coverage overview
+        run: node scripts/coverage-report.mjs backend backend/target/site/jacoco/jacoco.xml badges/coverage-backend.md
+
+      # badge and overview for the README (see coverage-badges.yml) and the report to look at
       - name: Upload coverage
         uses: actions/upload-artifact@v7
         with:
           name: coverage-backend
           path: |
             badges/backend-coverage.svg
+            badges/coverage-backend.md
             backend/target/site/jacoco/
           retention-days: 7

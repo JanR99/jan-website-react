@@ -1,7 +1,8 @@
 name: Coverage badges
 
-# After the checks of a push to master: puts the coverage badges they drew on the branch "badges",
-# where the README shows them from. Separate from ci.yml, as this needs to write to the repository.
+# After the checks of a push to master: puts the coverage badges they drew and the overview of the lines not tested
+# (COVERAGE.md) on the branch "badges", where the README links to them. Separate from ci.yml, as this needs to
+# write to the repository.
 on:
   workflow_run:
     workflows: [Checks]
@@ -24,7 +25,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Download the badges of the checks
+      - name: Download badges and overviews of the checks
         uses: actions/download-artifact@v8
         with:
           pattern: coverage-*
@@ -39,6 +40,17 @@ jobs:
         run: |
           mkdir badges
           cp coverage/coverage-frontend/badges/frontend-coverage.svg coverage/coverage-backend/badges/backend-coverage.svg badges/
+          {
+            echo "# Test coverage"
+            echo
+            echo "Stand: [${COMMIT::7}](https://github.com/${GITHUB_REPOSITORY}/commit/${COMMIT}) vom $(TZ=Europe/Berlin date +%d.%m.%Y). Wird nach jedem Push auf \`master\` neu geschrieben (\`.github/workflows/coverage-badges.yml\`)."
+            echo
+            echo "![Frontend coverage](frontend-coverage.svg) ![Backend coverage](backend-coverage.svg)"
+            echo
+            cat coverage/coverage-frontend/badges/coverage-frontend.md
+            echo
+            cat coverage/coverage-backend/badges/coverage-backend.md
+          } > badges/COVERAGE.md
           cd badges
           git init -q -b badges
           git config user.name "github-actions[bot]"

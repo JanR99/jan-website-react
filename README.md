@@ -1,7 +1,7 @@
 # Jan Website
 
-[![Frontend coverage](https://raw.githubusercontent.com/JanR99/jan-website-react/badges/frontend-coverage.svg)](https://github.com/JanR99/jan-website-react/actions/workflows/ci.yml)
-[![Backend coverage](https://raw.githubusercontent.com/JanR99/jan-website-react/badges/backend-coverage.svg)](https://github.com/JanR99/jan-website-react/actions/workflows/ci.yml)
+[![Frontend coverage](https://raw.githubusercontent.com/JanR99/jan-website-react/badges/frontend-coverage.svg)](https://github.com/JanR99/jan-website-react/blob/badges/COVERAGE.md)
+[![Backend coverage](https://raw.githubusercontent.com/JanR99/jan-website-react/badges/backend-coverage.svg)](https://github.com/JanR99/jan-website-react/blob/badges/COVERAGE.md)
 
 A personal website with a cooking recipe collection, built with [React](https://react.dev/) + [Vite](https://vitejs.dev/) on the frontend and a [Spring Boot](https://spring.io/projects/spring-boot) backend using [Google Cloud Datastore](https://cloud.google.com/datastore).
 
@@ -43,7 +43,10 @@ The frontend automatically talks to the backend on port 8080 of whichever host i
 - Backend: `mvn test`; `mvn verify` also writes the coverage report of JaCoCo (`backend/target/site/jacoco/index.html`).
 
 The checks on GitHub do the same. For pushes to `master`, the workflow `Coverage badges` then draws the two badges
-above (`scripts/coverage-badge.mjs`, share of covered lines) and keeps them on the branch `badges`.
+above (`scripts/coverage-badge.mjs`, share of covered lines) and an overview of the lines no test runs, per folder
+and file with links into the code ([COVERAGE.md](https://github.com/JanR99/jan-website-react/blob/badges/COVERAGE.md),
+`scripts/coverage-report.mjs`), and keeps them on the branch `badges`. Every run of the checks also shows the
+overview in its summary.
 
 ### API documentation (Swagger UI)
 
