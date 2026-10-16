@@ -91,12 +91,18 @@ public class PasswordResetRepository {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    private static String hash(String token) {
+    /** Only the hash of a token is stored, so a copy of the database holds no usable links. */
+    static String hash(String token) {
+        return hash(token, "SHA-256");
+    }
+
+    /** With the algorithm passed, so a test can try one that doesn't exist. */
+    static String hash(String token, String algorithm) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
             return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
+            throw new IllegalStateException(algorithm + " not available", e);
         }
     }
 }
