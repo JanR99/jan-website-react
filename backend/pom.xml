@@ -154,6 +154,12 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.15</version>
+                <configuration>
+                    <excludes>
+                        <!-- only main(), which starts the application: the tests start it their own way -->
+                        <exclude>de/jan/JanWebsiteBackendApplication.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

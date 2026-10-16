@@ -2,6 +2,7 @@ package de.jan.mail;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
@@ -22,7 +23,8 @@ public class BrevoMailSender {
     private static final String SENDER_NAME = "jan-website.de";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    private final HttpClient httpClient;
+    private final URI api;
     private final String apiKey;
     private final String senderEmail;
 
@@ -30,14 +32,24 @@ public class BrevoMailSender {
      * Mails only leave the machine on Cloud Run, which always sets K_SERVICE. Started locally
      * (start-dev) or in tests, a mail is written to the log instead, whatever is in the .env.
      */
-    private final boolean onCloudRun = System.getenv("K_SERVICE") != null;
+    private final boolean onCloudRun;
 
+    @Autowired
     public BrevoMailSender(
             @Value("${BREVO_API_KEY:}") String apiKey,
             @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String senderEmail
     ) {
+        this(apiKey, senderEmail, System.getenv("K_SERVICE") != null, BREVO_API,
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
+    }
+
+    /** With another address and client, and sending also outside Cloud Run: for tests against a local server. */
+    BrevoMailSender(String apiKey, String senderEmail, boolean onCloudRun, URI api, HttpClient httpClient) {
         this.apiKey = apiKey;
         this.senderEmail = senderEmail;
+        this.onCloudRun = onCloudRun;
+        this.api = api;
+        this.httpClient = httpClient;
     }
 
     public void send(String to, String subject, String text) {
@@ -59,7 +71,7 @@ public class BrevoMailSender {
                     "textContent", text
             ));
 
-            HttpRequest request = HttpRequest.newBuilder(BREVO_API)
+            HttpRequest request = HttpRequest.newBuilder(api)
                     .timeout(Duration.ofSeconds(5))
                     .header("api-key", apiKey)
                     .header("Content-Type", "application/json")

@@ -7,6 +7,7 @@ import de.jan.controller.requests.TravelStopRequest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import tools.jackson.core.type.TypeReference;
@@ -38,10 +39,20 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
 
     private final TravelRepository travelRepository;
     private final ObjectMapper objectMapper;
+    private final String seedFile;
+    private final String seedImageDir;
 
+    @Autowired
     public TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper) {
+        this(travelRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
+    }
+
+    /** With other seed data on the classpath, for tests. */
+    TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper, String seedFile, String seedImageDir) {
         this.travelRepository = travelRepository;
         this.objectMapper = objectMapper;
+        this.seedFile = seedFile;
+        this.seedImageDir = seedImageDir;
     }
 
     @Override
@@ -59,9 +70,9 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
     }
 
     private void importSeed() throws Exception {
-        ClassPathResource resource = new ClassPathResource(SEED_FILE);
+        ClassPathResource resource = new ClassPathResource(seedFile);
         if (!resource.exists()) {
-            System.out.println("Bootstrap: no " + SEED_FILE + " found, skipping travel import.");
+            System.out.println("Bootstrap: no " + seedFile + " found, skipping travel import.");
             return;
         }
 
@@ -113,13 +124,13 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
         }
     }
 
-    private static byte[] readImage(String fileName) throws Exception {
+    private byte[] readImage(String fileName) throws Exception {
         if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("..")) {
             throw new IllegalArgumentException("invalid file name " + fileName);
         }
-        ClassPathResource resource = new ClassPathResource(SEED_IMAGE_DIR + fileName);
+        ClassPathResource resource = new ClassPathResource(seedImageDir + fileName);
         if (!resource.exists()) {
-            throw new IllegalArgumentException(SEED_IMAGE_DIR + fileName + " not found");
+            throw new IllegalArgumentException(seedImageDir + fileName + " not found");
         }
         try (InputStream in = resource.getInputStream()) {
             return in.readAllBytes();
