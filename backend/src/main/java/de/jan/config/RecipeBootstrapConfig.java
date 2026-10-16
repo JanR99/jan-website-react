@@ -9,6 +9,7 @@ import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import tools.jackson.core.type.TypeReference;
@@ -56,12 +57,23 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
     private final ImageRepository imageRepository;
     private final ObjectMapper objectMapper;
     private final RecipeSeedMarkerDAO seedMarkerDAO = new RecipeSeedMarkerDAO();
+    private final String seedFile;
+    private final String seedImageDir;
 
+    @Autowired
     public RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
                                  ObjectMapper objectMapper) {
+        this(recipeRepository, imageRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
+    }
+
+    /** With other seed data on the classpath, for tests. */
+    RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
+                          ObjectMapper objectMapper, String seedFile, String seedImageDir) {
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
         this.objectMapper = objectMapper;
+        this.seedFile = seedFile;
+        this.seedImageDir = seedImageDir;
     }
 
     @Override
@@ -84,9 +96,9 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
     }
 
     private void importSeed() throws Exception {
-        ClassPathResource resource = new ClassPathResource(SEED_FILE);
+        ClassPathResource resource = new ClassPathResource(seedFile);
         if (!resource.exists()) {
-            System.out.println("Bootstrap: no " + SEED_FILE + " found, skipping recipe import.");
+            System.out.println("Bootstrap: no " + seedFile + " found, skipping recipe import.");
             return;
         }
 
@@ -167,7 +179,7 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
         if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("..")) {
             throw new IllegalArgumentException("invalid file name");
         }
-        ClassPathResource resource = new ClassPathResource(SEED_IMAGE_DIR + fileName);
+        ClassPathResource resource = new ClassPathResource(seedImageDir + fileName);
         if (!resource.exists()) {
             throw new IllegalArgumentException("file not found");
         }

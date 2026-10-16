@@ -1,0 +1,42 @@
+[
+  {
+    "name": null,
+    "photos": [
+      "Porto2.jpg"
+    ]
+  },
+  {
+    "name": "Schon da",
+    "photos": [
+      "Porto2.jpg"
+    ],
+    "country": "Portugal"
+  },
+  {
+    "name": "Neu",
+    "country": "Portugal",
+    "latitude": 41.15,
+    "longitude": -8.61,
+    "photos": [
+      "Porto2.jpg"
+    ]
+  },
+  {
+    "name": "Ohne Fotos",
+    "country": "Portugal"
+  },
+  {
+    "name": "Falscher Dateiname",
+    "photos": [
+      "../geheim.jpg"
+    ],
+    "country": "Portugal"
+  },
+  {
+    "name": "Fehlendes Foto",
+    "photos": [
+      "fehlt.jpg"
+    ],
+    "country": "Portugal"
+  }
+]

@@ -4,6 +4,7 @@ import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AdminBootstrapConfig {
 
+    /** email and password come from the environment variables BOOTSTRAP_ADMIN_EMAIL and BOOTSTRAP_ADMIN_PASSWORD */
     @Bean
-    public CommandLineRunner bootstrapAdmin(UserRepository userRepository) {
+    public CommandLineRunner bootstrapAdmin(
+            UserRepository userRepository,
+            @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String email,
+            @Value("${BOOTSTRAP_ADMIN_PASSWORD:}") String password
+    ) {
         return _ -> {
-            String email = System.getenv("BOOTSTRAP_ADMIN_EMAIL");
-            String password = System.getenv("BOOTSTRAP_ADMIN_PASSWORD");
-
             if (email == null || email.isBlank()) {
                 System.out.println("Bootstrap: BOOTSTRAP_ADMIN_EMAIL not set, skipping admin bootstrap.");
                 return;

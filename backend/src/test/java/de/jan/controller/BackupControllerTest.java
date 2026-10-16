@@ -16,6 +16,7 @@ import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.TravelPhotoDTO;
+import de.jan.travel.TravelPhotoFileDAO;
 import de.jan.travel.repository.TravelRepository;
 import de.jan.user.User;
 import org.junit.jupiter.api.Nested;
@@ -200,6 +201,23 @@ class BackupControllerTest extends ControllerTest {
             assertTrue(andorra.get("cover").isNull());
             assertEquals(0, andorra.get("photos").size());
             assertEquals(0, andorra.get("captions").size());
+        }
+
+        @Test
+        void leavesOutPhotosWhoseFileIsGone() throws Exception {
+            TravelFolderDTO japan = storedFolder("Tokio", "Japan", null, null);
+            Long kept = storedPhoto(japan.getId(), JPEG);
+            Long lost = storedPhoto(japan.getId(), PNG);
+            inDatastore(() -> {
+                new TravelPhotoFileDAO().delete(lost);
+                return null;
+            });
+
+            Map<String, byte[]> files = export();
+
+            assertEquals(Set.of(RECIPES_FILE, FOLDERS_FILE, "travel/images/" + kept + ".jpg"), files.keySet());
+            JsonNode tokio = objectMapper.readTree(files.get(FOLDERS_FILE)).get(0);
+            assertEquals(List.of(kept + ".jpg"), texts(tokio.get("photos")));
         }
     }
 
@@ -444,6 +462,41 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(1, folders.size());
             assertEquals("Japan", folders.getFirst().getCountry());
             assertEquals(1, folders.getFirst().getPhotos().size());
+        }
+
+        @Test
+        void withAnEmptyEntryInAList_returns400AndChangesNothing() throws Exception {
+            storedRecipe("Pesto", JPEG, List.of());
+            Map<String, byte[]> files = emptyBackup();
+            files.put(RECIPES_FILE, "[null]".getBytes(StandardCharsets.UTF_8));
+
+            mockMvc.perform(restore(bearerWith(Permission.EXPORT_DATA), zip(files)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("The file is not a backup of this website: recipes/recipes.json cannot be read"));
+
+            assertEquals(List.of("Pesto"), recipeTitles());
+        }
+
+        @Test
+        void folderLikeTheSeedData_getsItsPlaceAsStop_andAFolderCannotComeFromItself() throws Exception {
+            Map<String, byte[]> files = emptyBackup();
+            // without "stops", only latitude and longitude, and the trip came from the folder itself
+            files.put(FOLDERS_FILE, objectMapper.writeValueAsBytes(List.of(
+                    new FolderBackup("Porto", "Portugal", 41.1579, -8.6291, null, "Porto", null, null, "", "", null,
+                            List.of("../porto.jpg"), Map.of()))));
+
+            mockMvc.perform(restore(bearerWith(Permission.EXPORT_DATA), zip(files)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.folders").value(1))
+                    .andExpect(jsonPath("$.photos").value(0))
+                    // a photo with a file name that leaves the folder of the images
+                    .andExpect(jsonPath("$.skippedPhotos").value(1));
+
+            TravelFolderDTO porto = inDatastore(() -> travelRepository.getFolders()).getFirst();
+            assertEquals(1, porto.getStops().size());
+            assertEquals("Porto", porto.getStops().getFirst().getName());
+            assertEquals(41.1579, porto.getStops().getFirst().getLatitude());
+            assertNull(porto.getPreviousFolderId());
         }
     }
 

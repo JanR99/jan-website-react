@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Einziges Rezept",
+    "image": "Knoblauchoel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ]
+  }
+]

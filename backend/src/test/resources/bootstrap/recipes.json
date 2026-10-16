@@ -1,0 +1,100 @@
+[
+  {
+    "title": null,
+    "image": "Knoblauchoel.jpg"
+  },
+  {
+    "title": "Schon da",
+    "image": "Knoblauchoel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ]
+  },
+  {
+    "title": "Falscher Dateiname",
+    "image": "../geheim.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ]
+  },
+  {
+    "title": "Fehlendes Bild",
+    "image": "fehlt.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ]
+  },
+  {
+    "title": "Ohne Zutaten",
+    "image": "Knoblauchoel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [],
+    "preparation": [
+      "Alles mischen."
+    ]
+  },
+  {
+    "title": "Mit Beilage",
+    "image": "Knoblauchoel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ],
+    "relatedRecipes": [
+      "Beilage",
+      "Mit Beilage",
+      "Gibt es nicht"
+    ]
+  },
+  {
+    "title": "Beilage",
+    "image": "Knoblauchoel.jpg",
+    "defaultPortions": 2,
+    "cuisine": "italienisch",
+    "tags": [
+      "VEGAN"
+    ],
+    "ingredients": [
+      "1 Knolle Knoblauch"
+    ],
+    "preparation": [
+      "Alles mischen."
+    ],
+    "relatedRecipes": []
+  }
+]
