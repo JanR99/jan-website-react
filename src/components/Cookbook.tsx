@@ -65,7 +65,7 @@ const Cookbook: React.FC = () => {
                     <input
                         className="input"
                         type="search"
-                        placeholder="Rezept oder Zutaten, z.B. „Tomate, Käse“"
+                        placeholder="Rezept, Zutat oder Küche, z.B. „Tomate Käse“"
                         value={search}
                         onChange={e => updateParam('q', e.target.value)}
                         aria-label="Rezepte durchsuchen"

@@ -76,7 +76,7 @@ describe('filterRecipes', () => {
 
         it('needs every comma-separated term to match', () => {
             expect(titles(filterRecipes(all, 'alle', 'alle', 'Tomate, Käse'))).toEqual(['Pizza Margherita']);
-            expect(titles(filterRecipes(all, 'alle', 'alle', 'Tomate, Zwiebel'))).toEqual(['Falafel Wrap', 'Tomaten Pasta']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'Tomate, Zwiebel'))).toEqual(['Tomaten Pasta', 'Falafel Wrap']);
         });
 
         it('lets one term match the title and another one an ingredient', () => {
@@ -86,6 +86,43 @@ describe('filterRecipes', () => {
         it('ignores spaces around the terms and empty terms', () => {
             expect(titles(filterRecipes(all, 'alle', 'alle', '  tomate ,, käse , '))).toEqual(['Pizza Margherita']);
             expect(filterRecipes(all, 'alle', 'alle', ' , ')).toEqual(all);
+        });
+
+        it('also splits the terms at spaces', () => {
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'tomate käse'))).toEqual(['Pizza Margherita']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'japanisches   curry'))).toEqual(['Japanisches Curry']);
+        });
+
+        it('ignores umlauts, ß and accents', () => {
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'kase'))).toEqual(['Pizza Margherita']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'kaese'))).toEqual(['Pizza Margherita']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'hahnchen'))).toEqual(['Japanisches Curry']);
+            const creme = recipe(5, 'Crème brûlée', { ingredients: ['200 ml Süßrahm'] });
+            expect(titles(filterRecipes([creme], 'alle', 'alle', 'creme brulee'))).toEqual(['Crème brûlée']);
+            expect(titles(filterRecipes([creme], 'alle', 'alle', 'süssrahm'))).toEqual(['Crème brûlée']);
+        });
+
+        it('finds the singular with the plural and the other way round', () => {
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'Zwiebeln'))).toEqual(['Japanisches Curry', 'Falafel Wrap', 'Tomaten Pasta']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'Karotte'))).toEqual(['Japanisches Curry']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'Wraps'))).toEqual(['Falafel Wrap']);
+        });
+
+        it('keeps short words like "Käse" whole', () => {
+            const kasseler = recipe(5, 'Kasseler', { ingredients: ['1 kg Kasseler'] });
+            expect(titles(filterRecipes([...all, kasseler], 'alle', 'alle', 'Käse'))).toEqual(['Pizza Margherita']);
+        });
+
+        it('also finds the cuisine and the diet', () => {
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'italienisch'))).toEqual(['Pizza Margherita', 'Tomaten Pasta']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'vegan'))).toEqual(['Falafel Wrap', 'Tomaten Pasta']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'vegetarisch'))).toEqual(['Pizza Margherita', 'Falafel Wrap', 'Tomaten Pasta']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'arabisch zwiebel'))).toEqual(['Falafel Wrap']);
+        });
+
+        it('puts recipes with the term in the title first', () => {
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'tomate'))).toEqual(['Tomaten Pasta', 'Pizza Margherita', 'Falafel Wrap']);
+            expect(titles(filterRecipes(all, 'alle', 'alle', 'zwiebel'))).toEqual(['Japanisches Curry', 'Falafel Wrap', 'Tomaten Pasta']);
         });
 
         it('returns nothing when no recipe matches', () => {
