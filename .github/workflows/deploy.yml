@@ -84,7 +84,8 @@ jobs:
       - name: Read frontend domain from CNAME
         run: echo "FRONTEND_URL=https://$(tr -d '[:space:]' < public/CNAME)" >> "$GITHUB_ENV"
 
-      - name: Write environment variables file
+      # stops the deploy if a secret the backend needs is missing, instead of starting it without
+      - name: Check and write environment variables file
         env:
           BOOTSTRAP_ADMIN_EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
           BOOTSTRAP_ADMIN_PASSWORD: ${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}
@@ -92,8 +93,20 @@ jobs:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
         run: |
           python3 - <<'PY'
-          import json, os
+          import json, os, sys
           keys = ["BOOTSTRAP_ADMIN_EMAIL", "BOOTSTRAP_ADMIN_PASSWORD", "JWT_SECRET", "BREVO_API_KEY", "FRONTEND_URL"]
+          # BREVO_API_KEY is optional: without it the backend only sends no mails
+          required = ["BOOTSTRAP_ADMIN_EMAIL", "BOOTSTRAP_ADMIN_PASSWORD", "JWT_SECRET", "FRONTEND_URL"]
+          problems = [f"{k} is not set" for k in required if not os.environ.get(k, "").strip()]
+          jwt_secret = os.environ.get("JWT_SECRET", "").strip()
+          if jwt_secret and len(jwt_secret.encode()) < 32:
+              problems.append("JWT_SECRET must have at least 32 characters (e.g. openssl rand -base64 48)")
+          if os.environ.get("FRONTEND_URL", "").strip() in ("", "https://"):
+              problems.append("FRONTEND_URL is empty: public/CNAME has no domain")
+          for problem in dict.fromkeys(problems):
+              print(f"::error::{problem}")
+          if problems:
+              sys.exit(1)
           with open(os.path.join(os.environ["RUNNER_TEMP"], "env.yaml"), "w") as f:
               for k in keys:
                   f.write(f"{k}: {json.dumps(os.environ.get(k, ''))}\n")
