@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtService {
@@ -20,9 +21,25 @@ public class JwtService {
     public record Token(String email, int version, boolean rememberMe) {
     }
 
-    private final SecretKey key = Keys.hmacShaKeyFor(
-            System.getenv().getOrDefault("JWT_SECRET", "dev-only-insecure-secret-change-me-32chars!").getBytes()
-    );
+    // only for local development and tests; it is in the public repo, so tokens signed with it could be forged
+    static final String DEV_SECRET = "dev-only-insecure-secret-change-me-32chars!";
+
+    private final SecretKey key = Keys.hmacShaKeyFor(secret(System.getenv()).getBytes());
+
+    /**
+     * The secret for signing the tokens. Cloud Run (K_SERVICE is set) doesn't start without JWT_SECRET,
+     * locally the dev secret is used when it is missing.
+     */
+    static String secret(Map<String, String> env) {
+        String secret = env.get("JWT_SECRET");
+        if (secret != null) {
+            return secret;
+        }
+        if (env.get("K_SERVICE") != null) {
+            throw new IllegalStateException("JWT_SECRET is not set: the backend doesn't start on Cloud Run without it");
+        }
+        return DEV_SECRET;
+    }
 
     // the frontend offers to renew the token shortly before it ends, so the time starts again
     private static final Duration EXPIRATION = Duration.ofHours(2);
