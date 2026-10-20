@@ -130,6 +130,7 @@ export default function AuthDialog() {
                                     value={firstname}
                                     onChange={(e) => setFirstname(e.target.value)}
                                     autoComplete="given-name"
+                                    maxLength={100}
                                     required
                                 />
                             </label>
@@ -141,6 +142,7 @@ export default function AuthDialog() {
                                     value={lastname}
                                     onChange={(e) => setLastname(e.target.value)}
                                     autoComplete="family-name"
+                                    maxLength={100}
                                     required
                                 />
                             </label>
@@ -155,6 +157,7 @@ export default function AuthDialog() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             autoComplete="username"
+                            maxLength={254}
                             required
                         />
                     </label>

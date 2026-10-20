@@ -87,6 +87,59 @@ class UserControllerTest extends ControllerTest {
         }
 
         @Test
+        void withTooLongEmail_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(emailOfLength(255), PASSWORD)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Email must be at most 254 characters long"));
+        }
+
+        @Test
+        void withEmailOf254Characters_returnsTheNewUser() throws Exception {
+            register(emailOfLength(254), PASSWORD)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.email").value(emailOfLength(254)));
+        }
+
+        @Test
+        void withoutFirstName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("email", EMAIL, "password", PASSWORD, "lastname", "Test"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("First name must not be empty"));
+        }
+
+        @Test
+        void withBlankLastName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "Anna", "   ")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Last name must not be empty"));
+        }
+
+        @Test
+        void withTooLongFirstName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "A".repeat(101), "Test")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("First name must be at most 100 characters long"));
+        }
+
+        @Test
+        void storesTheNamesWithoutSurroundingSpaces() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "  Anna ", " Test  ")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.firstname").value("Anna"))
+                    .andExpect(jsonPath("$.lastname").value("Test"));
+        }
+
+        @Test
         void withTooShortPassword_returns400() throws Exception {
             mockMvc.perform(post("/api/users/register")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -969,7 +1022,21 @@ class UserControllerTest extends ControllerTest {
     }
 
     private String registerBody(String email, String password) throws Exception {
-        return json(Map.of("email", email, "password", password, "firstname", "Anna", "lastname", "Test"));
+        return registerBody(email, "Anna", "Test", password);
+    }
+
+    private String registerBody(String email, String firstname, String lastname) throws Exception {
+        return registerBody(email, firstname, lastname, PASSWORD);
+    }
+
+    private String registerBody(String email, String firstname, String lastname, String password) throws Exception {
+        return json(Map.of("email", email, "password", password, "firstname", firstname, "lastname", lastname));
+    }
+
+    /** A valid email address with exactly the given length. */
+    private static String emailOfLength(int length) {
+        String domain = "@example.com";
+        return "a".repeat(length - domain.length()) + domain;
     }
 
     private ResultActions register(String email, String password) throws Exception {

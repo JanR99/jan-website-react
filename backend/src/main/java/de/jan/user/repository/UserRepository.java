@@ -29,6 +29,7 @@ public class UserRepository {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private static final int PASSWORD_MIN_LENGTH = 8;
     private static final int NAME_MAX_LENGTH = 100;
+    private static final int EMAIL_MAX_LENGTH = 254;
 
     private final UserDAO userDAO;
     private final PasswordResetTokenDAO passwordResetTokenDAO;
@@ -58,10 +59,12 @@ public class UserRepository {
         if (req.getEmail() == null || !EMAIL_PATTERN.matcher(req.getEmail()).matches()) {
             throw new EntityStateException("Invalid email address format");
         }
-
-        if (req.getFirstname().trim().isEmpty() || req.getLastname().trim().isEmpty()) {
-            throw new EntityStateException("First name or last name is empty");
+        if (req.getEmail().length() > EMAIL_MAX_LENGTH) {
+            throw new EntityStateException("Email must be at most " + EMAIL_MAX_LENGTH + " characters long");
         }
+
+        String firstname = validateName(req.getFirstname(), "First name");
+        String lastname = validateName(req.getLastname(), "Last name");
 
         validatePassword(req.getPassword());
 
@@ -72,7 +75,7 @@ public class UserRepository {
         }
 
         String hashedPassword = passwordEncoder.encode(req.getPassword());
-        User user = new User(email, hashedPassword, req.getFirstname(), req.getLastname());
+        User user = new User(email, hashedPassword, firstname, lastname);
         User savedUser = save(user);
         registrationMailService.send(savedUser);
         return savedUser;
