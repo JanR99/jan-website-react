@@ -5,8 +5,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useFavorites } from "../../hooks/useFavorites";
 import Dialog from "../ui/Dialog";
 import { BookOpen, Heart, KeyRound, Pencil, Trash2 } from "lucide-react";
-
-const PASSWORD_MIN_LENGTH = 8;
+import { PASSWORD_MIN_LENGTH, passwordProblem } from "../../utils/password";
 
 export default function ProfileSection() {
     const { user } = useAuth();
@@ -184,8 +183,9 @@ function PasswordCard() {
 
     async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
-        if (newPassword.length < PASSWORD_MIN_LENGTH) {
-            setError(`Das neue Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein.`);
+        const problem = passwordProblem(newPassword);
+        if (problem) {
+            setError(problem);
             return;
         }
         if (newPassword !== confirm) {
