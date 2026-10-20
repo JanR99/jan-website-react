@@ -63,8 +63,8 @@ public class UserRepository {
             throw new EntityStateException("Email must be at most " + EMAIL_MAX_LENGTH + " characters long");
         }
 
-        String firstname = validateName(req.getFirstname(), "First name");
-        String lastname = validateName(req.getLastname(), "Last name");
+        String firstname = validateName(req.getFirstname());
+        String lastname = validateName(req.getLastname());
 
         validatePassword(req.getPassword());
 
@@ -115,8 +115,8 @@ public class UserRepository {
     }
 
     public User updateName(User user, String firstname, String lastname) {
-        user.setFirstname(validateName(firstname, "First name"));
-        user.setLastname(validateName(lastname, "Last name"));
+        user.setFirstname(validateName(firstname));
+        user.setLastname(validateName(lastname));
         return save(user);
     }
 
@@ -145,13 +145,13 @@ public class UserRepository {
         }
     }
 
-    private static String validateName(String name, String label) {
+    private static String validateName(String name) {
         String trimmed = name == null ? "" : name.trim();
         if (trimmed.isEmpty()) {
-            throw new EntityStateException(label + " must not be empty");
+            throw new EntityStateException("First- and Surname must not be empty");
         }
         if (trimmed.length() > NAME_MAX_LENGTH) {
-            throw new EntityStateException(label + " must be at most " + NAME_MAX_LENGTH + " characters long");
+            throw new EntityStateException("First- and Surname must be at most " + NAME_MAX_LENGTH + " characters long");
         }
         return trimmed;
     }
