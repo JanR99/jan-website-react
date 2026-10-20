@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!-- The page of a recipe that Bring! loads for the import into the shopping list (RecipeRepository.bringPage).
+     Bring! reads title, image, portions and ingredients from the schema.org markup, with these property names. -->
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <meta name="robots" content="noindex">
+        <title th:text="${title}"></title>
+    </head>
+    <body>
+        <div itemscope itemtype="http://schema.org/Recipe">
+            <h1 itemprop="name" th:text="${title}"></h1>
+            <img th:if="${image}" itemprop="image" th:src="${image}" alt="">
+            <p>Für <span itemprop="yield" th:text="${portions}"></span> Portionen</p>
+            <ul>
+                <li th:each="ingredient : ${ingredients}" itemprop="ingredients" th:text="${ingredient}"></li>
+            </ul>
+        </div>
+    </body>
+</html>

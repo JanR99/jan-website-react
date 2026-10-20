@@ -15,8 +15,10 @@ import org.springframework.http.MediaType;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -310,6 +312,63 @@ class RecipeControllerTest extends ControllerTest {
         void withUnknownId_returns404() throws Exception {
             mockMvc.perform(post("/api/recipes/delete").param("id", "999")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("Recipe 999 not found"));
+        }
+    }
+
+    @Nested
+    class BringRecipe {
+
+        @Test
+        void withoutLogin_returnsThePageWithTheSchemaOrgMarkup() throws Exception {
+            Recipe recipe = storedRecipe("Apfelkuchen");
+            Long imageId = ImageRepository.idOf(recipe.getImage());
+
+            mockMvc.perform(get("/api/recipes/{id}/bring", recipe.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                    .andExpect(content().string(containsString("itemtype=\"http://schema.org/Recipe\"")))
+                    .andExpect(content().string(containsString("<h1 itemprop=\"name\">Apfelkuchen</h1>")))
+                    .andExpect(content().string(containsString("<span itemprop=\"yield\">2</span>")))
+                    .andExpect(content().string(containsString(
+                            "<img itemprop=\"image\" src=\"http://localhost/api/images/" + imageId + "\"")))
+                    .andExpect(content().string(containsString("<li itemprop=\"ingredients\">200 g Mehl</li>")))
+                    .andExpect(content().string(not(containsString("Teig:"))));
+        }
+
+        @Test
+        void behindCloudRun_linksTheImageWithTheForwardedScheme() throws Exception {
+            Recipe recipe = storedRecipe("Apfelkuchen");
+
+            mockMvc.perform(get("/api/recipes/{id}/bring", recipe.getId())
+                            .header("Host", "backend.example.com")
+                            .header("X-Forwarded-Proto", "https"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("src=\"https://backend.example.com/api/images/")));
+        }
+
+        @Test
+        void escapesTitleAndIngredients() throws Exception {
+            RecipeRequest request = new RecipeRequest(
+                    uploadedImage(), "Mac & <Cheese>", 4, "amerikanisch", List.of(),
+                    List.of("  ", "Sauce:", "1 Prise Salz & <Pfeffer>"), List.of("Kochen.")
+            );
+            Recipe recipe = inDatastore(() -> recipeRepository.create(request));
+
+            mockMvc.perform(get("/api/recipes/{id}/bring", recipe.getId()))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(containsString("<title>Mac &amp; &lt;Cheese&gt;</title>")))
+                    .andExpect(content().string(containsString("<span itemprop=\"yield\">4</span>")))
+                    .andExpect(content().string(containsString(
+                            "<li itemprop=\"ingredients\">1 Prise Salz &amp; &lt;Pfeffer&gt;</li>")))
+                    .andExpect(content().string(not(containsString("<li itemprop=\"ingredients\"></li>"))))
+                    .andExpect(content().string(not(containsString("Sauce:"))));
+        }
+
+        @Test
+        void withUnknownId_returns404() throws Exception {
+            mockMvc.perform(get("/api/recipes/999/bring"))
                     .andExpect(status().isNotFound())
                     .andExpect(content().string("Recipe 999 not found"));
         }

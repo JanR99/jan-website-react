@@ -10,10 +10,12 @@ import de.jan.security.CurrentUser;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -30,6 +32,7 @@ public class RecipeController {
     private static final String CREATE_RECIPE = "createRecipe";
     private static final String UPDATE_RECIPE = "updateRecipe";
     private static final String DELETE_RECIPE = "deleteRecipe";
+    private static final String BRING_RECIPE = "bringRecipe";
 
     public RecipeController(RecipeRepository recipeRepository) {
         this.recipeRepository = recipeRepository;
@@ -75,5 +78,22 @@ public class RecipeController {
         Authorization.with(user).require(Permission.MANAGE_RECIPES);
         recipeRepository.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** The page of the recipe for the import into Bring!, see {@link RecipeRepository#bringPage}. */
+    @Operation(operationId = BRING_RECIPE)
+    @GetMapping(value = "/{id}/bring", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> bringRecipe(
+            @PathVariable("id") Long id,
+            @RequestHeader(value = "X-Forwarded-Proto", required = false) String forwardedProto
+    ) {
+        // host of the request; Cloud Run takes https and passes it on in X-Forwarded-Proto
+        ServletUriComponentsBuilder backend = ServletUriComponentsBuilder.fromCurrentContextPath();
+        if (forwardedProto != null) {
+            backend.scheme(forwardedProto);
+        }
+        String baseUrl = backend.toUriString();
+        return ResponseEntity.ok().contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
+                .body(recipeRepository.bringPage(id, baseUrl));
     }
 }

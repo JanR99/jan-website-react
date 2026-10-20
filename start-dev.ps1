@@ -1,5 +1,10 @@
 # start-dev.ps1
 # start Firestore-Emulator (Datastore-Mode) and the Datastore UI in Docker and then Spring-Boot-App.
+#   -Bring  also opens a tunnel to the backend, so Bring! can load the recipe pages (needs cloudflared)
+
+param(
+    [switch]$Bring
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -133,6 +138,52 @@ $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
 Write-Host "JAVA_HOME = $env:JAVA_HOME" -ForegroundColor Green
 & "$env:JAVA_HOME\bin\java.exe" -version
 
+# --- Optional: a tunnel to the backend, because Bring! loads the recipe pages from its own servers ---
+$EnvLocal      = ".env.local"
+$TunnelKey     = "VITE_BRING_BACKEND_URL"
+$TunnelProcess = $null
+
+function Set-TunnelUrl([string]$Url) {
+    # the other lines of .env.local stay; without a URL the line is removed again.
+    # Assigned directly, so a file with a single line stays a list and += adds a line instead of text
+    $lines = @()
+    if (Test-Path $EnvLocal) { $lines = @(Get-Content $EnvLocal | Where-Object { $_ -notmatch "^\s*$TunnelKey=" }) }
+    if ($Url) { $lines += "$TunnelKey=$Url" }
+    Set-Content -Path $EnvLocal -Value $lines
+}
+
+if ($Bring) {
+    if (-not (Get-Command cloudflared -ErrorAction SilentlyContinue)) {
+        Write-Host "ERROR: cloudflared not found. Install it with 'winget install --id Cloudflare.cloudflared'." -ForegroundColor Red
+        Remove-DevContainers
+        exit 1
+    }
+    Write-Host "Opening a tunnel to the backend for Bring! ..." -ForegroundColor Cyan
+    $TunnelLog = Join-Path $env:TEMP "jan-website-tunnel.log"
+    Remove-Item $TunnelLog, "$TunnelLog.out" -ErrorAction SilentlyContinue
+    $TunnelProcess = Start-Process cloudflared -ArgumentList "tunnel", "--url", "http://localhost:8080" `
+        -RedirectStandardError $TunnelLog -RedirectStandardOutput "$TunnelLog.out" -NoNewWindow -PassThru
+
+    # cloudflared writes the public address into its log after a few seconds (api. is its own service)
+    $TunnelUrl = $null
+    $deadline = (Get-Date).AddSeconds(30)
+    while (-not $TunnelUrl -and (Get-Date) -lt $deadline) {
+        Start-Sleep -Seconds 1
+        if (Test-Path $TunnelLog) {
+            $match = Select-String -Path $TunnelLog -Pattern "https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com" | Select-Object -First 1
+            if ($match) { $TunnelUrl = $match.Matches[0].Value }
+        }
+    }
+    if (-not $TunnelUrl) {
+        Write-Host "ERROR: The tunnel did not start. Its log: $TunnelLog" -ForegroundColor Red
+        Stop-Process -Id $TunnelProcess.Id -ErrorAction SilentlyContinue
+        Remove-DevContainers
+        exit 1
+    }
+    Set-TunnelUrl $TunnelUrl
+    Write-Host "Bring! reaches the backend at $TunnelUrl (written to $EnvLocal; restart the frontend if it was running)" -ForegroundColor Green
+}
+
 # --- Start the Spring Boot app ---
 Write-Host "Starting Spring Boot app in '$BackendDir' ..." -ForegroundColor Cyan
 Push-Location $BackendDir
@@ -141,6 +192,11 @@ try {
 }
 finally {
     Pop-Location
+    if ($TunnelProcess) {
+        Write-Host "Closing the tunnel ..." -ForegroundColor Cyan
+        Stop-Process -Id $TunnelProcess.Id -ErrorAction SilentlyContinue
+        Set-TunnelUrl $null
+    }
     # The containers run in the background, so remove them here (also on Ctrl+C)
     Write-Host "Stopping emulator and Datastore UI ..." -ForegroundColor Cyan
     Remove-DevContainers

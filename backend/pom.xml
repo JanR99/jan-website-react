@@ -56,6 +56,12 @@
             <artifactId>google-cloud-datastore</artifactId>
         </dependency>
 
+        <!-- Templates for HTML pages, like the recipe page for Bring! -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
         <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

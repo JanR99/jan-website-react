@@ -16,7 +16,8 @@ import TravelFolderLink from './travel/TravelFolderLink';
 import CookMode from './CookMode';
 import LoadError from './ui/LoadError';
 import RecipePrintSheet from './RecipePrintSheet';
-import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer } from "lucide-react";
+import { bringImportUrl, bringPageUrl } from '../utils/bring';
+import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer, ShoppingCart } from "lucide-react";
 import '../styles/Recipe.css';
 
 /**
@@ -200,6 +201,16 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                             <Printer size={18} />
                             Drucken / PDF
                         </button>
+                        {/* Bring! liest die Zutaten von der Seite des Backends und rechnet sie auf die Portionen um */}
+                        <a
+                            className="btn btn-secondary"
+                            href={bringImportUrl(bringPageUrl(recipe.id), defaultPortions, portions)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <ShoppingCart size={18} />
+                            Auf die Bring!-Liste
+                        </a>
                     </div>
                 </div>
             </section>

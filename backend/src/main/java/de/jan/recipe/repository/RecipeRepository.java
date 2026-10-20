@@ -10,6 +10,8 @@ import de.jan.recipe.RecipeTag;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.text.Collator;
 import java.time.Duration;
@@ -43,14 +45,16 @@ public class RecipeRepository {
     private final RecipeDAO recipeDAO;
     private final UserDAO userDAO;
     private final ImageRepository imageRepository;
+    private final ITemplateEngine templateEngine;
 
     private volatile List<Recipe> cache;
     private volatile long cachedAt;
 
-    public RecipeRepository(ImageRepository imageRepository) {
+    public RecipeRepository(ImageRepository imageRepository, ITemplateEngine templateEngine) {
         this.recipeDAO = new RecipeDAO();
         this.userDAO = new UserDAO();
         this.imageRepository = imageRepository;
+        this.templateEngine = templateEngine;
     }
 
     public List<Recipe> getAll() {
@@ -77,6 +81,27 @@ public class RecipeRepository {
 
     public boolean exists(Long id) {
         return recipeDAO.exists(id);
+    }
+
+    /**
+     * The page of the recipe for the import into Bring!, from the template templates/bring.html: Bring! loads it
+     * and reads title, portions, image and ingredients from it. Headings among the ingredients like "Teig:" are
+     * left out, so they don't end up on the shopping list.
+     *
+     * @param baseUrl scheme and host of the backend, for the absolute link to the image
+     */
+    public String bringPage(Long id, String baseUrl) {
+        Recipe recipe = getById(id);
+        Long imageId = ImageRepository.idOf(recipe.getImage());
+        Context page = new Context(Locale.GERMAN);
+        page.setVariable("title", recipe.getTitle());
+        page.setVariable("image", imageId == null ? null : baseUrl + "/api/images/" + imageId);
+        page.setVariable("portions", recipe.getDefaultPortions());
+        page.setVariable("ingredients", recipe.getIngredients().stream()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty() && !line.endsWith(":"))
+                .toList());
+        return templateEngine.process("bring", page);
     }
 
     public Recipe create(RecipeRequest request) {
