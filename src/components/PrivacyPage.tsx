@@ -33,6 +33,13 @@ export default function PrivacyPage() {
                     Die Karte im Reisetagebuch lädt ihre Kartenbilder direkt von OpenStreetMap.
                     Dabei wird deine IP-Adresse an deren Server übertragen, sonst nichts.
                 </p>
+
+                <h2>Bring!</h2>
+                <p>
+                    Der Knopf „Auf die Bring!-Liste“ bei einem Rezept öffnet Bring! und übergibt dabei den Link zum
+                    Rezept und die gewählten Portionen. Bring! lädt darüber Titel, Bild und Zutaten des Rezepts.
+                    Was Bring! danach mit deinen Daten macht, steht in dessen Datenschutzerklärung.
+                </p>
             </div>
         </div>
     );
