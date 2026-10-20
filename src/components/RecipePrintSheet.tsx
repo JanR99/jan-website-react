@@ -3,7 +3,9 @@ import { createPortal } from "react-dom";
 import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
 import { Recipe } from "../types/Recipe";
 import { isVegan, isVegetarian, recipeImage } from "../utils/recipe";
+import { bringImportUrl, bringPageUrl } from "../utils/bring";
 import { Leaf } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
 interface RecipePrintSheetProps {
     recipe: Recipe;
@@ -71,6 +73,15 @@ export default function RecipePrintSheet({ recipe, portions }: RecipePrintSheetP
                             <span className="badge">{steps.length} Schritte</span>
                         </div>
                     </div>
+                    {/* the same link as the Bring! button on the recipe page, for scanning the printed recipe */}
+                    <figure className="recipe-print-bring">
+                        <QRCodeSVG
+                            value={bringImportUrl(bringPageUrl(recipe.id), recipe.defaultPortions ?? 2, portions)}
+                            size={104}
+                            marginSize={0}
+                        />
+                        <figcaption>Scannen für die Bring!-Liste</figcaption>
+                    </figure>
                 </header>
 
                 <div className="recipe-print-body">
