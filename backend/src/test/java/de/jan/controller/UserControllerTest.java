@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -762,6 +763,28 @@ class UserControllerTest extends ControllerTest {
                     .andExpect(content().string("Admin accounts cannot be deleted"));
 
             login(EMAIL, PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void afterFiveAttemptsInAMinute_returns429AndKeepsTheAccount() throws Exception {
+            User user = registered(EMAIL);
+            String bearer = bearer(user);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                deleteAccount(bearer, "wrong-password").andExpect(status().isBadRequest());
+            }
+
+            // even the right password is rejected now
+            deleteAccount(bearer, PASSWORD)
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.message").value("Too many attempts, please try again in a minute."));
+            assertNotNull(inDatastore(() -> userRepository.getByEmail(EMAIL)));
+        }
+
+        private ResultActions deleteAccount(String bearer, String password) throws Exception {
+            return mockMvc.perform(post("/api/users/deleteAccount")
+                    .header(HttpHeaders.AUTHORIZATION, bearer)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json(Map.of("password", password))));
         }
     }
 
