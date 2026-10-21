@@ -783,6 +783,18 @@ class UserControllerTest extends ControllerTest {
             assertNotNull(inDatastore(() -> userRepository.getByEmail(EMAIL)));
         }
 
+        @Test
+        void tokenOfTheDeletedAccount_isNotValidForANewAccountWithTheSameEmail() throws Exception {
+            String oldBearer = bearer(registered(EMAIL));
+            deleteAccount(oldBearer, PASSWORD).andExpect(status().isNoContent());
+
+            registered(EMAIL);
+
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, oldBearer))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
         private ResultActions deleteAccount(String bearer, String password) throws Exception {
             return mockMvc.perform(post("/api/users/deleteAccount")
                     .header(HttpHeaders.AUTHORIZATION, bearer)

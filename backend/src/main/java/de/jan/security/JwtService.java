@@ -17,8 +17,8 @@ public class JwtService {
 
     public static final String BEARER_PREFIX = "Bearer ";
 
-    /** What a valid token says about its login. */
-    public record Token(String email, int version, boolean rememberMe) {
+    /** What a valid token says about its login: the id of the account, not its email address. */
+    public record Token(Long userId, int version, boolean rememberMe) {
     }
 
     // only for local development and tests; it is in the public repo, so tokens signed with it could be forged
@@ -55,7 +55,7 @@ public class JwtService {
     public String generateToken(User user, boolean rememberMe) {
         Instant now = Instant.now();
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(String.valueOf(user.getId()))
                 .claim(VERSION_CLAIM, user.getTokenVersion())
                 .claim(REMEMBER_ME_CLAIM, rememberMe)
                 .issuedAt(Date.from(now))
@@ -74,7 +74,7 @@ public class JwtService {
         // a token from before these two claims existed has neither of them
         Integer version = claims.get(VERSION_CLAIM, Integer.class);
         Boolean rememberMe = claims.get(REMEMBER_ME_CLAIM, Boolean.class);
-        return new Token(claims.getSubject(), version == null ? 0 : version, Boolean.TRUE.equals(rememberMe));
+        return new Token(Long.valueOf(claims.getSubject()), version == null ? 0 : version, Boolean.TRUE.equals(rememberMe));
     }
 
     /**
