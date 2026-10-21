@@ -20,7 +20,7 @@ class UserRepositoryTest extends ControllerTest {
         request.setLastname("Berg");
 
         EntityStateException e = assertThrows(EntityStateException.class, () -> inDatastore(() -> userRepository.register(request)));
-        assertEquals("First name must not be empty", e.getMessage());
+        assertEquals("First- and Surname must not be empty", e.getMessage());
     }
 
     @Test

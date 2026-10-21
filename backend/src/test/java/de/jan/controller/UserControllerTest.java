@@ -43,6 +43,9 @@ class UserControllerTest extends ControllerTest {
     private static final String MISSING_PERMISSION = "Missing permission MANAGE_USERS";
     private static final String INVALID_CREDENTIALS = "Invalid credentials";
     private static final String INVALID_LINK = "This reset link is invalid or has expired";
+    // the same message for first and last name
+    private static final String NAME_EMPTY = "First- and Surname must not be empty";
+    private static final String NAME_TOO_LONG = "First- and Surname must be at most 100 characters long";
     private static final String PASSWORD_TOO_SHORT = "Invalid password: passwords need to be at least 8 characters long";
     private static final String LOCKOUT = "You cannot take away your own permission to manage users";
 
@@ -109,7 +112,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(Map.of("email", EMAIL, "password", PASSWORD, "lastname", "Test"))))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -118,7 +121,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(registerBody(EMAIL, "Anna", "   ")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Last name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -127,7 +130,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(registerBody(EMAIL, "A".repeat(101), "Test")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must be at most 100 characters long"));
+                    .andExpect(content().string(NAME_TOO_LONG));
         }
 
         @Test
@@ -534,7 +537,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(nameBody(" ", "New")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -544,7 +547,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(Map.of("firstname", "Anna"))))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Last name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -554,7 +557,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(nameBody("x".repeat(101), "New")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must be at most 100 characters long"));
+                    .andExpect(content().string(NAME_TOO_LONG));
         }
     }
 
