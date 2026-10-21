@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Favorite recipes of the logged-in user. All routes are protected by the JwtAuthFilter,
- * require an existing account and always act on the caller's own favorites.
+ * Favorite recipes of the logged-in user. Every route takes the caller as {@link CurrentUser}, so it requires
+ * a login and an existing account and always acts on the caller's own favorites.
  */
 @Tag(name = "favorites")
 @RestController
