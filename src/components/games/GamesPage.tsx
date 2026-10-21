@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Grid3x3, Languages, Trophy } from "lucide-react";
+import { ArrowRight, Grid3x3, Languages, Trophy, Type } from "lucide-react";
 import type { ReactNode } from "react";
 import { ACCOUNT_BASE } from "../../config/navigation";
 import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import { hitRate } from "./KanjiStatsTable";
-import { CROSSWORD_PATH, KANJI_PATH } from "./paths";
+import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "./paths";
 import "../../styles/Games.css";
 
-/** The overview of the small games: the Japanese crossword and the kanji readings, with the own numbers in short. */
+/** The overview of the small games: the Japanese crossword, the kana and the kanji readings, with the own numbers in short. */
 export default function GamesPage() {
     usePageTitle("Spiele");
     const { stats: crossword, loggedIn } = useCrosswordStats();
@@ -37,6 +37,13 @@ export default function GamesPage() {
                     title="Kreuzworträtsel"
                     text="Japanische Wörter in Hiragana und Katakana zu englischen Hinweisen."
                     stats={loggedIn ? crosswordLine : null}
+                />
+                <GameCard
+                    to={KANA_PATH}
+                    icon={<Type size={26} />}
+                    title="Kana lesen"
+                    text="Einzelne Hiragana und Katakana: Tippe die Lesung in Romaji."
+                    stats={null}
                 />
                 <GameCard
                     to={KANJI_PATH}
