@@ -79,3 +79,43 @@ export interface KanjiMistake {
     /** how often it was read right since the last time it was wrong; at 2 it leaves the list */
     rightInRow: number;
 }
+
+/** The numbers of one script in "Kana lesen"; only the scripts asked so far are listed. */
+export interface KanaScriptStats {
+    script: "hiragana" | "katakana";
+    rightKana: number;
+    askedKana: number;
+}
+
+/** What the logged-in user has achieved in "Kana lesen". */
+export interface KanaStats {
+    /** rounds played to the end */
+    rounds: number;
+    /** rounds with every character right */
+    perfectRounds: number;
+    rightKana: number;
+    askedKana: number;
+    /** characters read right in a row, across rounds */
+    currentStreak: number;
+    bestStreak: number;
+    scripts: KanaScriptStats[];
+}
+
+/**
+ * The end of a round of "Kana lesen": the characters and, in the same order, whether each was read right.
+ * A round of mistakes (practice) changes only the list of mistakes, not the numbers.
+ */
+export interface KanaResult {
+    answers: boolean[];
+    kana: string[];
+    practice?: boolean;
+}
+
+/** A character read wrong and not yet read right twice in a row since; the list comes most often wrong first. */
+export interface KanaMistake {
+    kana: string;
+    /** how often it was read wrong */
+    wrong: number;
+    /** how often it was read right since the last time it was wrong; at 2 it leaves the list */
+    rightInRow: number;
+}

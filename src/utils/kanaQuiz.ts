@@ -26,6 +26,8 @@ export function kanaPool(groups: KanaGroup[], script: Script): string[] {
 export interface KanaRound {
     id: number;
     kana: string[];
+    /** a round of the own mistakes: it changes only the list of mistakes, not the numbers */
+    practice: boolean;
 }
 
 /** The characters of the last rounds of this visit, oldest first; a new round takes others where it can. */
@@ -54,7 +56,12 @@ export function newKanaRound(groups: KanaGroup[], script: Script): KanaRound {
     ].slice(0, ROUND_LENGTH);
     recentKana.push(...picked);
     recentKana.splice(0, Math.max(0, recentKana.length - Math.floor(pool.length * RECENT_SHARE)));
-    return { id: nextRoundId++, kana: picked };
+    return { id: nextRoundId++, kana: picked, practice: false };
+}
+
+/** Up to ten of the own mistakes (given most often wrong first), in a shuffled order. */
+export function practiceKanaRound(mistakes: string[]): KanaRound {
+    return { id: nextRoundId++, kana: shuffle(mistakes.slice(0, ROUND_LENGTH)), practice: true };
 }
 
 /** The romaji of a character as it is usually written (Hepburn): し → shi, を → wo, ヂ → ji. */

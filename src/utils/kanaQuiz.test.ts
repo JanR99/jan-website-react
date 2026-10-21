@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isRightKana, KANA_GROUPS, kanaPool, kanaRomaji, newKanaRound, otherScript, ROUND_LENGTH } from "./kanaQuiz";
+import { isRightKana, KANA_GROUPS, kanaPool, kanaRomaji, newKanaRound, otherScript, practiceKanaRound, ROUND_LENGTH } from "./kanaQuiz";
 
 describe("KANA_GROUPS", () => {
     it("has the 46 basic characters, 25 with ゛ or ゜ and 33 combinations", () => {
@@ -42,6 +42,19 @@ describe("newKanaRound", () => {
         const first = newKanaRound(["basic"], "katakana");
         const second = newKanaRound(["basic"], "katakana");
         expect(second.kana.filter((kana) => first.kana.includes(kana))).toEqual([]);
+    });
+});
+
+describe("practiceKanaRound", () => {
+    it("asks the ten mistakes made most often", () => {
+        const mistakes = [..."あいうえおかきくけこさし"];
+        const round = practiceKanaRound(mistakes);
+        expect(round.practice).toBe(true);
+        expect([...round.kana].sort()).toEqual(mistakes.slice(0, ROUND_LENGTH).sort());
+    });
+
+    it("asks fewer when there are fewer mistakes", () => {
+        expect(practiceKanaRound(["し", "ツ"]).kana).toHaveLength(2);
     });
 });
 

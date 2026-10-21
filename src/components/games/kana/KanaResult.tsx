@@ -5,15 +5,18 @@ import Confetti from "../Confetti";
 import type { Answer } from "../kanji/rounds";
 
 /** The end of a round: how many were right, every character with its romaji, and the way to the next round. */
-export default function KanaResult({ kana, answers, onNew }: {
+export default function KanaResult({ kana, answers, practice, newLabel, onNew }: {
     kana: string[];
     answers: Answer[];
+    practice: boolean;
+    newLabel: string;
     onNew: () => void;
 }) {
     const right = answers.filter((answer) => answer.right).length;
     return (
         <section className="kanji-result card card-pad" role="status">
             {right === kana.length && <Confetti />}
+            {practice && <p className="kanji-mode">Fehler-Runde</p>}
             <h2>{right} von {kana.length} richtig</h2>
             <ul className="kanji-summary">
                 {kana.map((k, i) => (
@@ -29,7 +32,7 @@ export default function KanaResult({ kana, answers, onNew }: {
                 ))}
             </ul>
             <button type="button" className="btn" onClick={onNew} autoFocus>
-                <RefreshCw size={16} /> Neue Runde
+                <RefreshCw size={16} /> {newLabel}
             </button>
         </section>
     );

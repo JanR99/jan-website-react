@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Grid3x3, Languages, Trophy, Type } from "lucide-react";
 import type { ReactNode } from "react";
 import { ACCOUNT_BASE } from "../../config/navigation";
-import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
+import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import { hitRate } from "./KanjiStatsTable";
@@ -14,6 +14,7 @@ export default function GamesPage() {
     usePageTitle("Spiele");
     const { stats: crossword, loggedIn } = useCrosswordStats();
     const { stats: kanji } = useKanjiStats();
+    const { stats: kana } = useKanaStats();
 
     const crosswordLine = crossword && (
         crossword.solved > 0 || crossword.words > 0
@@ -23,6 +24,12 @@ export default function GamesPage() {
     const kanjiLine = kanji && (
         kanji.rounds > 0
             ? `${kanji.rounds} ${kanji.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kanji.rightWords, kanji.askedWords)} richtig · Serie ${kanji.currentStreak}`
+            : "Noch nicht gespielt"
+    );
+
+    const kanaLine = kana && (
+        kana.rounds > 0
+            ? `${kana.rounds} ${kana.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kana.rightKana, kana.askedKana)} richtig · Serie ${kana.currentStreak}`
             : "Noch nicht gespielt"
     );
 
@@ -43,7 +50,7 @@ export default function GamesPage() {
                     icon={<Type size={26} />}
                     title="Kana lesen"
                     text="Einzelne Hiragana und Katakana: Tippe die Lesung in Romaji."
-                    stats={null}
+                    stats={loggedIn ? kanaLine : null}
                 />
                 <GameCard
                     to={KANJI_PATH}
