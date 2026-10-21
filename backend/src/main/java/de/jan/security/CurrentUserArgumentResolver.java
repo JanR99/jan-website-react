@@ -49,11 +49,11 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
         try {
             token = jwtService.parse(authHeader.substring(JwtService.BEARER_PREFIX.length()));
         } catch (JwtException | IllegalArgumentException e) {
-            // invalid, expired or empty token
+            // invalid, expired or empty token, or an older one with the email address instead of the account id
             throw new UnauthenticatedException();
         }
 
-        User user = userRepository.getByEmail(token.email());
+        User user = userRepository.getById(token.userId());
         if (user == null) {
             // valid token, but the account no longer exists
             throw new UnauthenticatedException();
