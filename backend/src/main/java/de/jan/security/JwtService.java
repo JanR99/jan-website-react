@@ -1,5 +1,6 @@
 package de.jan.security;
 
+import de.jan.config.CloudRun;
 import de.jan.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -10,7 +11,6 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Map;
 
 @Component
 public class JwtService {
@@ -24,18 +24,21 @@ public class JwtService {
     // only for local development and tests; it is in the public repo, so tokens signed with it could be forged
     static final String DEV_SECRET = "dev-only-insecure-secret-change-me-32chars!";
 
-    private final SecretKey key = Keys.hmacShaKeyFor(secret(System.getenv()).getBytes());
+    private final SecretKey key;
+
+    public JwtService(CloudRun cloudRun) {
+        this.key = Keys.hmacShaKeyFor(secret(System.getenv("JWT_SECRET"), cloudRun.isActive()).getBytes());
+    }
 
     /**
-     * The secret for signing the tokens. Cloud Run (K_SERVICE is set) doesn't start without JWT_SECRET,
+     * The secret for signing the tokens. Cloud Run doesn't start without JWT_SECRET,
      * locally the dev secret is used when it is missing.
      */
-    static String secret(Map<String, String> env) {
-        String secret = env.get("JWT_SECRET");
-        if (secret != null) {
-            return secret;
+    static String secret(String jwtSecret, boolean onCloudRun) {
+        if (jwtSecret != null) {
+            return jwtSecret;
         }
-        if (env.get("K_SERVICE") != null) {
+        if (onCloudRun) {
             throw new IllegalStateException("JWT_SECRET is not set: the backend doesn't start on Cloud Run without it");
         }
         return DEV_SECRET;
