@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -42,6 +43,9 @@ class UserControllerTest extends ControllerTest {
     private static final String MISSING_PERMISSION = "Missing permission MANAGE_USERS";
     private static final String INVALID_CREDENTIALS = "Invalid credentials";
     private static final String INVALID_LINK = "This reset link is invalid or has expired";
+    // the same message for first and last name
+    private static final String NAME_EMPTY = "First- and Surname must not be empty";
+    private static final String NAME_TOO_LONG = "First- and Surname must be at most 100 characters long";
     private static final String PASSWORD_TOO_SHORT = "Invalid password: passwords need to be at least 8 characters long";
     private static final String LOCKOUT = "You cannot take away your own permission to manage users";
 
@@ -84,6 +88,59 @@ class UserControllerTest extends ControllerTest {
                             .content(json(Map.of("password", PASSWORD))))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Invalid email address format"));
+        }
+
+        @Test
+        void withTooLongEmail_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(emailOfLength(255), PASSWORD)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Email must be at most 254 characters long"));
+        }
+
+        @Test
+        void withEmailOf254Characters_returnsTheNewUser() throws Exception {
+            register(emailOfLength(254), PASSWORD)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.email").value(emailOfLength(254)));
+        }
+
+        @Test
+        void withoutFirstName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("email", EMAIL, "password", PASSWORD, "lastname", "Test"))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(NAME_EMPTY));
+        }
+
+        @Test
+        void withBlankLastName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "Anna", "   ")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(NAME_EMPTY));
+        }
+
+        @Test
+        void withTooLongFirstName_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "A".repeat(101), "Test")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(NAME_TOO_LONG));
+        }
+
+        @Test
+        void storesTheNamesWithoutSurroundingSpaces() throws Exception {
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(registerBody(EMAIL, "  Anna ", " Test  ")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.firstname").value("Anna"))
+                    .andExpect(jsonPath("$.lastname").value("Test"));
         }
 
         @Test
@@ -480,7 +537,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(nameBody(" ", "New")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -490,7 +547,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(Map.of("firstname", "Anna"))))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("Last name must not be empty"));
+                    .andExpect(content().string(NAME_EMPTY));
         }
 
         @Test
@@ -500,7 +557,7 @@ class UserControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(nameBody("x".repeat(101), "New")))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string("First name must be at most 100 characters long"));
+                    .andExpect(content().string(NAME_TOO_LONG));
         }
     }
 
@@ -710,6 +767,28 @@ class UserControllerTest extends ControllerTest {
 
             login(EMAIL, PASSWORD).andExpect(status().isOk());
         }
+
+        @Test
+        void afterFiveAttemptsInAMinute_returns429AndKeepsTheAccount() throws Exception {
+            User user = registered(EMAIL);
+            String bearer = bearer(user);
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                deleteAccount(bearer, "wrong-password").andExpect(status().isBadRequest());
+            }
+
+            // even the right password is rejected now
+            deleteAccount(bearer, PASSWORD)
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.message").value("Too many attempts, please try again in a minute."));
+            assertNotNull(inDatastore(() -> userRepository.getByEmail(EMAIL)));
+        }
+
+        private ResultActions deleteAccount(String bearer, String password) throws Exception {
+            return mockMvc.perform(post("/api/users/deleteAccount")
+                    .header(HttpHeaders.AUTHORIZATION, bearer)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json(Map.of("password", password))));
+        }
     }
 
     @Nested
@@ -749,56 +828,6 @@ class UserControllerTest extends ControllerTest {
                             .header(HttpHeaders.AUTHORIZATION, bearer(adminUser())))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", containsInAnyOrder("MANAGE_RECIPES", "MANAGE_TRAVEL", "MANAGE_USERS", "EXPORT_DATA", "MANAGE_FEEDBACK")));
-        }
-    }
-
-    @Nested
-    class GetUserByEmail {
-
-        @Test
-        void withoutLogin_returns401() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", EMAIL))
-                    .andExpect(status().isUnauthorized())
-                    .andExpect(content().string(NOT_LOGGED_IN));
-        }
-
-        @Test
-        void withoutPermission_returns403() throws Exception {
-            registered(EMAIL);
-
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", EMAIL)
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
-                    .andExpect(status().isForbidden())
-                    .andExpect(content().string(MISSING_PERMISSION));
-        }
-
-        @Test
-        void withPermission_returnsTheUser() throws Exception {
-            User user = registered(EMAIL);
-
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", "Anna@Example.com")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(user.getId()))
-                    .andExpect(jsonPath("$.email").value(EMAIL))
-                    .andExpect(jsonPath("$.firstname").value("Anna"))
-                    .andExpect(jsonPath("$.lastname").value("Test"))
-                    .andExpect(jsonPath("$.hashedPassword").doesNotExist());
-        }
-
-        @Test
-        void withUnknownEmail_returns204() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", "nobody@example.com")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isNoContent())
-                    .andExpect(content().string(""));
-        }
-
-        @Test
-        void withoutEmail_returns400() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isBadRequest());
         }
     }
 
@@ -969,7 +998,21 @@ class UserControllerTest extends ControllerTest {
     }
 
     private String registerBody(String email, String password) throws Exception {
-        return json(Map.of("email", email, "password", password, "firstname", "Anna", "lastname", "Test"));
+        return registerBody(email, "Anna", "Test", password);
+    }
+
+    private String registerBody(String email, String firstname, String lastname) throws Exception {
+        return registerBody(email, firstname, lastname, PASSWORD);
+    }
+
+    private String registerBody(String email, String firstname, String lastname, String password) throws Exception {
+        return json(Map.of("email", email, "password", password, "firstname", firstname, "lastname", lastname));
+    }
+
+    /** A valid email address with exactly the given length. */
+    private static String emailOfLength(int length) {
+        String domain = "@example.com";
+        return "a".repeat(length - domain.length()) + domain;
     }
 
     private ResultActions register(String email, String password) throws Exception {

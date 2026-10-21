@@ -5,8 +5,7 @@ import PageHeader from "../layout/PageHeader";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { useAuth } from "./AuthContext.tsx";
-
-const PASSWORD_MIN_LENGTH = 8;
+import { PASSWORD_MIN_LENGTH, passwordProblem } from "../../utils/password.ts";
 
 export default function PasswordResetPage() {
     const [searchParams] = useSearchParams();
@@ -23,8 +22,9 @@ export default function PasswordResetPage() {
         event.preventDefault();
         setMessage(null);
 
-        if (password.length < PASSWORD_MIN_LENGTH) {
-            setMessage(`Das Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein.`);
+        const problem = passwordProblem(password);
+        if (problem) {
+            setMessage(problem);
             return;
         }
         if (password !== confirm) {

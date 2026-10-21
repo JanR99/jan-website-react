@@ -2,6 +2,7 @@ package de.jan.backup;
 
 import de.jan.backup.BackupRepository.FolderBackup;
 import de.jan.backup.BackupRepository.RecipeBackup;
+import de.jan.config.CloudRun;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
@@ -57,17 +58,16 @@ public class RestoreRepository {
     private final ImageRepository imageRepository;
     private final TravelRepository travelRepository;
     private final ObjectMapper objectMapper;
+    private final CloudRun cloudRun;
     private final RecipeSeedMarkerDAO recipeSeedMarkerDAO = new RecipeSeedMarkerDAO();
 
-    /** Cloud Run always sets K_SERVICE. Not final, so the tests can switch it. */
-    private final boolean onCloudRun = System.getenv("K_SERVICE") != null;
-
     public RestoreRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
-                             TravelRepository travelRepository, ObjectMapper objectMapper) {
+                             TravelRepository travelRepository, ObjectMapper objectMapper, CloudRun cloudRun) {
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
         this.travelRepository = travelRepository;
         this.objectMapper = objectMapper;
+        this.cloudRun = cloudRun;
     }
 
     /**
@@ -78,7 +78,7 @@ public class RestoreRepository {
      * @param in the ZIP file; it is not closed
      */
     public RestoreResponse restore(InputStream in) throws IOException {
-        if (onCloudRun) {
+        if (cloudRun.isActive()) {
             throw new UnauthorizedException(ONLY_LOCAL);
         }
         // as a file and not from the stream: the images come before the lists that say where they belong

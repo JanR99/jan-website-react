@@ -22,8 +22,9 @@ export default defineConfig({
             // public/manifest.json stays as it is
             manifest: false,
             workbox: {
-                // the app itself; recipes, travel folders and images come from the backend, see runtimeCaching
-                globPatterns: ['**/*.{js,css,html,ico,png,woff2}', 'manifest.json'],
+                // the app itself; recipes, travel folders and images come from the backend, see runtimeCaching.
+                // Fonts: only the latin files (Inter, Fraunces); the other subsets are loaded online when a page needs them
+                globPatterns: ['**/*.{js,css,html,ico,png}', '**/*-latin-wght-normal-*.woff2', 'manifest.json'],
                 runtimeCaching: [
                     {
                         // the word lists of the games: loaded only when a game is opened, then kept for offline use

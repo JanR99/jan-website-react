@@ -39,7 +39,6 @@ public class UserController {
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
     private static final String RENEW_TOKEN = "renewToken";
-    private static final String GET_USER_BY_EMAIL = "getUserByEmail";
     private static final String SET_ROLES = "setRoles";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
@@ -143,17 +142,6 @@ public class UserController {
             @CurrentUser User user
     ) {
         return ResponseEntity.ok(List.copyOf(Authorization.permissionsOf(user)));
-    }
-
-    @Operation(operationId = GET_USER_BY_EMAIL)
-    @GetMapping("/getUserByEmail")
-    public ResponseEntity<UserDTO> getUserByEmail(
-            @CurrentUser User caller,
-            @RequestParam("email") String email
-    ) {
-        Authorization.with(caller).require(Permission.MANAGE_USERS);
-        User user = userRepository.getByEmail(email);
-        return user == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(UserDTO.from(user));
     }
 
     @Operation(operationId = LIST_USERS)

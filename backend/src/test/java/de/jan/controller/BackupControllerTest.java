@@ -3,7 +3,6 @@ package de.jan.controller;
 import de.jan.backup.BackupRepository.FolderBackup;
 import de.jan.backup.BackupRepository.RecipeBackup;
 import de.jan.backup.BackupRepository.StopBackup;
-import de.jan.backup.RestoreRepository;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.JsonNode;
 
@@ -45,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -72,9 +71,6 @@ class BackupControllerTest extends ControllerTest {
 
     @Autowired
     private FavoritesRepository favoritesRepository;
-
-    @Autowired
-    private RestoreRepository restoreRepository;
 
     @Nested
     class ExportBackup {
@@ -247,14 +243,11 @@ class BackupControllerTest extends ControllerTest {
         @Test
         void onCloudRun_returns403AndChangesNothing() throws Exception {
             storedRecipe("Pesto", JPEG, List.of());
-            ReflectionTestUtils.setField(restoreRepository, "onCloudRun", true);
-            try {
-                mockMvc.perform(restore(bearer(adminUser()), zip(emptyBackup())))
-                        .andExpect(status().isForbidden())
-                        .andExpect(content().string("A backup can only be restored on a local machine"));
-            } finally {
-                ReflectionTestUtils.setField(restoreRepository, "onCloudRun", false);
-            }
+            doReturn(true).when(cloudRun).isActive();
+
+            mockMvc.perform(restore(bearer(adminUser()), zip(emptyBackup())))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string("A backup can only be restored on a local machine"));
 
             assertEquals(List.of("Pesto"), recipeTitles());
         }

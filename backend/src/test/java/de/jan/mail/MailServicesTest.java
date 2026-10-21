@@ -23,7 +23,7 @@ class MailServicesTest {
         final List<Mail> mails = new ArrayList<>();
 
         RecordingSender() {
-            super("", "");
+            super("", "", false, null, null);
         }
 
         @Override

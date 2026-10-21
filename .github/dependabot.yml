@@ -49,3 +49,18 @@ updates:
       - dependency-name: "eclipse-temurin"
         update-types:
           - "version-update:semver-major"
+      # the build image carries the Java version in its tag (3.9-eclipse-temurin-25); Maven 3.9.x updates come with the tag anyway
+      - dependency-name: "maven"
+
+  # GitHub Actions in .github/workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

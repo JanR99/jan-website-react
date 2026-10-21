@@ -9,7 +9,7 @@ class ObjectifyConfigTest {
 
     @Test
     void withoutCloudRunAndEmulator_refusesToStart() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new ObjectifyConfig().init(null, null));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new ObjectifyConfig(new CloudRun()).init(false, null));
         assertTrue(e.getMessage().startsWith("Refusing to start"));
     }
 }

@@ -1,5 +1,6 @@
 package de.jan.mail;
 
+import de.jan.config.CloudRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class BrevoMailSender {
     private final String senderEmail;
 
     /**
-     * Mails only leave the machine on Cloud Run, which always sets K_SERVICE. Started locally
+     * Mails only leave the machine on Cloud Run. Started locally
      * (start-dev) or in tests, a mail is written to the log instead, whatever is in the .env.
      */
     private final boolean onCloudRun;
@@ -37,9 +38,10 @@ public class BrevoMailSender {
     @Autowired
     public BrevoMailSender(
             @Value("${BREVO_API_KEY:}") String apiKey,
-            @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String senderEmail
+            @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String senderEmail,
+            CloudRun cloudRun
     ) {
-        this(apiKey, senderEmail, System.getenv("K_SERVICE") != null, BREVO_API,
+        this(apiKey, senderEmail, cloudRun.isActive(), BREVO_API,
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
     }
 

@@ -5,6 +5,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.googlecode.objectify.ObjectifyService;
+import de.jan.config.CloudRun;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.controller.requests.RoleRequest;
 import de.jan.recipe.repository.RecipeRepository;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -70,6 +72,11 @@ public abstract class ControllerTest {
     @Autowired
     private RateLimiter rateLimiter;
 
+    // the real check (not on Cloud Run in tests); a test can switch it with doReturn(true).when(cloudRun).isActive(),
+    // it is reset after every test. Here in the base class, so all controller tests keep sharing one Spring context.
+    @MockitoSpyBean
+    protected CloudRun cloudRun;
+
     @BeforeEach
     void startWithEmptyDatabase() {
         Datastore datastore = ObjectifyService.factory().datastore();
@@ -89,7 +96,7 @@ public abstract class ControllerTest {
         ReflectionTestUtils.setField(recipeRepositoryForCacheReset, "cache", null);
         // same for the travel folders
         ReflectionTestUtils.setField(travelRepositoryForCacheReset, "cache", null);
-        // login, password reset, password change and registration are rate limited, counted across all tests otherwise
+        // login, password reset, password change, account deletion and registration are rate limited, counted across all tests otherwise
         ((Map<?, ?>) Objects.requireNonNull(ReflectionTestUtils.getField(rateLimiter, "windows"))).clear();
     }
 

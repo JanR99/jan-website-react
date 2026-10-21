@@ -43,17 +43,22 @@ public class ObjectifyConfig {
         KanjiStats.class
     );
 
+    private final CloudRun cloudRun;
+
+    public ObjectifyConfig(CloudRun cloudRun) {
+        this.cloudRun = cloudRun;
+    }
+
     @PostConstruct
     public void init() {
-        init(System.getenv("K_SERVICE"), System.getenv("DATASTORE_EMULATOR_HOST"));
+        init(cloudRun.isActive(), System.getenv("DATASTORE_EMULATOR_HOST"));
     }
 
     /**
-     * Refuses to start outside Cloud Run unless the Datastore emulator is configured.
-     * Cloud Run always sets K_SERVICE; the emulator setup sets DATASTORE_EMULATOR_HOST.
+     * Refuses to start outside Cloud Run unless the Datastore emulator is configured
+     * (the emulator setup sets DATASTORE_EMULATOR_HOST).
      */
-    void init(String kService, String emulatorHost) {
-        boolean onCloudRun = kService != null;
+    void init(boolean onCloudRun, String emulatorHost) {
         boolean usingEmulator = emulatorHost != null;
         if (!onCloudRun && !usingEmulator) {
             throw new IllegalStateException(

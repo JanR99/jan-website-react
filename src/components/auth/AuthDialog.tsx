@@ -4,6 +4,7 @@ import { AuthDialogMode, useAuth } from "./AuthContext.tsx";
 import Dialog from "../ui/Dialog.tsx";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
+import { passwordProblem } from "../../utils/password.ts";
 
 export default function AuthDialog() {
     const { authDialog, closeAuthDialog, login, register } = useAuth();
@@ -55,6 +56,11 @@ export default function AuthDialog() {
 
         if (mode === "register" && (!firstname.trim() || !lastname.trim())) {
             setMessage("Vorname und Nachname dürfen nicht leer sein.");
+            return;
+        }
+        const problem = mode === "register" ? passwordProblem(password) : null;
+        if (problem) {
+            setMessage(problem);
             return;
         }
 
@@ -124,6 +130,7 @@ export default function AuthDialog() {
                                     value={firstname}
                                     onChange={(e) => setFirstname(e.target.value)}
                                     autoComplete="given-name"
+                                    maxLength={100}
                                     required
                                 />
                             </label>
@@ -135,6 +142,7 @@ export default function AuthDialog() {
                                     value={lastname}
                                     onChange={(e) => setLastname(e.target.value)}
                                     autoComplete="family-name"
+                                    maxLength={100}
                                     required
                                 />
                             </label>
@@ -149,6 +157,7 @@ export default function AuthDialog() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             autoComplete="username"
+                            maxLength={254}
                             required
                         />
                     </label>
