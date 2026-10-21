@@ -61,13 +61,6 @@ export default class UserController {
         return response.body ?? [];
     }
 
-    /** undefined if there is no user with this email (the backend then answers without content) */
-    static async getUserByEmail(email: string): Promise<UserDTO | undefined> {
-        const apis = await apiClient;
-        const response: { body?: UserDTO } = await apis.user.getUserByEmail.execute({ email });
-        return response.body;
-    }
-
     static async listUsers(): Promise<UserAdminDTO[]> {
         const apis = await apiClient;
         const response: { body: UserAdminDTO[] } = await apis.user.listUsers.execute({});

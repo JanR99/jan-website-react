@@ -829,56 +829,6 @@ class UserControllerTest extends ControllerTest {
     }
 
     @Nested
-    class GetUserByEmail {
-
-        @Test
-        void withoutLogin_returns401() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", EMAIL))
-                    .andExpect(status().isUnauthorized())
-                    .andExpect(content().string(NOT_LOGGED_IN));
-        }
-
-        @Test
-        void withoutPermission_returns403() throws Exception {
-            registered(EMAIL);
-
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", EMAIL)
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
-                    .andExpect(status().isForbidden())
-                    .andExpect(content().string(MISSING_PERMISSION));
-        }
-
-        @Test
-        void withPermission_returnsTheUser() throws Exception {
-            User user = registered(EMAIL);
-
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", "Anna@Example.com")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(user.getId()))
-                    .andExpect(jsonPath("$.email").value(EMAIL))
-                    .andExpect(jsonPath("$.firstname").value("Anna"))
-                    .andExpect(jsonPath("$.lastname").value("Test"))
-                    .andExpect(jsonPath("$.hashedPassword").doesNotExist());
-        }
-
-        @Test
-        void withUnknownEmail_returns204() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail").param("email", "nobody@example.com")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isNoContent())
-                    .andExpect(content().string(""));
-        }
-
-        @Test
-        void withoutEmail_returns400() throws Exception {
-            mockMvc.perform(get("/api/users/getUserByEmail")
-                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
-                    .andExpect(status().isBadRequest());
-        }
-    }
-
-    @Nested
     class ListUsers {
 
         @Test
