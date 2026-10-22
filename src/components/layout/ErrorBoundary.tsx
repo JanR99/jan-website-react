@@ -32,7 +32,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
         return (
             <div className="container">
-                <div className="card empty-state" style={{ marginTop: 48 }} role="alert">
+                <div className="card empty-state empty-state--page" role="alert">
                     <span className="empty-state-icon"><RefreshCw size={26} /></span>
                     <h3>Etwas ist schiefgelaufen</h3>
                     <p>Die Seite konnte nicht angezeigt werden. Lade sie neu, dann sollte es wieder gehen.</p>

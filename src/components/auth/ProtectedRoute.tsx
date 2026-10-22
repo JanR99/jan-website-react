@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!isAuthenticated) {
         return (
             <div className="container">
-                <div className="card empty-state" style={{ marginTop: 48 }}>
+                <div className="card empty-state empty-state--page">
                     <span className="empty-state-icon">
                         <User size={26} />
                     </span>

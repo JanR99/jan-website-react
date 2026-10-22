@@ -15,6 +15,7 @@ import RecipeCard from './RecipeCard';
 import TravelFolderLink from './travel/TravelFolderLink';
 import CookMode from './CookMode';
 import LoadError from './ui/LoadError';
+import Spinner from './ui/Spinner';
 import RecipePrintSheet from './RecipePrintSheet';
 import { bringImportUrl, bringPageUrl } from '../utils/bring';
 import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer, ShoppingCart } from "lucide-react";
@@ -62,11 +63,11 @@ const RecipePage: React.FC = () => {
         return (
             <div className="container">
                 {loading ? (
-                    <div className="loading"><div className="spinner" /></div>
+                    <Spinner />
                 ) : error ? (
-                    <LoadError message={error} onRetry={() => void reloadRecipes()} style={{ marginTop: 48 }} />
+                    <LoadError message={error} onRetry={() => void reloadRecipes()} page />
                 ) : (
-                    <div className="card empty-state" style={{ marginTop: 48 }}>
+                    <div className="card empty-state empty-state--page">
                         <h3>Rezept nicht gefunden</h3>
                         <Link to={COOKBOOK_BASE} className="btn">Zum Kochbuch</Link>
                     </div>

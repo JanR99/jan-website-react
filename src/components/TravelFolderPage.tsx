@@ -8,6 +8,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
 import LoadError from "./ui/LoadError";
+import Spinner from "./ui/Spinner";
 import { TravelFolder } from "../types/Travel";
 import { folderRecipes, folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
@@ -58,18 +59,18 @@ export default function TravelFolderPage() {
 
     if (!folder) {
         if (loading) {
-            return <div className="container"><div className="loading"><div className="spinner" /></div></div>;
+            return <div className="container"><Spinner /></div>;
         }
         if (error) {
             return (
                 <div className="container">
-                    <LoadError message={error} onRetry={() => void reloadTravelFolders()} style={{ marginTop: 48 }} />
+                    <LoadError message={error} onRetry={() => void reloadTravelFolders()} page />
                 </div>
             );
         }
         return (
             <div className="container">
-                <div className="card empty-state" style={{ marginTop: 48 }}>
+                <div className="card empty-state empty-state--page">
                     <h3>Reise nicht gefunden</h3>
                     <Link to={TRAVEL_BASE} className="btn">Zu allen Reisen</Link>
                 </div>

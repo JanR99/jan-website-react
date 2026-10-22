@@ -8,6 +8,7 @@ import { recipePath, recipeImage } from "../../utils/recipe";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import RecipeEditor from "./RecipeEditor";
 import { ExternalLink, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import Spinner from "../ui/Spinner";
 
 type Mode = { kind: "list" } | { kind: "edit"; recipe: Recipe | null };
 
@@ -30,7 +31,7 @@ function RecipeAdmin() {
     }, [recipes, search]);
 
     if (loading) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     function openEditor(recipe: Recipe | null) {

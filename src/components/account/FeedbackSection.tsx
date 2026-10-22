@@ -7,6 +7,7 @@ import { handleApiError } from "../../controller/util/ErrorHandler";
 import { FeedbackDTO } from "../../types/feedback";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import Spinner from "../ui/Spinner";
 
 /** The feedback of the users: read it, turn it into a GitHub issue, mark it as done or delete it. */
 export default function FeedbackSection() {
@@ -39,7 +40,7 @@ function FeedbackList() {
     }
 
     if (items === null) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     return (

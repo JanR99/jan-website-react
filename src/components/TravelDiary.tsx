@@ -10,6 +10,7 @@ import PageHeader from "./layout/PageHeader";
 import TravelFolderCard from "./travel/TravelFolderCard";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
 import LoadError from "./ui/LoadError";
+import Spinner from "./ui/Spinner";
 import "../styles/Travel.css";
 
 const TravelMap = lazy(() => import("./travel/TravelMap"));
@@ -58,7 +59,7 @@ export default function TravelDiary() {
             )}
 
             {loading ? (
-                <div className="loading"><div className="spinner" /></div>
+                <Spinner />
             ) : folders.length > 0 ? (
                 <div className="destination-grid">
                     {folders.map((folder) => <TravelFolderCard key={folder.id} folder={folder} />)}

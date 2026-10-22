@@ -9,6 +9,7 @@ import KanjiMistakesList from "../games/KanjiMistakesList";
 import KanjiStatsTable from "../games/KanjiStatsTable";
 import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "../games/paths";
 import LoadError from "../ui/LoadError";
+import Spinner from "../ui/Spinner";
 
 /** The account's numbers in the games; a game shows up once it has been played. */
 export default function GamesSection() {
@@ -30,7 +31,7 @@ export default function GamesSection() {
     }
 
     if (!crossword.stats || !kanji.stats || !kanjiMistakes.mistakes || !kana.stats || !kanaMistakes.mistakes) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     const playedCrossword = crossword.stats.solved > 0 || crossword.stats.words > 0;

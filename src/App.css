@@ -319,6 +319,11 @@
     color: var(--color-text-muted);
 }
 
+/* an empty state that stands alone on a page, below the header */
+.empty-state--page {
+    margin-top: 48px;
+}
+
 .empty-state h3 {
     color: var(--color-text);
     font-size: 1.35rem;

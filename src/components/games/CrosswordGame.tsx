@@ -2,6 +2,7 @@ import { useJapaneseWords } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
+import Spinner from "../ui/Spinner";
 import CrosswordSetup from "./crossword/CrosswordSetup";
 import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
@@ -22,7 +23,7 @@ export default function CrosswordGame() {
             {failed ? (
                 <LoadError message="Die Wörter konnten nicht geladen werden." onRetry={retry} />
             ) : words === null ? (
-                <div className="loading"><div className="spinner" /></div>
+                <Spinner />
             ) : (
                 <CrosswordSetup words={words} />
             )}

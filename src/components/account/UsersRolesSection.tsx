@@ -10,6 +10,7 @@ import Avatar from "../ui/Avatar";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import Dialog from "../ui/Dialog";
 import { Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
+import Spinner from "../ui/Spinner";
 
 type RoleEdit = { role: RoleDTO | null } | null;
 
@@ -92,7 +93,7 @@ function UsersRoles() {
                 )}
 
                 {roles === null ? (
-                    <div className="loading"><div className="spinner" /></div>
+                    <Spinner />
                 ) : (
                     <ul className="role-list">
                         {roles.map((role) => (
@@ -154,7 +155,7 @@ function UsersRoles() {
                 </label>
 
                 {users === null ? (
-                    <div className="loading"><div className="spinner" /></div>
+                    <Spinner />
                 ) : filteredUsers.length === 0 ? (
                     <p className="muted recipe-admin-empty">Keine Nutzer gefunden.</p>
                 ) : (

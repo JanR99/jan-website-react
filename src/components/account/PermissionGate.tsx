@@ -3,6 +3,7 @@ import { Lock } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { Permission, PERMISSIONS } from "../../types/roles";
 import LoadError from "../ui/LoadError";
+import Spinner from "../ui/Spinner";
 
 /**
  * Shows an admin area only to users with its permission. As long as it isn't known what the user may do,
@@ -15,7 +16,7 @@ export default function PermissionGate({ permission, children }: { permission: P
         return permissionsFailed ? (
             <LoadError message="Deine Rechte konnten nicht geladen werden." onRetry={retryPermissions} />
         ) : (
-            <div className="loading"><div className="spinner" /></div>
+            <Spinner />
         );
     }
 
