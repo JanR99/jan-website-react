@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { CircleHelp, RefreshCw, RotateCcw, Trophy } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { CircleHelp, RefreshCw, RotateCcw } from "lucide-react";
 import { useKanjiStats } from "../../../hooks/useGameStats";
 import { useKanjiMistakes } from "../../../hooks/useGameMistakes";
 import type { KanjiWord } from "../../../utils/kanjiReading";
-import { useAuth } from "../../auth/AuthContext";
-import { hitRate } from "../KanjiStatsTable";
-import { GAMES_BASE, PRACTICE_PARAM } from "../paths";
+import { hitRate, roundCount } from "../../../utils/gameStats";
+import GameStatsLine from "../GameStatsLine";
+import { PRACTICE_PARAM } from "../paths";
 import KanjiRound from "./KanjiRound";
 import { LEVELS, MODES, newRound, practiceRound, wordsUpTo, type Mode } from "./rounds";
 
@@ -17,7 +17,6 @@ export default function KanjiSetup({ words }: { words: KanjiWord[] }) {
     const [round, setRound] = useState(() => newRound(words, level, mode));
     const { stats, loggedIn, record } = useKanjiStats();
     const { mistakes, reload: reloadMistakes } = useKanjiMistakes();
-    const { openAuthDialog } = useAuth();
     const [searchParams] = useSearchParams();
     // coming with ?fehler (from the account): a round of mistakes, as soon as the list is there
     const [wantsPractice, setWantsPractice] = useState(() => searchParams.has(PRACTICE_PARAM));
@@ -99,19 +98,12 @@ export default function KanjiSetup({ words }: { words: KanjiWord[] }) {
                     </p>
                 </details>
             </div>
-            <p className="crossword-stats muted">
-                {!loggedIn ? (
-                    <span>
-                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>,
-                        damit deine Runden gezählt werden.
-                    </span>
-                ) : stats && (
-                    <>
-                        <Trophy size={15} /> {stats.rounds} {stats.rounds === 1 ? "Runde" : "Runden"} · {hitRate(stats.rightWords, stats.askedWords)} richtig ·
-                        Serie {stats.currentStreak} (beste {stats.bestStreak}) · <Link to={GAMES_BASE}>mehr</Link>
-                    </>
-                )}
-            </p>
+            <GameStatsLine
+                loggedIn={loggedIn}
+                counted="deine Runden"
+                stats={stats}
+                summary={(s) => `${roundCount(s.rounds)} · ${hitRate(s.rightWords, s.askedWords)} richtig`}
+            />
             {round.words.length === 0 ? (
                 <div className="card empty-state"><p>Für dieses Niveau gibt es keine Wörter.</p></div>
             ) : (
