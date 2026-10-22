@@ -2,12 +2,6 @@ import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useAuth } from "../components/auth/AuthContext";
 import FavoritesController from "../controller/FavoritesController";
 
-try {
-    localStorage.removeItem("favoriteRecipes");
-} catch {
-    // storage not available – nothing to clean up
-}
-
 const EMPTY: number[] = [];
 
 let snapshot: number[] = EMPTY;

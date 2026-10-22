@@ -1,40 +1,13 @@
 import { Api, apiClient, apiUrl } from "./APIClient.ts";
 import { TravelFolder, TravelFolderRequest } from "../types/Travel.ts";
 
-type OptionalField = "photos" | "startMonth" | "endMonth" | "text" | "cuisine" | "stops" | "previousFolderId";
-
-/**
- * A folder as the service worker may still have it stored from an older version: without captions,
- * date, text, cuisine and stops, but with one place of its own.
- */
-type StoredTravelFolder = Omit<TravelFolder, OptionalField>
-    & Partial<Pick<TravelFolder, OptionalField>>
-    & { photoIds?: number[]; latitude?: number | null; longitude?: number | null };
-
-/** Without this, such a stored list would break the pages while offline; online the list is always the new one. */
-function fromStored({ photoIds, photos, latitude, longitude, ...folder }: StoredTravelFolder): TravelFolder {
-    const oldPlace = typeof latitude === "number" && typeof longitude === "number"
-        ? [{ name: folder.name, latitude, longitude }]
-        : [];
-    return {
-        ...folder,
-        stops: folder.stops ?? oldPlace,
-        previousFolderId: folder.previousFolderId ?? null,
-        startMonth: folder.startMonth ?? null,
-        endMonth: folder.endMonth ?? null,
-        text: folder.text ?? "",
-        cuisine: folder.cuisine ?? "",
-        photos: photos ?? (photoIds ?? []).map((id) => ({ id, caption: "" })),
-    };
-}
-
 export default class TravelController {
 
     /** @param api storedApi for the list as it was stored on an earlier visit; that fails when there is none */
     static async listFolders(api: Api = apiClient): Promise<TravelFolder[]> {
         const apis = await api;
-        const response: { body: StoredTravelFolder[] } = await apis.travel.listTravelFolders.execute({});
-        return (response.body ?? []).map(fromStored);
+        const response: { body: TravelFolder[] } = await apis.travel.listTravelFolders.execute({});
+        return response.body ?? [];
     }
 
     static async createFolder(req: TravelFolderRequest): Promise<TravelFolder> {
