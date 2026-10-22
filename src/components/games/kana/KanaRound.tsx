@@ -3,8 +3,9 @@ import { toHiragana } from "wanakana";
 import { isRightKana } from "../../../utils/kanaQuiz";
 import type { Answer } from "../kanji/rounds";
 import RomajiQuestion from "../RomajiQuestion";
+import { kanaItem } from "../readingItems";
+import RoundResult from "../RoundResult";
 import KanaFeedback from "./KanaFeedback";
-import KanaResult from "./KanaResult";
 
 /** One round: the characters one after the other, each with its solution after the answer, then the result. */
 export default function KanaRound({ kana, practice, newLabel, onNew, onFinished }: {
@@ -23,7 +24,7 @@ export default function KanaRound({ kana, practice, newLabel, onNew, onFinished 
 
     const index = showing ? answers.length - 1 : answers.length;
     if (index >= kana.length) {
-        return <KanaResult kana={kana} answers={answers} practice={practice} newLabel={newLabel} onNew={onNew} />;
+        return <RoundResult items={kana.map(kanaItem)} answers={answers} practice={practice} newLabel={newLabel} onNew={onNew} />;
     }
     const current = kana[index];
     const answer = showing ? answers[answers.length - 1] : null;
