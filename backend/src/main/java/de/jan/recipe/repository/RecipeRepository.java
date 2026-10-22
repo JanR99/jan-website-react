@@ -25,6 +25,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static de.jan.util.TextCleaner.collapse;
+
 @Component
 public class RecipeRepository {
 
@@ -255,10 +257,6 @@ public class RecipeRepository {
 
     public static String slug(String title) {
         return WHITESPACE.matcher(title.toLowerCase(Locale.ROOT)).replaceAll("-");
-    }
-
-    private static String collapse(String value) {
-        return value == null ? "" : WHITESPACE.matcher(value.trim()).replaceAll(" ");
     }
 
     private static void requireText(String value, String label, int maxLength) {

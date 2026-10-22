@@ -32,6 +32,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static de.jan.util.TextCleaner.cleanText;
+import static de.jan.util.TextCleaner.collapse;
+
 /**
  * The travel diary: folders (one per trip) and their photos. A photo is a TravelPhoto plus
  * a TravelPhotoFile with the image data.
@@ -50,11 +53,7 @@ public class TravelRepository {
     public static final int CAPTION_MAX_LENGTH = 200;
     public static final int TEXT_MAX_LENGTH = 10_000;
     public static final int MAX_STOPS = 30;
-    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final Pattern MONTH = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])");
-    private static final Pattern LINE_BREAK = Pattern.compile("\\r\\n?");
-    private static final Pattern SPACES_AT_LINE_END = Pattern.compile("[ \\t]+\\n");
-    private static final Pattern EMPTY_LINES = Pattern.compile("\\n{3,}");
     /** The sorted photos by their position, then the ones added since in the order they were added. */
     private static final Comparator<TravelPhoto> PHOTO_ORDER = Comparator
             .comparing(TravelPhoto::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
@@ -400,17 +399,6 @@ public class TravelRepository {
         return month;
     }
 
-    /** Keeps the line breaks: no spaces at the end of a line and at most one empty line between paragraphs. */
-    private static String cleanText(String value) {
-        if (value == null) {
-            return "";
-        }
-        String text = LINE_BREAK.matcher(value).replaceAll("\n");
-        text = SPACES_AT_LINE_END.matcher(text).replaceAll("\n");
-        text = EMPTY_LINES.matcher(text).replaceAll("\n\n");
-        return text.strip();
-    }
-
     /** Best effort: removes a photo whose file could not be stored. */
     private void deleteQuietly(TravelPhoto photo) {
         try {
@@ -423,10 +411,6 @@ public class TravelRepository {
 
     private void invalidateCache() {
         cache = null;
-    }
-
-    private static String collapse(String value) {
-        return value == null ? "" : WHITESPACE.matcher(value.trim()).replaceAll(" ");
     }
 
     /** NaN and infinite values are out of range as well. */
