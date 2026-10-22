@@ -46,7 +46,7 @@ public class FeedbackRepository {
 
     /** Stores the feedback of the user and mails it to the admin. */
     public FeedbackDTO submit(User user, FeedbackRequest request) {
-        String text = cleanText(request.getText());
+        String text = cleanText(request.text());
         if (text.isEmpty()) {
             throw new EntityStateException("Text must not be empty");
         }
@@ -64,7 +64,7 @@ public class FeedbackRepository {
         }
 
         String name = (collapse(user.getFirstname()) + " " + collapse(user.getLastname())).trim();
-        Feedback feedback = feedbackDAO.save(new Feedback(user.getId(), name, user.getEmail(), text, page(request.getPage()), now));
+        Feedback feedback = feedbackDAO.save(new Feedback(user.getId(), name, user.getEmail(), text, page(request.page()), now));
         feedbackMailService.send(feedback);
         return FeedbackDTO.from(feedback);
     }

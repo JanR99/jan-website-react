@@ -1,15 +1,5 @@
 package de.jan.controller.requests;
 
-public class FeedbackRequest {
-
-    private String text;
-
-    /** the page the user is on, like "/cookbook/Ramen" */
-    private String page;
-
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
-
-    public String getPage() { return page; }
-    public void setPage(String page) { this.page = page; }
+/** @param page the page the user is on, like "/cookbook/Ramen" */
+public record FeedbackRequest(String text, String page) {
 }

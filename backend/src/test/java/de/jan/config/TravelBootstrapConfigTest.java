@@ -39,9 +39,7 @@ class TravelBootstrapConfigTest extends ControllerTest {
 
     @Test
     void importsFoldersAndPhotos_andTriesTheFailedOnesAgainLater() {
-        TravelFolderRequest existing = new TravelFolderRequest();
-        existing.setName("Schon da");
-        existing.setCountry("Portugal");
+        TravelFolderRequest existing = new TravelFolderRequest("Schon da", "Portugal");
         inDatastore(() -> travelRepository.createFolder(existing));
 
         bootstrap("bootstrap/folders.json");

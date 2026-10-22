@@ -44,7 +44,7 @@ public class FavoritesController {
             @CurrentUser User user,
             @RequestBody FavoriteRequest body
     ) {
-        return ResponseEntity.ok(favoritesRepository.addFavorite(user, body.getRecipeId()));
+        return ResponseEntity.ok(favoritesRepository.addFavorite(user, body.recipeId()));
     }
 
     @Operation(operationId = REMOVE_FAVORITE)
@@ -53,6 +53,6 @@ public class FavoritesController {
             @CurrentUser User user,
             @RequestBody FavoriteRequest body
     ) {
-        return ResponseEntity.ok(favoritesRepository.removeFavorite(user, body.getRecipeId()));
+        return ResponseEntity.ok(favoritesRepository.removeFavorite(user, body.recipeId()));
     }
 }

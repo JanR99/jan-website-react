@@ -59,25 +59,25 @@ public class UserRepository {
     }
 
     public User register(RegisterRequest req) {
-        if (req.getEmail() == null || !EMAIL_PATTERN.matcher(req.getEmail()).matches()) {
+        if (req.email() == null || !EMAIL_PATTERN.matcher(req.email()).matches()) {
             throw new EntityStateException("Invalid email address format");
         }
-        if (req.getEmail().length() > EMAIL_MAX_LENGTH) {
+        if (req.email().length() > EMAIL_MAX_LENGTH) {
             throw new EntityStateException("Email must be at most " + EMAIL_MAX_LENGTH + " characters long");
         }
 
-        String firstname = validateName(req.getFirstname());
-        String lastname = validateName(req.getLastname());
+        String firstname = validateName(req.firstname());
+        String lastname = validateName(req.lastname());
 
-        validatePassword(req.getPassword());
+        validatePassword(req.password());
 
-        String email = normalizeEmail(req.getEmail());
+        String email = normalizeEmail(req.email());
 
         if (!userDAO.getByEmail(email).isEmpty()) {
             throw new EntityStateException("User with this email already exists");
         }
 
-        String hashedPassword = passwordEncoder.encode(req.getPassword());
+        String hashedPassword = passwordEncoder.encode(req.password());
         User user = new User(email, hashedPassword, firstname, lastname);
         User savedUser = save(user);
         registrationMailService.send(savedUser);
@@ -86,11 +86,11 @@ public class UserRepository {
 
     public User login(LoginRequest request) {
         String credentialsMessage = "Invalid credentials";
-        if (request.getEmail() == null || request.getPassword() == null) {
+        if (request.email() == null || request.password() == null) {
             throw new EntityStateException("Email or password is null");
         }
-        User user = getByEmail(request.getEmail());
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getHashedPassword())) {
+        User user = getByEmail(request.email());
+        if (user == null || !passwordEncoder.matches(request.password(), user.getHashedPassword())) {
             throw new EntityStateException(credentialsMessage);
         }
         return user;

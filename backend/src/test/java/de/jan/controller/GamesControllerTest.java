@@ -29,12 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class GamesControllerTest extends ControllerTest {
 
     private static CrosswordResultRequest result(String script, String level, boolean solved, int rightWords) {
-        CrosswordResultRequest result = new CrosswordResultRequest();
-        result.setScript(script);
-        result.setLevel(level);
-        result.setSolved(solved);
-        result.setRightWords(rightWords);
-        return result;
+        return new CrosswordResultRequest(script, level, solved, rightWords);
     }
 
     private void record(User user, CrosswordResultRequest result) throws Exception {
@@ -180,10 +175,7 @@ class GamesControllerTest extends ControllerTest {
     }
 
     private static KanjiResultRequest kanjiResult(String level, Boolean... answers) {
-        KanjiResultRequest result = new KanjiResultRequest();
-        result.setLevel(level);
-        result.setAnswers(answers == null ? null : List.of(answers));
-        return result;
+        return new KanjiResultRequest(level, answers == null ? null : List.of(answers), null, false);
     }
 
     private void recordKanji(User user, KanjiResultRequest result) throws Exception {
@@ -333,18 +325,12 @@ class GamesControllerTest extends ControllerTest {
 
     /** A round with the given words; a word starting with "!" was read wrong, like "!本". */
     private static KanjiResultRequest kanjiRound(String level, boolean practice, String... words) {
-        KanjiResultRequest result = new KanjiResultRequest();
-        result.setLevel(level);
-        result.setPractice(practice);
-        result.setAnswers(Arrays.stream(words).map(word -> !word.startsWith("!")).toList());
-        result.setWords(Arrays.stream(words).map(word -> {
-            KanjiResultRequest.Word entry = new KanjiResultRequest.Word();
-            entry.setWord(word.replace("!", ""));
-            entry.setReading("reading of " + entry.getWord());
-            entry.setMeaning("meaning of " + entry.getWord());
-            return entry;
-        }).toList());
-        return result;
+        return new KanjiResultRequest(level,
+                Arrays.stream(words).map(word -> !word.startsWith("!")).toList(),
+                Arrays.stream(words).map(word -> word.replace("!", ""))
+                        .map(word -> new KanjiResultRequest.Word(word, "reading of " + word, "meaning of " + word))
+                        .toList(),
+                practice);
     }
 
     @Nested
@@ -444,8 +430,8 @@ class GamesControllerTest extends ControllerTest {
 
         @Test
         void wordsNotMatchingTheAnswers_return400() throws Exception {
-            KanjiResultRequest result = kanjiRound("A1", false, "日", "月");
-            result.setAnswers(List.of(true));
+            KanjiResultRequest round = kanjiRound("A1", false, "日", "月");
+            KanjiResultRequest result = new KanjiResultRequest(round.level(), List.of(true), round.words(), round.practice());
             mockMvc.perform(post("/api/games/kanji/result")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith())
                             .contentType(MediaType.APPLICATION_JSON)
@@ -493,11 +479,8 @@ class GamesControllerTest extends ControllerTest {
 
     /** A round with the given characters; one starting with "!" was read wrong, like "!し". */
     private static KanaResultRequest kanaRound(boolean practice, String... kana) {
-        KanaResultRequest result = new KanaResultRequest();
-        result.setPractice(practice);
-        result.setAnswers(Arrays.stream(kana).map(k -> !k.startsWith("!")).toList());
-        result.setKana(Arrays.stream(kana).map(k -> k.replace("!", "")).toList());
-        return result;
+        return new KanaResultRequest(Arrays.stream(kana).map(k -> !k.startsWith("!")).toList(),
+                Arrays.stream(kana).map(k -> k.replace("!", "")).toList(), practice);
     }
 
     private void recordKana(User user, KanaResultRequest result) throws Exception {
@@ -619,8 +602,8 @@ class GamesControllerTest extends ControllerTest {
 
         @Test
         void charactersNotMatchingTheAnswers_return400() throws Exception {
-            KanaResultRequest result = kanaRound(false, "あ", "い");
-            result.setAnswers(List.of(true));
+            KanaResultRequest round = kanaRound(false, "あ", "い");
+            KanaResultRequest result = new KanaResultRequest(List.of(true), round.kana(), round.practice());
             mockMvc.perform(post("/api/games/kana/result")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith())
                             .contentType(MediaType.APPLICATION_JSON)

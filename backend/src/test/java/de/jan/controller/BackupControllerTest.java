@@ -511,23 +511,18 @@ class BackupControllerTest extends ControllerTest {
     private Recipe storedRecipe(String title, byte[] image, List<Long> relatedRecipeIds) {
         RecipeRequest request = new RecipeRequest(
                 inDatastore(() -> imageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
-                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
+                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen."), relatedRecipeIds
         );
-        request.setRelatedRecipeIds(relatedRecipeIds);
         return inDatastore(() -> recipeRepository.create(request));
     }
 
     /** A folder with stops in Tokyo and Kyoto and the Japanese cuisine if it has a country, otherwise one with nothing but its name. */
     private TravelFolderDTO storedFolder(String name, String country, String startMonth, String endMonth) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(name);
-        request.setCountry(country);
-        if (!country.isEmpty()) {
-            request.setStops(List.of(new TravelStopRequest("Tokio", 35.6762, 139.6503), new TravelStopRequest("Kyoto", 35.0116, 135.7681)));
-            request.setCuisine("japanisch");
-        }
-        request.setStartMonth(startMonth);
-        request.setEndMonth(endMonth);
+        TravelFolderRequest request = country.isEmpty()
+                ? new TravelFolderRequest(name, country, null, null, startMonth, endMonth, null)
+                : new TravelFolderRequest(name, country,
+                        List.of(new TravelStopRequest("Tokio", 35.6762, 139.6503), new TravelStopRequest("Kyoto", 35.0116, 135.7681)),
+                        null, startMonth, endMonth, "japanisch");
         return inDatastore(() -> travelRepository.createFolder(request));
     }
 

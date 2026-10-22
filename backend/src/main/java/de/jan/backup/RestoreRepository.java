@@ -200,10 +200,9 @@ public class RestoreRepository {
                 continue;
             }
             try {
-                entry.request().setPreviousFolderId(previousId);
-                travelRepository.updateFolder(entry.id(), entry.request());
+                travelRepository.updateFolder(entry.id(), entry.request().withPreviousFolderId(previousId));
             } catch (EntityStateException e) {
-                System.out.println("Restore: travel folder \"" + entry.request().getName()
+                System.out.println("Restore: travel folder \"" + entry.request().name()
                         + "\" stays without its previous folder: " + e.getMessage());
             }
         }
@@ -245,21 +244,17 @@ public class RestoreRepository {
 
     /** Everything of a folder but the folder its trip came from, which may not exist yet. */
     private static TravelFolderRequest folderRequest(FolderBackup backup) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(backup.name());
-        request.setCountry(backup.country());
+        List<TravelStopRequest> stops = null;
         if (backup.stops() != null) {
-            request.setStops(backup.stops().stream()
+            stops = backup.stops().stream()
                     .map(stop -> new TravelStopRequest(stop.name(), stop.latitude(), stop.longitude()))
-                    .toList());
+                    .toList();
         } else if (backup.latitude() != null && backup.longitude() != null) {
             // a file built like the seed data, which only knows one place per folder
-            request.setStops(List.of(new TravelStopRequest(backup.name(), backup.latitude(), backup.longitude())));
+            stops = List.of(new TravelStopRequest(backup.name(), backup.latitude(), backup.longitude()));
         }
-        request.setStartMonth(backup.startMonth());
-        request.setEndMonth(backup.endMonth());
-        request.setCuisine(backup.cuisine());
-        return request;
+        return new TravelFolderRequest(backup.name(), backup.country(), stops, null,
+                backup.startMonth(), backup.endMonth(), backup.cuisine());
     }
 
     private static ZipFile open(Path file) throws IOException {

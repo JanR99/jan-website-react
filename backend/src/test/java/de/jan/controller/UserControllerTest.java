@@ -993,11 +993,7 @@ class UserControllerTest extends ControllerTest {
     }
 
     private User registered(String email) {
-        RegisterRequest request = new RegisterRequest();
-        request.setEmail(email);
-        request.setPassword(UserControllerTest.PASSWORD);
-        request.setFirstname("Anna");
-        request.setLastname("Test");
+        RegisterRequest request = new RegisterRequest(email, UserControllerTest.PASSWORD, "Anna", "Test");
         return inDatastore(() -> userRepository.register(request));
     }
 

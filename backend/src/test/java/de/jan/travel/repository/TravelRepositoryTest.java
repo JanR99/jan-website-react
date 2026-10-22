@@ -37,9 +37,7 @@ class TravelRepositoryTest extends ControllerTest {
     private TravelRepository travelRepository;
 
     private TravelFolderDTO folder(TravelRepository repository, String name) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(name);
-        request.setCountry("Japan");
+        TravelFolderRequest request = new TravelFolderRequest(name, "Japan");
         return inDatastore(() -> repository.createFolder(request));
     }
 

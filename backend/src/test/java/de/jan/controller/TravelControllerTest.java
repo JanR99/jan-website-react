@@ -677,8 +677,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPreviousFolder_storesWhereTheTripCameFrom() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(portugal.id());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(portugal.id());
 
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -690,8 +689,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withUnknownPreviousFolder_returns400AndStoresNothing() throws Exception {
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(12345L);
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(12345L);
 
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -706,8 +704,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withItselfAsPreviousFolder_returns400() throws Exception {
             TravelFolderDTO spanien = storedFolder("Spanien", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(spanien.id());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(spanien.id());
 
             mockMvc.perform(post("/api/travel/folders/update").param("id", spanien.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -720,16 +717,13 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPreviousFolderThatComesFromThisOne_returns400AndKeepsTheRoute() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest spanienRequest = request("Spanien", "");
-            spanienRequest.setPreviousFolderId(portugal.id());
+            TravelFolderRequest spanienRequest = request("Spanien", "").withPreviousFolderId(portugal.id());
             TravelFolderDTO spanien = inDatastore(() -> travelRepository.createFolder(spanienRequest));
-            TravelFolderRequest frankreichRequest = request("Frankreich", "");
-            frankreichRequest.setPreviousFolderId(spanien.id());
+            TravelFolderRequest frankreichRequest = request("Frankreich", "").withPreviousFolderId(spanien.id());
             TravelFolderDTO frankreich = inDatastore(() -> travelRepository.createFolder(frankreichRequest));
 
             // Portugal would come from Frankreich, which comes from Spanien, which comes from Portugal
-            TravelFolderRequest request = request("Portugal", "");
-            request.setPreviousFolderId(frankreich.id());
+            TravelFolderRequest request = request("Portugal", "").withPreviousFolderId(frankreich.id());
             mockMvc.perform(post("/api/travel/folders/update").param("id", portugal.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
@@ -741,8 +735,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void deletingThePreviousFolder_removesItFromTheNextOne() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(portugal.id());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(portugal.id());
             inDatastore(() -> travelRepository.createFolder(request));
 
             mockMvc.perform(post("/api/travel/folders/delete").param("id", portugal.id().toString())
@@ -1515,18 +1508,15 @@ class TravelControllerTest extends ControllerTest {
     }
 
     private static TravelFolderRequest request(String name, String country, Double latitude, Double longitude) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(name);
-        request.setCountry(country);
+        TravelFolderRequest request = new TravelFolderRequest(name, country);
         if (latitude != null || longitude != null) {
-            request.setStops(List.of(new TravelStopRequest(name, latitude, longitude)));
+            request = request.withStops(List.of(new TravelStopRequest(name, latitude, longitude)));
         }
         return request;
     }
 
     private static TravelFolderRequest withStops(TravelFolderRequest request, TravelStopRequest... stops) {
-        request.setStops(List.of(stops));
-        return request;
+        return request.withStops(List.of(stops));
     }
 
     /** Stops named "Stopp 1", "Stopp 2", … */
@@ -1550,35 +1540,24 @@ class TravelControllerTest extends ControllerTest {
 
     /** A folder without a country and a place on the map; the months as year and month like "2024-05". */
     private static TravelFolderRequest requestWithMonths(String name, String startMonth, String endMonth) {
-        TravelFolderRequest request = request(name, "");
-        request.setStartMonth(startMonth);
-        request.setEndMonth(endMonth);
-        return request;
+        return new TravelFolderRequest(name, "", null, null, startMonth, endMonth, null);
     }
 
     /** A folder without a country and a place on the map; the cuisine like "japanisch". */
     private static TravelFolderRequest requestWithCuisine(String name, String cuisine) {
-        TravelFolderRequest request = request(name, "");
-        request.setCuisine(cuisine);
-        return request;
+        return new TravelFolderRequest(name, "", null, null, null, null, cuisine);
     }
 
     private static TravelFolderTextRequest textRequest(String text) {
-        TravelFolderTextRequest request = new TravelFolderTextRequest();
-        request.setText(text);
-        return request;
+        return new TravelFolderTextRequest(text);
     }
 
     private static TravelPhotoCaptionRequest captionRequest(String caption) {
-        TravelPhotoCaptionRequest request = new TravelPhotoCaptionRequest();
-        request.setCaption(caption);
-        return request;
+        return new TravelPhotoCaptionRequest(caption);
     }
 
     private static TravelPhotoOrderRequest orderRequest(Long... photoIds) {
-        TravelPhotoOrderRequest request = new TravelPhotoOrderRequest();
-        request.setPhotoIds(List.of(photoIds));
-        return request;
+        return new TravelPhotoOrderRequest(List.of(photoIds));
     }
 
     private TravelFolderDTO storedFolder(String name, String country) {

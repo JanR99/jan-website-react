@@ -289,10 +289,7 @@ class FeedbackControllerTest extends ControllerTest {
     }
 
     private static FeedbackRequest request(String text, String page) {
-        FeedbackRequest request = new FeedbackRequest();
-        request.setText(text);
-        request.setPage(page);
-        return request;
+        return new FeedbackRequest(text, page);
     }
 
     private FeedbackDTO storedFeedback(User user, String text) {

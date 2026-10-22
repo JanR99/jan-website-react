@@ -96,11 +96,9 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
             try {
                 TravelFolderDTO folder = byName.get(key(seed.name()));
                 if (folder == null) {
-                    TravelFolderRequest request = new TravelFolderRequest();
-                    request.setName(seed.name());
-                    request.setCountry(seed.country());
+                    TravelFolderRequest request = new TravelFolderRequest(seed.name(), seed.country());
                     if (seed.latitude() != null && seed.longitude() != null) {
-                        request.setStops(List.of(new TravelStopRequest(seed.name(), seed.latitude(), seed.longitude())));
+                        request = request.withStops(List.of(new TravelStopRequest(seed.name(), seed.latitude(), seed.longitude())));
                     }
                     folder = travelRepository.createFolder(request);
                 }

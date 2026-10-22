@@ -23,17 +23,10 @@ class KanjiStatsRepositoryTest extends ControllerTest {
     private static KanjiResultRequest wrongRound(int from, int count) {
         List<KanjiResultRequest.Word> words = new ArrayList<>();
         for (int i = from; i < from + count; i++) {
-            KanjiResultRequest.Word word = new KanjiResultRequest.Word();
-            word.setWord("字" + i);
-            word.setReading("ji");
-            word.setMeaning("character " + i);
+            KanjiResultRequest.Word word = new KanjiResultRequest.Word("字" + i, "ji", "character " + i);
             words.add(word);
         }
-        KanjiResultRequest result = new KanjiResultRequest();
-        result.setLevel("A1");
-        result.setAnswers(new ArrayList<>(Collections.nCopies(count, false)));
-        result.setWords(words);
-        return result;
+        return new KanjiResultRequest("A1", new ArrayList<>(Collections.nCopies(count, false)), words, false);
     }
 
     @Test
