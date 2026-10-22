@@ -1,4 +1,5 @@
 import type { KanjiMistake } from "../../../types/games";
+import { shuffle } from "../../../utils/chance";
 import { CEFR_LEVELS } from "../../../utils/crossword";
 import type { KanjiWord } from "../../../utils/kanjiReading";
 
@@ -35,15 +36,6 @@ const recentKanji: string[] = [];
 const RECENT_SHARE = 0.6;
 
 let nextRoundId = 1;
-
-function shuffle<T>(items: T[]): T[] {
-    const copy = [...items];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
 
 /** The words up to the level: A2 means A1 and A2. */
 export function wordsUpTo(words: KanjiWord[], level: string): KanjiWord[] {

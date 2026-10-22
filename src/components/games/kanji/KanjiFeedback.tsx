@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Check, X } from "lucide-react";
-import { otherReadings, readingAsKana, type KanjiWord } from "../../../utils/kanjiReading";
+import { KANJI, otherReadings, readingAsKana, type KanjiWord } from "../../../utils/kanjiReading";
 import SpeakButton from "../../ui/SpeakButton";
 import type { Answer, Mode } from "./rounds";
 
@@ -24,7 +24,7 @@ export default function KanjiFeedback({ word, answer, mode, allWords }: {
             </p>
             {others.length > 0 && (
                 <p className="kanji-others">
-                    <span><span lang="ja">{word.k.replace(/[^一-鿿々]/g, "")}</span> wird auch anders gelesen:</span>
+                    <span><span lang="ja">{[...word.k].filter((char) => KANJI.test(char)).join("")}</span> wird auch anders gelesen:</span>
                     <span>
                         {others.map((other, i) => (
                             <span key={other.k}>

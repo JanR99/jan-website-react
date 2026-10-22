@@ -1,4 +1,5 @@
 import { toHiragana } from "wanakana";
+import { CEFR_LEVELS } from "./crossword";
 
 /** A word of the kanji game, as in public/games/japanese-kanji.json (see scripts/build-japanese-words.ts). */
 export interface KanjiWord {
@@ -76,8 +77,9 @@ export function readingAsKana(reading: string): string {
     return toHiragana(typed.replace(/[\s-]/g, ""));
 }
 
-const KANJI = /[\u4e00-\u9fff々]/;
-const LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
+/** A kanji (CJK unified ideographs) or the repeat mark 々. */
+export const KANJI = /[\u4e00-\u9fff々]/;
+const LEVEL_ORDER: readonly string[] = CEFR_LEVELS;
 
 /** Kana without ゛ and ゜, so a sound change in compounds still counts as the same reading: ばこ (ごみ箱) as はこ. */
 const withoutMarks = (kana: string) => kana.normalize("NFD").replace(/[\u3099\u309a]/g, "");

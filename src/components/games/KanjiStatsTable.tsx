@@ -1,7 +1,7 @@
 import type { KanjiLevelStats, KanjiStats } from "../../types/games";
+import { LEVELS as STAT_LEVELS } from "./crossword/puzzles";
 import "../../styles/Games.css";
 
-const STAT_LEVELS = ["A1", "A2", "B1", "B2", "C1"];
 
 /** Right words as a share of the asked ones, in whole percent; "–" before the first word. */
 export function hitRate(right: number, asked: number): string {

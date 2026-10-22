@@ -1,5 +1,6 @@
 import { isKana, toHiragana, toKatakana, toRomaji } from "wanakana";
 import type { Script } from "../components/games/crossword/puzzles";
+import { shuffle } from "./chance";
 import { KANA_TABLE } from "./kana";
 
 /** The groups of characters to practise: the basic ones, the ones with ゛ or ゜, and combinations like きゃ. */
@@ -36,15 +37,6 @@ const recentKana: string[] = [];
 const RECENT_SHARE = 0.6;
 
 let nextRoundId = 1;
-
-function shuffle<T>(items: T[]): T[] {
-    const copy = [...items];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
 
 /** Ten characters of the pool, characters of the last rounds only when there are too few others. */
 export function newKanaRound(groups: KanaGroup[], script: Script): KanaRound {

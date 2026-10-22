@@ -1,3 +1,5 @@
+import { shuffle } from "./chance";
+
 /** A Japanese word as it comes from public/games/japanese-words.json. */
 export interface JapaneseWord {
     /** the word in hiragana or katakana, one character per square */
@@ -197,15 +199,6 @@ export function bestCrossword(
         if (crossword.entries.length >= count && shared >= count) break;
     }
     return best ?? { width: 0, height: 0, entries: [] };
-}
-
-function shuffle<T>(items: T[], random: () => number): T[] {
-    const result = [...items];
-    for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
 }
 
 /** The squares of an entry, in order. */
