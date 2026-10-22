@@ -4,10 +4,9 @@ import { useAuth } from "../auth/AuthContext";
 import PermissionsPending from "./PermissionsPending";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
-import { handleApiError } from "../../controller/util/ErrorHandler";
 import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
 import { recipePath, recipeImage } from "../../utils/recipe";
-import Dialog from "../ui/Dialog";
+import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import RecipeEditor from "./RecipeEditor";
 import { ExternalLink, Lock, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
@@ -154,45 +153,18 @@ function DeleteRecipeDialog({ recipe, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (recipe: Recipe) => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!recipe) return;
-        setBusy(true);
-        setError(null);
-        try {
-            await RecipeController.deleteRecipe(recipe.id);
-            await reloadRecipes();
-            onDeleted(recipe);
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
-        }
+        await RecipeController.deleteRecipe(recipe.id);
+        await reloadRecipes();
+        onDeleted(recipe);
     }
 
     return (
-        <Dialog open={recipe !== null} onClose={close} labelledBy="delete-recipe-title" className="confirm-dialog">
-            <h2 id="delete-recipe-title">Rezept löschen?</h2>
+        <ConfirmDeleteDialog open={recipe !== null} title="Rezept löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">
                 „{recipe?.title}“ wird dauerhaft gelöscht und aus allen Favoriten und „Passt dazu“-Verweisen entfernt.
             </p>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
-                    Abbrechen
-                </button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }

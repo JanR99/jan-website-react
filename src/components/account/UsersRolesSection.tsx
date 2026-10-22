@@ -7,6 +7,7 @@ import UserController from "../../controller/UserController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { ALL_PERMISSIONS, Permission, PERMISSIONS, RoleDTO, UserAdminDTO } from "../../types/roles";
 import Avatar from "../ui/Avatar";
+import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import Dialog from "../ui/Dialog";
 import { Lock, Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
 
@@ -292,41 +293,16 @@ function DeleteRoleDialog({ role, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (role: RoleDTO) => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!role) return;
-        setBusy(true);
-        setError(null);
-        try {
-            await RoleController.deleteRole(role.id);
-            onDeleted(role);
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
-        }
+        await RoleController.deleteRole(role.id);
+        onDeleted(role);
     }
 
     return (
-        <Dialog open={role !== null} onClose={close} labelledBy="delete-role-title" className="confirm-dialog">
-            <h2 id="delete-role-title">Rolle löschen?</h2>
+        <ConfirmDeleteDialog open={role !== null} title="Rolle löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">„{role?.name}“ wird gelöscht und allen Nutzern entzogen, die sie haben.</p>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>Abbrechen</button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }
 
