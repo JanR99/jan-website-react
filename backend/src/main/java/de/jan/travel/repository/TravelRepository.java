@@ -15,6 +15,7 @@ import de.jan.travel.TravelPhotoFileDAO;
 import de.jan.travel.TravelSeedMarker;
 import de.jan.travel.TravelSeedMarkerDAO;
 import de.jan.travel.TravelStop;
+import de.jan.util.ListCache;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -42,8 +43,6 @@ import static de.jan.util.TextCleaner.collapse;
 @Component
 public class TravelRepository {
 
-    private static final Duration CACHE_TTL = Duration.ofSeconds(60);
-
     public static final int MAX_PHOTOS_PER_FOLDER = 200;
 
     /** The browser scales photos down to about 400 KB; the entity itself may be at most 1 MiB. */
@@ -65,8 +64,7 @@ public class TravelRepository {
     private final TravelPhotoFileDAO fileDAO;
     private final TravelSeedMarkerDAO seedMarkerDAO;
 
-    private volatile List<TravelFolderDTO> cache;
-    private volatile long cachedAt;
+    private final ListCache<TravelFolderDTO> cache = new ListCache<>(Duration.ofSeconds(60));
 
     public TravelRepository() {
         this.folderDAO = new TravelFolderDAO();
@@ -77,22 +75,19 @@ public class TravelRepository {
 
     /** All folders with their photos: the newest trip first, the ones without a date after them by name. */
     public List<TravelFolderDTO> getFolders() {
-        List<TravelFolderDTO> current = cache;
-        if (current != null && System.currentTimeMillis() - cachedAt < CACHE_TTL.toMillis()) {
-            return current;
-        }
+        return cache.get(this::loadFolders);
+    }
+
+    private List<TravelFolderDTO> loadFolders() {
         Map<Long, List<TravelPhoto>> photosByFolder = photoDAO.getAll().stream()
                 .collect(Collectors.groupingBy(TravelPhoto::getFolderId));
         Collator collator = Collator.getInstance(Locale.GERMAN);
         Comparator<TravelFolder> newestFirst = Comparator.comparing(
                 TravelFolder::getStartMonth, Comparator.nullsLast(Comparator.reverseOrder()));
-        List<TravelFolderDTO> result = folderDAO.getAll().stream()
+        return folderDAO.getAll().stream()
                 .sorted(newestFirst.thenComparing(TravelFolder::getName, collator))
                 .map(folder -> toDTO(folder, photosByFolder.getOrDefault(folder.getId(), List.of())))
                 .toList();
-        cache = result;
-        cachedAt = System.currentTimeMillis();
-        return result;
     }
 
     /** One folder, read from the database and not from the cache. */
@@ -410,7 +405,7 @@ public class TravelRepository {
     }
 
     private void invalidateCache() {
-        cache = null;
+        cache.invalidate();
     }
 
     /** NaN and infinite values are out of range as well. */

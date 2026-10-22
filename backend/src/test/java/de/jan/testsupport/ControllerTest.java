@@ -17,6 +17,7 @@ import de.jan.security.RateLimiter;
 import de.jan.travel.repository.TravelRepository;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
+import de.jan.util.ListCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,9 +94,9 @@ public abstract class ControllerTest {
             datastore.delete(toDelete.toArray(new Key[0]));
         }
         // the recipe list is cached for a minute, which would leak recipes into the next test
-        ReflectionTestUtils.setField(recipeRepositoryForCacheReset, "cache", null);
+        ((ListCache<?>) Objects.requireNonNull(ReflectionTestUtils.getField(recipeRepositoryForCacheReset, "cache"))).invalidate();
         // same for the travel folders
-        ReflectionTestUtils.setField(travelRepositoryForCacheReset, "cache", null);
+        ((ListCache<?>) Objects.requireNonNull(ReflectionTestUtils.getField(travelRepositoryForCacheReset, "cache"))).invalidate();
         // login, password reset, password change, account deletion and registration are rate limited, counted across all tests otherwise
         ((Map<?, ?>) Objects.requireNonNull(ReflectionTestUtils.getField(rateLimiter, "windows"))).clear();
     }
