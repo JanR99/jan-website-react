@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { isRightReading, type KanjiWord } from "../../../utils/kanjiReading";
+import RomajiQuestion from "../RomajiQuestion";
+import { kanjiItem } from "../readingItems";
+import RoundResult from "../RoundResult";
 import ChooseQuestion from "./ChooseQuestion";
 import KanjiFeedback from "./KanjiFeedback";
-import KanjiResult from "./KanjiResult";
 import type { Answer, Mode } from "./rounds";
-import TypeQuestion from "./TypeQuestion";
 
 /** One round: the words one after the other, each with its solution after the answer, then the result. */
 export default function KanjiRound({ words, allWords, choicePool, mode, practice, newLabel, onNew, onFinished }: {
@@ -28,7 +29,7 @@ export default function KanjiRound({ words, allWords, choicePool, mode, practice
 
     const index = showing ? answers.length - 1 : answers.length;
     if (index >= words.length) {
-        return <KanjiResult words={words} answers={answers} practice={practice} newLabel={newLabel} onNew={onNew} />;
+        return <RoundResult items={words.map(kanjiItem)} answers={answers} practice={practice} newLabel={newLabel} onNew={onNew} />;
     }
     const word = words[index];
     const answer = showing ? answers[answers.length - 1] : null;
@@ -67,9 +68,10 @@ export default function KanjiRound({ words, allWords, choicePool, mode, practice
                     onNext={next}
                 />
             ) : (
-                <TypeQuestion
+                <RomajiQuestion
                     key={index}
-                    word={word}
+                    prompt={word.k}
+                    hint={word.en}
                     answer={answer}
                     last={last}
                     onAnswer={(typed) => answerWith(typed, isRightReading(typed, word.r))}

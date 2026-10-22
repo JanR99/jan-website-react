@@ -1,5 +1,4 @@
-import type { KanaScriptStats, KanaStats } from "../../types/games";
-import { hitRate } from "./KanjiStatsTable";
+import { hitRate } from "../../utils/gameStats";
 import "../../styles/Games.css";
 
 const STAT_SCRIPTS: { script: KanaScriptStats["script"]; label: string }[] = [

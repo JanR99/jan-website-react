@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { Gamepad2 } from "lucide-react";
 import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
-import { useKanaMistakes } from "../../hooks/useKanaMistakes";
-import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
+import { useKanaMistakes, useKanjiMistakes } from "../../hooks/useGameMistakes";
 import CrosswordStatsTable from "../games/CrosswordStatsTable";
-import KanaMistakesList from "../games/KanaMistakesList";
 import KanaStatsTable from "../games/KanaStatsTable";
-import KanjiMistakesList from "../games/KanjiMistakesList";
 import KanjiStatsTable from "../games/KanjiStatsTable";
-import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "../games/paths";
+import MistakesList from "../games/MistakesList";
+import { CROSSWORD_PATH, KANA_PATH, KANA_PRACTICE_PATH, KANJI_PATH, KANJI_PRACTICE_PATH } from "../games/paths";
+import { kanaItem, kanjiItem } from "../games/readingItems";
 import LoadError from "../ui/LoadError";
+import Spinner from "../ui/Spinner";
 
 /** The account's numbers in the games; a game shows up once it has been played. */
 export default function GamesSection() {
@@ -31,7 +31,7 @@ export default function GamesSection() {
     }
 
     if (!crossword.stats || !kanji.stats || !kanjiMistakes.mistakes || !kana.stats || !kanaMistakes.mistakes) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     const playedCrossword = crossword.stats.solved > 0 || crossword.stats.words > 0;
@@ -67,7 +67,12 @@ export default function GamesSection() {
                 <>
                     <KanaStatsTable stats={kana.stats} title="Kana lesen" />
                     {kanaMistakes.mistakes.length > 0 && (
-                        <KanaMistakesList mistakes={kanaMistakes.mistakes} onRemove={kanaMistakes.remove} />
+                        <MistakesList
+                            mistakes={kanaMistakes.mistakes.map(({ kana, wrong, rightInRow }) => ({ ...kanaItem(kana), wrong, rightInRow }))}
+                            intro="Zeichen, die du falsch gelesen hast. Zweimal in Folge richtig, und ein Zeichen ist wieder runter."
+                            practicePath={KANA_PRACTICE_PATH}
+                            onRemove={kanaMistakes.remove}
+                        />
                     )}
                     <p className="account-games-play">
                         <Link to={KANA_PATH} className="btn">Weiterspielen</Link>
@@ -78,7 +83,16 @@ export default function GamesSection() {
                 <>
                     <KanjiStatsTable stats={kanji.stats} title="Kanji lesen" />
                     {kanjiMistakes.mistakes.length > 0 && (
-                        <KanjiMistakesList mistakes={kanjiMistakes.mistakes} onRemove={kanjiMistakes.remove} />
+                        <MistakesList
+                            mistakes={kanjiMistakes.mistakes.map(({ word, reading, meaning, wrong, rightInRow }) => ({
+                                ...kanjiItem({ k: word, r: reading, en: meaning }),
+                                wrong,
+                                rightInRow,
+                            }))}
+                            intro="Wörter, die du falsch gelesen hast. Zweimal in Folge richtig, und ein Wort ist wieder runter."
+                            practicePath={KANJI_PRACTICE_PATH}
+                            onRemove={kanjiMistakes.remove}
+                        />
                     )}
                     <p className="account-games-play">
                         <Link to={KANJI_PATH} className="btn">Weiterspielen</Link>

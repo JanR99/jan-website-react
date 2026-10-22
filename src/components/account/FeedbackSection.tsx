@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, ExternalLink, Lock, MessageSquare, RotateCcw, Trash2 } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import { Check, ExternalLink, MessageSquare, RotateCcw, Trash2 } from "lucide-react";
+import PermissionGate from "./PermissionGate";
 import FeedbackController from "../../controller/FeedbackController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
-import { FeedbackDTO } from "../../types/feedback";
-import { PERMISSIONS } from "../../types/roles";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
-import Dialog from "../ui/Dialog";
+import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
+import Spinner from "../ui/Spinner";
 
 /** The feedback of the users: read it, turn it into a GitHub issue, mark it as done or delete it. */
 export default function FeedbackSection() {
-    const { permissions, hasPermission } = useAuth();
-    const canManage = hasPermission("MANAGE_FEEDBACK");
+    return <PermissionGate permission="MANAGE_FEEDBACK"><FeedbackList /></PermissionGate>;
+}
 
+function FeedbackList() {
     const [items, setItems] = useState<FeedbackDTO[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [toDelete, setToDelete] = useState<FeedbackDTO | null>(null);
@@ -26,8 +26,8 @@ export default function FeedbackSection() {
     }), []);
 
     useEffect(() => {
-        if (canManage) void load();
-    }, [canManage, load]);
+        void load();
+    }, [load]);
 
     async function toggleDone(feedback: FeedbackDTO) {
         setError(null);
@@ -39,27 +39,13 @@ export default function FeedbackSection() {
         }
     }
 
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!canManage) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.MANAGE_FEEDBACK}“.</p>
-            </div>
-        );
-    }
-
     if (items === null) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     return (
         <div className="account-stack">
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             {items.length === 0 ? (
                 <div className="card empty-state">
@@ -129,42 +115,15 @@ function DeleteDialog({ feedback, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: () => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!feedback) return;
-        setBusy(true);
-        setError(null);
-        try {
-            await FeedbackController.delete(feedback.id);
-            onDeleted();
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
-        }
+        await FeedbackController.delete(feedback.id);
+        onDeleted();
     }
 
     return (
-        <Dialog open={feedback !== null} onClose={close} labelledBy="delete-feedback-title" className="confirm-dialog">
-            <h2 id="delete-feedback-title">Feedback löschen?</h2>
+        <ConfirmDeleteDialog open={feedback !== null} title="Feedback löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">Das Feedback von {feedback?.userName || "Unbekannt"} wird dauerhaft gelöscht.</p>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
-                    Abbrechen
-                </button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }

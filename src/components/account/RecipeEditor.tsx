@@ -4,10 +4,11 @@ import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
-import { Recipe, RecipeRequest, RECIPE_TAGS, RecipeTag } from "../../types/Recipe";
+import { RECIPE_TAGS } from "../../config/labels";
 import { recipeImage } from "../../utils/recipe";
 import RecipeImageDropzone from "./RecipeImageDropzone";
 import { ArrowLeft, X } from "lucide-react";
+import FormError from "../ui/FormError";
 
 interface RecipeEditorProps {
     recipe: Recipe | null;
@@ -226,7 +227,7 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
                 </span>
             </div>
 
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={cancel} disabled={busy}>

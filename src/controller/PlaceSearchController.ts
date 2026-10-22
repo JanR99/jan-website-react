@@ -1,4 +1,3 @@
-import { PlaceSearchResult } from "../types/Travel.ts";
 import { parsePlaces } from "../utils/travel.ts";
 
 const SEARCH_URL = "https://nominatim.openstreetmap.org/search";

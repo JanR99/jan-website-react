@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Images } from "lucide-react";
 import TravelController from "../../controller/TravelController";
-import { TravelFolder } from "../../types/Travel";
 import { folderSubtitle, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import "../../styles/Travel.css";
 

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Recipe } from '../types/Recipe';
 import {
     capitalize, isVegan, isVegetarian, openedFromCookbook, randomRecipe, recipeByAddress, recipeImage, recipePath, recipeSlug,
 } from './recipe';

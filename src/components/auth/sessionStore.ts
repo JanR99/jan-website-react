@@ -1,5 +1,3 @@
-import { UserDTO } from "../../types/entities.ts";
-
 const STORAGE_KEY = "jan-website-session";
 const ONE_DAY = 24 * 60 * 60 * 1000;
 const EXPIRY_WARNING = 5 * 60 * 1000;

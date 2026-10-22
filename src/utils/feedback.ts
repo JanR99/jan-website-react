@@ -1,5 +1,3 @@
-import { FeedbackDTO } from "../types/feedback";
-
 export const FEEDBACK_MAX_LENGTH = 2000;
 
 const SITE_URL = "https://jan-website.de";

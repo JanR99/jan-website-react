@@ -1,6 +1,8 @@
 import { isKana, toHiragana, toKatakana, toRomaji } from "wanakana";
 import type { Script } from "../components/games/crossword/puzzles";
+import { shuffle } from "./chance";
 import { KANA_TABLE } from "./kana";
+import { recentPicks } from "./recentPicks";
 
 /** The groups of characters to practise: the basic ones, the ones with ゛ or ゜, and combinations like きゃ. */
 export type KanaGroup = "basic" | "marked" | "combo";
@@ -30,32 +32,13 @@ export interface KanaRound {
     practice: boolean;
 }
 
-/** The characters of the last rounds of this visit, oldest first; a new round takes others where it can. */
-const recentKana: string[] = [];
-/** how much of the pool is remembered as recent, so a small pool doesn't run out of characters */
-const RECENT_SHARE = 0.6;
+const recentKana = recentPicks();
 
 let nextRoundId = 1;
 
-function shuffle<T>(items: T[]): T[] {
-    const copy = [...items];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
-
 /** Ten characters of the pool, characters of the last rounds only when there are too few others. */
 export function newKanaRound(groups: KanaGroup[], script: Script): KanaRound {
-    const pool = kanaPool(groups, script);
-    const recent = new Set(recentKana);
-    const picked = [
-        ...shuffle(pool.filter((kana) => !recent.has(kana))),
-        ...shuffle(pool.filter((kana) => recent.has(kana))),
-    ].slice(0, ROUND_LENGTH);
-    recentKana.push(...picked);
-    recentKana.splice(0, Math.max(0, recentKana.length - Math.floor(pool.length * RECENT_SHARE)));
+    const picked = recentKana.pick(kanaPool(groups, script), ROUND_LENGTH, (kana) => kana);
     return { id: nextRoundId++, kana: picked, practice: false };
 }
 

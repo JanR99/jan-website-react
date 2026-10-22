@@ -2,6 +2,7 @@ import { useJapaneseKanji } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
+import Spinner from "../ui/Spinner";
 import KanjiSetup from "./kanji/KanjiSetup";
 import { GAMES_BASE } from "./paths";
 import "../../styles/Cookbook.css";
@@ -21,7 +22,7 @@ export default function KanjiGame() {
             {failed ? (
                 <LoadError message="Die Kanji konnten nicht geladen werden." onRetry={retry} />
             ) : words === null ? (
-                <div className="loading"><div className="spinner" /></div>
+                <Spinner />
             ) : (
                 <KanjiSetup words={words} />
             )}

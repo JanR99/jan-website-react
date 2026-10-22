@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { CircleHelp, RefreshCw, RotateCcw, Trophy } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { CircleHelp, RefreshCw, RotateCcw } from "lucide-react";
 import { useKanaStats } from "../../../hooks/useGameStats";
-import { useKanaMistakes } from "../../../hooks/useKanaMistakes";
+import { useKanaMistakes } from "../../../hooks/useGameMistakes";
 import { KANA_GROUPS, newKanaRound, practiceKanaRound, type KanaGroup } from "../../../utils/kanaQuiz";
-import { useAuth } from "../../auth/AuthContext";
 import { SCRIPTS, type Script } from "../crossword/puzzles";
-import { hitRate } from "../KanjiStatsTable";
-import { GAMES_BASE, PRACTICE_PARAM } from "../paths";
+import { hitRate, roundCount } from "../../../utils/gameStats";
+import GameStatsLine from "../GameStatsLine";
+import { PRACTICE_PARAM } from "../paths";
 import KanaRound from "./KanaRound";
 
 /** Script, groups of characters and the current round with the own numbers above it; a change starts a new round. */
@@ -17,7 +17,6 @@ export default function KanaSetup() {
     const [round, setRound] = useState(() => newKanaRound(groups, script));
     const { stats, loggedIn, record } = useKanaStats();
     const { mistakes, reload: reloadMistakes } = useKanaMistakes();
-    const { openAuthDialog } = useAuth();
     const [searchParams] = useSearchParams();
     // coming with ?fehler (from the account): a round of mistakes, as soon as the list is there
     const [wantsPractice, setWantsPractice] = useState(() => searchParams.has(PRACTICE_PARAM));
@@ -94,19 +93,12 @@ export default function KanaSetup() {
                     </p>
                 </details>
             </div>
-            <p className="crossword-stats muted">
-                {!loggedIn ? (
-                    <span>
-                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>,
-                        damit deine Runden gezählt werden.
-                    </span>
-                ) : stats && (
-                    <>
-                        <Trophy size={15} /> {stats.rounds} {stats.rounds === 1 ? "Runde" : "Runden"} · {hitRate(stats.rightKana, stats.askedKana)} richtig ·
-                        Serie {stats.currentStreak} (beste {stats.bestStreak}) · <Link to={GAMES_BASE}>mehr</Link>
-                    </>
-                )}
-            </p>
+            <GameStatsLine
+                loggedIn={loggedIn}
+                counted="deine Runden"
+                stats={stats}
+                summary={(s) => `${roundCount(s.rounds)} · ${hitRate(s.rightKana, s.askedKana)} richtig`}
+            />
             {round.kana.length === 0 ? (
                 <div className="card empty-state"><p>Für diese Auswahl gibt es keine Zeichen.</p></div>
             ) : (

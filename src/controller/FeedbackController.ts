@@ -1,5 +1,4 @@
 import { apiClient } from "./APIClient.ts";
-import { FeedbackDTO, FeedbackRequest } from "../types/feedback.ts";
 
 export default class FeedbackController {
 

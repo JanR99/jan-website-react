@@ -1,5 +1,4 @@
 import { apiClient, apiUrl } from "./APIClient.ts";
-import { RestoreResult } from "../types/backup.ts";
 
 /** The same shape as the errors of the API client, so handleApiError finds the message. */
 async function apiError(response: Response, what: string): Promise<Error> {

@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import L from "leaflet";
 import TravelController from "../../controller/TravelController";
-import { TravelFolder } from "../../types/Travel";
 import { crowdedFolders, folderStops, folderSubtitle, mapLayout, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
 import { zoomWithModifierWheel } from "./modifierWheelZoom";

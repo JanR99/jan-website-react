@@ -1,7 +1,6 @@
 package de.jan.image;
 
 import com.googlecode.objectify.Key;
-import de.jan.exceptions.EntityStateException;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -36,13 +35,7 @@ public class ImageRepository {
 
     /** Stores the image and returns the value for RecipeImage ("uploads/<id>"). */
     public String upload(byte[] data) {
-        if (data == null || data.length == 0) {
-            throw new EntityStateException("The image is empty");
-        }
-        if (data.length > MAX_SIZE_BYTES) {
-            throw new EntityStateException("The image must be at most " + MAX_SIZE_BYTES / 1024 + " KB");
-        }
-        ImageType type = ImageType.detect(data);
+        ImageType type = ImageType.check(data, MAX_SIZE_BYTES);
         RecipeImage saved = imageDAO.save(new RecipeImage(data, type.contentType()));
         return UPLOAD_PREFIX + saved.getId();
     }

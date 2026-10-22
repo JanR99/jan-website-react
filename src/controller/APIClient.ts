@@ -105,10 +105,6 @@ class APIClient {
         return this.token;
     }
 
-    clearToken() {
-        this.token = null;
-    }
-
     async getOperation(tag: string, operationId: string) {
         const apis = await this.apis;
 
@@ -119,10 +115,6 @@ class APIClient {
         }
 
         return apis[tag][operationId];
-    }
-
-    async getHttpMethod(tag: string, operationId: string) {
-        return (await this.getOperation(tag, operationId)).httpMethod;
     }
 
     async getPath(tag: string, operationId: string) {

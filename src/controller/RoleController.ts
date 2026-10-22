@@ -1,5 +1,4 @@
 import { apiClient } from "./APIClient.ts";
-import { RoleDTO, RoleRequest } from "../types/roles.ts";
 
 export default class RoleController {
 

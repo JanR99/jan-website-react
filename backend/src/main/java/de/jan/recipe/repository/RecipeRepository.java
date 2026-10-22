@@ -9,6 +9,7 @@ import de.jan.recipe.RecipeDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
+import de.jan.util.ListCache;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -25,14 +26,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static de.jan.util.TextCleaner.collapse;
+
 @Component
 public class RecipeRepository {
-
-    /**
-     * The list is read on every page load, so it is cached for a short time to save Datastore reads.
-     * Writes on this instance clear it right away; other Cloud Run instances catch up after the TTL.
-     */
-    private static final Duration CACHE_TTL = Duration.ofSeconds(60);
 
     private static final int TITLE_MAX_LENGTH = 150;
     private static final int SHORT_TEXT_MAX_LENGTH = 200;
@@ -47,8 +44,7 @@ public class RecipeRepository {
     private final ImageRepository imageRepository;
     private final ITemplateEngine templateEngine;
 
-    private volatile List<Recipe> cache;
-    private volatile long cachedAt;
+    private final ListCache<Recipe> cache = new ListCache<>(Duration.ofSeconds(60));
 
     public RecipeRepository(ImageRepository imageRepository, ITemplateEngine templateEngine) {
         this.recipeDAO = new RecipeDAO();
@@ -58,17 +54,14 @@ public class RecipeRepository {
     }
 
     public List<Recipe> getAll() {
-        List<Recipe> current = cache;
-        if (current != null && System.currentTimeMillis() - cachedAt < CACHE_TTL.toMillis()) {
-            return current;
-        }
+        return cache.get(this::loadAll);
+    }
+
+    private List<Recipe> loadAll() {
         Collator collator = Collator.getInstance(Locale.GERMAN);
         List<Recipe> loaded = new ArrayList<>(recipeDAO.getAll());
         loaded.sort(Comparator.comparing(Recipe::getTitle, collator));
-        List<Recipe> result = List.copyOf(loaded);
-        cache = result;
-        cachedAt = System.currentTimeMillis();
-        return result;
+        return List.copyOf(loaded);
     }
 
     public Recipe getById(Long id) {
@@ -173,7 +166,7 @@ public class RecipeRepository {
     }
 
     private void invalidateCache() {
-        cache = null;
+        cache.invalidate();
     }
 
     private void apply(Recipe recipe, RecipeRequest request, Collection<Recipe> existing) {
@@ -255,10 +248,6 @@ public class RecipeRepository {
 
     public static String slug(String title) {
         return WHITESPACE.matcher(title.toLowerCase(Locale.ROOT)).replaceAll("-");
-    }
-
-    private static String collapse(String value) {
-        return value == null ? "" : WHITESPACE.matcher(value.trim()).replaceAll(" ");
     }
 
     private static void requireText(String value, String label, int maxLength) {

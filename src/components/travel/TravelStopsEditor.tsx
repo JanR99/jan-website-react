@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { TravelPosition } from "../../types/Travel";
 import { MAX_STOPS, placeName } from "../../utils/travel";
 import TravelLocationPicker from "./TravelLocationPicker";
 

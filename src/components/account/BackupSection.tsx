@@ -1,15 +1,13 @@
 import { useRef, useState } from "react";
-import { Download, Lock, Upload } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import { Download, Upload } from "lucide-react";
+import PermissionGate from "./PermissionGate";
 import BackupController from "../../controller/BackupController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { reloadTravelFolders } from "../../hooks/useTravelFolders";
-import { RestoreResult } from "../../types/backup";
-import { PERMISSIONS } from "../../types/roles";
 import { backupFileName, fileSizeLabel, restoreProblems, restoreSummary } from "../../utils/backup";
 import Dialog from "../ui/Dialog";
+import FormError from "../ui/FormError";
 
 /** Hands a loaded file to the browser, which saves it like any other download. */
 function saveFile(file: Blob, name: string) {
@@ -29,7 +27,11 @@ function saveFile(file: Blob, name: string) {
  * and on a local machine put such a file back into the database.
  */
 export default function BackupSection() {
-    const { permissions, hasPermission } = useAuth();
+    return <PermissionGate permission="EXPORT_DATA"><BackupCard /></PermissionGate>;
+}
+
+/** The download of the backup, and on a local machine also restoring one. */
+function BackupCard() {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     /** name and size of the file that was downloaded last */
@@ -51,20 +53,6 @@ export default function BackupSection() {
         }
     }
 
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!hasPermission("EXPORT_DATA")) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.EXPORT_DATA}“.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="account-stack">
             <div className="card card-pad">
@@ -84,7 +72,7 @@ export default function BackupSection() {
                         Das Backup wird zusammengestellt. Mit allen Fotos kann das einen Moment dauern.
                     </p>
                 )}
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 {saved && (
                     <p className="form-message form-message--success profile-saved" role="status">
                         Heruntergeladen: {saved}
@@ -162,7 +150,7 @@ function RestoreCard() {
                 </p>
             )}
             {result && restoreProblems(result).map((problem) => (
-                <p key={problem} className="form-message form-message--error" role="alert">{problem}</p>
+                <FormError key={problem} message={problem} />
             ))}
 
             <Dialog open={file !== null} onClose={close} labelledBy="restore-backup-title" className="confirm-dialog">
@@ -176,7 +164,7 @@ function RestoreCard() {
                         Das Backup wird eingespielt. Mit allen Fotos kann das einen Moment dauern.
                     </p>
                 )}
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 <div className="profile-form-actions">
                     <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                         Abbrechen

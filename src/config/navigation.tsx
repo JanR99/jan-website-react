@@ -8,7 +8,6 @@ import UsersRolesSection from "../components/account/UsersRolesSection";
 import BackupSection from "../components/account/BackupSection";
 import FeedbackSection from "../components/account/FeedbackSection";
 import GamesSection from "../components/account/GamesSection";
-import type { Permission } from "../types/roles";
 import { TRAVEL_BASE } from "../utils/travel";
 import { GAMES_BASE } from "../components/games/paths";
 

@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { CircleHelp, RefreshCw, Trophy } from "lucide-react";
+import { CircleHelp, RefreshCw } from "lucide-react";
 import { useCrosswordStats } from "../../../hooks/useGameStats";
 import type { JapaneseWord } from "../../../utils/crossword";
-import { useAuth } from "../../auth/AuthContext";
-import { GAMES_BASE } from "../paths";
+import GameStatsLine from "../GameStatsLine";
 import CrosswordBoard from "./CrosswordBoard";
 import { LEVELS, newPuzzle, SCRIPTS, type Script } from "./puzzles";
 
@@ -14,7 +12,6 @@ export default function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
     const [script, setScript] = useState<Script>("hiragana");
     const [puzzle, setPuzzle] = useState(() => newPuzzle(words, level, script));
     const { stats, loggedIn, record } = useCrosswordStats();
-    const { openAuthDialog } = useAuth();
 
     const start = (nextLevel: string, nextScript: Script) => {
         setLevel(nextLevel);
@@ -53,19 +50,12 @@ export default function CrosswordSetup({ words }: { words: JapaneseWord[] }) {
                     </p>
                 </details>
             </div>
-            <p className="crossword-stats muted">
-                {!loggedIn ? (
-                    <span>
-                        <button type="button" className="crossword-stats-login" onClick={() => openAuthDialog("login")}>Melde dich an</button>,
-                        damit deine gelösten Rätsel gezählt werden.
-                    </span>
-                ) : stats && (
-                    <>
-                        <Trophy size={15} /> {stats.solved} Rätsel gelöst · {stats.words} Wörter richtig ·
-                        Serie {stats.currentStreak} (beste {stats.bestStreak}) · <Link to={GAMES_BASE}>mehr</Link>
-                    </>
-                )}
-            </p>
+            <GameStatsLine
+                loggedIn={loggedIn}
+                counted="deine gelösten Rätsel"
+                stats={stats}
+                summary={(s) => `${s.solved} Rätsel gelöst · ${s.words} Wörter richtig`}
+            />
             {puzzle.crossword.entries.length === 0 ? (
                 <div className="card empty-state"><p>Für dieses Niveau gibt es nicht genug Wörter.</p></div>
             ) : (

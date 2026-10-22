@@ -1,20 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SubmitEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import PermissionGate from "./PermissionGate";
 import RoleController from "../../controller/RoleController";
 import UserController from "../../controller/UserController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
-import { ALL_PERMISSIONS, Permission, PERMISSIONS, RoleDTO, UserAdminDTO } from "../../types/roles";
+import { ALL_PERMISSIONS, PERMISSIONS } from "../../config/labels";
 import Avatar from "../ui/Avatar";
+import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
 import Dialog from "../ui/Dialog";
-import { Lock, Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
+import Spinner from "../ui/Spinner";
 
 type RoleEdit = { role: RoleDTO | null } | null;
 
 export default function UsersRolesSection() {
-    const { user, permissions, hasPermission } = useAuth();
-    const canManage = hasPermission("MANAGE_USERS");
+    return <PermissionGate permission="MANAGE_USERS"><UsersRoles /></PermissionGate>;
+}
+
+function UsersRoles() {
+    const { user } = useAuth();
 
     const [roles, setRoles] = useState<RoleDTO[] | null>(null);
     const [users, setUsers] = useState<UserAdminDTO[] | null>(null);
@@ -40,8 +46,8 @@ export default function UsersRolesSection() {
     }, []);
 
     useEffect(() => {
-        if (canManage) load();
-    }, [canManage, load]);
+        load();
+    }, [load]);
 
     const roleById = useMemo(() => new Map((roles ?? []).map((role) => [role.id, role])), [roles]);
 
@@ -59,24 +65,10 @@ export default function UsersRolesSection() {
         load();
     }
 
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!canManage) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.MANAGE_USERS}“.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="account-stack">
             {notice && <p className="form-message form-message--success" role="status">{notice}</p>}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             {/* Rollen */}
             <div className="card card-pad">
@@ -102,7 +94,7 @@ export default function UsersRolesSection() {
                 )}
 
                 {roles === null ? (
-                    <div className="loading"><div className="spinner" /></div>
+                    <Spinner />
                 ) : (
                     <ul className="role-list">
                         {roles.map((role) => (
@@ -164,7 +156,7 @@ export default function UsersRolesSection() {
                 </label>
 
                 {users === null ? (
-                    <div className="loading"><div className="spinner" /></div>
+                    <Spinner />
                 ) : filteredUsers.length === 0 ? (
                     <p className="muted recipe-admin-empty">Keine Nutzer gefunden.</p>
                 ) : (
@@ -276,7 +268,7 @@ function RoleForm({ role, onCancel, onSaved }: {
                     </label>
                 ))}
             </fieldset>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>Abbrechen</button>
                 <button type="submit" className="btn" disabled={busy}>
@@ -292,41 +284,16 @@ function DeleteRoleDialog({ role, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (role: RoleDTO) => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!role) return;
-        setBusy(true);
-        setError(null);
-        try {
-            await RoleController.deleteRole(role.id);
-            onDeleted(role);
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
-        }
+        await RoleController.deleteRole(role.id);
+        onDeleted(role);
     }
 
     return (
-        <Dialog open={role !== null} onClose={close} labelledBy="delete-role-title" className="confirm-dialog">
-            <h2 id="delete-role-title">Rolle löschen?</h2>
+        <ConfirmDeleteDialog open={role !== null} title="Rolle löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">„{role?.name}“ wird gelöscht und allen Nutzern entzogen, die sie haben.</p>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>Abbrechen</button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }
 
@@ -382,7 +349,7 @@ function UserRolesDialog({ user, roles, onClose, onSaved }: {
                         </label>
                     ))}
                 </fieldset>
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 <div className="profile-form-actions">
                     <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>Abbrechen</button>
                     <button type="submit" className="btn" disabled={busy}>{busy ? "Speichern …" : "Speichern"}</button>

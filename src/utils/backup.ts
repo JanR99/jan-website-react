@@ -1,5 +1,3 @@
-import { RestoreResult } from "../types/backup";
-
 /** The name of a downloaded backup with the day it was made, like "jan-website-backup-2026-10-07.zip". */
 export function backupFileName(date: Date): string {
     const pad = (value: number) => String(value).padStart(2, "0");

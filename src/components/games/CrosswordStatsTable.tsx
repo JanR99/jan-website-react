@@ -1,7 +1,6 @@
-import type { CrosswordScript, CrosswordStats } from "../../types/games";
+import { LEVELS as STAT_LEVELS } from "./crossword/puzzles";
 import "../../styles/Games.css";
 
-const STAT_LEVELS = ["A1", "A2", "B1", "B2", "C1"];
 const STAT_SCRIPTS: { script: CrosswordScript; label: string }[] = [
     { script: "hiragana", label: "Hiragana" },
     { script: "katakana", label: "Katakana" },

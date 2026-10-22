@@ -1,5 +1,3 @@
-import { UserDTO } from "../../types/entities";
-
 function initials(user: UserDTO) {
     const fromName = `${user.firstname?.[0] ?? ""}${user.lastname?.[0] ?? ""}`.trim();
     return (fromName || user.email[0] || "?").toUpperCase();

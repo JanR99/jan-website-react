@@ -14,7 +14,9 @@ import java.time.Duration;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
+
+import static de.jan.util.TextCleaner.cleanText;
+import static de.jan.util.TextCleaner.collapse;
 
 /** Feedback of logged-in users: stored, mailed to the admin, read and resolved under /konto. */
 @Component
@@ -26,10 +28,6 @@ public class FeedbackRepository {
     /** a user may send this much feedback within LIMIT_WINDOW */
     public static final int LIMIT_PER_USER = 5;
     private static final Duration LIMIT_WINDOW = Duration.ofHours(1);
-
-    private static final Pattern LINE_BREAK = Pattern.compile("\\r\\n?");
-    private static final Pattern EMPTY_LINES = Pattern.compile("\\n{3,}");
-    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
     /** open ones first, the newest first within both groups */
     private static final Comparator<Feedback> ORDER = Comparator
@@ -92,15 +90,6 @@ public class FeedbackRepository {
         return feedback;
     }
 
-    /** Keeps the line breaks, at most one empty line between paragraphs. */
-    private static String cleanText(String value) {
-        if (value == null) {
-            return "";
-        }
-        String text = LINE_BREAK.matcher(value).replaceAll("\n");
-        return EMPTY_LINES.matcher(text).replaceAll("\n\n").strip();
-    }
-
     /** Only a path of this website; anything else is dropped rather than refused. */
     private static String page(String value) {
         String page = collapse(value);
@@ -108,9 +97,5 @@ public class FeedbackRepository {
             return "";
         }
         return page;
-    }
-
-    private static String collapse(String value) {
-        return value == null ? "" : WHITESPACE.matcher(value.trim()).replaceAll(" ");
     }
 }

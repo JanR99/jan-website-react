@@ -21,7 +21,7 @@ import { TRAVEL_BASE } from './utils/travel';
 
 const NotFound: React.FC = () => (
     <div className="container">
-        <div className="card empty-state" style={{ marginTop: 48 }}>
+        <div className="card empty-state empty-state--page">
             <h3>Seite nicht gefunden</h3>
             <p>Diese Seite gibt es leider nicht (mehr).</p>
             <Link to="/" className="btn">Zur Startseite</Link>

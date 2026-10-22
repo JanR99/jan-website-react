@@ -5,7 +5,7 @@ import { ACCOUNT_BASE } from "../../config/navigation";
 import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
-import { hitRate } from "./KanjiStatsTable";
+import { hitRate, roundCount } from "../../utils/gameStats";
 import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "./paths";
 import "../../styles/Games.css";
 
@@ -23,13 +23,13 @@ export default function GamesPage() {
     );
     const kanjiLine = kanji && (
         kanji.rounds > 0
-            ? `${kanji.rounds} ${kanji.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kanji.rightWords, kanji.askedWords)} richtig · Serie ${kanji.currentStreak}`
+            ? `${roundCount(kanji.rounds)} · ${hitRate(kanji.rightWords, kanji.askedWords)} richtig · Serie ${kanji.currentStreak}`
             : "Noch nicht gespielt"
     );
 
     const kanaLine = kana && (
         kana.rounds > 0
-            ? `${kana.rounds} ${kana.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kana.rightKana, kana.askedKana)} richtig · Serie ${kana.currentStreak}`
+            ? `${roundCount(kana.rounds)} · ${hitRate(kana.rightKana, kana.askedKana)} richtig · Serie ${kana.currentStreak}`
             : "Noch nicht gespielt"
     );
 

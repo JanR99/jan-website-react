@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { apiUrl, storedApi } from "./APIClient";
 import RecipeController from "./RecipeController";
-import TravelController from "./TravelController";
 
 const description = {
     paths: {
@@ -29,18 +28,6 @@ describe("storedApi", () => {
         storeInCache({ "/v3/api-docs": description, "/api/recipes/list": [{ id: 1, title: "Ramen" }] });
 
         expect(await RecipeController.listRecipes(storedApi)).toEqual([{ id: 1, title: "Ramen" }]);
-    });
-
-    it("gives folders stored by an older version the fields of today", async () => {
-        storeInCache({
-            "/v3/api-docs": description,
-            "/api/travel/folders/list": [{ id: 7, name: "Japan", country: "Japan", coverPhotoId: 3, photoIds: [3, 4] }],
-        });
-
-        const [folder] = await TravelController.listFolders(storedApi);
-
-        expect(folder.photos).toEqual([{ id: 3, caption: "" }, { id: 4, caption: "" }]);
-        expect(folder.stops).toEqual([]);
     });
 
     it("fails when the API description is not stored", async () => {

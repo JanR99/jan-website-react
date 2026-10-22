@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/auth/AuthContext";
 import GamesController from "../controller/GamesController";
-import type { CrosswordResult, CrosswordStats, KanaResult, KanaStats, KanjiResult, KanjiStats } from "../types/games";
 
 /**
  * The numbers of the logged-in user in a game, null for guests, while loading and when loading failed

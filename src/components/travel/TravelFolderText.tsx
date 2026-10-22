@@ -4,8 +4,8 @@ import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
-import { TravelFolder } from "../../types/Travel";
 import { TEXT_MAX_LENGTH, textParagraphs } from "../../utils/travel";
+import FormError from "../ui/FormError";
 
 interface TravelFolderTextProps {
     folder: TravelFolder;
@@ -70,7 +70,7 @@ function TravelTextEditor({ folder, onDone }: { folder: TravelFolder; onDone: ()
                     autoFocus
                 />
             </label>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="travel-text-editor-actions">
                 <span className="muted travel-text-count">
                     {draft.length.toLocaleString("de-DE")} / {TEXT_MAX_LENGTH.toLocaleString("de-DE")} Zeichen

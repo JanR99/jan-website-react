@@ -4,8 +4,8 @@ import { ArrowLeft, ArrowRight, GripVertical } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
-import { TravelFolder, TravelPhoto } from "../../types/Travel";
 import { moveItem, photoDescription } from "../../utils/travel";
+import FormError from "../ui/FormError";
 
 /** how far the pointer has to move before a pressed photo is dragged, in pixels */
 const DRAG_START = 6;
@@ -235,7 +235,7 @@ export default function TravelPhotoSorter({ folder, onClose }: { folder: TravelF
             </div>
 
             <div className="photo-sorter-bar">
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 <button type="button" className="btn btn-ghost btn-sm" onClick={onClose} disabled={busy}>
                     Abbrechen
                 </button>

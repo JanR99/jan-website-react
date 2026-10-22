@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { Recipe } from "../types/Recipe";
-import { TravelFolder, TravelPhoto } from "../types/Travel";
 import {
     centralStop,
     cleanCaption,

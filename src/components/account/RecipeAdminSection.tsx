@@ -1,20 +1,23 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import PermissionGate from "./PermissionGate";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
-import { handleApiError } from "../../controller/util/ErrorHandler";
-import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
+import { RECIPE_TAGS } from "../../config/labels";
 import { recipePath, recipeImage } from "../../utils/recipe";
-import Dialog from "../ui/Dialog";
+import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
 import RecipeEditor from "./RecipeEditor";
-import { ExternalLink, Lock, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ExternalLink, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import Spinner from "../ui/Spinner";
 
 type Mode = { kind: "list" } | { kind: "edit"; recipe: Recipe | null };
 
 export default function RecipeAdminSection() {
-    const { permissions } = useAuth();
+    return <PermissionGate permission="MANAGE_RECIPES"><RecipeAdmin /></PermissionGate>;
+}
+
+function RecipeAdmin() {
     const { recipes, loading, error } = useRecipes();
     const [mode, setMode] = useState<Mode>({ kind: "list" });
     const [search, setSearch] = useState("");
@@ -28,22 +31,8 @@ export default function RecipeAdminSection() {
             : recipes;
     }, [recipes, search]);
 
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
     if (loading) {
-        return <div className="loading"><div className="spinner" /></div>;
-    }
-
-    if (!permissions.includes("MANAGE_RECIPES")) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Rezepte können nur von Admins bearbeitet werden.</p>
-            </div>
-        );
+        return <Spinner />;
     }
 
     function openEditor(recipe: Recipe | null) {
@@ -87,7 +76,7 @@ export default function RecipeAdminSection() {
             </div>
 
             {notice && <p className="form-message form-message--success" role="status">{notice}</p>}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             <div className="card recipe-admin-list">
                 {filtered.length === 0 ? (
@@ -154,45 +143,18 @@ function DeleteRecipeDialog({ recipe, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (recipe: Recipe) => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!recipe) return;
-        setBusy(true);
-        setError(null);
-        try {
-            await RecipeController.deleteRecipe(recipe.id);
-            await reloadRecipes();
-            onDeleted(recipe);
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
-        }
+        await RecipeController.deleteRecipe(recipe.id);
+        await reloadRecipes();
+        onDeleted(recipe);
     }
 
     return (
-        <Dialog open={recipe !== null} onClose={close} labelledBy="delete-recipe-title" className="confirm-dialog">
-            <h2 id="delete-recipe-title">Rezept löschen?</h2>
+        <ConfirmDeleteDialog open={recipe !== null} title="Rezept löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">
                 „{recipe?.title}“ wird dauerhaft gelöscht und aus allen Favoriten und „Passt dazu“-Verweisen entfernt.
             </p>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
-                    Abbrechen
-                </button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }

@@ -1,14 +1,10 @@
-import { useRef, useState } from "react";
-import type { DragEvent, KeyboardEvent } from "react";
+import { useState } from "react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { imageInputProblem, MAX_IMAGE_INPUT_MB, useFileDrop } from "../../hooks/useFileDrop";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { resizeTravelPhoto } from "../../utils/resizeImage";
 import { ImageUp, LoaderCircle } from "lucide-react";
-
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-// only the input; every photo is scaled down before the upload
-const MAX_SIZE_MB = 60;
 
 interface Progress {
     done: number;
@@ -17,18 +13,22 @@ interface Progress {
 
 /** Lets an admin add photos to a folder: several at once, by drag & drop or from the file dialog. */
 export default function TravelPhotoDropzone({ folderId }: { folderId: number }) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [dragging, setDragging] = useState(false);
     const [progress, setProgress] = useState<Progress | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
     const uploading = progress !== null;
+    const { dragging, zoneProps, inputProps } = useFileDrop({
+        multiple: true,
+        busy: uploading,
+        onFiles: (files) => void upload(files),
+    });
 
     async function uploadOne(file: File): Promise<string | null> {
-        if (!ACCEPTED_TYPES.includes(file.type)) {
+        const problem = imageInputProblem(file);
+        if (problem === "type") {
             return "kein JPEG-, PNG- oder WebP-Bild";
         }
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            return `größer als ${MAX_SIZE_MB} MB`;
+        if (problem === "size") {
+            return `größer als ${MAX_IMAGE_INPUT_MB} MB`;
         }
         let resized;
         try {
@@ -46,7 +46,6 @@ export default function TravelPhotoDropzone({ folderId }: { folderId: number }) 
 
     /** One after the other, so the photos keep their order and the backend isn't flooded. */
     async function upload(files: File[]) {
-        if (files.length === 0 || uploading) return;
         setErrors([]);
         const failed: string[] = [];
         for (let i = 0; i < files.length; i++) {
@@ -58,35 +57,12 @@ export default function TravelPhotoDropzone({ folderId }: { folderId: number }) 
         setErrors(failed);
     }
 
-    function handleDrop(event: DragEvent) {
-        event.preventDefault();
-        setDragging(false);
-        void upload(Array.from(event.dataTransfer.files ?? []));
-    }
-
-    function handleKey(event: KeyboardEvent) {
-        if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            inputRef.current?.click();
-        }
-    }
-
     return (
         <div className="travel-upload">
             <div
                 className={`travel-dropzone${dragging ? " is-dragging" : ""}`}
-                role="button"
-                tabIndex={0}
                 aria-label="Fotos hochladen: hierher ziehen oder klicken"
-                aria-busy={uploading}
-                onClick={() => !uploading && inputRef.current?.click()}
-                onKeyDown={handleKey}
-                onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
-                onDragOver={(e) => e.preventDefault()}
-                onDragLeave={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false);
-                }}
-                onDrop={handleDrop}
+                {...zoneProps}
             >
                 {progress ? (
                     <>
@@ -100,22 +76,11 @@ export default function TravelPhotoDropzone({ folderId }: { folderId: number }) 
                         <ImageUp size={26} />
                         <span>Fotos hierher ziehen oder klicken</span>
                         <span className="travel-dropzone-hint">
-                            Mehrere auf einmal möglich · JPEG, PNG oder WebP, je max. {MAX_SIZE_MB} MB
+                            Mehrere auf einmal möglich · JPEG, PNG oder WebP, je max. {MAX_IMAGE_INPUT_MB} MB
                         </span>
                     </>
                 )}
-                <input
-                    ref={inputRef}
-                    type="file"
-                    accept={ACCEPTED_TYPES.join(",")}
-                    multiple
-                    hidden
-                    onChange={(e) => {
-                        const files = Array.from(e.target.files ?? []);
-                        e.target.value = "";
-                        void upload(files);
-                    }}
-                />
+                <input {...inputProps} />
             </div>
             {errors.length > 0 && (
                 <div className="form-message form-message--error" role="alert">

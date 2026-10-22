@@ -2,7 +2,6 @@ import { lazy, Suspense, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Search, X } from "lucide-react";
 import PlaceSearchController from "../../controller/PlaceSearchController";
-import { PlaceSearchResult, TravelPosition } from "../../types/Travel";
 
 const TravelLocationMap = lazy(() => import("./TravelLocationMap"));
 

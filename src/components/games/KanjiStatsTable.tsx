@@ -1,12 +1,7 @@
-import type { KanjiLevelStats, KanjiStats } from "../../types/games";
+import { LEVELS as STAT_LEVELS } from "./crossword/puzzles";
+import { hitRate } from "../../utils/gameStats";
 import "../../styles/Games.css";
 
-const STAT_LEVELS = ["A1", "A2", "B1", "B2", "C1"];
-
-/** Right words as a share of the asked ones, in whole percent; "–" before the first word. */
-export function hitRate(right: number, asked: number): string {
-    return asked > 0 ? `${Math.round((right / asked) * 100)} %` : "–";
-}
 
 const ROWS: { label: string; value: (entry: KanjiLevelStats) => string }[] = [
     { label: "Runden", value: (entry) => String(entry.rounds) },

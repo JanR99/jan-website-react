@@ -1,13 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import type { DragEvent, KeyboardEvent } from "react";
+import { useEffect, useState } from "react";
 import ImageController from "../../controller/ImageController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { imageInputProblem, MAX_IMAGE_INPUT_MB, useFileDrop } from "../../hooks/useFileDrop";
 import { resizeRecipeImage } from "../../utils/resizeImage";
 import { ImageUp, LoaderCircle } from "lucide-react";
-
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-// only the input; it is scaled down before the upload
-const MAX_SIZE_MB = 60;
+import FormError from "../ui/FormError";
 
 interface RecipeImageDropzoneProps {
     /** URL of the current image, null if there is none yet */
@@ -17,12 +14,14 @@ interface RecipeImageDropzoneProps {
 }
 
 export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChange }: RecipeImageDropzoneProps) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [dragging, setDragging] = useState(false);
     const [status, setStatus] = useState<"idle" | "resizing" | "uploading">("idle");
     const uploading = status !== "idle";
     const [localPreview, setLocalPreview] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const { dragging, zoneProps, inputProps } = useFileDrop({
+        busy: uploading,
+        onFiles: (files) => void upload(files[0]),
+    });
 
     // release the temporary object URL when it is replaced or the editor closes
     useEffect(() => () => {
@@ -31,12 +30,13 @@ export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChan
 
     async function upload(file: File) {
         setError(null);
-        if (!ACCEPTED_TYPES.includes(file.type)) {
+        const problem = imageInputProblem(file);
+        if (problem === "type") {
             setError("Bitte ein JPEG-, PNG- oder WebP-Bild verwenden.");
             return;
         }
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            setError(`Das Bild darf höchstens ${MAX_SIZE_MB} MB groß sein.`);
+        if (problem === "size") {
+            setError(`Das Bild darf höchstens ${MAX_IMAGE_INPUT_MB} MB groß sein.`);
             return;
         }
 
@@ -63,20 +63,6 @@ export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChan
         }
     }
 
-    function handleDrop(event: DragEvent) {
-        event.preventDefault();
-        setDragging(false);
-        const file = event.dataTransfer.files?.[0];
-        if (file && !uploading) void upload(file);
-    }
-
-    function handleKey(event: KeyboardEvent) {
-        if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            inputRef.current?.click();
-        }
-    }
-
     const shown = localPreview ?? previewUrl;
 
     return (
@@ -84,18 +70,8 @@ export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChan
             Bild
             <div
                 className={`image-dropzone${dragging ? " is-dragging" : ""}${shown ? " has-image" : ""}`}
-                role="button"
-                tabIndex={0}
                 aria-label="Bild hochladen: hierher ziehen oder klicken"
-                aria-busy={uploading}
-                onClick={() => !uploading && inputRef.current?.click()}
-                onKeyDown={handleKey}
-                onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
-                onDragOver={(e) => e.preventDefault()}
-                onDragLeave={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false);
-                }}
-                onDrop={handleDrop}
+                {...zoneProps}
             >
                 {shown && <img src={shown} alt="" />}
                 <div className="image-dropzone-overlay">
@@ -108,23 +84,13 @@ export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChan
                         <>
                             <ImageUp size={26} />
                             <span>{shown ? "Neues Bild hierher ziehen oder klicken" : "Bild hierher ziehen oder klicken"}</span>
-                            <span className="image-dropzone-hint">JPEG, PNG oder WebP, max. {MAX_SIZE_MB} MB</span>
+                            <span className="image-dropzone-hint">JPEG, PNG oder WebP, max. {MAX_IMAGE_INPUT_MB} MB</span>
                         </>
                     )}
                 </div>
-                <input
-                    ref={inputRef}
-                    type="file"
-                    accept={ACCEPTED_TYPES.join(",")}
-                    hidden
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        e.target.value = "";
-                        if (file) void upload(file);
-                    }}
-                />
+                <input {...inputProps} />
             </div>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
         </div>
     );
 }

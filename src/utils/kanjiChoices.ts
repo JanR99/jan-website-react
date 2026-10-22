@@ -1,6 +1,5 @@
-import { readingAsKana, type KanjiWord } from "./kanjiReading";
-
-const KANJI = /[一-鿿々]/;
+import { shuffle } from "./chance";
+import { KANJI, readingAsKana, type KanjiWord } from "./kanjiReading";
 
 /** The kana of a word, with a placeholder for each kanji: 高い → "＊い", お金 → "お＊". */
 const shape = (word: string) => [...word].map((char) => (KANJI.test(char) ? "＊" : char)).join("");
@@ -34,13 +33,4 @@ export function kanjiChoices(word: KanjiWord, words: KanjiWord[], random = Math.
         }
     }
     return shuffle([word, ...others], random);
-}
-
-function shuffle<T>(items: T[], random: () => number): T[] {
-    const copy = [...items];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
 }

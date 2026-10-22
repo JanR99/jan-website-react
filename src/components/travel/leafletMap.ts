@@ -1,6 +1,5 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { TravelPosition } from "../../types/Travel";
 // after the styles of Leaflet, so it can change them
 import "../../styles/TravelMap.css";
 

@@ -1,6 +1,7 @@
-import type { KanjiMistake } from "../../../types/games";
+import { shuffle } from "../../../utils/chance";
 import { CEFR_LEVELS } from "../../../utils/crossword";
 import type { KanjiWord } from "../../../utils/kanjiReading";
+import { recentPicks } from "../../../utils/recentPicks";
 
 export const ROUND_LENGTH = 10;
 /** The levels to choose from; C2 has hardly any words of its own. */
@@ -29,21 +30,9 @@ export interface Answer {
     right: boolean;
 }
 
-/** The words of the last rounds of this visit, oldest first; a new round takes others where it can. */
-const recentKanji: string[] = [];
-/** how much of the words of a level is remembered as recent, so a small level doesn't run out of words */
-const RECENT_SHARE = 0.6;
+const recentKanji = recentPicks();
 
 let nextRoundId = 1;
-
-function shuffle<T>(items: T[]): T[] {
-    const copy = [...items];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
 
 /** The words up to the level: A2 means A1 and A2. */
 export function wordsUpTo(words: KanjiWord[], level: string): KanjiWord[] {
@@ -53,14 +42,7 @@ export function wordsUpTo(words: KanjiWord[], level: string): KanjiWord[] {
 
 /** Ten words up to the level, words of the last rounds only when there are too few others. */
 export function newRound(words: KanjiWord[], level: string, mode: Mode): Round {
-    const pool = wordsUpTo(words, level);
-    const recent = new Set(recentKanji);
-    const picked = [
-        ...shuffle(pool.filter((word) => !recent.has(word.k))),
-        ...shuffle(pool.filter((word) => recent.has(word.k))),
-    ].slice(0, ROUND_LENGTH);
-    recentKanji.push(...picked.map((word) => word.k));
-    recentKanji.splice(0, Math.max(0, recentKanji.length - Math.floor(pool.length * RECENT_SHARE)));
+    const picked = recentKanji.pick(wordsUpTo(words, level), ROUND_LENGTH, (word) => word.k);
     return { id: nextRoundId++, words: picked, level, mode, practice: false };
 }
 

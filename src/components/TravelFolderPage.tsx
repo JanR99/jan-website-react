@@ -3,13 +3,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowDownUp, Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
-import { handleApiError } from "../controller/util/ErrorHandler";
 import { useHistoryOverlay } from "../hooks/useHistoryOverlay";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
 import LoadError from "./ui/LoadError";
-import { TravelFolder } from "../types/Travel";
+import Spinner from "./ui/Spinner";
 import { folderRecipes, folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import RecipeCard from "./RecipeCard";
@@ -19,7 +18,7 @@ import TravelFolderText from "./travel/TravelFolderText";
 import TravelLightbox from "./travel/TravelLightbox";
 import TravelPhotoDropzone from "./travel/TravelPhotoDropzone";
 import TravelPhotoSorter from "./travel/TravelPhotoSorter";
-import Dialog from "./ui/Dialog";
+import ConfirmDeleteDialog from "./ui/ConfirmDeleteDialog";
 import "../styles/Cookbook.css";
 import "../styles/Destination.css";
 import "../styles/Travel.css";
@@ -59,18 +58,18 @@ export default function TravelFolderPage() {
 
     if (!folder) {
         if (loading) {
-            return <div className="container"><div className="loading"><div className="spinner" /></div></div>;
+            return <div className="container"><Spinner /></div>;
         }
         if (error) {
             return (
                 <div className="container">
-                    <LoadError message={error} onRetry={() => void reloadTravelFolders()} style={{ marginTop: 48 }} />
+                    <LoadError message={error} onRetry={() => void reloadTravelFolders()} page />
                 </div>
             );
         }
         return (
             <div className="container">
-                <div className="card empty-state" style={{ marginTop: 48 }}>
+                <div className="card empty-state empty-state--page">
                     <h3>Reise nicht gefunden</h3>
                     <Link to={TRAVEL_BASE} className="btn">Zu allen Reisen</Link>
                 </div>
@@ -220,42 +219,29 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (target: DeleteTarget) => void;
 }) {
-    const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    function close() {
-        if (busy) return;
-        setError(null);
-        onClose();
-    }
-
     async function confirm() {
         if (!target) return;
-        setBusy(true);
-        setError(null);
-        try {
-            if (target.kind === "photo") {
-                await TravelController.deletePhoto(target.photoId);
-                dropTravelPhoto(folder.id, target.photoId);
-                onDeleted(target);
-            } else {
-                await TravelController.deleteFolder(folder.id);
-                // leave the page first, so it doesn't show "not found" for a moment
-                onDeleted(target);
-                dropTravelFolder(folder.id);
-            }
-        } catch (err) {
-            setError(handleApiError(err));
-        } finally {
-            setBusy(false);
+        if (target.kind === "photo") {
+            await TravelController.deletePhoto(target.photoId);
+            dropTravelPhoto(folder.id, target.photoId);
+            onDeleted(target);
+        } else {
+            await TravelController.deleteFolder(folder.id);
+            // leave the page first, so it doesn't show "not found" for a moment
+            onDeleted(target);
+            dropTravelFolder(folder.id);
         }
     }
 
     const isFolder = target?.kind === "folder";
 
     return (
-        <Dialog open={target !== null} onClose={close} labelledBy="delete-travel-title" className="confirm-dialog">
-            <h2 id="delete-travel-title">{isFolder ? "Ordner löschen?" : "Foto löschen?"}</h2>
+        <ConfirmDeleteDialog
+            open={target !== null}
+            title={isFolder ? "Ordner löschen?" : "Foto löschen?"}
+            onClose={onClose}
+            onConfirm={confirm}
+        >
             <p className="muted">
                 {isFolder
                     ? `„${folder.name}“ wird dauerhaft gelöscht${folder.photos.length > 0 ? ` – zusammen mit ${photoCountLabel(folder.photos.length)}` : ""}.`
@@ -264,15 +250,6 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
             {target?.kind === "photo" && (
                 <img className="travel-delete-preview" src={TravelController.photoUrl(target.photoId)} alt="" />
             )}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
-            <div className="profile-form-actions">
-                <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
-                    Abbrechen
-                </button>
-                <button type="button" className="btn btn-danger" onClick={confirm} disabled={busy}>
-                    {busy ? "Wird gelöscht …" : "Löschen"}
-                </button>
-            </div>
-        </Dialog>
+        </ConfirmDeleteDialog>
     );
 }

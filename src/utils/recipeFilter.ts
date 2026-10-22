@@ -1,4 +1,3 @@
-import { Recipe } from "../types/Recipe";
 import { isVegan, isVegetarian } from "./recipe";
 
 export type Diet = 'alle' | 'vegetarisch' | 'vegan';

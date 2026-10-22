@@ -19,6 +19,17 @@ public enum ImageType {
     public String extension() { return extension; }
     public String contentType() { return contentType; }
 
+    /** Refuses an empty or too large upload and anything that is not one of the allowed formats. */
+    public static ImageType check(byte[] data, long maxBytes) {
+        if (data == null || data.length == 0) {
+            throw new EntityStateException("The image is empty");
+        }
+        if (data.length > maxBytes) {
+            throw new EntityStateException("The image must be at most " + maxBytes / 1024 + " KB");
+        }
+        return detect(data);
+    }
+
     public static ImageType detect(byte[] data) {
         if (data.length >= 3 && (data[0] & 0xFF) == 0xFF && (data[1] & 0xFF) == 0xD8 && (data[2] & 0xFF) == 0xFF) {
             return JPEG;

@@ -45,34 +45,29 @@ function decode(file: File): Promise<ImageBitmap> {
  * Scales the image to at most target.maxSide on the longer side (smaller images are not enlarged)
  * and encodes it as JPEG of at most target.maxBytes: first the quality is lowered, then the size.
  */
-async function scaleDown(bitmap: ImageBitmap, target: Target, name: string): Promise<File> {
+async function scaleDown(bitmap: ImageBitmap, target: Target): Promise<File> {
     for (let side = target.maxSide; side >= 400; side = Math.round(side * 0.8)) {
         for (const quality of QUALITIES) {
             const blob = await encode(bitmap, side, quality);
             if (blob.size <= target.maxBytes) {
-                return new File([blob], name, { type: "image/jpeg" });
+                return new File([blob], "image.jpg", { type: "image/jpeg" });
             }
         }
     }
     throw new Error("Das Bild lässt sich nicht klein genug verkleinern.");
 }
 
-/** A recipe image: JPEG of at most 1600 px and 800 KB. */
-export async function resizeRecipeImage(file: File): Promise<File> {
+async function resize(file: File, target: Target): Promise<File> {
     const bitmap = await decode(file);
     try {
-        return await scaleDown(bitmap, RECIPE_IMAGE, "image.jpg");
+        return await scaleDown(bitmap, target);
     } finally {
         bitmap.close();
     }
 }
 
+/** A recipe image: JPEG of at most 1600 px and 800 KB. */
+export const resizeRecipeImage = (file: File) => resize(file, RECIPE_IMAGE);
+
 /** A travel photo: JPEG of at most 1600 px and 400 KB. */
-export async function resizeTravelPhoto(file: File): Promise<File> {
-    const bitmap = await decode(file);
-    try {
-        return await scaleDown(bitmap, TRAVEL_PHOTO, "image.jpg");
-    } finally {
-        bitmap.close();
-    }
-}
+export const resizeTravelPhoto = (file: File) => resize(file, TRAVEL_PHOTO);

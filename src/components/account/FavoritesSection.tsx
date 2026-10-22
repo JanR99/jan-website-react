@@ -3,6 +3,7 @@ import { useFavorites } from "../../hooks/useFavorites";
 import { useRecipes } from "../../hooks/useRecipes";
 import RecipeCard from "../RecipeCard";
 import { Heart } from "lucide-react";
+import Spinner from "../ui/Spinner";
 import "../../styles/Cookbook.css";
 
 export default function FavoritesSection() {
@@ -11,7 +12,7 @@ export default function FavoritesSection() {
     const favoriteRecipes = recipes.filter((r) => favorites.includes(r.id));
 
     if (loading) {
-        return <div className="loading"><div className="spinner" /></div>;
+        return <Spinner />;
     }
 
     if (favoriteRecipes.length === 0) {
