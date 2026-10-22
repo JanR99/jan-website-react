@@ -7,6 +7,7 @@ import { handleApiError } from "../controller/util/ErrorHandler";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import { FEEDBACK_MAX_LENGTH } from "../utils/feedback";
 import Dialog from "./ui/Dialog";
+import FormError from "./ui/FormError";
 
 /** Lets a logged-in user tell us what went wrong or what is missing; the current page is sent along. */
 export default function FeedbackDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -71,7 +72,7 @@ function OpenFeedbackDialog({ onClose }: { onClose: () => void }) {
                     required
                 />
             </label>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                     Abbrechen

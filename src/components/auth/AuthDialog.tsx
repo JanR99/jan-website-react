@@ -5,6 +5,7 @@ import Dialog from "../ui/Dialog.tsx";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { passwordProblem } from "../../utils/password.ts";
+import FormError from "../ui/FormError";
 
 export default function AuthDialog() {
     const { authDialog, closeAuthDialog, login, register } = useAuth();
@@ -191,11 +192,7 @@ export default function AuthDialog() {
                         </div>
                     )}
 
-                    {message && (
-                        <p className="form-message form-message--error" role="alert">
-                            {message}
-                        </p>
-                    )}
+                    <FormError message={message} />
 
                     <button type="submit" className="btn btn-block" disabled={busy}>
                         {busy ? "Bitte warten …" : submitLabel}

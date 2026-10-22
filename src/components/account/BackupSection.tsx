@@ -8,6 +8,7 @@ import { reloadTravelFolders } from "../../hooks/useTravelFolders";
 import { RestoreResult } from "../../types/backup";
 import { backupFileName, fileSizeLabel, restoreProblems, restoreSummary } from "../../utils/backup";
 import Dialog from "../ui/Dialog";
+import FormError from "../ui/FormError";
 
 /** Hands a loaded file to the browser, which saves it like any other download. */
 function saveFile(file: Blob, name: string) {
@@ -72,7 +73,7 @@ function BackupCard() {
                         Das Backup wird zusammengestellt. Mit allen Fotos kann das einen Moment dauern.
                     </p>
                 )}
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 {saved && (
                     <p className="form-message form-message--success profile-saved" role="status">
                         Heruntergeladen: {saved}
@@ -150,7 +151,7 @@ function RestoreCard() {
                 </p>
             )}
             {result && restoreProblems(result).map((problem) => (
-                <p key={problem} className="form-message form-message--error" role="alert">{problem}</p>
+                <FormError key={problem} message={problem} />
             ))}
 
             <Dialog open={file !== null} onClose={close} labelledBy="restore-backup-title" className="confirm-dialog">
@@ -164,7 +165,7 @@ function RestoreCard() {
                         Das Backup wird eingespielt. Mit allen Fotos kann das einen Moment dauern.
                     </p>
                 )}
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 <div className="profile-form-actions">
                     <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                         Abbrechen

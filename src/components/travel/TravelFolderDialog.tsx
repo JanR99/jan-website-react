@@ -8,6 +8,7 @@ import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import { TravelFolder } from "../../types/Travel";
 import { folderCountry, toMonth } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
+import FormError from "../ui/FormError";
 import TravelMonthField, { monthInput } from "./TravelMonthField";
 import TravelStopsEditor, { StopDraft } from "./TravelStopsEditor";
 
@@ -162,7 +163,7 @@ function OpenTravelFolderDialog({ folder, onClose, onSaved }: Omit<TravelFolderD
                 onChange={setStops}
                 suggestion={[name.trim(), folderCountry({ name, country })].filter(Boolean).join(", ")}
             />
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                     Abbrechen

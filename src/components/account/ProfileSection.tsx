@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useFavorites } from "../../hooks/useFavorites";
 import Dialog from "../ui/Dialog";
+import FormError from "../ui/FormError";
 import { BookOpen, Heart, KeyRound, Pencil, Trash2 } from "lucide-react";
 import { PASSWORD_MIN_LENGTH, passwordProblem } from "../../utils/password";
 
@@ -126,9 +127,7 @@ function PersonalDataCard() {
                     </div>
                     <p className="muted profile-form-hint">Die E-Mail-Adresse kann nicht geändert werden.</p>
 
-                    {error && (
-                        <p className="form-message form-message--error" role="alert">{error}</p>
-                    )}
+                    <FormError message={error} />
 
                     <div className="profile-form-actions">
                         <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)} disabled={busy}>
@@ -263,9 +262,7 @@ function PasswordCard() {
                         Mindestens {PASSWORD_MIN_LENGTH} Zeichen. Auf allen anderen Geräten wirst du danach abgemeldet.
                     </p>
 
-                    {error && (
-                        <p className="form-message form-message--error" role="alert">{error}</p>
-                    )}
+                    <FormError message={error} />
 
                     <div className="profile-form-actions">
                         <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)} disabled={busy}>
@@ -352,9 +349,7 @@ function DangerZoneCard() {
                         />
                     </label>
 
-                    {error && (
-                        <p className="form-message form-message--error" role="alert">{error}</p>
-                    )}
+                    <FormError message={error} />
 
                     <div className="profile-form-actions">
                         <button type="button" className="btn btn-ghost" onClick={closeDialog} disabled={busy}>

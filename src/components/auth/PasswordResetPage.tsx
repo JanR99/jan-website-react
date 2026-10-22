@@ -6,6 +6,7 @@ import UserController from "../../controller/UserController.ts";
 import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { useAuth } from "./AuthContext.tsx";
 import { PASSWORD_MIN_LENGTH, passwordProblem } from "../../utils/password.ts";
+import FormError from "../ui/FormError";
 
 export default function PasswordResetPage() {
     const [searchParams] = useSearchParams();
@@ -49,9 +50,7 @@ export default function PasswordResetPage() {
 
             <div className="card card-pad password-reset-card">
                 {!token ? (
-                    <p className="form-message form-message--error" role="alert">
-                        Dieser Link ist unvollständig. Fordere bitte über „Passwort vergessen?“ einen neuen an.
-                    </p>
+                    <FormError message="Dieser Link ist unvollständig. Fordere bitte über „Passwort vergessen?“ einen neuen an." />
                 ) : done ? (
                     <div className="auth-form">
                         <p className="form-message form-message--success" role="status">
@@ -87,11 +86,7 @@ export default function PasswordResetPage() {
                             />
                         </label>
 
-                        {message && (
-                            <p className="form-message form-message--error" role="alert">
-                                {message}
-                            </p>
-                        )}
+                        <FormError message={message} />
 
                         <button type="submit" className="btn btn-block" disabled={busy}>
                             {busy ? "Bitte warten …" : "Passwort speichern"}

@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import type { ReactNode } from "react";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import Dialog from "./Dialog";
+import FormError from "./FormError";
 
 interface ConfirmDeleteDialogProps {
     open: boolean;
@@ -41,7 +42,7 @@ export default function ConfirmDeleteDialog({ open, title, onClose, onConfirm, c
         <Dialog open={open} onClose={close} labelledBy={titleId} className="confirm-dialog">
             <h2 id={titleId}>{title}</h2>
             {children}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>
                     Abbrechen

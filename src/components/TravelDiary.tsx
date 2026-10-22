@@ -10,6 +10,7 @@ import PageHeader from "./layout/PageHeader";
 import TravelFolderCard from "./travel/TravelFolderCard";
 import TravelFolderDialog from "./travel/TravelFolderDialog";
 import LoadError from "./ui/LoadError";
+import FormError from "./ui/FormError";
 import Spinner from "./ui/Spinner";
 import "../styles/Travel.css";
 
@@ -50,7 +51,7 @@ export default function TravelDiary() {
             </PageHeader>
 
             {/* a failed reload while the folders are shown; without folders the card below says it */}
-            {error && folders.length > 0 && <p className="form-message form-message--error" role="alert">{error}</p>}
+            {folders.length > 0 && <FormError message={error} />}
 
             {online && onMap.length > 0 && (
                 <Suspense fallback={<div className="travel-map" aria-hidden="true" />}>

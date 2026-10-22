@@ -8,6 +8,7 @@ import { handleApiError } from "../../controller/util/ErrorHandler";
 import { ALL_PERMISSIONS, Permission, PERMISSIONS, RoleDTO, UserAdminDTO } from "../../types/roles";
 import Avatar from "../ui/Avatar";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
 import Dialog from "../ui/Dialog";
 import { Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
 import Spinner from "../ui/Spinner";
@@ -67,7 +68,7 @@ function UsersRoles() {
     return (
         <div className="account-stack">
             {notice && <p className="form-message form-message--success" role="status">{notice}</p>}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             {/* Rollen */}
             <div className="card card-pad">
@@ -267,7 +268,7 @@ function RoleForm({ role, onCancel, onSaved }: {
                     </label>
                 ))}
             </fieldset>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
             <div className="profile-form-actions">
                 <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>Abbrechen</button>
                 <button type="submit" className="btn" disabled={busy}>
@@ -348,7 +349,7 @@ function UserRolesDialog({ user, roles, onClose, onSaved }: {
                         </label>
                     ))}
                 </fieldset>
-                {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+                <FormError message={error} />
                 <div className="profile-form-actions">
                     <button type="button" className="btn btn-ghost" onClick={close} disabled={busy}>Abbrechen</button>
                     <button type="submit" className="btn" disabled={busy}>{busy ? "Speichern …" : "Speichern"}</button>

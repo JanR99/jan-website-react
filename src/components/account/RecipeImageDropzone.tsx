@@ -4,6 +4,7 @@ import { handleApiError } from "../../controller/util/ErrorHandler";
 import { imageInputProblem, MAX_IMAGE_INPUT_MB, useFileDrop } from "../../hooks/useFileDrop";
 import { resizeRecipeImage } from "../../utils/resizeImage";
 import { ImageUp, LoaderCircle } from "lucide-react";
+import FormError from "../ui/FormError";
 
 interface RecipeImageDropzoneProps {
     /** URL of the current image, null if there is none yet */
@@ -89,7 +90,7 @@ export default function RecipeImageDropzone({ previewUrl, onUploaded, onBusyChan
                 </div>
                 <input {...inputProps} />
             </div>
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
         </div>
     );
 }

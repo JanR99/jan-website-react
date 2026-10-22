@@ -6,6 +6,7 @@ import RecipeController from "../../controller/RecipeController";
 import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
 import { recipePath, recipeImage } from "../../utils/recipe";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
 import RecipeEditor from "./RecipeEditor";
 import { ExternalLink, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import Spinner from "../ui/Spinner";
@@ -75,7 +76,7 @@ function RecipeAdmin() {
             </div>
 
             {notice && <p className="form-message form-message--success" role="status">{notice}</p>}
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             <div className="card recipe-admin-list">
                 {filtered.length === 0 ? (

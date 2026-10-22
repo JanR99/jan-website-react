@@ -7,6 +7,7 @@ import { handleApiError } from "../../controller/util/ErrorHandler";
 import { FeedbackDTO } from "../../types/feedback";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
+import FormError from "../ui/FormError";
 import Spinner from "../ui/Spinner";
 
 /** The feedback of the users: read it, turn it into a GitHub issue, mark it as done or delete it. */
@@ -45,7 +46,7 @@ function FeedbackList() {
 
     return (
         <div className="account-stack">
-            {error && <p className="form-message form-message--error" role="alert">{error}</p>}
+            <FormError message={error} />
 
             {items.length === 0 ? (
                 <div className="card empty-state">
