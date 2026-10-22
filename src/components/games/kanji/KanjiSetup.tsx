@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleHelp, RefreshCw, RotateCcw, Trophy } from "lucide-react";
 import { useKanjiStats } from "../../../hooks/useGameStats";
-import { useKanjiMistakes } from "../../../hooks/useKanjiMistakes";
+import { useKanjiMistakes } from "../../../hooks/useGameMistakes";
 import type { KanjiWord } from "../../../utils/kanjiReading";
 import { useAuth } from "../../auth/AuthContext";
 import { hitRate } from "../KanjiStatsTable";

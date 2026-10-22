@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Gamepad2 } from "lucide-react";
 import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
-import { useKanaMistakes } from "../../hooks/useKanaMistakes";
-import { useKanjiMistakes } from "../../hooks/useKanjiMistakes";
+import { useKanaMistakes, useKanjiMistakes } from "../../hooks/useGameMistakes";
 import CrosswordStatsTable from "../games/CrosswordStatsTable";
 import KanaMistakesList from "../games/KanaMistakesList";
 import KanaStatsTable from "../games/KanaStatsTable";

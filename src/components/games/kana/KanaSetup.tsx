@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CircleHelp, RefreshCw, RotateCcw, Trophy } from "lucide-react";
 import { useKanaStats } from "../../../hooks/useGameStats";
-import { useKanaMistakes } from "../../../hooks/useKanaMistakes";
+import { useKanaMistakes } from "../../../hooks/useGameMistakes";
 import { KANA_GROUPS, newKanaRound, practiceKanaRound, type KanaGroup } from "../../../utils/kanaQuiz";
 import { useAuth } from "../../auth/AuthContext";
 import { SCRIPTS, type Script } from "../crossword/puzzles";
