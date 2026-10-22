@@ -81,7 +81,7 @@ class RecipeRepositoryTest extends ControllerTest {
 
         Recipe updated = inDatastore(() -> recipeRepository.update(pesto.getId(), update));
 
-        assertEquals(update.getImage(), updated.getImage());
+        assertEquals(update.image(), updated.getImage());
         assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pesto.getImage()))));
         assertNotNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(updated.getImage()))));
     }
@@ -106,13 +106,11 @@ class RecipeRepositoryTest extends ControllerTest {
     @Test
     void passtDazu_leavesOutEmptyEntriesAndTheRecipeItself_andRejectsUnknownOnes() {
         Recipe pesto = stored("Pesto");
-        RecipeRequest itself = request("Pesto");
-        itself.setRelatedRecipeIds(Arrays.asList(null, pesto.getId()));
+        RecipeRequest itself = request("Pesto", 2, List.of("200 g Mehl"), Arrays.asList(null, pesto.getId()));
 
         assertTrue(inDatastore(() -> recipeRepository.update(pesto.getId(), itself)).getRelatedRecipeIds().isEmpty());
 
-        RecipeRequest unknown = request("Pasta");
-        unknown.setRelatedRecipeIds(List.of(999_999L));
+        RecipeRequest unknown = request("Pasta", 2, List.of("200 g Mehl"), List.of(999_999L));
         assertEquals("Related recipe 999999 does not exist", rejected(unknown));
     }
 
