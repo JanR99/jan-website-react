@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/auth/AuthContext";
 import GamesController from "../controller/GamesController";
-import type { CrosswordResult, CrosswordStats, KanjiResult, KanjiStats } from "../types/games";
+import type { CrosswordResult, CrosswordStats, KanaResult, KanaStats, KanjiResult, KanjiStats } from "../types/games";
 
 /**
  * The numbers of the logged-in user in a game, null for guests, while loading and when loading failed
@@ -53,3 +53,7 @@ export const useCrosswordStats = () =>
 /** The "Kanji lesen" numbers of the logged-in user. */
 export const useKanjiStats = () =>
     useGameStats<KanjiStats, KanjiResult>(GamesController.getKanjiStats, GamesController.recordKanjiResult, "kanji");
+
+/** The "Kana lesen" numbers of the logged-in user. */
+export const useKanaStats = () =>
+    useGameStats<KanaStats, KanaResult>(GamesController.getKanaStats, GamesController.recordKanaResult, "kana");

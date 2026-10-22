@@ -1,19 +1,20 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Grid3x3, Languages, Trophy } from "lucide-react";
+import { ArrowRight, Grid3x3, Languages, Trophy, Type } from "lucide-react";
 import type { ReactNode } from "react";
 import { ACCOUNT_BASE } from "../../config/navigation";
-import { useCrosswordStats, useKanjiStats } from "../../hooks/useGameStats";
+import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import { hitRate } from "./KanjiStatsTable";
-import { CROSSWORD_PATH, KANJI_PATH } from "./paths";
+import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "./paths";
 import "../../styles/Games.css";
 
-/** The overview of the small games: the Japanese crossword and the kanji readings, with the own numbers in short. */
+/** The overview of the small games: the Japanese crossword, the kana and the kanji readings, with the own numbers in short. */
 export default function GamesPage() {
     usePageTitle("Spiele");
     const { stats: crossword, loggedIn } = useCrosswordStats();
     const { stats: kanji } = useKanjiStats();
+    const { stats: kana } = useKanaStats();
 
     const crosswordLine = crossword && (
         crossword.solved > 0 || crossword.words > 0
@@ -23,6 +24,12 @@ export default function GamesPage() {
     const kanjiLine = kanji && (
         kanji.rounds > 0
             ? `${kanji.rounds} ${kanji.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kanji.rightWords, kanji.askedWords)} richtig · Serie ${kanji.currentStreak}`
+            : "Noch nicht gespielt"
+    );
+
+    const kanaLine = kana && (
+        kana.rounds > 0
+            ? `${kana.rounds} ${kana.rounds === 1 ? "Runde" : "Runden"} · ${hitRate(kana.rightKana, kana.askedKana)} richtig · Serie ${kana.currentStreak}`
             : "Noch nicht gespielt"
     );
 
@@ -37,6 +44,13 @@ export default function GamesPage() {
                     title="Kreuzworträtsel"
                     text="Japanische Wörter in Hiragana und Katakana zu englischen Hinweisen."
                     stats={loggedIn ? crosswordLine : null}
+                />
+                <GameCard
+                    to={KANA_PATH}
+                    icon={<Type size={26} />}
+                    title="Kana lesen"
+                    text="Einzelne Hiragana und Katakana: Tippe die Lesung in Romaji."
+                    stats={loggedIn ? kanaLine : null}
                 />
                 <GameCard
                     to={KANJI_PATH}

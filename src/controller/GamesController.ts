@@ -1,5 +1,5 @@
 import { apiClient } from "./APIClient.ts";
-import { CrosswordResult, CrosswordStats, KanjiMistake, KanjiResult, KanjiStats } from "../types/games.ts";
+import { CrosswordResult, CrosswordStats, KanaMistake, KanaResult, KanaStats, KanjiMistake, KanjiResult, KanjiStats } from "../types/games.ts";
 
 export default class GamesController {
 
@@ -42,6 +42,34 @@ export default class GamesController {
     static async deleteKanjiMistake(word: string): Promise<KanjiMistake[]> {
         const apis = await apiClient;
         const response: { body: KanjiMistake[] } = await apis.games.deleteKanjiMistake.execute({ word });
+        return response.body;
+    }
+
+    /** Needs a login; the "Kana lesen" numbers of the logged-in user. */
+    static async getKanaStats(): Promise<KanaStats> {
+        const apis = await apiClient;
+        const response: { body: KanaStats } = await apis.games.getKanaStats.execute({});
+        return response.body;
+    }
+
+    /** Needs a login; returns the numbers including this round. */
+    static async recordKanaResult(result: KanaResult): Promise<KanaStats> {
+        const apis = await apiClient;
+        const response: { body: KanaStats } = await apis.games.recordKanaResult.execute({}, { requestBody: result });
+        return response.body;
+    }
+
+    /** Needs a login; the "Kana lesen" mistakes of the logged-in user, most often wrong first. */
+    static async getKanaMistakes(): Promise<KanaMistake[]> {
+        const apis = await apiClient;
+        const response: { body: KanaMistake[] } = await apis.games.getKanaMistakes.execute({});
+        return response.body;
+    }
+
+    /** Needs a login; takes a character off the list of mistakes and returns the rest. */
+    static async deleteKanaMistake(kana: string): Promise<KanaMistake[]> {
+        const apis = await apiClient;
+        const response: { body: KanaMistake[] } = await apis.games.deleteKanaMistake.execute({ kana });
         return response.body;
     }
 }

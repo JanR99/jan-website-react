@@ -1,11 +1,15 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.CrosswordResultRequest;
+import de.jan.controller.requests.KanaResultRequest;
 import de.jan.controller.requests.KanjiResultRequest;
 import de.jan.games.CrosswordStatsDTO;
+import de.jan.games.KanaMistakeDTO;
+import de.jan.games.KanaStatsDTO;
 import de.jan.games.KanjiMistakeDTO;
 import de.jan.games.KanjiStatsDTO;
 import de.jan.games.repository.CrosswordStatsRepository;
+import de.jan.games.repository.KanaStatsRepository;
 import de.jan.games.repository.KanjiStatsRepository;
 import de.jan.security.CurrentUser;
 import de.jan.user.User;
@@ -28,13 +32,20 @@ public class GamesController {
     private static final String RECORD_KANJI_RESULT = "recordKanjiResult";
     private static final String GET_KANJI_MISTAKES = "getKanjiMistakes";
     private static final String DELETE_KANJI_MISTAKE = "deleteKanjiMistake";
+    private static final String GET_KANA_STATS = "getKanaStats";
+    private static final String RECORD_KANA_RESULT = "recordKanaResult";
+    private static final String GET_KANA_MISTAKES = "getKanaMistakes";
+    private static final String DELETE_KANA_MISTAKE = "deleteKanaMistake";
 
     private final CrosswordStatsRepository crosswordStatsRepository;
     private final KanjiStatsRepository kanjiStatsRepository;
+    private final KanaStatsRepository kanaStatsRepository;
 
-    public GamesController(CrosswordStatsRepository crosswordStatsRepository, KanjiStatsRepository kanjiStatsRepository) {
+    public GamesController(CrosswordStatsRepository crosswordStatsRepository, KanjiStatsRepository kanjiStatsRepository,
+                           KanaStatsRepository kanaStatsRepository) {
         this.crosswordStatsRepository = crosswordStatsRepository;
         this.kanjiStatsRepository = kanjiStatsRepository;
+        this.kanaStatsRepository = kanaStatsRepository;
     }
 
     @Operation(operationId = GET_CROSSWORD_STATS)
@@ -80,5 +91,35 @@ public class GamesController {
             @RequestParam("word") String word
     ) {
         return ResponseEntity.ok(kanjiStatsRepository.deleteMistake(user, word));
+    }
+
+    @Operation(operationId = GET_KANA_STATS)
+    @GetMapping("/kana/stats")
+    public ResponseEntity<KanaStatsDTO> getKanaStats(@CurrentUser User user) {
+        return ResponseEntity.ok(kanaStatsRepository.get(user));
+    }
+
+    @Operation(operationId = RECORD_KANA_RESULT)
+    @PostMapping("/kana/result")
+    public ResponseEntity<KanaStatsDTO> recordKanaResult(
+            @CurrentUser User user,
+            @RequestBody KanaResultRequest result
+    ) {
+        return ResponseEntity.ok(kanaStatsRepository.record(user, result));
+    }
+
+    @Operation(operationId = GET_KANA_MISTAKES)
+    @GetMapping("/kana/mistakes")
+    public ResponseEntity<List<KanaMistakeDTO>> getKanaMistakes(@CurrentUser User user) {
+        return ResponseEntity.ok(kanaStatsRepository.getMistakes(user));
+    }
+
+    @Operation(operationId = DELETE_KANA_MISTAKE)
+    @DeleteMapping("/kana/mistakes")
+    public ResponseEntity<List<KanaMistakeDTO>> deleteKanaMistake(
+            @CurrentUser User user,
+            @RequestParam("kana") String kana
+    ) {
+        return ResponseEntity.ok(kanaStatsRepository.deleteMistake(user, kana));
     }
 }

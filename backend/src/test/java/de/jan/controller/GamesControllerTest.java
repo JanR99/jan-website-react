@@ -1,8 +1,10 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.CrosswordResultRequest;
+import de.jan.controller.requests.KanaResultRequest;
 import de.jan.controller.requests.KanjiResultRequest;
 import de.jan.games.CrosswordStatsDAO;
+import de.jan.games.KanaStatsDAO;
 import de.jan.games.KanjiStatsDAO;
 import de.jan.testsupport.ControllerTest;
 import de.jan.user.User;
@@ -486,6 +488,304 @@ class GamesControllerTest extends ControllerTest {
                             .header(HttpHeaders.AUTHORIZATION, bearer(other)))
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].word").value("日"));
+        }
+    }
+
+    /** A round with the given characters; one starting with "!" was read wrong, like "!し". */
+    private static KanaResultRequest kanaRound(boolean practice, String... kana) {
+        KanaResultRequest result = new KanaResultRequest();
+        result.setPractice(practice);
+        result.setAnswers(Arrays.stream(kana).map(k -> !k.startsWith("!")).toList());
+        result.setKana(Arrays.stream(kana).map(k -> k.replace("!", "")).toList());
+        return result;
+    }
+
+    private void recordKana(User user, KanaResultRequest result) throws Exception {
+        mockMvc.perform(post("/api/games/kana/result")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(result)))
+                .andExpect(status().isOk());
+    }
+
+    @Nested
+    class GetKanaStats {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(get("/api/games/kana/stats"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutRounds_returnsZeros() throws Exception {
+            mockMvc.perform(get("/api/games/kana/stats")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(0))
+                    .andExpect(jsonPath("$.perfectRounds").value(0))
+                    .andExpect(jsonPath("$.rightKana").value(0))
+                    .andExpect(jsonPath("$.askedKana").value(0))
+                    .andExpect(jsonPath("$.currentStreak").value(0))
+                    .andExpect(jsonPath("$.bestStreak").value(0))
+                    .andExpect(jsonPath("$.scripts", hasSize(0)));
+        }
+
+        @Test
+        void returnsOnlyTheNumbersOfTheCaller() throws Exception {
+            User user = userWith();
+            User other = userWith();
+            recordKana(other, kanaRound(false, "あ", "!い"));
+
+            mockMvc.perform(get("/api/games/kana/stats")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(0))
+                    .andExpect(jsonPath("$.scripts", hasSize(0)));
+        }
+    }
+
+    @Nested
+    class RecordKanaResult {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(post("/api/games/kana/result")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(false, "あ"))))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void characters_countPerScript() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "あ", "きゃ", "ア"));
+
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(false, "!し", "シャ", "!ヅ"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(2))
+                    .andExpect(jsonPath("$.perfectRounds").value(1))
+                    .andExpect(jsonPath("$.rightKana").value(4))
+                    .andExpect(jsonPath("$.askedKana").value(6))
+                    .andExpect(jsonPath("$.scripts", hasSize(2)))
+                    .andExpect(jsonPath("$.scripts[0].script").value("hiragana"))
+                    .andExpect(jsonPath("$.scripts[0].rightKana").value(2))
+                    .andExpect(jsonPath("$.scripts[0].askedKana").value(3))
+                    .andExpect(jsonPath("$.scripts[1].script").value("katakana"))
+                    .andExpect(jsonPath("$.scripts[1].rightKana").value(2))
+                    .andExpect(jsonPath("$.scripts[1].askedKana").value(3));
+        }
+
+        @Test
+        void streak_goesOnAcrossRoundsUntilAWrongCharacter() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "!あ", "い", "う"));
+
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(false, "え", "お", "!か", "き"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.currentStreak").value(1))
+                    .andExpect(jsonPath("$.bestStreak").value(4));
+        }
+
+        @Test
+        void noAnswers_returns400() throws Exception {
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(false))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A round must have 1 to 20 answers"));
+        }
+
+        @Test
+        void tooManyAnswers_returns400() throws Exception {
+            String[] kana = new String[21];
+            Arrays.fill(kana, "あ");
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(false, kana))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A round must have 1 to 20 answers"));
+        }
+
+        @Test
+        void charactersNotMatchingTheAnswers_return400() throws Exception {
+            KanaResultRequest result = kanaRound(false, "あ", "い");
+            result.setAnswers(List.of(true));
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(result)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A round must have as many characters as answers"));
+        }
+
+        @Test
+        void somethingElseThanAKanaCharacter_returns400() throws Exception {
+            for (String notKana : List.of("a", "本", "あい", "あア", "きゃゃ", "")) {
+                mockMvc.perform(post("/api/games/kana/result")
+                                .header(HttpHeaders.AUTHORIZATION, bearerWith())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json(kanaRound(false, notKana))))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(content().string("Every character must be one hiragana or katakana, maybe with a small ya, yu or yo"));
+            }
+        }
+
+        @Test
+        void deletedAccount_takesItsNumbersWithIt() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "あ", "!い"));
+            assertNotNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+
+            inDatastore(() -> {
+                userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
+                return null;
+            });
+
+            assertNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+        }
+    }
+
+    @Nested
+    class KanaMistakes {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(get("/api/games/kana/mistakes"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+            mockMvc.perform(delete("/api/games/kana/mistakes").param("kana", "し"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutRounds_isEmpty() throws Exception {
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith()))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void wrongCharacters_goOnTheList_mostOftenWrongFirst() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "あ", "!し", "!ツ"));
+            recordKana(user, kanaRound(false, "!ツ", "い"));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].kana").value("ツ"))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[1].kana").value("し"))
+                    .andExpect(jsonPath("$[1].wrong").value(1));
+        }
+
+        @Test
+        void twoRightInARow_takeACharacterOff() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "!し"));
+            recordKana(user, kanaRound(false, "し"));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].rightInRow").value(1));
+
+            recordKana(user, kanaRound(true, "し"));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void wrongAgain_startsCountingAgain() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "!し"));
+            recordKana(user, kanaRound(false, "し"));
+            recordKana(user, kanaRound(false, "!し"));
+            recordKana(user, kanaRound(false, "し"));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[0].rightInRow").value(1));
+        }
+
+        @Test
+        void hiraganaAndKatakana_areDifferentCharacters() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "!し"));
+            recordKana(user, kanaRound(false, "シ", "シ"));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].kana").value("し"))
+                    .andExpect(jsonPath("$[0].rightInRow").value(0));
+        }
+
+        @Test
+        void practiceRound_changesOnlyTheList() throws Exception {
+            User user = userWith();
+            recordKana(user, kanaRound(false, "!し", "!ち"));
+
+            mockMvc.perform(post("/api/games/kana/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(kanaRound(true, "し", "!ち"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(1))
+                    .andExpect(jsonPath("$.askedKana").value(2))
+                    .andExpect(jsonPath("$.rightKana").value(0));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].kana").value("ち"))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[1].kana").value("し"))
+                    .andExpect(jsonPath("$[1].rightInRow").value(1));
+        }
+
+        @Test
+        void delete_takesTheCharacterOffOnlyForTheCaller() throws Exception {
+            User user = userWith();
+            User other = userWith();
+            recordKana(user, kanaRound(false, "!し", "!ち"));
+            recordKana(other, kanaRound(false, "!し"));
+
+            mockMvc.perform(delete("/api/games/kana/mistakes")
+                            .param("kana", "し")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].kana").value("ち"));
+
+            mockMvc.perform(delete("/api/games/kana/mistakes")
+                            .param("kana", "あ")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)));
+
+            mockMvc.perform(get("/api/games/kana/mistakes")
+                            .header(HttpHeaders.AUTHORIZATION, bearer(other)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].kana").value("し"));
         }
     }
 

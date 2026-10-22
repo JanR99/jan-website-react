@@ -7,6 +7,7 @@ import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.feedback.Feedback;
 import de.jan.games.CrosswordStats;
+import de.jan.games.KanaStats;
 import de.jan.games.KanjiStats;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
@@ -40,7 +41,8 @@ public class ObjectifyConfig {
         TravelSeedMarker.class,
         Feedback.class,
         CrosswordStats.class,
-        KanjiStats.class
+        KanjiStats.class,
+        KanaStats.class
     );
 
     private final CloudRun cloudRun;
