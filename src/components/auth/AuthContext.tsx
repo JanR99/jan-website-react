@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(() => {
-        apiClient.clearToken();
+        apiClient.setToken(null);
         saveSession(null);
         setSession(null);
     }, []);
