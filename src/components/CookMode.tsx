@@ -3,7 +3,6 @@ import type { TouchEvent } from "react";
 import { createPortal } from "react-dom";
 import { renderStepText } from "./helper/RecipeHelper";
 import IngredientChecklist from "./IngredientChecklist";
-import { Recipe } from "../types/Recipe";
 import { useWakeLock } from "../hooks/useWakeLock";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { ArrowLeft, ArrowRight, Check, ListChecks, SunMedium, X } from "lucide-react";

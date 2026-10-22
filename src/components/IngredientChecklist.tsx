@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Check } from "lucide-react";
 import { adjustIngredient, renderIngredients } from "./helper/RecipeHelper";
-import { Recipe } from "../types/Recipe";
 
 /** The ingredients for the chosen portions, each one ticked off with a tap; section headers stay plain. */
 export default function IngredientChecklist({ recipe, portions, checked, onToggle, renderText = (text) => text }: {

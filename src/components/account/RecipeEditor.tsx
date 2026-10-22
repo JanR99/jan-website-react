@@ -4,7 +4,7 @@ import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
-import { Recipe, RecipeRequest, RECIPE_TAGS, RecipeTag } from "../../types/Recipe";
+import { RECIPE_TAGS } from "../../config/labels";
 import { recipeImage } from "../../utils/recipe";
 import RecipeImageDropzone from "./RecipeImageDropzone";
 import { ArrowLeft, X } from "lucide-react";

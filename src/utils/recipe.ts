@@ -1,4 +1,3 @@
-import { Recipe } from "../types/Recipe";
 import ImageController from "../controller/ImageController";
 
 /** The title as it stood in a recipe address before those got the id; links from back then still have it. */

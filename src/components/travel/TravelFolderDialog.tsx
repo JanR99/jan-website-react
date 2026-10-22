@@ -5,7 +5,6 @@ import { handleApiError } from "../../controller/util/ErrorHandler";
 import { useRecipes } from "../../hooks/useRecipes";
 import { storeTravelFolder, useTravelFolders } from "../../hooks/useTravelFolders";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
-import { TravelFolder } from "../../types/Travel";
 import { folderCountry, toMonth } from "../../utils/travel";
 import Dialog from "../ui/Dialog";
 import FormError from "../ui/FormError";

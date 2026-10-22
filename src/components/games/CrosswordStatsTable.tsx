@@ -1,4 +1,3 @@
-import type { CrosswordScript, CrosswordStats } from "../../types/games";
 import { LEVELS as STAT_LEVELS } from "./crossword/puzzles";
 import "../../styles/Games.css";
 

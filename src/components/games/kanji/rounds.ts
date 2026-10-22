@@ -1,4 +1,3 @@
-import type { KanjiMistake } from "../../../types/games";
 import { shuffle } from "../../../utils/chance";
 import { CEFR_LEVELS } from "../../../utils/crossword";
 import type { KanjiWord } from "../../../utils/kanjiReading";

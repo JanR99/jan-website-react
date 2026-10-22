@@ -1,5 +1,4 @@
 import { apiClient, apiUrl } from "./APIClient.ts";
-import { ImageUploadResponse } from "../types/Recipe.ts";
 
 const UPLOAD_PREFIX = "uploads/";
 

@@ -5,7 +5,6 @@ import BackupController from "../../controller/BackupController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { reloadTravelFolders } from "../../hooks/useTravelFolders";
-import { RestoreResult } from "../../types/backup";
 import { backupFileName, fileSizeLabel, restoreProblems, restoreSummary } from "../../utils/backup";
 import Dialog from "../ui/Dialog";
 import FormError from "../ui/FormError";

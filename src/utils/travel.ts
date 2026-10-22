@@ -1,5 +1,3 @@
-import { Recipe } from "../types/Recipe";
-import { PlaceSearchResult, TravelFolder, TravelPhoto, TravelPosition, TravelStop } from "../types/Travel";
 import { chosenByChance } from "./chance";
 
 export const TRAVEL_BASE = "/reisen";

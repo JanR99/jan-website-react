@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { MapPin } from "lucide-react";
 import L from "leaflet";
-import { TravelPosition } from "../../types/Travel";
 import { roundPosition } from "../../utils/travel";
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
 

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Recipe } from '../types/Recipe';
 import { filterRecipes } from './recipeFilter';
 
 const recipe = (id: number, title: string, overrides: Partial<Recipe> = {}): Recipe => ({

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/auth/AuthContext";
 import GamesController from "../controller/GamesController";
-import type { KanaMistake, KanjiMistake } from "../types/games";
 
 /**
  * The mistakes of the logged-in user in a game, most often wrong first; null for guests, while loading

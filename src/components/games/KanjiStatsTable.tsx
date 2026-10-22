@@ -1,4 +1,3 @@
-import type { KanjiLevelStats, KanjiStats } from "../../types/games";
 import { LEVELS as STAT_LEVELS } from "./crossword/puzzles";
 import { hitRate } from "../../utils/gameStats";
 import "../../styles/Games.css";

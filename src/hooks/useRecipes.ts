@@ -1,4 +1,3 @@
-import { Recipe } from "../types/Recipe";
 import RecipeController from "../controller/RecipeController";
 import { storedApi } from "../controller/APIClient";
 import { createListStore } from "./createListStore";

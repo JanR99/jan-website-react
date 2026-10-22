@@ -1,5 +1,4 @@
 import { Api, apiClient } from "./APIClient.ts";
-import { Recipe, RecipeRequest } from "../types/Recipe.ts";
 
 export default class RecipeController {
 

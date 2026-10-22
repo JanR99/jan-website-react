@@ -1,4 +1,3 @@
-import { TravelFolder } from "../types/Travel";
 import TravelController from "../controller/TravelController";
 import { storedApi } from "../controller/APIClient";
 import { sortFolders, withoutPhoto } from "../utils/travel";

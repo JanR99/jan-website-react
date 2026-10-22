@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Recipe } from '../types/Recipe';
 import { useFavorites } from '../hooks/useFavorites';
 import { isVegetarian, recipePath, recipeImage, RecipeLinkState } from '../utils/recipe';
 import DietBadge from './DietBadge';

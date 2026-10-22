@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Lock } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
-import { Permission, PERMISSIONS } from "../../types/roles";
+import { PERMISSIONS } from "../../config/labels";
 import LoadError from "../ui/LoadError";
 import Spinner from "../ui/Spinner";
 

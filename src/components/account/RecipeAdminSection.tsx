@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import PermissionGate from "./PermissionGate";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
-import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
+import { RECIPE_TAGS } from "../../config/labels";
 import { recipePath, recipeImage } from "../../utils/recipe";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import FormError from "../ui/FormError";

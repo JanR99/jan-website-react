@@ -1,5 +1,4 @@
 import { apiClient } from "./APIClient.ts";
-import { CrosswordResult, CrosswordStats, KanaMistake, KanaResult, KanaStats, KanjiMistake, KanjiResult, KanjiStats } from "../types/games.ts";
 
 export default class GamesController {
 

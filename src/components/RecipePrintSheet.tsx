@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
-import { Recipe } from "../types/Recipe";
 import { recipeImage } from "../utils/recipe";
 import { bringImportUrl, bringPageUrl } from "../utils/bring";
 import DietBadge from "./DietBadge";

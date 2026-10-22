@@ -1,5 +1,4 @@
 import { Leaf } from "lucide-react";
-import { Recipe } from "../types/Recipe";
 import { isVegan, isVegetarian } from "../utils/recipe";
 
 /** "vegan" or "vegetarisch" as a green badge; nothing for other recipes. */

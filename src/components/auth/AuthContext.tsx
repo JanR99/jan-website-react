@@ -3,11 +3,6 @@ import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
 import { handleApiError, isUnauthenticated } from "../../controller/util/ErrorHandler.ts";
-import { UserDTO } from "../../types/entities.ts";
-import {
-    ChangePasswordRequest, LoginRequest, LoginResponse, RegisterRequest, UpdateProfileRequest
-} from "../../types/userController.ts";
-import { Permission } from "../../types/roles.ts";
 import {
     getExpiryWarningTime, getTokenExpiry, loadSession, needsRenewal, saveSession, Session,
 } from "./sessionStore.ts";

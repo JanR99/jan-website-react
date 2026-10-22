@@ -5,7 +5,6 @@ import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
-import { TravelPhoto } from "../../types/Travel";
 import { CAPTION_MAX_LENGTH, cleanCaption, photoDescription } from "../../utils/travel";
 
 /** How far the finger has to move before the movement counts as a swipe and not as a tap. */

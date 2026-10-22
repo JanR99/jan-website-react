@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, GripVertical } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
-import { TravelFolder, TravelPhoto } from "../../types/Travel";
 import { moveItem, photoDescription } from "../../utils/travel";
 import FormError from "../ui/FormError";
 

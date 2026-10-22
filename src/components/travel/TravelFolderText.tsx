@@ -4,7 +4,6 @@ import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
-import { TravelFolder } from "../../types/Travel";
 import { TEXT_MAX_LENGTH, textParagraphs } from "../../utils/travel";
 import FormError from "../ui/FormError";
 

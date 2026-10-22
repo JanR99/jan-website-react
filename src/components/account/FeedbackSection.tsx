@@ -4,7 +4,6 @@ import { Check, ExternalLink, MessageSquare, RotateCcw, Trash2 } from "lucide-re
 import PermissionGate from "./PermissionGate";
 import FeedbackController from "../../controller/FeedbackController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
-import { FeedbackDTO } from "../../types/feedback";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import FormError from "../ui/FormError";

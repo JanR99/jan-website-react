@@ -1,4 +1,3 @@
-import type { CrosswordScript } from "../../../types/games";
 import { bestCrossword, CEFR_LEVELS, wordsUpTo, type Crossword, type JapaneseWord } from "../../../utils/crossword";
 import { isKatakanaWord } from "../../../utils/kana";
 import { recentPicks } from "../../../utils/recentPicks";

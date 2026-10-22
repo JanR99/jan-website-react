@@ -5,7 +5,7 @@ import PermissionGate from "./PermissionGate";
 import RoleController from "../../controller/RoleController";
 import UserController from "../../controller/UserController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
-import { ALL_PERMISSIONS, Permission, PERMISSIONS, RoleDTO, UserAdminDTO } from "../../types/roles";
+import { ALL_PERMISSIONS, PERMISSIONS } from "../../config/labels";
 import Avatar from "../ui/Avatar";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import FormError from "../ui/FormError";

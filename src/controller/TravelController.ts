@@ -1,5 +1,4 @@
 import { Api, apiClient, apiUrl } from "./APIClient.ts";
-import { TravelFolder, TravelFolderRequest } from "../types/Travel.ts";
 
 export default class TravelController {
 

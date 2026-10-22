@@ -9,7 +9,6 @@ import { useRecipes } from "../hooks/useRecipes";
 import { dropTravelFolder, dropTravelPhoto, reloadTravelFolders, useTravelFolders } from "../hooks/useTravelFolders";
 import LoadError from "./ui/LoadError";
 import Spinner from "./ui/Spinner";
-import { TravelFolder } from "../types/Travel";
 import { folderRecipes, folderSubtitle, photoCountLabel, photoDescription, TRAVEL_BASE } from "../utils/travel";
 import PageHeader from "./layout/PageHeader";
 import RecipeCard from "./RecipeCard";
