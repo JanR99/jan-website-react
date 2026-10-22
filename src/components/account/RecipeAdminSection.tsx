@@ -1,19 +1,21 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import PermissionGate from "./PermissionGate";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
 import { Recipe, RECIPE_TAGS } from "../../types/Recipe";
 import { recipePath, recipeImage } from "../../utils/recipe";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import RecipeEditor from "./RecipeEditor";
-import { ExternalLink, Lock, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ExternalLink, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 type Mode = { kind: "list" } | { kind: "edit"; recipe: Recipe | null };
 
 export default function RecipeAdminSection() {
-    const { permissions } = useAuth();
+    return <PermissionGate permission="MANAGE_RECIPES"><RecipeAdmin /></PermissionGate>;
+}
+
+function RecipeAdmin() {
     const { recipes, loading, error } = useRecipes();
     const [mode, setMode] = useState<Mode>({ kind: "list" });
     const [search, setSearch] = useState("");
@@ -27,22 +29,8 @@ export default function RecipeAdminSection() {
             : recipes;
     }, [recipes, search]);
 
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
     if (loading) {
         return <div className="loading"><div className="spinner" /></div>;
-    }
-
-    if (!permissions.includes("MANAGE_RECIPES")) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Rezepte können nur von Admins bearbeitet werden.</p>
-            </div>
-        );
     }
 
     function openEditor(recipe: Recipe | null) {

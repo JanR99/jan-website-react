@@ -1,13 +1,11 @@
 import { useRef, useState } from "react";
-import { Download, Lock, Upload } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import { Download, Upload } from "lucide-react";
+import PermissionGate from "./PermissionGate";
 import BackupController from "../../controller/BackupController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { reloadTravelFolders } from "../../hooks/useTravelFolders";
 import { RestoreResult } from "../../types/backup";
-import { PERMISSIONS } from "../../types/roles";
 import { backupFileName, fileSizeLabel, restoreProblems, restoreSummary } from "../../utils/backup";
 import Dialog from "../ui/Dialog";
 
@@ -29,7 +27,11 @@ function saveFile(file: Blob, name: string) {
  * and on a local machine put such a file back into the database.
  */
 export default function BackupSection() {
-    const { permissions, hasPermission } = useAuth();
+    return <PermissionGate permission="EXPORT_DATA"><BackupCard /></PermissionGate>;
+}
+
+/** The download of the backup, and on a local machine also restoring one. */
+function BackupCard() {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     /** name and size of the file that was downloaded last */
@@ -49,20 +51,6 @@ export default function BackupSection() {
         } finally {
             setBusy(false);
         }
-    }
-
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!hasPermission("EXPORT_DATA")) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.EXPORT_DATA}“.</p>
-            </div>
-        );
     }
 
     return (

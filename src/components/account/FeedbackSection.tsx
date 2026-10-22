@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, ExternalLink, Lock, MessageSquare, RotateCcw, Trash2 } from "lucide-react";
-import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import { Check, ExternalLink, MessageSquare, RotateCcw, Trash2 } from "lucide-react";
+import PermissionGate from "./PermissionGate";
 import FeedbackController from "../../controller/FeedbackController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { FeedbackDTO } from "../../types/feedback";
-import { PERMISSIONS } from "../../types/roles";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 
 /** The feedback of the users: read it, turn it into a GitHub issue, mark it as done or delete it. */
 export default function FeedbackSection() {
-    const { permissions, hasPermission } = useAuth();
-    const canManage = hasPermission("MANAGE_FEEDBACK");
+    return <PermissionGate permission="MANAGE_FEEDBACK"><FeedbackList /></PermissionGate>;
+}
 
+function FeedbackList() {
     const [items, setItems] = useState<FeedbackDTO[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [toDelete, setToDelete] = useState<FeedbackDTO | null>(null);
@@ -26,8 +25,8 @@ export default function FeedbackSection() {
     }), []);
 
     useEffect(() => {
-        if (canManage) void load();
-    }, [canManage, load]);
+        void load();
+    }, [load]);
 
     async function toggleDone(feedback: FeedbackDTO) {
         setError(null);
@@ -37,20 +36,6 @@ export default function FeedbackSection() {
         } catch (err) {
             setError(handleApiError(err));
         }
-    }
-
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!canManage) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.MANAGE_FEEDBACK}“.</p>
-            </div>
-        );
     }
 
     if (items === null) {

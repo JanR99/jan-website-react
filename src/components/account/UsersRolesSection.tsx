@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SubmitEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
-import PermissionsPending from "./PermissionsPending";
+import PermissionGate from "./PermissionGate";
 import RoleController from "../../controller/RoleController";
 import UserController from "../../controller/UserController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
@@ -9,13 +9,16 @@ import { ALL_PERMISSIONS, Permission, PERMISSIONS, RoleDTO, UserAdminDTO } from 
 import Avatar from "../ui/Avatar";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import Dialog from "../ui/Dialog";
-import { Lock, Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, UserCog } from "lucide-react";
 
 type RoleEdit = { role: RoleDTO | null } | null;
 
 export default function UsersRolesSection() {
-    const { user, permissions, hasPermission } = useAuth();
-    const canManage = hasPermission("MANAGE_USERS");
+    return <PermissionGate permission="MANAGE_USERS"><UsersRoles /></PermissionGate>;
+}
+
+function UsersRoles() {
+    const { user } = useAuth();
 
     const [roles, setRoles] = useState<RoleDTO[] | null>(null);
     const [users, setUsers] = useState<UserAdminDTO[] | null>(null);
@@ -41,8 +44,8 @@ export default function UsersRolesSection() {
     }, []);
 
     useEffect(() => {
-        if (canManage) load();
-    }, [canManage, load]);
+        load();
+    }, [load]);
 
     const roleById = useMemo(() => new Map((roles ?? []).map((role) => [role.id, role])), [roles]);
 
@@ -58,20 +61,6 @@ export default function UsersRolesSection() {
         setError(null);
         setNotice(message);
         load();
-    }
-
-    if (permissions === null) {
-        return <PermissionsPending />;
-    }
-
-    if (!canManage) {
-        return (
-            <div className="card empty-state">
-                <span className="empty-state-icon"><Lock size={26} /></span>
-                <h3>Keine Berechtigung</h3>
-                <p>Für diesen Bereich brauchst du das Recht „{PERMISSIONS.MANAGE_USERS}“.</p>
-            </div>
-        );
     }
 
     return (
