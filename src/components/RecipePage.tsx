@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { adjustIngredient, renderIngredients, renderStepText } from './helper/RecipeHelper';
+import { renderStepText } from './helper/RecipeHelper';
 import { Recipe } from '../types/Recipe';
 import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { useFavorites } from '../hooks/useFavorites';
@@ -8,17 +8,19 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { useHistoryOverlay } from '../hooks/useHistoryOverlay';
 import { useTravelFolders } from '../hooks/useTravelFolders';
 import {
-    COOKBOOK_BASE, isVegan, isVegetarian, openedFromCookbook, recipeByAddress, recipeImage, RecipeLinkState, recipePath,
+    COOKBOOK_BASE, openedFromCookbook, recipeByAddress, recipeImage, RecipeLinkState, recipePath,
 } from '../utils/recipe';
 import { recipeFolders } from '../utils/travel';
 import RecipeCard from './RecipeCard';
 import TravelFolderLink from './travel/TravelFolderLink';
 import CookMode from './CookMode';
+import DietBadge from './DietBadge';
+import IngredientChecklist from './IngredientChecklist';
 import LoadError from './ui/LoadError';
 import Spinner from './ui/Spinner';
 import RecipePrintSheet from './RecipePrintSheet';
 import { bringImportUrl, bringPageUrl } from '../utils/bring';
-import { ArrowLeft, Check, CookingPot, Heart, Leaf, Minus, Plus, Printer, ShoppingCart } from "lucide-react";
+import { ArrowLeft, CookingPot, Heart, Minus, Plus, Printer, ShoppingCart } from "lucide-react";
 import '../styles/Recipe.css';
 
 /**
@@ -160,11 +162,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                     <h1>{recipe.title}</h1>
 
                     <div className="recipe-hero-badges">
-                        {isVegan(recipe) ? (
-                            <span className="badge badge--green"><Leaf size={12} /> vegan</span>
-                        ) : isVegetarian(recipe) ? (
-                            <span className="badge badge--green"><Leaf size={12} /> vegetarisch</span>
-                        ) : null}
+                        <DietBadge recipe={recipe} />
                         <span className="badge">{recipe.preparation?.length ?? 0} Schritte</span>
                     </div>
 
@@ -221,21 +219,13 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                 <aside className="ingredients card">
                     <h2>Zutaten</h2>
                     <p className="muted ingredients-hint">Antippen zum Abhaken</p>
-                    <ul className="ingredients-list">
-                        {renderIngredients(recipe, (ingredient, index) => (
-                            <li key={index}>
-                                <button
-                                    type="button"
-                                    className={`ingredient-item${checked.has(index) ? ' is-checked' : ''}`}
-                                    onClick={() => toggleChecked(index)}
-                                    aria-pressed={checked.has(index)}
-                                >
-                                    <span className="ingredient-check"><Check size={14} /></span>
-                                    <span>{renderIngredientWithLinks(adjustIngredient(ingredient, portions, defaultPortions))}</span>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+                    <IngredientChecklist
+                        recipe={recipe}
+                        portions={portions}
+                        checked={checked}
+                        onToggle={toggleChecked}
+                        renderText={renderIngredientWithLinks}
+                    />
                 </aside>
 
                 <section className="preparation">

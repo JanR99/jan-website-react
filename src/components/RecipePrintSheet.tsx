@@ -2,9 +2,9 @@ import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
 import { Recipe } from "../types/Recipe";
-import { isVegan, isVegetarian, recipeImage } from "../utils/recipe";
+import { recipeImage } from "../utils/recipe";
 import { bringImportUrl, bringPageUrl } from "../utils/bring";
-import { Leaf } from "lucide-react";
+import DietBadge from "./DietBadge";
 import { QRCodeSVG } from "qrcode.react";
 
 interface RecipePrintSheetProps {
@@ -64,11 +64,7 @@ export default function RecipePrintSheet({ recipe, portions }: RecipePrintSheetP
                         {recipe.cuisine && <span className="eyebrow">{recipe.cuisine}e Küche</span>}
                         <h1>{recipe.title}</h1>
                         <div className="recipe-hero-badges">
-                            {isVegan(recipe) ? (
-                                <span className="badge badge--green"><Leaf size={12} /> vegan</span>
-                            ) : isVegetarian(recipe) ? (
-                                <span className="badge badge--green"><Leaf size={12} /> vegetarisch</span>
-                            ) : null}
+                            <DietBadge recipe={recipe} />
                             <span className="badge">{portions} {portions === 1 ? "Portion" : "Portionen"}</span>
                             <span className="badge">{steps.length} Schritte</span>
                         </div>

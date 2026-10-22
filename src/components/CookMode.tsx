@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { TouchEvent } from "react";
 import { createPortal } from "react-dom";
-import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
+import { renderStepText } from "./helper/RecipeHelper";
+import IngredientChecklist from "./IngredientChecklist";
 import { Recipe } from "../types/Recipe";
 import { useWakeLock } from "../hooks/useWakeLock";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
@@ -146,21 +147,7 @@ export default function CookMode({ recipe, portions, step, onStepChange, checked
                                 <X size={20} />
                             </button>
                         </div>
-                        <ul className="ingredients-list">
-                            {renderIngredients(recipe, (ingredient, index) => (
-                                <li key={index}>
-                                    <button
-                                        type="button"
-                                        className={`ingredient-item${checked.has(index) ? " is-checked" : ""}`}
-                                        onClick={() => onToggleChecked(index)}
-                                        aria-pressed={checked.has(index)}
-                                    >
-                                        <span className="ingredient-check"><Check size={14} /></span>
-                                        <span>{adjustIngredient(ingredient, portions, recipe.defaultPortions)}</span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        <IngredientChecklist recipe={recipe} portions={portions} checked={checked} onToggle={onToggleChecked} />
                     </aside>
                 </>
             )}
