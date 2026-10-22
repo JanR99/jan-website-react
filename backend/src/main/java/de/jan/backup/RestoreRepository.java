@@ -54,6 +54,21 @@ public class RestoreRepository {
     private record RestoredFolder(Long id, TravelFolderRequest request, String previousFolder) {
     }
 
+    /** What has been restored so far and what had to be left out; becomes the RestoreResponse at the end. */
+    private static class Progress {
+        int recipes;
+        int folders;
+        int photos;
+        final List<String> skippedRecipes = new ArrayList<>();
+        final List<String> skippedFolders = new ArrayList<>();
+        int skippedPhotos;
+
+        RestoreResponse toResponse() {
+            return new RestoreResponse(recipes, folders, photos, List.copyOf(skippedRecipes), List.copyOf(skippedFolders),
+                    skippedPhotos);
+        }
+    }
+
     private final RecipeRepository recipeRepository;
     private final ImageRepository imageRepository;
     private final TravelRepository travelRepository;
@@ -95,19 +110,19 @@ public class RestoreRepository {
                 recipeSeedMarkerDAO.markCompleted();
                 travelRepository.markSeedImported();
 
-                RestoreResponse result = new RestoreResponse();
-                restoreRecipes(zip, recipes, result);
-                restoreFolders(zip, folders, result);
-                System.out.println("Restore: " + result.getRecipes() + " recipes, " + result.getFolders()
-                        + " travel folders and " + result.getPhotos() + " travel photos restored.");
-                return result;
+                Progress progress = new Progress();
+                restoreRecipes(zip, recipes, progress);
+                restoreFolders(zip, folders, progress);
+                System.out.println("Restore: " + progress.recipes + " recipes, " + progress.folders
+                        + " travel folders and " + progress.photos + " travel photos restored.");
+                return progress.toResponse();
             }
         } finally {
             Files.deleteIfExists(file);
         }
     }
 
-    private void restoreRecipes(ZipFile zip, List<RecipeBackup> backups, RestoreResponse result) throws IOException {
+    private void restoreRecipes(ZipFile zip, List<RecipeBackup> backups, Progress progress) throws IOException {
         // every restored recipe is added, so the title check needs no further reads
         List<Recipe> existing = new ArrayList<>();
         List<RestoredRecipe> restored = new ArrayList<>();
@@ -125,7 +140,7 @@ public class RestoreRepository {
                 restored.add(new RestoredRecipe(recipe, backup.relatedRecipes() == null ? List.of() : backup.relatedRecipes()));
             } catch (EntityStateException e) {
                 imageRepository.deleteQuietly(image);
-                result.getSkippedRecipes().add(String.valueOf(backup.title()));
+                progress.skippedRecipes.add(String.valueOf(backup.title()));
                 System.out.println("Restore: skipped recipe \"" + backup.title() + "\": " + e.getMessage());
             }
             // otherwise every image read so far stays in memory until the end of the request
@@ -154,10 +169,10 @@ public class RestoreRepository {
         if (!withRelated.isEmpty()) {
             recipeRepository.saveAllUnchecked(withRelated);
         }
-        result.setRecipes(existing.size());
+        progress.recipes = existing.size();
     }
 
-    private void restoreFolders(ZipFile zip, List<FolderBackup> backups, RestoreResponse result) throws IOException {
+    private void restoreFolders(ZipFile zip, List<FolderBackup> backups, Progress progress) throws IOException {
         List<RestoredFolder> restored = new ArrayList<>();
         Map<String, Long> idsByName = new HashMap<>();
         for (FolderBackup backup : backups) {
@@ -166,14 +181,14 @@ public class RestoreRepository {
                 TravelFolderDTO folder = travelRepository.createFolder(request);
                 idsByName.put(folder.name(), folder.id());
                 restored.add(new RestoredFolder(folder.id(), request, backup.previousFolder()));
-                result.setFolders(result.getFolders() + 1);
+                progress.folders++;
 
                 if (backup.text() != null && !backup.text().isBlank()) {
                     travelRepository.setText(folder.id(), backup.text());
                 }
-                restorePhotos(zip, backup, folder, result);
+                restorePhotos(zip, backup, folder, progress);
             } catch (EntityStateException e) {
-                result.getSkippedFolders().add(String.valueOf(backup.name()));
+                progress.skippedFolders.add(String.valueOf(backup.name()));
                 System.out.println("Restore: travel folder \"" + backup.name() + "\" not fully restored: " + e.getMessage());
             }
         }
@@ -195,7 +210,7 @@ public class RestoreRepository {
     }
 
     /** The photos of a folder in their order, with their captions and the photo shown on the folder. */
-    private void restorePhotos(ZipFile zip, FolderBackup backup, TravelFolderDTO folder, RestoreResponse result)
+    private void restorePhotos(ZipFile zip, FolderBackup backup, TravelFolderDTO folder, Progress progress)
             throws IOException {
         List<String> photos = backup.photos() == null ? List.of() : backup.photos();
         Map<String, String> captions = backup.captions() == null ? Map.of() : backup.captions();
@@ -205,7 +220,7 @@ public class RestoreRepository {
             try {
                 byte[] data = readImage(zip, BackupRepository.TRAVEL_IMAGE_DIR, fileName, TravelRepository.MAX_PHOTO_BYTES);
                 Long photoId = travelRepository.addPhoto(folder.id(), data).photos().getLast().id();
-                result.setPhotos(result.getPhotos() + 1);
+                progress.photos++;
 
                 String caption = captions.get(fileName);
                 if (caption != null && !caption.isBlank()) {
@@ -216,7 +231,7 @@ public class RestoreRepository {
                     cover = photoId;
                 }
             } catch (EntityStateException e) {
-                result.setSkippedPhotos(result.getSkippedPhotos() + 1);
+                progress.skippedPhotos++;
                 System.out.println("Restore: skipped photo " + fileName + " of travel folder \"" + backup.name()
                         + "\": " + e.getMessage());
             }
