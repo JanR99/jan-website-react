@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
 import { Recipe } from "../types/Recipe";
 import { useWakeLock } from "../hooks/useWakeLock";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { ArrowLeft, ArrowRight, Check, ListChecks, SunMedium, X } from "lucide-react";
 
 interface CookModeProps {
@@ -48,13 +49,11 @@ export default function CookMode({ recipe, portions, step, onStepChange, checked
     }, [current, lastStep, showIngredients, onClose, onStepChange]);
 
     // No scrolling of the page behind the overlay, focus back to where it was on close
+    useBodyScrollLock();
     useEffect(() => {
         const previouslyFocused = document.activeElement as HTMLElement | null;
-        const overflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
         nextRef.current?.focus();
         return () => {
-            document.body.style.overflow = overflow;
             previouslyFocused?.focus?.();
         };
     }, []);

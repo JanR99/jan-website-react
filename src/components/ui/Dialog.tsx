@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface DialogProps {
     open: boolean;
@@ -13,14 +14,13 @@ interface DialogProps {
 
 export default function Dialog({ open, onClose, labelledBy, className = "", children }: DialogProps) {
     const panelRef = useRef<HTMLDivElement>(null);
+    useBodyScrollLock(open);
 
     useEffect(() => {
         if (!open) return;
         const previouslyFocused = document.activeElement as HTMLElement | null;
         const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
         document.addEventListener("keydown", onKey);
-        const overflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
 
         requestAnimationFrame(() => {
             panelRef.current?.querySelector<HTMLElement>("input, button:not(.dialog-close)")?.focus();
@@ -28,7 +28,6 @@ export default function Dialog({ open, onClose, labelledBy, className = "", chil
 
         return () => {
             document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = overflow;
             previouslyFocused?.focus?.();
         };
     }, [open, onClose]);

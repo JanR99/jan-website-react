@@ -3,6 +3,7 @@ import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent, PointerEvent } fr
 import { Check, ChevronLeft, ChevronRight, LoaderCircle, X } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { TravelPhoto } from "../../types/Travel";
 import { CAPTION_MAX_LENGTH, cleanCaption, photoDescription } from "../../utils/travel";
@@ -97,12 +98,7 @@ export default function TravelLightbox({ name, photos, index, canManage, onIndex
     }, [index, count, onIndexChange, onClose]);
 
     // the page behind must not scroll while the lightbox is open
-    useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "";
-        };
-    }, []);
+    useBodyScrollLock();
 
     function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
         swipedRef.current = false;
