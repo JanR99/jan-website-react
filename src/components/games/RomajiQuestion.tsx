@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
 import { ArrowRight, Check } from "lucide-react";
-import { toHiragana } from "wanakana";
-import type { Answer } from "../kanji/rounds";
+import type { Answer } from "./kanji/rounds";
 
-/** The character; its romaji is typed. One per character: a new one starts with an empty field. */
-export default function KanaQuestion({ kana, answer, last, onAnswer, onNext }: {
-    kana: string;
-    /** the answer to this character, once given */
+/**
+ * A character or word in large with a line below it; its reading is typed in romaji. One per question:
+ * a new one (new key) starts with an empty field. Used by "Kana lesen" and "Kanji lesen".
+ */
+export default function RomajiQuestion({ prompt, hint, answer, last, onAnswer, onNext }: {
+    /** what is read, like か or 本 */
+    prompt: string;
+    /** the line below it, like "Hiragana" or the meaning of the word */
+    hint: string;
+    /** the answer to this question, once given */
     answer: Answer | null;
-    /** the last character of the round: "Ergebnis" instead of "Weiter" */
+    /** the last question of the round: "Ergebnis" instead of "Weiter" */
     last: boolean;
     onAnswer: (typed: string) => void;
     onNext: () => void;
@@ -17,7 +22,7 @@ export default function KanaQuestion({ kana, answer, last, onAnswer, onNext }: {
     const [typed, setTyped] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // the field keeps the focus, also after "Weiß ich nicht": Enter checks, then goes on to the next character
+    // the field keeps the focus, also after "Weiß ich nicht": Enter checks, then goes on to the next question
     useEffect(() => {
         inputRef.current?.focus({ preventScroll: true });
     }, [answer]);
@@ -30,8 +35,8 @@ export default function KanaQuestion({ kana, answer, last, onAnswer, onNext }: {
 
     return (
         <>
-            <p className="kanji-word" lang="ja">{kana}</p>
-            <p className="kanji-meaning">{toHiragana(kana) === kana ? "Hiragana" : "Katakana"}</p>
+            <p className="kanji-word" lang="ja">{prompt}</p>
+            <p className="kanji-meaning">{hint}</p>
 
             <form className="kanji-form" onSubmit={submit}>
                 <input

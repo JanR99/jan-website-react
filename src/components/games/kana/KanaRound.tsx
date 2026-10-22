@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { toHiragana } from "wanakana";
 import { isRightKana } from "../../../utils/kanaQuiz";
 import type { Answer } from "../kanji/rounds";
+import RomajiQuestion from "../RomajiQuestion";
 import KanaFeedback from "./KanaFeedback";
-import KanaQuestion from "./KanaQuestion";
 import KanaResult from "./KanaResult";
 
 /** One round: the characters one after the other, each with its solution after the answer, then the result. */
@@ -44,9 +45,10 @@ export default function KanaRound({ kana, practice, newLabel, onNew, onFinished 
                 ))}
             </ol>
 
-            <KanaQuestion
+            <RomajiQuestion
                 key={index}
-                kana={current}
+                prompt={current}
+                hint={toHiragana(current) === current ? "Hiragana" : "Katakana"}
                 answer={answer}
                 last={index + 1 === kana.length}
                 onAnswer={(typed) => {
