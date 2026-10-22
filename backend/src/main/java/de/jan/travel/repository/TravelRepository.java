@@ -173,13 +173,7 @@ public class TravelRepository {
     /** Adds a photo at the end of the folder. The browser has scaled it down already. */
     public TravelFolderDTO addPhoto(Long folderId, byte[] data) {
         TravelFolder folder = loadFolder(folderId);
-        if (data == null || data.length == 0) {
-            throw new EntityStateException("The image is empty");
-        }
-        if (data.length > MAX_PHOTO_BYTES) {
-            throw new EntityStateException("The image must be at most " + MAX_PHOTO_BYTES / 1024 + " KB");
-        }
-        String contentType = ImageType.detect(data).contentType();
+        String contentType = ImageType.check(data, MAX_PHOTO_BYTES).contentType();
         List<TravelPhoto> existing = photoDAO.getByFolderId(folderId);
         if (existing.size() >= MAX_PHOTOS_PER_FOLDER) {
             throw new EntityStateException("A folder can have at most " + MAX_PHOTOS_PER_FOLDER + " photos");
