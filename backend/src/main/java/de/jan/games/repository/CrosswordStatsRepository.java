@@ -31,13 +31,14 @@ public class CrosswordStatsRepository {
      * one finished with help ends the streak. The words got right count either way.
      */
     public CrosswordStatsDTO record(User user, CrosswordResultRequest result) {
-        if (result == null || !SCRIPTS.contains(result.getScript())) {
+        if (result == null || !SCRIPTS.contains(result.script())) {
             throw new EntityStateException("Script must be one of " + SCRIPTS);
         }
-        if (!LEVELS.contains(result.getLevel())) {
+        if (!LEVELS.contains(result.level())) {
             throw new EntityStateException("Level must be one of " + LEVELS);
         }
-        if (result.getRightWords() < 0 || result.getRightWords() > MAX_WORDS) {
+        int rightWords = result.rightWords() == null ? 0 : result.rightWords();
+        if (rightWords < 0 || rightWords > MAX_WORDS) {
             throw new EntityStateException("Right words must be between 0 and " + MAX_WORDS);
         }
 
@@ -45,9 +46,9 @@ public class CrosswordStatsRepository {
         if (stats == null) {
             stats = new CrosswordStats(user.getId());
         }
-        String key = key(result.getScript(), result.getLevel());
-        stats.getWords().merge(key, result.getRightWords(), Integer::sum);
-        if (result.isSolved()) {
+        String key = key(result.script(), result.level());
+        stats.getWords().merge(key, rightWords, Integer::sum);
+        if (Boolean.TRUE.equals(result.solved())) {
             stats.getSolved().merge(key, 1, Integer::sum);
             stats.setCurrentStreak(stats.getCurrentStreak() + 1);
             stats.setBestStreak(Math.max(stats.getBestStreak(), stats.getCurrentStreak()));

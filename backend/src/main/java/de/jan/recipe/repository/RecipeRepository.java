@@ -177,7 +177,7 @@ public class RecipeRepository {
     }
 
     private void apply(Recipe recipe, RecipeRequest request, Collection<Recipe> existing) {
-        String title = collapse(request.getTitle());
+        String title = collapse(request.title());
         requireText(title, "Title", TITLE_MAX_LENGTH);
         String slug = slug(title);
         boolean duplicate = existing.stream()
@@ -186,33 +186,33 @@ public class RecipeRepository {
             throw new EntityStateException("A recipe with this title already exists");
         }
 
-        String image = request.getImage() == null ? "" : request.getImage().trim();
+        String image = request.image() == null ? "" : request.image().trim();
         requireText(image, "Image", SHORT_TEXT_MAX_LENGTH);
         // a new upload must exist; keeping the current image needs no check
         if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
             throw new EntityStateException("The uploaded image was not found, please upload it again");
         }
 
-        Integer portions = request.getDefaultPortions();
+        Integer portions = request.defaultPortions();
         if (portions == null || portions < 1 || portions > MAX_PORTIONS) {
             throw new EntityStateException("Portions must be between 1 and " + MAX_PORTIONS);
         }
 
-        String cuisine = collapse(request.getCuisine()).toLowerCase(Locale.GERMAN);
+        String cuisine = collapse(request.cuisine()).toLowerCase(Locale.GERMAN);
         requireText(cuisine, "Cuisine", SHORT_TEXT_MAX_LENGTH);
 
-        List<String> ingredients = cleanEntries(request.getIngredients(), "Ingredients");
-        List<String> preparation = cleanEntries(request.getPreparation(), "Preparation");
+        List<String> ingredients = cleanEntries(request.ingredients(), "Ingredients");
+        List<String> preparation = cleanEntries(request.preparation(), "Preparation");
 
         // unknown tag names are already rejected by Jackson when reading the request
         Set<RecipeTag> tags = new LinkedHashSet<>();
-        if (request.getTags() != null) {
-            request.getTags().stream().filter(Objects::nonNull).forEach(tags::add);
+        if (request.tags() != null) {
+            request.tags().stream().filter(Objects::nonNull).forEach(tags::add);
         }
 
         Set<Long> related = new LinkedHashSet<>();
-        if (request.getRelatedRecipeIds() != null) {
-            for (Long relatedId : request.getRelatedRecipeIds()) {
+        if (request.relatedRecipeIds() != null) {
+            for (Long relatedId : request.relatedRecipeIds()) {
                 if (relatedId == null || relatedId.equals(recipe.getId())) {
                     continue;
                 }

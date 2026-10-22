@@ -153,34 +153,34 @@ public class BackupRepository {
         List<TravelFolderDTO> folders = travelRepository.getFolders();
         Map<Long, String> names = new HashMap<>();
         for (TravelFolderDTO folder : folders) {
-            names.put(folder.getId(), folder.getName());
+            names.put(folder.id(), folder.name());
         }
         for (TravelFolderDTO folder : folders) {
             List<String> photos = new ArrayList<>();
             Map<String, String> captions = new LinkedHashMap<>();
             String cover = null;
-            for (TravelPhotoDTO photo : folder.getPhotos()) {
-                TravelPhotoFile file = travelRepository.getPhotoFile(photo.getId());
+            for (TravelPhotoDTO photo : folder.photos()) {
+                TravelPhotoFile file = travelRepository.getPhotoFile(photo.id());
                 if (file == null) {
                     continue;
                 }
-                String fileName = writeImage(zip, TRAVEL_IMAGE_DIR, photo.getId(), file.getData());
+                String fileName = writeImage(zip, TRAVEL_IMAGE_DIR, photo.id(), file.getData());
                 photos.add(fileName);
-                if (!photo.getCaption().isEmpty()) {
-                    captions.put(fileName, photo.getCaption());
+                if (!photo.caption().isEmpty()) {
+                    captions.put(fileName, photo.caption());
                 }
-                if (photo.getId().equals(folder.getCoverPhotoId())) {
+                if (photo.id().equals(folder.coverPhotoId())) {
                     cover = fileName;
                 }
             }
-            List<StopBackup> stops = folder.getStops().stream()
-                    .map(stop -> new StopBackup(stop.getName(), stop.getLatitude(), stop.getLongitude()))
+            List<StopBackup> stops = folder.stops().stream()
+                    .map(stop -> new StopBackup(stop.name(), stop.latitude(), stop.longitude()))
                     .toList();
             StopBackup first = stops.isEmpty() ? null : stops.getFirst();
-            result.add(new FolderBackup(folder.getName(), folder.getCountry(),
+            result.add(new FolderBackup(folder.name(), folder.country(),
                     first == null ? null : first.latitude(), first == null ? null : first.longitude(),
-                    stops, names.get(folder.getPreviousFolderId()),
-                    folder.getStartMonth(), folder.getEndMonth(), folder.getCuisine(), folder.getText(), cover, photos, captions));
+                    stops, names.get(folder.previousFolderId()),
+                    folder.startMonth(), folder.endMonth(), folder.cuisine(), folder.text(), cover, photos, captions));
         }
         return result;
     }

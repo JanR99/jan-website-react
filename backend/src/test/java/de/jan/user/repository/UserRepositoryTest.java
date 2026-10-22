@@ -13,11 +13,7 @@ class UserRepositoryTest extends ControllerTest {
 
     @Test
     void register_withoutName_isRejected() {
-        RegisterRequest request = new RegisterRequest();
-        request.setEmail("anna@example.com");
-        request.setPassword("password-123");
-        request.setFirstname(" ");
-        request.setLastname("Berg");
+        RegisterRequest request = new RegisterRequest("anna@example.com", "password-123", " ", "Berg");
 
         EntityStateException e = assertThrows(EntityStateException.class, () -> inDatastore(() -> userRepository.register(request)));
         assertEquals("First- and Surname must not be empty", e.getMessage());

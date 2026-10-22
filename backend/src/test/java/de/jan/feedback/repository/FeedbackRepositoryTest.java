@@ -18,8 +18,7 @@ class FeedbackRepositoryTest extends ControllerTest {
     @Test
     void withoutText_isRejected() {
         User user = userWith();
-        FeedbackRequest request = new FeedbackRequest();
-        request.setText(null);
+        FeedbackRequest request = new FeedbackRequest(null, null);
 
         EntityStateException e = assertThrows(EntityStateException.class, () -> inDatastore(() -> feedbackRepository.submit(user, request)));
         assertEquals("Text must not be empty", e.getMessage());

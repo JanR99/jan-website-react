@@ -46,14 +46,14 @@ public class KanjiStatsRepository {
      * A round of mistakes (practice) changes only that list.
      */
     public KanjiStatsDTO record(User user, KanjiResultRequest result) {
-        if (result == null || (!result.isPractice() && !LEVELS.contains(result.getLevel()))) {
+        if (result == null || (!Boolean.TRUE.equals(result.practice()) && !LEVELS.contains(result.level()))) {
             throw new EntityStateException("Level must be one of " + LEVELS);
         }
-        List<Boolean> answers = result.getAnswers();
+        List<Boolean> answers = result.answers();
         if (answers == null || answers.isEmpty() || answers.size() > MAX_WORDS || answers.contains(null)) {
             throw new EntityStateException("A round must have 1 to " + MAX_WORDS + " answers");
         }
-        List<KanjiResultRequest.Word> words = result.getWords();
+        List<KanjiResultRequest.Word> words = result.words();
         if (words != null) {
             validate(words, answers.size());
         }
@@ -65,8 +65,8 @@ public class KanjiStatsRepository {
         if (words != null) {
             updateMistakes(stats, words, answers);
         }
-        if (!result.isPractice()) {
-            countRound(stats, result.getLevel(), answers);
+        if (!Boolean.TRUE.equals(result.practice())) {
+            countRound(stats, result.level(), answers);
         }
         return toDTO(statsDAO.save(stats));
     }
@@ -94,10 +94,10 @@ public class KanjiStatsRepository {
             throw new EntityStateException("A round must have as many words as answers");
         }
         for (KanjiResultRequest.Word word : words) {
-            if (word == null || word.getWord() == null || word.getWord().isBlank()
-                    || word.getWord().length() > MAX_WORD_LENGTH
-                    || (word.getReading() != null && word.getReading().length() > MAX_READING_LENGTH)
-                    || (word.getMeaning() != null && word.getMeaning().length() > MAX_MEANING_LENGTH)) {
+            if (word == null || word.word() == null || word.word().isBlank()
+                    || word.word().length() > MAX_WORD_LENGTH
+                    || (word.reading() != null && word.reading().length() > MAX_READING_LENGTH)
+                    || (word.meaning() != null && word.meaning().length() > MAX_MEANING_LENGTH)) {
                 throw new EntityStateException("Words must have 1 to " + MAX_WORD_LENGTH + " characters, readings at most "
                         + MAX_READING_LENGTH + " and meanings at most " + MAX_MEANING_LENGTH);
             }
@@ -110,16 +110,16 @@ public class KanjiStatsRepository {
         for (int i = 0; i < words.size(); i++) {
             KanjiResultRequest.Word word = words.get(i);
             KanjiMistake mistake = mistakes.stream()
-                    .filter(entry -> entry.getWord().equals(word.getWord()))
+                    .filter(entry -> entry.getWord().equals(word.word()))
                     .findFirst()
                     .orElse(null);
             if (!answers.get(i)) {
                 if (mistake == null) {
-                    mistake = new KanjiMistake(word.getWord(), word.getReading(), word.getMeaning(), now);
+                    mistake = new KanjiMistake(word.word(), word.reading(), word.meaning(), now);
                     mistakes.add(mistake);
                 }
-                mistake.setReading(word.getReading());
-                mistake.setMeaning(word.getMeaning());
+                mistake.setReading(word.reading());
+                mistake.setMeaning(word.meaning());
                 mistake.setWrong(mistake.getWrong() + 1);
                 mistake.setRightInRow(0);
             } else if (mistake != null) {

@@ -109,17 +109,12 @@ public abstract class ControllerTest {
     protected User userWith(Permission... permissions) {
         return inDatastore(() -> {
             int number = COUNTER.incrementAndGet();
-            RegisterRequest register = new RegisterRequest();
-            register.setEmail("user" + number + "@example.com");
-            register.setPassword("password-" + number);
-            register.setFirstname("User");
-            register.setLastname("Number " + number);
+            RegisterRequest register = new RegisterRequest("user" + number + "@example.com", "password-" + number,
+                    "User", "Number " + number);
             User user = userRepository.register(register);
 
             if (permissions.length > 0) {
-                RoleRequest roleRequest = new RoleRequest();
-                roleRequest.setName("role-" + number);
-                roleRequest.setPermissions(List.of(permissions));
+                RoleRequest roleRequest = new RoleRequest("role-" + number, List.of(permissions));
                 Role role = roleRepository.create(roleRequest);
                 user.getRoleIds().add(role.getId());
                 userRepository.save(user);
@@ -129,9 +124,7 @@ public abstract class ControllerTest {
     }
 
     protected Role storedRole(String name, Permission... permissions) {
-        RoleRequest request = new RoleRequest();
-        request.setName(name);
-        request.setPermissions(List.of(permissions));
+        RoleRequest request = new RoleRequest(name, List.of(permissions));
         return inDatastore(() -> roleRepository.create(request));
     }
 

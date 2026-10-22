@@ -85,7 +85,7 @@ public class TravelController {
             @RequestBody TravelFolderTextRequest body
     ) {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
-        return ResponseEntity.ok(travelRepository.setText(id, body.getText()));
+        return ResponseEntity.ok(travelRepository.setText(id, body.text()));
     }
 
     /** Without photoId the folder shows its first photo again. */
@@ -109,7 +109,7 @@ public class TravelController {
             @RequestBody TravelPhotoOrderRequest body
     ) {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
-        return ResponseEntity.ok(travelRepository.setPhotoOrder(id, body.getPhotoIds()));
+        return ResponseEntity.ok(travelRepository.setPhotoOrder(id, body.photoIds()));
     }
 
     @Operation(operationId = DELETE_TRAVEL_FOLDER)
@@ -144,7 +144,7 @@ public class TravelController {
             @RequestBody TravelPhotoCaptionRequest body
     ) {
         Authorization.with(user).require(Permission.MANAGE_TRAVEL);
-        return ResponseEntity.ok(travelRepository.setCaption(id, body.getCaption()));
+        return ResponseEntity.ok(travelRepository.setCaption(id, body.caption()));
     }
 
     @Operation(operationId = DELETE_TRAVEL_PHOTO)

@@ -1,21 +1,9 @@
 package de.jan.travel;
 
-public class TravelStopDTO {
-
-    private String name;
-    private double latitude;
-    private double longitude;
+/** @param name empty if the stop has none */
+public record TravelStopDTO(String name, double latitude, double longitude) {
 
     public static TravelStopDTO from(TravelStop stop) {
-        TravelStopDTO dto = new TravelStopDTO();
-        dto.name = stop.getName();
-        dto.latitude = stop.getLatitude();
-        dto.longitude = stop.getLongitude();
-        return dto;
+        return new TravelStopDTO(stop.getName(), stop.getLatitude(), stop.getLongitude());
     }
-
-    /** empty if the stop has none */
-    public String getName() { return name; }
-    public double getLatitude() { return latitude; }
-    public double getLongitude() { return longitude; }
 }

@@ -69,7 +69,7 @@ public class UserController {
             @RequestBody LoginRequest request
     ) {
         User user = userRepository.login(request);
-        String token = jwtService.generateToken(user, request.isRememberMe());
+        String token = jwtService.generateToken(user, Boolean.TRUE.equals(request.rememberMe()));
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(user)));
     }
 
@@ -89,7 +89,7 @@ public class UserController {
     public ResponseEntity<Void> requestPasswordReset(
             @RequestBody PasswordResetRequest request
     ) {
-        passwordResetRepository.requestReset(request.getEmail());
+        passwordResetRepository.requestReset(request.email());
         return ResponseEntity.noContent().build();
     }
 
@@ -98,7 +98,7 @@ public class UserController {
     public ResponseEntity<Void> resetPassword(
             @RequestBody ResetPasswordRequest request
     ) {
-        passwordResetRepository.resetPassword(request.getToken(), request.getPassword());
+        passwordResetRepository.resetPassword(request.token(), request.password());
         return ResponseEntity.noContent().build();
     }
 
@@ -108,7 +108,7 @@ public class UserController {
             @CurrentUser User user,
             @RequestBody UpdateProfileRequest body
     ) {
-        User updatedUser = userRepository.updateName(user, body.getFirstname(), body.getLastname());
+        User updatedUser = userRepository.updateName(user, body.firstname(), body.lastname());
         return ResponseEntity.ok(UserDTO.from(updatedUser));
     }
 
@@ -120,7 +120,7 @@ public class UserController {
             @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
             @RequestBody ChangePasswordRequest body
     ) {
-        User updatedUser = userRepository.changeOwnPassword(user, body.getCurrentPassword(), body.getNewPassword());
+        User updatedUser = userRepository.changeOwnPassword(user, body.currentPassword(), body.newPassword());
         // the change logs the account out everywhere; with a new token this device stays logged in
         String token = jwtService.reissueToken(updatedUser, authorization.substring(JwtService.BEARER_PREFIX.length()));
         return ResponseEntity.ok(new LoginResponse(token, UserDTO.from(updatedUser)));
@@ -132,7 +132,7 @@ public class UserController {
             @CurrentUser User user,
             @RequestBody DeleteAccountRequest body
     ) {
-        userRepository.deleteAccount(user, body.getPassword());
+        userRepository.deleteAccount(user, body.password());
         return ResponseEntity.noContent().build();
     }
 
@@ -160,6 +160,6 @@ public class UserController {
             @RequestBody SetRolesRequest body
     ) {
         Authorization.with(caller).require(Permission.MANAGE_USERS);
-        return ResponseEntity.ok(UserAdminDTO.from(userRepository.setRoles(caller, body.getEmail(), body.getRoleIds())));
+        return ResponseEntity.ok(UserAdminDTO.from(userRepository.setRoles(caller, body.email(), body.roleIds())));
     }
 }

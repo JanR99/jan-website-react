@@ -50,11 +50,11 @@ public class KanaStatsRepository {
      * changes only that list.
      */
     public KanaStatsDTO record(User user, KanaResultRequest result) {
-        List<Boolean> answers = result == null ? null : result.getAnswers();
+        List<Boolean> answers = result == null ? null : result.answers();
         if (answers == null || answers.isEmpty() || answers.size() > MAX_KANA || answers.contains(null)) {
             throw new EntityStateException("A round must have 1 to " + MAX_KANA + " answers");
         }
-        List<String> kana = result.getKana();
+        List<String> kana = result.kana();
         if (kana == null || kana.size() != answers.size()) {
             throw new EntityStateException("A round must have as many characters as answers");
         }
@@ -65,7 +65,7 @@ public class KanaStatsRepository {
             stats = new KanaStats(user.getId());
         }
         updateMistakes(stats, kana, answers);
-        if (!result.isPractice()) {
+        if (!Boolean.TRUE.equals(result.practice())) {
             countRound(stats, scripts, answers);
         }
         return toDTO(statsDAO.save(stats));

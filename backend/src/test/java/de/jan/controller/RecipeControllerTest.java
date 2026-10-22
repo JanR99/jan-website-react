@@ -101,8 +101,8 @@ class RecipeControllerTest extends ControllerTest {
 
         @Test
         void withPermission_returnsTheStoredRecipe() throws Exception {
-            RecipeRequest request = request("  Apfelkuchen   mit Zimt ");
-            request.setCuisine("Deutsch");
+            RecipeRequest request = request("  Apfelkuchen   mit Zimt ", uploadedImage(), 2, "Deutsch",
+                    List.of(RecipeTag.VEGETARIAN), List.of("Teig:", "200 g Mehl"));
 
             mockMvc.perform(post("/api/recipes/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
@@ -113,7 +113,7 @@ class RecipeControllerTest extends ControllerTest {
                     // title and cuisine are cleaned up
                     .andExpect(jsonPath("$.title").value("Apfelkuchen mit Zimt"))
                     .andExpect(jsonPath("$.cuisine").value("deutsch"))
-                    .andExpect(jsonPath("$.image").value(request.getImage()))
+                    .andExpect(jsonPath("$.image").value(request.image()))
                     .andExpect(jsonPath("$.defaultPortions").value(2))
                     .andExpect(jsonPath("$.tags", contains("VEGETARIAN")))
                     .andExpect(jsonPath("$.ingredients", contains("Teig:", "200 g Mehl")))
@@ -150,8 +150,8 @@ class RecipeControllerTest extends ControllerTest {
 
         @Test
         void withImageThatWasNotUploaded_returns400() throws Exception {
-            RecipeRequest request = request("Apfelkuchen");
-            request.setImage("uploads/123456");
+            RecipeRequest request = request("Apfelkuchen", "uploads/123456", 2, "deutsch",
+                    List.of(RecipeTag.VEGETARIAN), List.of("Teig:", "200 g Mehl"));
 
             mockMvc.perform(post("/api/recipes/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
@@ -163,8 +163,8 @@ class RecipeControllerTest extends ControllerTest {
 
         @Test
         void withoutIngredients_returns400() throws Exception {
-            RecipeRequest request = request("Apfelkuchen");
-            request.setIngredients(List.of(" "));
+            RecipeRequest request = request("Apfelkuchen", uploadedImage(), 2, "deutsch",
+                    List.of(RecipeTag.VEGETARIAN), List.of(" "));
 
             mockMvc.perform(post("/api/recipes/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
@@ -218,10 +218,8 @@ class RecipeControllerTest extends ControllerTest {
         @Test
         void withPermission_returnsTheChangedRecipe() throws Exception {
             Recipe recipe = storedRecipe("Apfelkuchen");
-            RecipeRequest request = request("Birnenkuchen");
-            request.setImage(recipe.getImage());
-            request.setDefaultPortions(6);
-            request.setTags(List.of(RecipeTag.VEGAN));
+            RecipeRequest request = request("Birnenkuchen", recipe.getImage(), 6, "deutsch",
+                    List.of(RecipeTag.VEGAN), List.of("Teig:", "200 g Mehl"));
 
             mockMvc.perform(post("/api/recipes/update").param("id", recipe.getId().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
@@ -251,8 +249,8 @@ class RecipeControllerTest extends ControllerTest {
         void withTitleOfAnotherRecipe_returns400() throws Exception {
             storedRecipe("Apfelkuchen");
             Recipe other = storedRecipe("Birnenkuchen");
-            RecipeRequest request = request("Apfelkuchen");
-            request.setImage(other.getImage());
+            RecipeRequest request = request("Apfelkuchen", other.getImage(), 2, "deutsch",
+                    List.of(RecipeTag.VEGETARIAN), List.of("Teig:", "200 g Mehl"));
 
             mockMvc.perform(post("/api/recipes/update").param("id", other.getId().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
@@ -378,10 +376,12 @@ class RecipeControllerTest extends ControllerTest {
 
     /** A valid request; its image is uploaded first, like the editor does. */
     private RecipeRequest request(String title) {
-        return new RecipeRequest(
-                uploadedImage(), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
-                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
-        );
+        return request(title, uploadedImage(), 2, "deutsch", List.of(RecipeTag.VEGETARIAN), List.of("Teig:", "200 g Mehl"));
+    }
+
+    private static RecipeRequest request(String title, String image, int portions, String cuisine, List<RecipeTag> tags,
+                                         List<String> ingredients) {
+        return new RecipeRequest(image, title, portions, cuisine, tags, ingredients, List.of("Alles mischen.", "Backen."));
     }
 
     private String uploadedImage() {

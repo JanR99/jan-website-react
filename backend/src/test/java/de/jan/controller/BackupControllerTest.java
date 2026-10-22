@@ -153,11 +153,11 @@ class BackupControllerTest extends ControllerTest {
         void containsTheTravelFoldersWithTheirPhotos() throws Exception {
             storedFolder("Andorra", "", null, null);
             TravelFolderDTO japan = storedFolder("Tokio", "Japan", "2025-04", "2025-05");
-            Long first = storedPhoto(japan.getId(), JPEG);
-            Long second = storedPhoto(japan.getId(), PNG);
-            inDatastore(() -> travelRepository.setText(japan.getId(), "Erster Absatz.\n\nZweiter Absatz."));
+            Long first = storedPhoto(japan.id(), JPEG);
+            Long second = storedPhoto(japan.id(), PNG);
+            inDatastore(() -> travelRepository.setText(japan.id(), "Erster Absatz.\n\nZweiter Absatz."));
             inDatastore(() -> travelRepository.setCaption(second, "Fuji"));
-            inDatastore(() -> travelRepository.setCover(japan.getId(), second));
+            inDatastore(() -> travelRepository.setCover(japan.id(), second));
 
             Map<String, byte[]> files = export();
 
@@ -202,8 +202,8 @@ class BackupControllerTest extends ControllerTest {
         @Test
         void leavesOutPhotosWhoseFileIsGone() throws Exception {
             TravelFolderDTO japan = storedFolder("Tokio", "Japan", null, null);
-            Long kept = storedPhoto(japan.getId(), JPEG);
-            Long lost = storedPhoto(japan.getId(), PNG);
+            Long kept = storedPhoto(japan.id(), JPEG);
+            Long lost = storedPhoto(japan.id(), PNG);
             inDatastore(() -> {
                 new TravelPhotoFileDAO().delete(lost);
                 return null;
@@ -310,7 +310,7 @@ class BackupControllerTest extends ControllerTest {
             Recipe old = storedRecipe("Alt", JPEG, List.of());
             inDatastore(() -> favoritesRepository.addFavorite(userRepository.getByEmail(fan.getEmail()), old.getId()));
             TravelFolderDTO oldFolder = storedFolder("Andorra", "", null, null);
-            Long oldPhoto = storedPhoto(oldFolder.getId(), JPEG);
+            Long oldPhoto = storedPhoto(oldFolder.id(), JPEG);
 
             Map<String, byte[]> files = new LinkedHashMap<>();
             files.put("recipes/images/1.jpg", JPEG);
@@ -360,35 +360,35 @@ class BackupControllerTest extends ControllerTest {
 
             // the newest trip first, like the travel diary
             List<TravelFolderDTO> folders = inDatastore(() -> travelRepository.getFolders());
-            assertEquals(List.of("Tokio", "Seoul"), folders.stream().map(TravelFolderDTO::getName).toList());
+            assertEquals(List.of("Tokio", "Seoul"), folders.stream().map(TravelFolderDTO::name).toList());
             TravelFolderDTO tokio = folders.get(0);
             TravelFolderDTO seoul = folders.get(1);
-            assertEquals("Japan", tokio.getCountry());
-            assertEquals(2, tokio.getStops().size());
-            assertEquals("Kyoto", tokio.getStops().get(1).getName());
-            assertEquals(135.7681, tokio.getStops().get(1).getLongitude());
+            assertEquals("Japan", tokio.country());
+            assertEquals(2, tokio.stops().size());
+            assertEquals("Kyoto", tokio.stops().get(1).name());
+            assertEquals(135.7681, tokio.stops().get(1).longitude());
             // the folder the trip came from by name in the backup, by the new id in the database
-            assertEquals(seoul.getId(), tokio.getPreviousFolderId());
-            assertEquals("2025-04", tokio.getStartMonth());
-            assertEquals("2025-05", tokio.getEndMonth());
-            assertEquals("japanisch", tokio.getCuisine());
-            assertEquals("Erster Absatz.\n\nZweiter Absatz.", tokio.getText());
+            assertEquals(seoul.id(), tokio.previousFolderId());
+            assertEquals("2025-04", tokio.startMonth());
+            assertEquals("2025-05", tokio.endMonth());
+            assertEquals("japanisch", tokio.cuisine());
+            assertEquals("Erster Absatz.\n\nZweiter Absatz.", tokio.text());
             // the photos in their order
-            assertEquals(2, tokio.getPhotos().size());
-            TravelPhotoDTO first = tokio.getPhotos().get(0);
-            TravelPhotoDTO second = tokio.getPhotos().get(1);
-            assertArrayEquals(JPEG, inDatastore(() -> travelRepository.getPhotoFile(first.getId())).getData());
-            assertArrayEquals(PNG, inDatastore(() -> travelRepository.getPhotoFile(second.getId())).getData());
-            assertEquals("", first.getCaption());
-            assertEquals("Fuji", second.getCaption());
-            assertEquals(second.getId(), tokio.getCoverPhotoId());
+            assertEquals(2, tokio.photos().size());
+            TravelPhotoDTO first = tokio.photos().get(0);
+            TravelPhotoDTO second = tokio.photos().get(1);
+            assertArrayEquals(JPEG, inDatastore(() -> travelRepository.getPhotoFile(first.id())).getData());
+            assertArrayEquals(PNG, inDatastore(() -> travelRepository.getPhotoFile(second.id())).getData());
+            assertEquals("", first.caption());
+            assertEquals("Fuji", second.caption());
+            assertEquals(second.id(), tokio.coverPhotoId());
 
-            assertEquals("Korea", seoul.getCountry());
-            assertEquals(0, seoul.getStops().size());
-            assertNull(seoul.getPreviousFolderId());
-            assertEquals("2025-03", seoul.getStartMonth());
-            assertNull(seoul.getEndMonth());
-            assertEquals(0, seoul.getPhotos().size());
+            assertEquals("Korea", seoul.country());
+            assertEquals(0, seoul.stops().size());
+            assertNull(seoul.previousFolderId());
+            assertEquals("2025-03", seoul.startMonth());
+            assertNull(seoul.endMonth());
+            assertEquals(0, seoul.photos().size());
 
             // the seed data must not come on top of it on the next start
             boolean seedImported = inDatastore(() -> travelRepository.isSeedImported());
@@ -401,11 +401,11 @@ class BackupControllerTest extends ControllerTest {
             storedRecipe("Pasta", PNG, List.of(pesto.getId()));
             storedFolder("Andorra", "", null, null);
             TravelFolderDTO japan = storedFolder("Tokio", "Japan", "2025-04", "2025-05");
-            storedPhoto(japan.getId(), JPEG);
-            Long second = storedPhoto(japan.getId(), PNG);
-            inDatastore(() -> travelRepository.setText(japan.getId(), "Erster Absatz.\n\nZweiter Absatz."));
+            storedPhoto(japan.id(), JPEG);
+            Long second = storedPhoto(japan.id(), PNG);
+            inDatastore(() -> travelRepository.setText(japan.id(), "Erster Absatz.\n\nZweiter Absatz."));
             inDatastore(() -> travelRepository.setCaption(second, "Fuji"));
-            inDatastore(() -> travelRepository.setCover(japan.getId(), second));
+            inDatastore(() -> travelRepository.setCover(japan.id(), second));
             String bearer = bearerWith(Permission.EXPORT_DATA);
             byte[] backup = mockMvc.perform(get("/api/backup/export").header(HttpHeaders.AUTHORIZATION, bearer))
                     .andExpect(status().isOk())
@@ -453,8 +453,8 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(List.of(), recipes.getFirst().getRelatedRecipeIds());
             List<TravelFolderDTO> folders = inDatastore(() -> travelRepository.getFolders());
             assertEquals(1, folders.size());
-            assertEquals("Japan", folders.getFirst().getCountry());
-            assertEquals(1, folders.getFirst().getPhotos().size());
+            assertEquals("Japan", folders.getFirst().country());
+            assertEquals(1, folders.getFirst().photos().size());
         }
 
         @Test
@@ -486,10 +486,10 @@ class BackupControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.skippedPhotos").value(1));
 
             TravelFolderDTO porto = inDatastore(() -> travelRepository.getFolders()).getFirst();
-            assertEquals(1, porto.getStops().size());
-            assertEquals("Porto", porto.getStops().getFirst().getName());
-            assertEquals(41.1579, porto.getStops().getFirst().getLatitude());
-            assertNull(porto.getPreviousFolderId());
+            assertEquals(1, porto.stops().size());
+            assertEquals("Porto", porto.stops().getFirst().name());
+            assertEquals(41.1579, porto.stops().getFirst().latitude());
+            assertNull(porto.previousFolderId());
         }
     }
 
@@ -511,29 +511,24 @@ class BackupControllerTest extends ControllerTest {
     private Recipe storedRecipe(String title, byte[] image, List<Long> relatedRecipeIds) {
         RecipeRequest request = new RecipeRequest(
                 inDatastore(() -> imageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
-                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen.")
+                List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen."), relatedRecipeIds
         );
-        request.setRelatedRecipeIds(relatedRecipeIds);
         return inDatastore(() -> recipeRepository.create(request));
     }
 
     /** A folder with stops in Tokyo and Kyoto and the Japanese cuisine if it has a country, otherwise one with nothing but its name. */
     private TravelFolderDTO storedFolder(String name, String country, String startMonth, String endMonth) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(name);
-        request.setCountry(country);
-        if (!country.isEmpty()) {
-            request.setStops(List.of(new TravelStopRequest("Tokio", 35.6762, 139.6503), new TravelStopRequest("Kyoto", 35.0116, 135.7681)));
-            request.setCuisine("japanisch");
-        }
-        request.setStartMonth(startMonth);
-        request.setEndMonth(endMonth);
+        TravelFolderRequest request = country.isEmpty()
+                ? new TravelFolderRequest(name, country, null, null, startMonth, endMonth, null)
+                : new TravelFolderRequest(name, country,
+                        List.of(new TravelStopRequest("Tokio", 35.6762, 139.6503), new TravelStopRequest("Kyoto", 35.0116, 135.7681)),
+                        null, startMonth, endMonth, "japanisch");
         return inDatastore(() -> travelRepository.createFolder(request));
     }
 
     /** Adds a photo and returns its id. */
     private Long storedPhoto(Long folderId, byte[] data) {
-        return inDatastore(() -> travelRepository.addPhoto(folderId, data)).getPhotos().getLast().getId();
+        return inDatastore(() -> travelRepository.addPhoto(folderId, data)).photos().getLast().id();
     }
 
     private static MockHttpServletRequestBuilder restore(String bearer, byte[] file) {
@@ -612,7 +607,7 @@ class BackupControllerTest extends ControllerTest {
     }
 
     private List<String> folderNames() {
-        return inDatastore(() -> travelRepository.getFolders()).stream().map(TravelFolderDTO::getName).toList();
+        return inDatastore(() -> travelRepository.getFolders()).stream().map(TravelFolderDTO::name).toList();
     }
 
     private byte[] recipeImage(Recipe recipe) {

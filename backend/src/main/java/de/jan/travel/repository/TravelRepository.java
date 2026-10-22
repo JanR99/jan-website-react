@@ -295,7 +295,7 @@ public class TravelRepository {
     }
 
     private void apply(TravelFolder folder, TravelFolderRequest request) {
-        String name = collapse(request.getName());
+        String name = collapse(request.name());
         if (name.isEmpty()) {
             throw new EntityStateException("Name must not be empty");
         }
@@ -306,17 +306,17 @@ public class TravelRepository {
             throw new EntityStateException("A folder with this name already exists");
         }
 
-        String country = collapse(request.getCountry());
+        String country = collapse(request.country());
         requireMaxLength(country, NAME_MAX_LENGTH, "Country");
 
-        List<TravelStop> stops = stops(request.getStops());
-        Long previousFolderId = request.getPreviousFolderId();
+        List<TravelStop> stops = stops(request.stops());
+        Long previousFolderId = request.previousFolderId();
         if (previousFolderId != null) {
             requirePreviousFolder(folder.getId(), previousFolderId);
         }
 
-        String startMonth = month(request.getStartMonth(), "Start month");
-        String endMonth = month(request.getEndMonth(), "End month");
+        String startMonth = month(request.startMonth(), "Start month");
+        String endMonth = month(request.endMonth(), "End month");
         if (endMonth != null && startMonth == null) {
             throw new EntityStateException("An end month needs a start month");
         }
@@ -324,7 +324,7 @@ public class TravelRepository {
             throw new EntityStateException("The end month must not be before the start month");
         }
 
-        String cuisine = collapse(request.getCuisine());
+        String cuisine = collapse(request.cuisine());
         requireMaxLength(cuisine, NAME_MAX_LENGTH, "Cuisine");
 
         folder.setName(name);
@@ -346,14 +346,14 @@ public class TravelRepository {
         }
         List<TravelStop> stops = new ArrayList<>();
         for (TravelStopRequest stop : requests) {
-            if (stop == null || stop.getLatitude() == null || stop.getLongitude() == null) {
+            if (stop == null || stop.latitude() == null || stop.longitude() == null) {
                 throw new EntityStateException("A stop needs a latitude and a longitude");
             }
-            requireRange(stop.getLatitude(), 90, "Latitude");
-            requireRange(stop.getLongitude(), 180, "Longitude");
-            String name = collapse(stop.getName());
+            requireRange(stop.latitude(), 90, "Latitude");
+            requireRange(stop.longitude(), 180, "Longitude");
+            String name = collapse(stop.name());
             requireMaxLength(name, NAME_MAX_LENGTH, "Stop name");
-            stops.add(new TravelStop(name, stop.getLatitude(), stop.getLongitude()));
+            stops.add(new TravelStop(name, stop.latitude(), stop.longitude()));
         }
         return stops;
     }

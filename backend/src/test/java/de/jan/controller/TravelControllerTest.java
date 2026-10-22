@@ -61,13 +61,13 @@ class TravelControllerTest extends ControllerTest {
         void returnsAllFoldersSortedByNameWithTheirPhotos() throws Exception {
             inDatastore(() -> travelRepository.createFolder(request("Prag", "Tschechien", 50.0755, 14.4378)));
             TravelFolderDTO andorra = storedFolder("Andorra", "");
-            Long first = storedPhoto(andorra.getId());
-            Long second = storedPhoto(andorra.getId());
+            Long first = storedPhoto(andorra.id());
+            Long second = storedPhoto(andorra.id());
 
             mockMvc.perform(get("/api/travel/folders/list"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[*].name", contains("Andorra", "Prag")))
-                    .andExpect(jsonPath("$[0].id").value(andorra.getId()))
+                    .andExpect(jsonPath("$[0].id").value(andorra.id()))
                     .andExpect(jsonPath("$[0].country").value(""))
                     // in the order they were added; the first one is the cover
                     .andExpect(jsonPath("$[0].photos", hasSize(2)))
@@ -388,7 +388,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "Portugal");
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Lissabon", "Portugal"))))
                     .andExpect(status().isUnauthorized())
@@ -399,7 +399,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutPermission_returns403AndChangesNothing() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "Portugal");
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Lissabon", "Portugal"))))
@@ -412,14 +412,14 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_changesNameAndCountryAndKeepsThePhotos() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "Portugal");
-            Long photo = storedPhoto(folder.getId());
+            Long photo = storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Lissabon", ""))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.id").value(folder.id()))
                     .andExpect(jsonPath("$.name").value("Lissabon"))
                     .andExpect(jsonPath("$.country").value(""))
                     .andExpect(jsonPath("$.photos", hasSize(1)))
@@ -432,7 +432,7 @@ class TravelControllerTest extends ControllerTest {
         void withPosition_setsThePlaceOnTheMap() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "Portugal");
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal", 41.1496, -8.611))))
@@ -449,7 +449,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutPosition_takesTheFolderOffTheMap() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(request("Porto", "Portugal", 41.1496, -8.611)));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal"))))
@@ -461,7 +461,7 @@ class TravelControllerTest extends ControllerTest {
         void withPositionOutOfRange_returns400AndKeepsThePosition() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(request("Porto", "Portugal", 41.1496, -8.611)));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Lissabon", "Portugal", -91.0, -8.611))))
@@ -477,7 +477,7 @@ class TravelControllerTest extends ControllerTest {
         void withMonths_changesWhenTheTripWas() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(requestWithMonths("Porto", "2025-03", null))))
@@ -490,7 +490,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutMonths_removesTheDate() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", ""))))
@@ -503,7 +503,7 @@ class TravelControllerTest extends ControllerTest {
         void withCuisine_changesTheCuisineOfTheTrip() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithCuisine("Japan", "chinesisch")));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(requestWithCuisine("Japan", "japanisch"))))
@@ -515,7 +515,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutCuisine_removesIt() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithCuisine("Japan", "japanisch")));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Japan", ""))))
@@ -527,7 +527,7 @@ class TravelControllerTest extends ControllerTest {
         void withEndMonthBeforeStartMonth_returns400AndKeepsTheDate() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", "2024-10")));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(requestWithMonths("Porto", "2024-09", "2024-08"))))
@@ -540,9 +540,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void keepsTheText() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+            inDatastore(() -> travelRepository.setText(folder.id(), "Drei Tage am Douro."));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Lissabon", "Portugal"))))
@@ -555,7 +555,7 @@ class TravelControllerTest extends ControllerTest {
         void withItsOwnName_isAllowed() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", "Portugal"))))
@@ -568,7 +568,7 @@ class TravelControllerTest extends ControllerTest {
             storedFolder("Prag", "");
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Prag", ""))))
@@ -647,7 +647,7 @@ class TravelControllerTest extends ControllerTest {
         void withFewerStops_replacesThem() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(withStops(request("Spanien", ""), stops(3))));
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(withStops(request("Spanien", ""), new TravelStopRequest("Madrid", 40.4168, -3.7038)))))
@@ -677,21 +677,19 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPreviousFolder_storesWhereTheTripCameFrom() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(portugal.getId());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(portugal.id());
 
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.previousFolderId").value(portugal.getId()));
+                    .andExpect(jsonPath("$.previousFolderId").value(portugal.id()));
         }
 
         @Test
         void withUnknownPreviousFolder_returns400AndStoresNothing() throws Exception {
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(12345L);
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(12345L);
 
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -706,10 +704,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withItselfAsPreviousFolder_returns400() throws Exception {
             TravelFolderDTO spanien = storedFolder("Spanien", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(spanien.getId());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(spanien.id());
 
-            mockMvc.perform(post("/api/travel/folders/update").param("id", spanien.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/update").param("id", spanien.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request)))
@@ -720,17 +717,14 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPreviousFolderThatComesFromThisOne_returns400AndKeepsTheRoute() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest spanienRequest = request("Spanien", "");
-            spanienRequest.setPreviousFolderId(portugal.getId());
+            TravelFolderRequest spanienRequest = request("Spanien", "").withPreviousFolderId(portugal.id());
             TravelFolderDTO spanien = inDatastore(() -> travelRepository.createFolder(spanienRequest));
-            TravelFolderRequest frankreichRequest = request("Frankreich", "");
-            frankreichRequest.setPreviousFolderId(spanien.getId());
+            TravelFolderRequest frankreichRequest = request("Frankreich", "").withPreviousFolderId(spanien.id());
             TravelFolderDTO frankreich = inDatastore(() -> travelRepository.createFolder(frankreichRequest));
 
             // Portugal would come from Frankreich, which comes from Spanien, which comes from Portugal
-            TravelFolderRequest request = request("Portugal", "");
-            request.setPreviousFolderId(frankreich.getId());
-            mockMvc.perform(post("/api/travel/folders/update").param("id", portugal.getId().toString())
+            TravelFolderRequest request = request("Portugal", "").withPreviousFolderId(frankreich.id());
+            mockMvc.perform(post("/api/travel/folders/update").param("id", portugal.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request)))
@@ -741,11 +735,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void deletingThePreviousFolder_removesItFromTheNextOne() throws Exception {
             TravelFolderDTO portugal = storedFolder("Portugal", "");
-            TravelFolderRequest request = request("Spanien", "");
-            request.setPreviousFolderId(portugal.getId());
+            TravelFolderRequest request = request("Spanien", "").withPreviousFolderId(portugal.id());
             inDatastore(() -> travelRepository.createFolder(request));
 
-            mockMvc.perform(post("/api/travel/folders/delete").param("id", portugal.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", portugal.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNoContent());
 
@@ -762,7 +755,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest("Drei Tage am Douro."))))
                     .andExpect(status().isUnauthorized())
@@ -772,9 +765,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutPermission_returns403AndKeepsTheText() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+            inDatastore(() -> travelRepository.setText(folder.id(), "Drei Tage am Douro."));
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest("Etwas anderes"))))
@@ -787,14 +780,14 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_returnsTheFolderWithTheText() throws Exception {
             TravelFolderDTO folder = inDatastore(() -> travelRepository.createFolder(requestWithMonths("Porto", "2024-09", null)));
-            Long photo = storedPhoto(folder.getId());
+            Long photo = storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest("Drei Tage am Douro."))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.id").value(folder.id()))
                     .andExpect(jsonPath("$.text").value("Drei Tage am Douro."))
                     // everything else stays
                     .andExpect(jsonPath("$.name").value("Porto"))
@@ -809,7 +802,7 @@ class TravelControllerTest extends ControllerTest {
             TravelFolderDTO folder = storedFolder("Porto", "");
             String text = "  Erster Absatz.  \r\n\r\n\r\n\r\nZweiter Absatz,\t\nzweite Zeile.\n   \nDritter Absatz.\n\n";
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest(text))))
@@ -820,9 +813,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withEmptyText_removesIt() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+            inDatastore(() -> travelRepository.setText(folder.id(), "Drei Tage am Douro."));
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest(" \n "))))
@@ -835,9 +828,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutText_removesIt() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+            inDatastore(() -> travelRepository.setText(folder.id(), "Drei Tage am Douro."));
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest(null))))
@@ -850,7 +843,7 @@ class TravelControllerTest extends ControllerTest {
             TravelFolderDTO folder = storedFolder("Porto", "");
             String text = "x".repeat(TravelRepository.TEXT_MAX_LENGTH);
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest(text))))
@@ -861,9 +854,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withTooLongText_returns400AndKeepsTheText() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            inDatastore(() -> travelRepository.setText(folder.getId(), "Drei Tage am Douro."));
+            inDatastore(() -> travelRepository.setText(folder.id(), "Drei Tage am Douro."));
 
-            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest("x".repeat(TravelRepository.TEXT_MAX_LENGTH + 1)))))
@@ -890,10 +883,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long photo = storedPhoto(folder.getId());
+            Long photo = storedPhoto(folder.id());
 
             mockMvc.perform(post("/api/travel/folders/setCover")
-                            .param("id", folder.getId().toString()).param("photoId", photo.toString()))
+                            .param("id", folder.id().toString()).param("photoId", photo.toString()))
                     .andExpect(status().isUnauthorized())
                     .andExpect(content().string(NOT_LOGGED_IN));
         }
@@ -901,10 +894,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutPermission_returns403() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long photo = storedPhoto(folder.getId());
+            Long photo = storedPhoto(folder.id());
 
             mockMvc.perform(post("/api/travel/folders/setCover")
-                            .param("id", folder.getId().toString()).param("photoId", photo.toString())
+                            .param("id", folder.id().toString()).param("photoId", photo.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
@@ -913,11 +906,11 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_makesThePhotoTheCover() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
 
             mockMvc.perform(post("/api/travel/folders/setCover")
-                            .param("id", folder.getId().toString()).param("photoId", second.toString())
+                            .param("id", folder.id().toString()).param("photoId", second.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.coverPhotoId").value(second))
@@ -931,11 +924,11 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutPhotoId_goesBackToTheFirstPhoto() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            inDatastore(() -> travelRepository.setCover(folder.getId(), second));
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            inDatastore(() -> travelRepository.setCover(folder.id(), second));
 
-            mockMvc.perform(post("/api/travel/folders/setCover").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setCover").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.coverPhotoId").value(first));
@@ -944,10 +937,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPhotoOfAnotherFolder_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long foreign = storedPhoto(storedFolder("Prag", "").getId());
+            Long foreign = storedPhoto(storedFolder("Prag", "").id());
 
             mockMvc.perform(post("/api/travel/folders/setCover")
-                            .param("id", folder.getId().toString()).param("photoId", foreign.toString())
+                            .param("id", folder.id().toString()).param("photoId", foreign.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("The photo does not belong to this folder"));
@@ -968,10 +961,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(second, first))))
                     .andExpect(status().isUnauthorized())
@@ -981,10 +974,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutPermission_returns403AndKeepsTheOrder() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(second, first))))
@@ -999,12 +992,12 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_putsThePhotosIntoTheOrder() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            Long third = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            Long third = storedPhoto(folder.id());
             inDatastore(() -> travelRepository.setCaption(third, "Blick auf den Douro"));
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(third, first, second))))
@@ -1028,12 +1021,12 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void aPhotoAddedLater_comesAfterTheSortedOnes() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            inDatastore(() -> travelRepository.setPhotoOrder(folder.getId(), List.of(second, first)));
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            inDatastore(() -> travelRepository.setPhotoOrder(folder.id(), List.of(second, first)));
 
-            Long third = storedPhoto(folder.getId());
-            Long fourth = storedPhoto(folder.getId());
+            Long third = storedPhoto(folder.id());
+            Long fourth = storedPhoto(folder.id());
 
             mockMvc.perform(get("/api/travel/folders/list"))
                     .andExpect(jsonPath("$[0].photos", hasSize(4)))
@@ -1046,12 +1039,12 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void endsAnEarlierChoiceOfTheCover() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            Long third = storedPhoto(folder.getId());
-            inDatastore(() -> travelRepository.setCover(folder.getId(), second));
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            Long third = storedPhoto(folder.id());
+            inDatastore(() -> travelRepository.setCover(folder.id(), second));
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(third, second, first))))
@@ -1062,11 +1055,11 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withAPhotoMissing_returns400AndKeepsTheOrder() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            Long third = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            Long third = storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(third, first))))
@@ -1082,10 +1075,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withAPhotoTwice_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(first, first))))
@@ -1096,11 +1089,11 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPhotoOfAnotherFolder_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            storedPhoto(folder.getId());
-            Long foreign = storedPhoto(storedFolder("Prag", "").getId());
+            Long first = storedPhoto(folder.id());
+            storedPhoto(folder.id());
+            Long foreign = storedPhoto(storedFolder("Prag", "").id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(foreign, first))))
@@ -1111,9 +1104,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withoutPhotoIds_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            storedPhoto(folder.getId());
+            storedPhoto(folder.id());
 
-            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/setPhotoOrder").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
@@ -1139,7 +1132,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(post("/api/travel/folders/delete").param("id", folder.getId().toString()))
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", folder.id().toString()))
                     .andExpect(status().isUnauthorized())
                     .andExpect(content().string(NOT_LOGGED_IN));
         }
@@ -1148,7 +1141,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutPermission_returns403AndKeepsTheFolder() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(post("/api/travel/folders/delete").param("id", folder.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
@@ -1159,10 +1152,10 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_deletesTheFolderAndItsPhotos() throws Exception {
             TravelFolderDTO porto = storedFolder("Porto", "");
-            Long deleted = storedPhoto(porto.getId());
-            Long kept = storedPhoto(storedFolder("Prag", "").getId());
+            Long deleted = storedPhoto(porto.id());
+            Long kept = storedPhoto(storedFolder("Prag", "").id());
 
-            mockMvc.perform(post("/api/travel/folders/delete").param("id", porto.getId().toString())
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", porto.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
@@ -1188,7 +1181,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), JPEG, null))
+            mockMvc.perform(upload(folder.id(), JPEG, null))
                     .andExpect(status().isUnauthorized())
                     .andExpect(content().string(NOT_LOGGED_IN));
         }
@@ -1197,7 +1190,7 @@ class TravelControllerTest extends ControllerTest {
         void withoutPermission_returns403AndStoresNothing() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), JPEG, bearerWith(Permission.MANAGE_RECIPES)))
+            mockMvc.perform(upload(folder.id(), JPEG, bearerWith(Permission.MANAGE_RECIPES)))
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
 
@@ -1207,12 +1200,12 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_returnsTheFolderWithTheNewPhotoAtTheEnd() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
 
-            mockMvc.perform(upload(folder.getId(), JPEG, bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), JPEG, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.id").value(folder.id()))
                     .andExpect(jsonPath("$.photos", hasSize(2)))
                     .andExpect(jsonPath("$.photos[0].id").value(first))
                     .andExpect(jsonPath("$.coverPhotoId").value(first));
@@ -1224,7 +1217,7 @@ class TravelControllerTest extends ControllerTest {
         void withFileThatIsNoImage_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), "just some text".getBytes(), bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), "just some text".getBytes(), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Only JPEG, PNG and WebP images are allowed"));
         }
@@ -1233,7 +1226,7 @@ class TravelControllerTest extends ControllerTest {
         void withEmptyFile_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), new byte[0], bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), new byte[0], bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("The image is empty"));
         }
@@ -1242,7 +1235,7 @@ class TravelControllerTest extends ControllerTest {
         void withTooLargeImage_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("The image must be at most 500 KB"));
         }
@@ -1251,7 +1244,7 @@ class TravelControllerTest extends ControllerTest {
         void withTooLargeImage_storesNothing() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.getId(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest());
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos", hasSize(0)));
@@ -1262,7 +1255,7 @@ class TravelControllerTest extends ControllerTest {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
             mockMvc.perform(multipart("/api/travel/photos/upload")
-                            .param("folderId", folder.getId().toString())
+                            .param("folderId", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest());
         }
@@ -1280,7 +1273,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withoutLogin_returns401() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
                             .contentType(MediaType.APPLICATION_JSON)
@@ -1291,7 +1284,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withoutPermission_returns403AndKeepsTheCaption() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
             inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
@@ -1308,15 +1301,15 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_returnsTheFolderWithTheCaption() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", second.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(captionRequest("  Blick   auf den Douro "))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(folder.getId()))
+                    .andExpect(jsonPath("$.id").value(folder.id()))
                     .andExpect(jsonPath("$.photos", hasSize(2)))
                     .andExpect(jsonPath("$.photos[0].id").value(first))
                     .andExpect(jsonPath("$.photos[0].caption").value(""))
@@ -1330,7 +1323,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withEmptyCaption_removesIt() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
             inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
@@ -1345,7 +1338,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withoutCaption_removesIt() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
             inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
@@ -1358,7 +1351,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withLongestCaption_isAllowed() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
             String caption = "x".repeat(TravelRepository.CAPTION_MAX_LENGTH);
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
@@ -1371,7 +1364,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withTooLongCaption_returns400AndKeepsTheCaption() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
             inDatastore(() -> travelRepository.setCaption(photo, "Blick auf den Douro"));
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
@@ -1401,7 +1394,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withoutLogin_returns401() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
 
             mockMvc.perform(post("/api/travel/photos/delete").param("id", photo.toString()))
                     .andExpect(status().isUnauthorized())
@@ -1410,7 +1403,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void withoutPermission_returns403AndKeepsThePhoto() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
 
             mockMvc.perform(post("/api/travel/photos/delete").param("id", photo.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
@@ -1423,8 +1416,8 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withPermission_removesThePhotoFromTheFolder() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
 
             mockMvc.perform(post("/api/travel/photos/delete").param("id", first.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
@@ -1441,9 +1434,9 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void ofTheChosenCover_makesTheFirstPhotoTheCoverAgain() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long first = storedPhoto(folder.getId());
-            Long second = storedPhoto(folder.getId());
-            inDatastore(() -> travelRepository.setCover(folder.getId(), second));
+            Long first = storedPhoto(folder.id());
+            Long second = storedPhoto(folder.id());
+            inDatastore(() -> travelRepository.setCover(folder.id(), second));
 
             mockMvc.perform(post("/api/travel/photos/delete").param("id", second.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
@@ -1466,7 +1459,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void returnsThePhotoWithoutLogin() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
 
             mockMvc.perform(get("/api/travel/photos/" + photo))
                     .andExpect(status().isOk())
@@ -1477,7 +1470,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void returnsTheContentTypeOfThePhoto() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.getId(), PNG)));
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), PNG)));
 
             mockMvc.perform(get("/api/travel/photos/" + photo))
                     .andExpect(status().isOk())
@@ -1487,7 +1480,7 @@ class TravelControllerTest extends ControllerTest {
 
         @Test
         void letsTheBrowserCacheThePhotoForAYear() throws Exception {
-            Long photo = storedPhoto(storedFolder("Porto", "").getId());
+            Long photo = storedPhoto(storedFolder("Porto", "").id());
 
             mockMvc.perform(get("/api/travel/photos/" + photo))
                     .andExpect(header().string(HttpHeaders.CACHE_CONTROL, containsString("max-age=31536000")))
@@ -1515,18 +1508,15 @@ class TravelControllerTest extends ControllerTest {
     }
 
     private static TravelFolderRequest request(String name, String country, Double latitude, Double longitude) {
-        TravelFolderRequest request = new TravelFolderRequest();
-        request.setName(name);
-        request.setCountry(country);
+        TravelFolderRequest request = new TravelFolderRequest(name, country);
         if (latitude != null || longitude != null) {
-            request.setStops(List.of(new TravelStopRequest(name, latitude, longitude)));
+            request = request.withStops(List.of(new TravelStopRequest(name, latitude, longitude)));
         }
         return request;
     }
 
     private static TravelFolderRequest withStops(TravelFolderRequest request, TravelStopRequest... stops) {
-        request.setStops(List.of(stops));
-        return request;
+        return request.withStops(List.of(stops));
     }
 
     /** Stops named "Stopp 1", "Stopp 2", … */
@@ -1550,35 +1540,24 @@ class TravelControllerTest extends ControllerTest {
 
     /** A folder without a country and a place on the map; the months as year and month like "2024-05". */
     private static TravelFolderRequest requestWithMonths(String name, String startMonth, String endMonth) {
-        TravelFolderRequest request = request(name, "");
-        request.setStartMonth(startMonth);
-        request.setEndMonth(endMonth);
-        return request;
+        return new TravelFolderRequest(name, "", null, null, startMonth, endMonth, null);
     }
 
     /** A folder without a country and a place on the map; the cuisine like "japanisch". */
     private static TravelFolderRequest requestWithCuisine(String name, String cuisine) {
-        TravelFolderRequest request = request(name, "");
-        request.setCuisine(cuisine);
-        return request;
+        return new TravelFolderRequest(name, "", null, null, null, null, cuisine);
     }
 
     private static TravelFolderTextRequest textRequest(String text) {
-        TravelFolderTextRequest request = new TravelFolderTextRequest();
-        request.setText(text);
-        return request;
+        return new TravelFolderTextRequest(text);
     }
 
     private static TravelPhotoCaptionRequest captionRequest(String caption) {
-        TravelPhotoCaptionRequest request = new TravelPhotoCaptionRequest();
-        request.setCaption(caption);
-        return request;
+        return new TravelPhotoCaptionRequest(caption);
     }
 
     private static TravelPhotoOrderRequest orderRequest(Long... photoIds) {
-        TravelPhotoOrderRequest request = new TravelPhotoOrderRequest();
-        request.setPhotoIds(List.of(photoIds));
-        return request;
+        return new TravelPhotoOrderRequest(List.of(photoIds));
     }
 
     private TravelFolderDTO storedFolder(String name, String country) {
@@ -1591,7 +1570,7 @@ class TravelControllerTest extends ControllerTest {
     }
 
     private static Long lastPhoto(TravelFolderDTO folder) {
-        return folder.getPhotos().getLast().getId();
+        return folder.photos().getLast().id();
     }
 
     /** @param authorization value of the Authorization header, null to send the request without login */

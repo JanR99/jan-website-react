@@ -82,7 +82,7 @@ public class RoleRepository {
     }
 
     public Role create(RoleRequest request) {
-        Role role = new Role(validateName(request.getName(), null), validatePermissions(request.getPermissions()), false);
+        Role role = new Role(validateName(request.name(), null), validatePermissions(request.permissions()), false);
         return roleDAO.save(role);
     }
 
@@ -91,8 +91,8 @@ public class RoleRepository {
         if (role.isSystem()) {
             throw new EntityStateException("The role " + role.getName() + " cannot be changed");
         }
-        List<Permission> permissions = validatePermissions(request.getPermissions());
-        String name = validateName(request.getName(), id);
+        List<Permission> permissions = validatePermissions(request.permissions());
+        String name = validateName(request.name(), id);
 
         // would the caller lose MANAGE_USERS through this change?
         if (caller.getRoleIds().contains(id)) {

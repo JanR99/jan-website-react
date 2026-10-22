@@ -40,11 +40,7 @@ public class AdminBootstrapConfig {
                         return null;
                     }
 
-                    RegisterRequest request = new RegisterRequest();
-                    request.setEmail(email);
-                    request.setPassword(password);
-                    request.setFirstname("Admin");
-                    request.setLastname("Admin");
+                    RegisterRequest request = new RegisterRequest(email, password, "Admin", "Admin");
 
                     try {
                         User newUser = userRepository.register(request);

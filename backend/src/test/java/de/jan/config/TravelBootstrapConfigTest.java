@@ -30,7 +30,7 @@ class TravelBootstrapConfigTest extends ControllerTest {
 
     private Map<String, TravelFolderDTO> foldersByName() {
         return inDatastore(() -> travelRepository.getFolders()).stream()
-                .collect(Collectors.toMap(TravelFolderDTO::getName, Function.identity()));
+                .collect(Collectors.toMap(TravelFolderDTO::name, Function.identity()));
     }
 
     private boolean imported() {
@@ -39,9 +39,7 @@ class TravelBootstrapConfigTest extends ControllerTest {
 
     @Test
     void importsFoldersAndPhotos_andTriesTheFailedOnesAgainLater() {
-        TravelFolderRequest existing = new TravelFolderRequest();
-        existing.setName("Schon da");
-        existing.setCountry("Portugal");
+        TravelFolderRequest existing = new TravelFolderRequest("Schon da", "Portugal");
         inDatastore(() -> travelRepository.createFolder(existing));
 
         bootstrap("bootstrap/folders.json");
@@ -49,12 +47,12 @@ class TravelBootstrapConfigTest extends ControllerTest {
         Map<String, TravelFolderDTO> folders = foldersByName();
         // a seed without a name is left out; folders whose photos fail are there, without them
         assertEquals(5, folders.size());
-        assertEquals(1, folders.get("Schon da").getPhotos().size());
-        assertEquals(1, folders.get("Neu").getPhotos().size());
-        assertEquals(1, folders.get("Neu").getStops().size());
-        assertTrue(folders.get("Ohne Fotos").getPhotos().isEmpty());
-        assertTrue(folders.get("Falscher Dateiname").getPhotos().isEmpty());
-        assertTrue(folders.get("Fehlendes Foto").getPhotos().isEmpty());
+        assertEquals(1, folders.get("Schon da").photos().size());
+        assertEquals(1, folders.get("Neu").photos().size());
+        assertEquals(1, folders.get("Neu").stops().size());
+        assertTrue(folders.get("Ohne Fotos").photos().isEmpty());
+        assertTrue(folders.get("Falscher Dateiname").photos().isEmpty());
+        assertTrue(folders.get("Fehlendes Foto").photos().isEmpty());
         assertFalse(imported());
     }
 
@@ -64,7 +62,7 @@ class TravelBootstrapConfigTest extends ControllerTest {
         bootstrap("bootstrap/folders-complete.json");
 
         assertTrue(imported());
-        assertEquals(1, foldersByName().get("Einzige Reise").getPhotos().size());
+        assertEquals(1, foldersByName().get("Einzige Reise").photos().size());
     }
 
     @Test

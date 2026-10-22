@@ -43,8 +43,12 @@ class RecipeRepositoryTest extends ControllerTest {
     }
 
     private RecipeRequest request(String title) {
-        return new RecipeRequest(uploadedImage(), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
-                List.of("200 g Mehl"), List.of("Alles mischen."));
+        return request(title, 2, List.of("200 g Mehl"), List.of());
+    }
+
+    private RecipeRequest request(String title, int portions, List<String> ingredients, List<Long> relatedRecipeIds) {
+        return new RecipeRequest(uploadedImage(), title, portions, "deutsch", List.of(RecipeTag.VEGETARIAN),
+                ingredients, List.of("Alles mischen."), relatedRecipeIds);
     }
 
     private Recipe stored(String title) {
@@ -77,7 +81,7 @@ class RecipeRepositoryTest extends ControllerTest {
 
         Recipe updated = inDatastore(() -> recipeRepository.update(pesto.getId(), update));
 
-        assertEquals(update.getImage(), updated.getImage());
+        assertEquals(update.image(), updated.getImage());
         assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pesto.getImage()))));
         assertNotNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(updated.getImage()))));
     }
@@ -85,8 +89,7 @@ class RecipeRepositoryTest extends ControllerTest {
     @Test
     void delete_takesTheRecipeOutOfPasstDazuAndTheFavorites() {
         Recipe pesto = stored("Pesto");
-        RecipeRequest pastaRequest = request("Pasta");
-        pastaRequest.setRelatedRecipeIds(List.of(pesto.getId()));
+        RecipeRequest pastaRequest = request("Pasta", 2, List.of("200 g Mehl"), List.of(pesto.getId()));
         Recipe pasta = inDatastore(() -> recipeRepository.create(pastaRequest));
         User fan = userWith();
         inDatastore(() -> favoritesRepository.addFavorite(userRepository.getByEmail(fan.getEmail()), pesto.getId()));
@@ -103,22 +106,18 @@ class RecipeRepositoryTest extends ControllerTest {
     @Test
     void passtDazu_leavesOutEmptyEntriesAndTheRecipeItself_andRejectsUnknownOnes() {
         Recipe pesto = stored("Pesto");
-        RecipeRequest itself = request("Pesto");
-        itself.setRelatedRecipeIds(Arrays.asList(null, pesto.getId()));
+        RecipeRequest itself = request("Pesto", 2, List.of("200 g Mehl"), Arrays.asList(null, pesto.getId()));
 
         assertTrue(inDatastore(() -> recipeRepository.update(pesto.getId(), itself)).getRelatedRecipeIds().isEmpty());
 
-        RecipeRequest unknown = request("Pasta");
-        unknown.setRelatedRecipeIds(List.of(999_999L));
+        RecipeRequest unknown = request("Pasta", 2, List.of("200 g Mehl"), List.of(999_999L));
         assertEquals("Related recipe 999999 does not exist", rejected(unknown));
     }
 
     @Test
     void portionsOutOfRange_areRejected() {
-        RecipeRequest none = request("Pesto");
-        none.setDefaultPortions(0);
-        RecipeRequest tooMany = request("Pesto");
-        tooMany.setDefaultPortions(100);
+        RecipeRequest none = request("Pesto", 0, List.of("200 g Mehl"), List.of());
+        RecipeRequest tooMany = request("Pesto", 100, List.of("200 g Mehl"), List.of());
 
         assertEquals("Portions must be between 1 and 99", rejected(none));
         assertEquals("Portions must be between 1 and 99", rejected(tooMany));
@@ -126,8 +125,7 @@ class RecipeRepositoryTest extends ControllerTest {
 
     @Test
     void tooManyIngredients_areRejected() {
-        RecipeRequest request = request("Pesto");
-        request.setIngredients(new ArrayList<>(Collections.nCopies(201, "Salz")));
+        RecipeRequest request = request("Pesto", 2, new ArrayList<>(Collections.nCopies(201, "Salz")), List.of());
 
         assertEquals("Ingredients must have at most 200 entries", rejected(request));
     }
