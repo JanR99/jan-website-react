@@ -50,7 +50,7 @@ class TravelRepositoryTest extends ControllerTest {
 
         // past the repository, so the cache doesn't know about it
         inDatastore(() -> {
-            new TravelFolderDAO().delete(tokio.getId());
+            new TravelFolderDAO().delete(tokio.id());
             return null;
         });
 
@@ -62,7 +62,7 @@ class TravelRepositoryTest extends ControllerTest {
         TravelFolderDTO tokio = folder(travelRepository, "Tokio");
         List<TravelPhoto> photos = new ArrayList<>();
         for (int i = 0; i < TravelRepository.MAX_PHOTOS_PER_FOLDER; i++) {
-            photos.add(new TravelPhoto(tokio.getId(), new Date(i)));
+            photos.add(new TravelPhoto(tokio.id(), new Date(i)));
         }
         inDatastore(() -> {
             new TravelPhotoDAO().saveAll(photos);
@@ -70,7 +70,7 @@ class TravelRepositoryTest extends ControllerTest {
         });
 
         EntityStateException e = assertThrows(EntityStateException.class,
-                () -> inDatastore(() -> travelRepository.addPhoto(tokio.getId(), JPEG)));
+                () -> inDatastore(() -> travelRepository.addPhoto(tokio.id(), JPEG)));
         assertEquals("A folder can have at most 200 photos", e.getMessage());
     }
 
@@ -83,10 +83,10 @@ class TravelRepositoryTest extends ControllerTest {
         ReflectionTestUtils.setField(repository, "fileDAO", files);
         TravelFolderDTO tokio = folder(repository, "Tokio");
 
-        RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.getId(), JPEG)));
+        RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.id(), JPEG)));
 
         assertSame(failure, e);
-        assertTrue(inDatastore(() -> new TravelPhotoDAO().getByFolderId(tokio.getId())).isEmpty());
+        assertTrue(inDatastore(() -> new TravelPhotoDAO().getByFolderId(tokio.id())).isEmpty());
     }
 
     @Test
@@ -99,7 +99,7 @@ class TravelRepositoryTest extends ControllerTest {
         ReflectionTestUtils.setField(repository, "fileDAO", files);
         TravelFolderDTO tokio = folder(repository, "Tokio");
 
-        RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.getId(), JPEG)));
+        RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.id(), JPEG)));
 
         assertSame(failure, e);
     }

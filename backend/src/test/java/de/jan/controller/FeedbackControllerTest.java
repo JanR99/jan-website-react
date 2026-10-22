@@ -172,16 +172,16 @@ class FeedbackControllerTest extends ControllerTest {
             storedFeedback(user, "Zweites");
             Thread.sleep(5);
             storedFeedback(user, "Drittes");
-            inDatastore(() -> feedbackRepository.setDone(first.getId(), true));
+            inDatastore(() -> feedbackRepository.setDone(first.id(), true));
             FeedbackDTO done = inDatastore(() -> feedbackRepository.setDone(
-                    feedbackRepository.list().stream().filter(f -> f.getText().equals("Drittes")).findFirst().orElseThrow().getId(), true));
+                    feedbackRepository.list().stream().filter(f -> f.text().equals("Drittes")).findFirst().orElseThrow().id(), true));
 
             mockMvc.perform(get("/api/feedback/list").header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_FEEDBACK)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(3)))
                     .andExpect(jsonPath("$[*].text", contains("Zweites", "Drittes", "Erstes")))
                     .andExpect(jsonPath("$[*].done", contains(false, true, true)))
-                    .andExpect(jsonPath("$[1].id").value(done.getId()));
+                    .andExpect(jsonPath("$[1].id").value(done.id()));
         }
 
         @Test
@@ -199,7 +199,7 @@ class FeedbackControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
 
-            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.getId().toString()).param("done", "true"))
+            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.id().toString()).param("done", "true"))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -207,7 +207,7 @@ class FeedbackControllerTest extends ControllerTest {
         void withoutPermission_returns403AndChangesNothing() throws Exception {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
 
-            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.getId().toString()).param("done", "true")
+            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.id().toString()).param("done", "true")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_RECIPES)))
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
@@ -221,13 +221,13 @@ class FeedbackControllerTest extends ControllerTest {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
             String manager = bearerWith(Permission.MANAGE_FEEDBACK);
 
-            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.getId().toString()).param("done", "true")
+            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.id().toString()).param("done", "true")
                             .header(HttpHeaders.AUTHORIZATION, manager))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(feedback.getId()))
+                    .andExpect(jsonPath("$.id").value(feedback.id()))
                     .andExpect(jsonPath("$.done").value(true));
 
-            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.getId().toString()).param("done", "false")
+            mockMvc.perform(post("/api/feedback/setDone").param("id", feedback.id().toString()).param("done", "false")
                             .header(HttpHeaders.AUTHORIZATION, manager))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.done").value(false));
@@ -249,7 +249,7 @@ class FeedbackControllerTest extends ControllerTest {
         void withoutLogin_returns401() throws Exception {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
 
-            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.getId().toString()))
+            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.id().toString()))
                     .andExpect(status().isUnauthorized());
 
             assertStored(1);
@@ -259,7 +259,7 @@ class FeedbackControllerTest extends ControllerTest {
         void withoutPermission_returns403AndKeepsIt() throws Exception {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
 
-            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.getId().toString())
+            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
                     .andExpect(status().isForbidden())
                     .andExpect(content().string(MISSING_PERMISSION));
@@ -272,7 +272,7 @@ class FeedbackControllerTest extends ControllerTest {
             FeedbackDTO feedback = storedFeedback(userWith(), "Hallo");
             storedFeedback(userWith(), "Bleibt");
 
-            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.getId().toString())
+            mockMvc.perform(post("/api/feedback/delete").param("id", feedback.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_FEEDBACK)))
                     .andExpect(status().isNoContent());
 

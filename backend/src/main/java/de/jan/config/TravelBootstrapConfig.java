@@ -83,7 +83,7 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
 
         Map<String, TravelFolderDTO> byName = new HashMap<>();
         for (TravelFolderDTO folder : travelRepository.getFolders()) {
-            byName.put(key(folder.getName()), folder);
+            byName.put(key(folder.name()), folder);
         }
 
         int imported = 0;
@@ -105,8 +105,8 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
                     folder = travelRepository.createFolder(request);
                 }
                 // photos are imported in order, so the ones an interrupted start already stored are skipped
-                for (int i = folder.getPhotos().size(); i < photos.size(); i++) {
-                    travelRepository.addPhoto(folder.getId(), readImage(photos.get(i)));
+                for (int i = folder.photos().size(); i < photos.size(); i++) {
+                    travelRepository.addPhoto(folder.id(), readImage(photos.get(i)));
                     imported++;
                 }
             } catch (Exception e) {

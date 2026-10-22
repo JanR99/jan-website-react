@@ -164,12 +164,12 @@ public class RestoreRepository {
             try {
                 TravelFolderRequest request = folderRequest(backup);
                 TravelFolderDTO folder = travelRepository.createFolder(request);
-                idsByName.put(folder.getName(), folder.getId());
-                restored.add(new RestoredFolder(folder.getId(), request, backup.previousFolder()));
+                idsByName.put(folder.name(), folder.id());
+                restored.add(new RestoredFolder(folder.id(), request, backup.previousFolder()));
                 result.setFolders(result.getFolders() + 1);
 
                 if (backup.text() != null && !backup.text().isBlank()) {
-                    travelRepository.setText(folder.getId(), backup.text());
+                    travelRepository.setText(folder.id(), backup.text());
                 }
                 restorePhotos(zip, backup, folder, result);
             } catch (EntityStateException e) {
@@ -204,7 +204,7 @@ public class RestoreRepository {
             String fileName = photos.get(i);
             try {
                 byte[] data = readImage(zip, BackupRepository.TRAVEL_IMAGE_DIR, fileName, TravelRepository.MAX_PHOTO_BYTES);
-                Long photoId = travelRepository.addPhoto(folder.getId(), data).getPhotos().getLast().getId();
+                Long photoId = travelRepository.addPhoto(folder.id(), data).photos().getLast().id();
                 result.setPhotos(result.getPhotos() + 1);
 
                 String caption = captions.get(fileName);
@@ -224,7 +224,7 @@ public class RestoreRepository {
             BaseDAO.clearSession();
         }
         if (cover != null) {
-            travelRepository.setCover(folder.getId(), cover);
+            travelRepository.setCover(folder.id(), cover);
         }
     }
 
