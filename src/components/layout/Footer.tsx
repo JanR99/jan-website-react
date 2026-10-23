@@ -22,6 +22,7 @@ export default function Footer() {
                     <Link to={GAMES_BASE}>Spiele</Link>
                     <button type="button" onClick={openFeedback}>Feedback geben</button>
                     <Link to="/datenschutz">Datenschutz</Link>
+                    <Link to="/lizenzen">Lizenzen</Link>
                 </nav>
             </div>
             <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />

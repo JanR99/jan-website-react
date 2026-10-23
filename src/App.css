@@ -511,3 +511,35 @@
 .privacy-text > :last-child {
     margin-bottom: 0;
 }
+
+/* ---------- Open-Source-Lizenzen ---------- */
+
+.license-list {
+    list-style: none;
+    padding-left: 0 !important;
+}
+
+.license-list li {
+    border-top: 1px solid var(--color-border);
+    padding: 8px 0;
+    margin: 0;
+}
+
+.license-list summary {
+    cursor: pointer;
+}
+
+.license-list details[open] summary {
+    margin-bottom: 8px;
+}
+
+.license-text {
+    max-height: 320px;
+    overflow: auto;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}

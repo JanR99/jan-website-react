@@ -11,6 +11,7 @@ import AccountPage from './components/account/AccountPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PasswordResetPage from './components/auth/PasswordResetPage';
 import PrivacyPage from './components/PrivacyPage';
+import LicensesPage from './components/LicensesPage';
 import GamesPage from './components/games/GamesPage';
 import CrosswordGame from './components/games/CrosswordGame';
 import KanjiGame from './components/games/KanjiGame';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
                     <Route path="/destination/*" element={<Navigate to={TRAVEL_BASE} replace />} />
                     <Route path="/passwort-zuruecksetzen" element={<PasswordResetPage />} />
                     <Route path="/datenschutz" element={<PrivacyPage />} />
+                    <Route path="/lizenzen" element={<LicensesPage />} />
                     <Route path={GAMES_BASE} element={<GamesPage />} />
                     <Route path={CROSSWORD_PATH} element={<CrosswordGame />} />
                     <Route path={KANJI_PATH} element={<KanjiGame />} />

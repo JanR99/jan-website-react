@@ -3,6 +3,7 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import licenses from './scripts/licensesPlugin'
 import path from 'node:path'
 
 // a server error (e.g. 503 while Cloud Run is down) counts as "no answer"
@@ -16,6 +17,8 @@ const serverErrorIsNoAnswer = {
 export default defineConfig({
     plugins: [
         react(),
+        // the open source packages in the build with their licenses, for the page /lizenzen
+        licenses(),
         // service worker: keeps the built app available offline and updates itself in the background
         VitePWA({
             registerType: 'autoUpdate',
