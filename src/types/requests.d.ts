@@ -120,3 +120,13 @@ interface RestoreResult {
     skippedFolders: string[];
     skippedPhotos: number;
 }
+
+// ---------- Licenses ----------
+
+interface LicenseResponse {
+    name: string;
+    artifact: string;
+    version: string;
+    licenses: string[];
+    url: string | null;
+}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LicenseController from "../controller/LicenseController";
 import { usePageTitle } from "../hooks/usePageTitle";
 import PageHeader from "./layout/PageHeader";
 import Spinner from "./ui/Spinner";
@@ -16,25 +17,33 @@ interface PackageLicense {
 /** Written by the build, so it only exists in a built website, not with the dev server. */
 const FRONTEND_LICENSES = "/licenses/frontend.json";
 
-/** The open source software the website is built with, and its licenses. */
-export default function LicensesPage() {
-    usePageTitle("Open-Source-Lizenzen");
-    const [packages, setPackages] = useState<PackageLicense[] | null>(null);
-    const [failed, setFailed] = useState(false);
+async function loadFrontendLicenses(): Promise<PackageLicense[]> {
+    const response = await fetch(FRONTEND_LICENSES);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+}
 
+/** What a load gave: null while it runs, failed when it didn't work. */
+function useLoaded<T>(load: () => Promise<T>): { value: T | null; failed: boolean } {
+    const [state, setState] = useState<{ value: T | null; failed: boolean }>({ value: null, failed: false });
     useEffect(() => {
         let active = true;
-        fetch(FRONTEND_LICENSES)
-            .then((response) => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
-            .then((list: PackageLicense[]) => active && setPackages(list))
-            .catch(() => active && setFailed(true));
+        load().then(
+            (value) => active && setState({ value, failed: false }),
+            () => active && setState({ value: null, failed: true }),
+        );
         return () => {
             active = false;
         };
-    }, []);
+    }, [load]);
+    return state;
+}
+
+/** The open source software the website and its server are built with, and its licenses. */
+export default function LicensesPage() {
+    usePageTitle("Open-Source-Lizenzen");
+    const { value: packages, failed } = useLoaded(loadFrontendLicenses);
+    const backend = useLoaded(LicenseController.listBackendLicenses);
 
     return (
         <div className="container privacy">
@@ -95,6 +104,33 @@ export default function LicensesPage() {
                             </li>
                         ))}
                     </ul>
+                )}
+
+                <h2>Server</h2>
+                {backend.failed ? (
+                    <p className="muted">Die Liste konnte gerade nicht geladen werden.</p>
+                ) : backend.value === null ? (
+                    <Spinner />
+                ) : backend.value.length === 0 ? (
+                    <p className="muted">Die Liste entsteht erst beim Build des Servers (mvn package).</p>
+                ) : (
+                    <>
+                        <p className="muted">Die Bibliotheken des Servers; die Lizenztexte stehen auf den Seiten der Projekte.</p>
+                        <ul className="license-list">
+                            {backend.value.map((library) => (
+                                <li key={library.artifact}>
+                                    <strong>{library.name}</strong>{" "}
+                                    <span className="muted">{library.version} · {library.licenses.join(", ") || "ohne Angabe"}</span>
+                                    {library.url && (
+                                        <>
+                                            {" · "}
+                                            <a href={library.url} target="_blank" rel="noopener noreferrer">Website</a>
+                                        </>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </>
                 )}
             </div>
         </div>
