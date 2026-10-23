@@ -46,6 +46,19 @@ export default function LicensesPage() {
                     jeweils mit ihrer Lizenz. Ein Klick auf ein Paket zeigt den Lizenztext.
                 </p>
 
+                <h2>Karte und Daten</h2>
+                <ul>
+                    <li>
+                        Die Karte im Reisetagebuch und die Ortssuche (Nominatim) nutzen Daten von{" "}
+                        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>:
+                        © OpenStreetMap-Mitwirkende, verfügbar unter der Open Database License (ODbL).
+                    </li>
+                    <li>
+                        Die Wortlisten der Japanisch-Spiele stammen aus dem Repository{" "}
+                        <a href="https://github.com/JanR99/japanese-practice" target="_blank" rel="noopener noreferrer">japanese-practice</a>.
+                    </li>
+                </ul>
+
                 <h2>Website</h2>
                 {failed ? (
                     <p className="muted">
