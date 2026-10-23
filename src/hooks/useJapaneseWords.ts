@@ -3,7 +3,7 @@ import type { JapaneseWord } from "../utils/crossword";
 import type { KanjiWord } from "../utils/kanjiReading";
 
 /**
- * The word lists from https://github.com/JanR99/japanese-practice, prepared by `npm run words`
+ * The word lists of https://github.com/vbvss199/Language-Learning-decks (see data/japanese-practice), prepared by `npm run words`
  * as public/games/japanese-words.json (kana words) and public/games/japanese-kanji.json.
  */
 const WORDS_URL = "/games/japanese-words.json";

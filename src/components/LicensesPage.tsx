@@ -63,8 +63,14 @@ export default function LicensesPage() {
                         © OpenStreetMap-Mitwirkende, verfügbar unter der Open Database License (ODbL).
                     </li>
                     <li>
-                        Die Wortlisten der Japanisch-Spiele stammen aus dem Repository{" "}
-                        <a href="https://github.com/JanR99/japanese-practice" target="_blank" rel="noopener noreferrer">japanese-practice</a>.
+                        Die Wortlisten der Japanisch-Spiele stammen aus{" "}
+                        <a href="https://github.com/vbvss199/Language-Learning-decks" target="_blank" rel="noopener noreferrer">Language-Learning-decks</a>{" "}
+                        (MIT-Lizenz, © 2025 GENERAL NEURO) und wurden für die Spiele gekürzt. Sie beruhen auf den
+                        Worthäufigkeiten von{" "}
+                        <a href="https://github.com/rspeer/wordfreq" target="_blank" rel="noopener noreferrer">wordfreq</a>{" "}
+                        (Robyn Speer), deren Daten unter der Lizenz{" "}
+                        <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>{" "}
+                        stehen; die gekürzten Listen stehen ebenfalls unter CC BY-SA 4.0.
                     </li>
                 </ul>
 

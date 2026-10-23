@@ -13,8 +13,8 @@ A personal website with a cooking recipe collection, built with [React](https://
 ## Games
 
 The Japanese crossword (`/spiele`) uses `public/games/japanese-words.json`. It is built with `npm run words`
-(`scripts/build-japanese-words.ts`) from the word lists of [japanese-practice](https://github.com/JanR99/japanese-practice)
-in `data/japanese-practice/`: only the hiragana and katakana words marked `useful_for_flashcard`, with 2–6 characters,
+(`scripts/build-japanese-words.ts`) from the word lists in `data/japanese-practice/` (originally from
+[Language-Learning-decks](https://github.com/vbvss199/Language-Learning-decks), see the README there for the licenses): only the hiragana and katakana words marked `useful_for_flashcard`, with 2–6 characters,
 without unsuitable words and without second spellings of the same word (ウィンナー/ウインナー), as
 `{ w: word, en: English meanings, l: CEFR level }`.
 
