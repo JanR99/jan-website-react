@@ -3,7 +3,7 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import licenses from './scripts/licensesPlugin'
+import licenses from './scripts/licensesPlugin.ts'
 import path from 'node:path'
 
 // a server error (e.g. 503 while Cloud Run is down) counts as "no answer"
