@@ -15,9 +15,17 @@ export default function PrivacyPage() {
                 <ul>
                     <li>deine Anmeldung, solange du angemeldet bist (mit „Angemeldet bleiben“ bis zu 30 Tage, sonst bis der Tab geschlossen wird),</li>
                     <li>ob du die helle oder dunkle Darstellung gewählt hast,</li>
-                    <li>eine Kopie der Seite, der Rezepte und bereits angesehener Bilder, damit die Seite auch offline funktioniert.</li>
+                    <li>eine Kopie der Seite, der Rezepte und bereits angesehener Bilder, damit die Seite auch offline funktioniert,</li>
+                    <li>dass dein Besuch schon gezählt wurde, bis der Tab geschlossen wird (siehe unten).</li>
                 </ul>
                 <p>Du kannst diese Daten jederzeit über die Einstellungen deines Browsers löschen.</p>
+
+                <h2>Besucherzählung</h2>
+                <p>
+                    Ich zähle, wie oft die Website besucht wird und welche Seiten dabei aufgerufen werden, je Tag.
+                    Gespeichert werden nur diese Zahlen, keine IP-Adresse, keine Cookies und nichts, womit sich ein
+                    Besuch einer Person oder einem anderen Besuch zuordnen ließe.
+                </p>
 
                 <h2>Benutzerkonto</h2>
                 <p>
