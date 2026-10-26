@@ -1004,6 +1004,82 @@ class UserControllerTest extends ControllerTest {
         }
     }
 
+    @Nested
+    class DeleteUser {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            User user = registered(EMAIL);
+
+            mockMvc.perform(post("/api/users/delete").param("id", String.valueOf(user.getId())))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutPermission_returns403AndKeepsTheUser() throws Exception {
+            User user = registered(EMAIL);
+
+            deleteUser(bearerWith(Permission.MANAGE_RECIPES), user.getId())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(MISSING_PERMISSION));
+
+            login(EMAIL, PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void withPermission_returns204AndRemovesTheUser() throws Exception {
+            User user = registered(EMAIL);
+            String bearer = bearer(user);
+
+            deleteUser(bearerWith(Permission.MANAGE_USERS), user.getId())
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(""));
+
+            // their token is worthless and logging in is no longer possible
+            mockMvc.perform(get("/api/users/permissions").header(HttpHeaders.AUTHORIZATION, bearer))
+                    .andExpect(status().isUnauthorized());
+            login(EMAIL, PASSWORD)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CREDENTIALS));
+        }
+
+        @Test
+        void withUnknownId_returns404() throws Exception {
+            deleteUser(bearerWith(Permission.MANAGE_USERS), 999_999L)
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("User with id 999999 not found"));
+        }
+
+        @Test
+        void ownAccount_returns400AndKeepsIt() throws Exception {
+            User manager = userWith(Permission.MANAGE_USERS);
+
+            deleteUser(bearer(manager), manager.getId())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("You can only delete your own account in your profile"));
+
+            assertNotNull(inDatastore(() -> userRepository.getById(manager.getId())));
+        }
+
+        @Test
+        void adminAccount_returns400AndKeepsIt() throws Exception {
+            User admin = adminUser();
+
+            deleteUser(bearerWith(Permission.MANAGE_USERS), admin.getId())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("Admin accounts cannot be deleted"));
+
+            assertNotNull(inDatastore(() -> userRepository.getById(admin.getId())));
+        }
+
+        private ResultActions deleteUser(String bearer, Long id) throws Exception {
+            return mockMvc.perform(post("/api/users/delete")
+                    .header(HttpHeaders.AUTHORIZATION, bearer)
+                    .param("id", String.valueOf(id)));
+        }
+    }
+
     private User registered(String email) {
         RegisterRequest request = new RegisterRequest(email, UserControllerTest.PASSWORD, "Anna", "Test");
         return inDatastore(() -> userRepository.register(request));

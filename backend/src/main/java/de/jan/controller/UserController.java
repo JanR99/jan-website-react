@@ -47,6 +47,7 @@ public class UserController {
     private static final String DELETE_ACCOUNT = "deleteAccount";
     private static final String GET_PERMISSIONS = "getPermissions";
     private static final String LIST_USERS = "listUsers";
+    private static final String DELETE_USER = "deleteUser";
 
     public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
         this.userRepository = userRepository;
@@ -161,5 +162,16 @@ public class UserController {
     ) {
         Authorization.with(caller).require(Permission.MANAGE_USERS);
         return ResponseEntity.ok(UserAdminDTO.from(userRepository.setRoles(caller, body.email(), body.roleIds())));
+    }
+
+    @Operation(operationId = DELETE_USER)
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deleteUser(
+            @CurrentUser User caller,
+            @RequestParam("id") Long id
+    ) {
+        Authorization.with(caller).require(Permission.MANAGE_USERS);
+        userRepository.deleteUser(caller, id);
+        return ResponseEntity.noContent().build();
     }
 }

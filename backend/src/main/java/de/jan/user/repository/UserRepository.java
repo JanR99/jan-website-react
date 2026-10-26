@@ -135,6 +135,29 @@ public class UserRepository {
             throw new EntityStateException("Admin accounts cannot be deleted");
         }
 
+        delete(user);
+    }
+
+    /**
+     * Deletes another user's account, from the user management. Admin accounts are protected like with
+     * deleteAccount, and the own account can only be deleted in the profile, with the password.
+     */
+    public void deleteUser(User caller, Long targetId) {
+        User target = getById(targetId);
+        if (target == null) {
+            throw new EntityNotFoundException("User with id " + targetId + " not found");
+        }
+        if (target.getId().equals(caller.getId())) {
+            throw new EntityStateException("You can only delete your own account in your profile");
+        }
+        if (roleRepository.hasAdminRole(target)) {
+            throw new EntityStateException("Admin accounts cannot be deleted");
+        }
+
+        delete(target);
+    }
+
+    private void delete(User user) {
         deleteResetTokensOf(user);
         crosswordStatsRepository.delete(user);
         kanjiStatsRepository.delete(user);
