@@ -130,3 +130,10 @@ interface LicenseResponse {
     licenses: string[];
     url: string | null;
 }
+
+// ---------- Statistics ----------
+
+interface VisitRequest {
+    page: string;
+    newVisit: boolean;
+}

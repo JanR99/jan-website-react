@@ -7,7 +7,7 @@ interface UserDTO {
     lastname: string;
 }
 
-type Permission = "MANAGE_RECIPES" | "MANAGE_TRAVEL" | "MANAGE_USERS" | "EXPORT_DATA" | "MANAGE_FEEDBACK";
+type Permission = "MANAGE_RECIPES" | "MANAGE_TRAVEL" | "MANAGE_USERS" | "EXPORT_DATA" | "MANAGE_FEEDBACK" | "VIEW_STATS";
 
 interface RoleDTO {
     id: number;

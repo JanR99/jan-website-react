@@ -11,6 +11,7 @@ export const PERMISSIONS = {
     MANAGE_USERS: "Nutzer & Rollen verwalten",
     EXPORT_DATA: "Daten exportieren",
     MANAGE_FEEDBACK: "Feedback verwalten",
+    VIEW_STATS: "Statistik ansehen",
 } as const satisfies Record<Permission, string>;
 
 export const ALL_PERMISSIONS = Object.keys(PERMISSIONS) as Permission[];

@@ -7,10 +7,12 @@ import SessionExpiryNotice from "../auth/SessionExpiryNotice";
 import ErrorBoundary from "./ErrorBoundary";
 import { appUpdateArrived } from "../../utils/appUpdate";
 import { useScrollMemory } from "../../hooks/useScrollMemory";
+import { useVisitCounter } from "../../hooks/useVisitCounter";
 
 export default function Layout() {
     const { pathname } = useLocation();
     useScrollMemory();
+    useVisitCounter();
 
     useEffect(() => {
         // a release arrived while the page was open: a page change is a good moment to load the new version
