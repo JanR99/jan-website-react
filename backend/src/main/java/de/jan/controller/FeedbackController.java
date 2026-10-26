@@ -31,6 +31,7 @@ public class FeedbackController {
 
     private static final String SUBMIT_FEEDBACK = "submitFeedback";
     private static final String LIST_FEEDBACK = "listFeedback";
+    private static final String GET_OPEN_FEEDBACK_COUNT = "getOpenFeedbackCount";
     private static final String SET_FEEDBACK_DONE = "setFeedbackDone";
     private static final String DELETE_FEEDBACK = "deleteFeedback";
 
@@ -52,6 +53,13 @@ public class FeedbackController {
     public ResponseEntity<List<FeedbackDTO>> listFeedback(@CurrentUser User user) {
         Authorization.with(user).require(Permission.MANAGE_FEEDBACK);
         return ResponseEntity.ok(feedbackRepository.list());
+    }
+
+    @Operation(operationId = GET_OPEN_FEEDBACK_COUNT)
+    @GetMapping("/openCount")
+    public ResponseEntity<Long> getOpenFeedbackCount(@CurrentUser User user) {
+        Authorization.with(user).require(Permission.MANAGE_FEEDBACK);
+        return ResponseEntity.ok(feedbackRepository.openCount());
     }
 
     @Operation(operationId = SET_FEEDBACK_DONE)
