@@ -14,6 +14,7 @@ import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarker;
 import de.jan.role.Role;
+import de.jan.stats.VisitDay;
 import de.jan.travel.TravelFolder;
 import de.jan.travel.TravelPhoto;
 import de.jan.travel.TravelPhotoFile;
@@ -42,7 +43,8 @@ public class ObjectifyConfig {
         Feedback.class,
         CrosswordStats.class,
         KanjiStats.class,
-        KanaStats.class
+        KanaStats.class,
+        VisitDay.class
     );
 
     private final CloudRun cloudRun;
