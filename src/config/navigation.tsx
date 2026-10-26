@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { BookOpen, ChefHat, DatabaseBackup, Gamepad2, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
+import { BarChart3, BookOpen, ChefHat, DatabaseBackup, Gamepad2, Heart, MessageSquare, Plane, ShieldCheck, User } from "lucide-react";
 import ProfileSection from "../components/account/ProfileSection";
 import FavoritesSection from "../components/account/FavoritesSection";
 import RecipeAdminSection from "../components/account/RecipeAdminSection";
@@ -8,6 +8,7 @@ import UsersRolesSection from "../components/account/UsersRolesSection";
 import BackupSection from "../components/account/BackupSection";
 import FeedbackSection from "../components/account/FeedbackSection";
 import GamesSection from "../components/account/GamesSection";
+import StatsSection from "../components/account/StatsSection";
 import { TRAVEL_BASE } from "../utils/travel";
 import { GAMES_BASE } from "../components/games/paths";
 
@@ -87,6 +88,14 @@ export const ACCOUNT_SECTIONS: AccountSection[] = [
         description: "Was Nutzer über „Feedback geben“ geschickt haben.",
         element: <FeedbackSection />,
         requires: "MANAGE_FEEDBACK",
+    },
+    {
+        path: "statistik",
+        label: "Statistik",
+        icon: BarChart3,
+        description: "Besuche und meistbesuchte Seiten der letzten 30 Tage.",
+        element: <StatsSection />,
+        requires: "VIEW_STATS",
     },
 ];
 

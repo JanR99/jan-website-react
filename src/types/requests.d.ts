@@ -137,3 +137,8 @@ interface VisitRequest {
     page: string;
     newVisit: boolean;
 }
+
+interface StatsResponse {
+    days: { day: string; visits: number; pageViews: number }[];
+    pages: { page: string; views: number }[];
+}
