@@ -87,7 +87,7 @@ class RecipeRepositoryTest extends ControllerTest {
     }
 
     @Test
-    void delete_takesTheRecipeOutOfPasstDazuAndTheFavorites() {
+    void delete_takesTheRecipeOutOfPasstDazuAndTheFavorites_andDeletesItsImage() {
         Recipe pesto = stored("Pesto");
         RecipeRequest pastaRequest = request("Pasta", 2, List.of("200 g Mehl"), List.of(pesto.getId()));
         Recipe pasta = inDatastore(() -> recipeRepository.create(pastaRequest));
@@ -101,6 +101,8 @@ class RecipeRepositoryTest extends ControllerTest {
 
         assertEquals(List.of(), inDatastore(() -> recipeRepository.getById(pasta.getId())).getRelatedRecipeIds());
         assertEquals(List.of(), inDatastore(() -> userRepository.getByEmail(fan.getEmail())).getFavoriteRecipeIds());
+        assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pesto.getImage()))));
+        assertNotNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pasta.getImage()))));
     }
 
     @Test
