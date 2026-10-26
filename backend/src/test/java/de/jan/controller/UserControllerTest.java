@@ -7,14 +7,17 @@ import de.jan.testsupport.ControllerTest;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
+import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.JsonNode;
 
+import javax.crypto.SecretKey;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -362,6 +365,15 @@ class UserControllerTest extends ControllerTest {
         @Test
         void notLoggedIn_returns401() throws Exception {
             mockMvc.perform(post("/api/users/renewToken"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withAnExpiredLogin_returns401() throws Exception {
+            User user = registered(EMAIL);
+
+            renewToken(expired(user))
                     .andExpect(status().isUnauthorized())
                     .andExpect(content().string(NOT_LOGGED_IN));
         }
@@ -1072,6 +1084,22 @@ class UserControllerTest extends ControllerTest {
     /** Authorization header of a login with "Angemeldet bleiben". */
     private String staysLoggedIn(User user) {
         return "Bearer " + jwtService.generateToken(user, true);
+    }
+
+    /**
+     * Authorization header of a login with "Angemeldet bleiben" that ended a minute ago. Otherwise like a real
+     * token: signed with the backend's key and with the current token version, so only the time makes it invalid.
+     */
+    private String expired(User user) {
+        SecretKey key = (SecretKey) ReflectionTestUtils.getField(jwtService, "key");
+        return "Bearer " + Jwts.builder()
+                .subject(String.valueOf(user.getId()))
+                .claim("ver", user.getTokenVersion())
+                .claim("remember", true)
+                .issuedAt(minutesFromNow(-31 * 24 * 60))
+                .expiration(minutesFromNow(-1))
+                .signWith(key)
+                .compact();
     }
 
     private ResultActions renewToken(String authorization) throws Exception {

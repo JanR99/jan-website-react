@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** What the notification mails to the admin say; sending itself is in BrevoMailSenderTest. */
+/** What the mails say: the notifications to the admin and the reset link; sending itself is in BrevoMailSenderTest. */
 class MailServicesTest {
 
     private record Mail(String to, String subject, String text) { }
@@ -89,5 +89,30 @@ class MailServicesTest {
         new RegistrationMailService(sender, "jan@example.com").send(new User("JAN@example.com", "hash", "Jan", "R"));
 
         assertTrue(sender.mails.isEmpty());
+    }
+
+    @Test
+    void passwordReset_sendsTheLinkToTheAccount() {
+        RecordingSender sender = new RecordingSender();
+        new PasswordResetMailService(sender, "https://jan-website.de/")
+                .send(new PasswordResetMailService.ResetMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 30));
+
+        Mail mail = sender.mails.getFirst();
+        assertEquals("anna@example.com", mail.to());
+        assertEquals("Passwort zurücksetzen auf jan-website.de", mail.subject());
+        assertTrue(mail.text().startsWith("Hallo Anna,"));
+        // no double slash from the trailing one, and the token is encoded for the address
+        assertTrue(mail.text().contains("https://jan-website.de/#/passwort-zuruecksetzen?token=a%2Bb%2Fc%3D\n"));
+        assertTrue(mail.text().contains("30 Minuten gültig"));
+    }
+
+    @Test
+    void passwordResetWithoutFirstName_greetsWithoutName() {
+        RecordingSender sender = new RecordingSender();
+        new PasswordResetMailService(sender, "http://localhost:5173")
+                .send(new PasswordResetMailService.ResetMail(new User("anna@example.com", "hash", " ", "Berg"), "token", 30));
+
+        Mail mail = sender.mails.getFirst();
+        assertTrue(mail.text().startsWith("Hallo,"));
     }
 }
