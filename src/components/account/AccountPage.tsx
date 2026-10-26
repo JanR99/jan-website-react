@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS, accountSectionPath, visibleAccountSections } from "../../config/navigation";
 import Avatar from "../ui/Avatar";
+import SectionCount from "./SectionCount";
 import { LogOut } from "lucide-react";
 import "../../styles/Account.css";
 
@@ -37,6 +38,7 @@ export default function AccountPage() {
                         >
                             <section.icon size={18} />
                             <span>{section.label}</span>
+                            <SectionCount section={section} />
                         </NavLink>
                     ))}
                     <button type="button" className="account-nav-link account-nav-logout" onClick={logout}>

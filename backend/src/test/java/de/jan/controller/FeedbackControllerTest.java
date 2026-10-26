@@ -193,6 +193,44 @@ class FeedbackControllerTest extends ControllerTest {
     }
 
     @Nested
+    class GetOpenFeedbackCount {
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(get("/api/feedback/openCount"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(content().string(NOT_LOGGED_IN));
+        }
+
+        @Test
+        void withoutPermission_returns403() throws Exception {
+            mockMvc.perform(get("/api/feedback/openCount").header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_USERS)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(MISSING_PERMISSION));
+        }
+
+        @Test
+        void withPermission_countsOnlyTheOpenOnes() throws Exception {
+            User user = userWith();
+            FeedbackDTO done = storedFeedback(user, "Erstes");
+            storedFeedback(user, "Zweites");
+            storedFeedback(user, "Drittes");
+            inDatastore(() -> feedbackRepository.setDone(done.id(), true));
+
+            mockMvc.perform(get("/api/feedback/openCount").header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_FEEDBACK)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("2"));
+        }
+
+        @Test
+        void withoutFeedback_returns0() throws Exception {
+            mockMvc.perform(get("/api/feedback/openCount").header(HttpHeaders.AUTHORIZATION, bearer(adminUser())))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("0"));
+        }
+    }
+
+    @Nested
     class SetFeedbackDone {
 
         @Test

@@ -16,6 +16,13 @@ export default class FeedbackController {
         return response.body ?? [];
     }
 
+    /** How many are not marked as done yet. */
+    static async openCount(): Promise<number> {
+        const apis = await apiClient;
+        const response: { body: number } = await apis.feedback.getOpenFeedbackCount.execute({});
+        return response.body ?? 0;
+    }
+
     static async setDone(id: number, done: boolean): Promise<FeedbackDTO> {
         const apis = await apiClient;
         const response: { body: FeedbackDTO } = await apis.feedback.setFeedbackDone.execute({ id, done });

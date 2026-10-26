@@ -5,6 +5,7 @@ import PermissionGate from "./PermissionGate";
 import FeedbackController from "../../controller/FeedbackController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
 import { feedbackDate, githubIssueUrl } from "../../utils/feedback";
+import { setOpenFeedbackCount } from "../../hooks/useOpenFeedbackCount";
 import ConfirmDeleteDialog from "../ui/ConfirmDeleteDialog";
 import FormError from "../ui/FormError";
 import Spinner from "../ui/Spinner";
@@ -20,7 +21,10 @@ function FeedbackList() {
     const [toDelete, setToDelete] = useState<FeedbackDTO | null>(null);
 
     // state is only set in the callbacks, once the list has arrived
-    const load = useCallback(() => FeedbackController.list().then(setItems, (err) => {
+    const load = useCallback(() => FeedbackController.list().then((list) => {
+        setItems(list);
+        setOpenFeedbackCount(list.filter((feedback) => !feedback.done).length);
+    }, (err) => {
         setError(handleApiError(err));
         setItems((prev) => prev ?? []);
     }), []);

@@ -66,4 +66,10 @@ export default class UserController {
         const response: { body: UserAdminDTO } = await apis.user.setRoles.execute({}, { requestBody: req });
         return response.body;
     }
+
+    /** Deletes another user's account; not for admins and not for the own account. */
+    static async deleteUser(id: number): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.deleteUser.execute({ id });
+    }
 }

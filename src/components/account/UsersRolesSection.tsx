@@ -30,6 +30,7 @@ function UsersRoles() {
     const [roleEdit, setRoleEdit] = useState<RoleEdit>(null);
     const [roleToDelete, setRoleToDelete] = useState<RoleDTO | null>(null);
     const [userToEdit, setUserToEdit] = useState<UserAdminDTO | null>(null);
+    const [userToDelete, setUserToDelete] = useState<UserAdminDTO | null>(null);
     const [search, setSearch] = useState("");
 
     const load = useCallback(() => {
@@ -161,36 +162,52 @@ function UsersRoles() {
                     <p className="muted recipe-admin-empty">Keine Nutzer gefunden.</p>
                 ) : (
                     <ul className="role-list">
-                        {filteredUsers.map((u) => (
-                            <li key={u.id} className="recipe-admin-row">
-                                <Avatar user={u} size={40} />
-                                <div className="recipe-admin-row-text">
-                                    <strong>
-                                        {[u.firstname, u.lastname].filter(Boolean).join(" ") || u.email}
-                                        {u.email === user?.email && <span className="badge admin-self-badge">Du</span>}
-                                    </strong>
-                                    <span className="muted">{u.email}</span>
-                                    {u.roleIds.length > 0 && (
-                                        <span className="user-role-badges">
-                                            {u.roleIds.map((id) => (
-                                                <span key={id} className="badge">{roleById.get(id)?.name ?? `Rolle ${id}`}</span>
-                                            ))}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="recipe-admin-row-actions">
-                                    <button
-                                        type="button"
-                                        className="icon-btn"
-                                        onClick={() => setUserToEdit(u)}
-                                        aria-label={`Rollen von ${u.email} bearbeiten`}
-                                        title="Rollen bearbeiten"
-                                    >
-                                        <UserCog size={18} />
-                                    </button>
-                                </div>
-                            </li>
-                        ))}
+                        {filteredUsers.map((u) => {
+                            const isSelf = u.email === user?.email;
+                            const isAdmin = u.roleIds.some((id) => roleById.get(id)?.system);
+                            return (
+                                <li key={u.id} className="recipe-admin-row">
+                                    <Avatar user={u} size={40} />
+                                    <div className="recipe-admin-row-text">
+                                        <strong>
+                                            {[u.firstname, u.lastname].filter(Boolean).join(" ") || u.email}
+                                            {isSelf && <span className="badge admin-self-badge">Du</span>}
+                                        </strong>
+                                        <span className="muted">{u.email}</span>
+                                        {u.roleIds.length > 0 && (
+                                            <span className="user-role-badges">
+                                                {u.roleIds.map((id) => (
+                                                    <span key={id} className="badge">{roleById.get(id)?.name ?? `Rolle ${id}`}</span>
+                                                ))}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="recipe-admin-row-actions">
+                                        <button
+                                            type="button"
+                                            className="icon-btn"
+                                            onClick={() => setUserToEdit(u)}
+                                            aria-label={`Rollen von ${u.email} bearbeiten`}
+                                            title="Rollen bearbeiten"
+                                        >
+                                            <UserCog size={18} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="icon-btn recipe-admin-delete"
+                                            onClick={() => setUserToDelete(u)}
+                                            disabled={isSelf || isAdmin}
+                                            aria-label={`Nutzer ${u.email} löschen`}
+                                            title={isSelf
+                                                ? "Dein eigenes Konto kannst du im Profil löschen"
+                                                : isAdmin ? "Admin-Konten können nicht gelöscht werden" : "Löschen"}
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </div>
@@ -201,6 +218,15 @@ function UsersRoles() {
                 onDeleted={(role) => {
                     setRoleToDelete(null);
                     done(`Rolle „${role.name}“ wurde gelöscht.`);
+                }}
+            />
+
+            <DeleteUserDialog
+                user={userToDelete}
+                onClose={() => setUserToDelete(null)}
+                onDeleted={(deleted) => {
+                    setUserToDelete(null);
+                    done(`Das Konto von ${deleted.email} wurde gelöscht.`);
                 }}
             />
 
@@ -293,6 +319,26 @@ function DeleteRoleDialog({ role, onClose, onDeleted }: {
     return (
         <ConfirmDeleteDialog open={role !== null} title="Rolle löschen?" onClose={onClose} onConfirm={confirm}>
             <p className="muted">„{role?.name}“ wird gelöscht und allen Nutzern entzogen, die sie haben.</p>
+        </ConfirmDeleteDialog>
+    );
+}
+
+function DeleteUserDialog({ user, onClose, onDeleted }: {
+    user: UserAdminDTO | null;
+    onClose: () => void;
+    onDeleted: (user: UserAdminDTO) => void;
+}) {
+    async function confirm() {
+        if (!user) return;
+        await UserController.deleteUser(user.id);
+        onDeleted(user);
+    }
+
+    return (
+        <ConfirmDeleteDialog open={user !== null} title="Nutzer löschen?" onClose={onClose} onConfirm={confirm}>
+            <p className="muted">
+                Das Konto von {user?.email} wird mit Favoriten und Spielstatistik gelöscht. Geschicktes Feedback bleibt erhalten.
+            </p>
         </ConfirmDeleteDialog>
     );
 }

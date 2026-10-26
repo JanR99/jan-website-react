@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext.tsx";
 import { accountSectionPath, visibleAccountSections } from "../config/navigation.tsx";
 import Avatar from "./ui/Avatar.tsx";
+import SectionCount from "./account/SectionCount.tsx";
 import { ChevronDown, LogIn, LogOut } from "lucide-react";
 import "../styles/AccountMenu.css";
 
@@ -72,6 +73,7 @@ export default function AccountMenu() {
                             <Link key={section.path} to={accountSectionPath(section)} className="account-dropdown-item">
                                 <section.icon size={18} />
                                 {section.label}
+                                <SectionCount section={section} />
                             </Link>
                         ))}
                     </nav>

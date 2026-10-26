@@ -72,6 +72,11 @@ public class FeedbackRepository {
         return feedbackDAO.getAll().stream().sorted(ORDER).map(FeedbackDTO::from).toList();
     }
 
+    /** How many are not marked as done yet, for the number at the menu item. */
+    public long openCount() {
+        return feedbackDAO.getAll().stream().filter(feedback -> !feedback.isDone()).count();
+    }
+
     public FeedbackDTO setDone(Long id, boolean done) {
         Feedback feedback = load(id);
         feedback.setDone(done);
