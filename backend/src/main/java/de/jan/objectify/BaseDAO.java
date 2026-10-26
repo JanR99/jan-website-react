@@ -7,6 +7,8 @@ import com.googlecode.objectify.cmd.Query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
@@ -79,6 +81,22 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
 
     public void deleteKeys(List<Key<T>> keys) {
         ofy().delete().keys(keys).now();
+    }
+
+    /**
+     * Changes an entity in a transaction, so that changes other requests make at the same time aren't lost
+     * (Datastore tries again on a conflict); creates it first if there is none yet.
+     */
+    public T update(ID id, Supplier<T> create, Consumer<T> change) {
+        return ofy().transact(() -> {
+            T entity = getById(id);
+            if (entity == null) {
+                entity = create.get();
+            }
+            change.accept(entity);
+            ofy().save().entity(entity).now();
+            return entity;
+        });
     }
 
     public List<T> find(Filter... filters) {
