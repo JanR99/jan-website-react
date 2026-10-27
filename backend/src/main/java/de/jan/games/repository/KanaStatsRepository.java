@@ -11,7 +11,6 @@ import de.jan.user.User;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -23,18 +22,12 @@ public class KanaStatsRepository {
     public static final List<String> SCRIPTS = List.of(HIRAGANA, KATAKANA);
     /** more characters than a round ever has */
     public static final int MAX_KANA = 20;
-    /** right answers in a row that take a character off the list of mistakes */
-    public static final int RIGHT_TO_LEAVE = 2;
     /** the list of mistakes keeps at most this many characters, dropping the oldest */
     public static final int MAX_MISTAKES = 300;
 
     /** one character, or one with a small ゃ, ゅ or ょ after it; all hiragana or all katakana */
     private static final Pattern HIRAGANA_KANA = Pattern.compile("[\\u3041-\\u3096][ゃゅょ]?");
     private static final Pattern KATAKANA_KANA = Pattern.compile("[\\u30a1-\\u30fa][ャュョ]?");
-
-    /** most often wrong first, then the oldest */
-    private static final Comparator<KanaMistake> MISTAKE_ORDER =
-            Comparator.comparingInt(KanaMistake::getWrong).reversed().thenComparingLong(KanaMistake::getAddedAt);
 
     private final KanaStatsDAO statsDAO = new KanaStatsDAO();
 
@@ -83,7 +76,7 @@ public class KanaStatsRepository {
         if (stats == null) {
             return List.of();
         }
-        if (stats.getMistakes().removeIf(mistake -> mistake.getKana().equals(kana))) {
+        if (MistakeList.remove(stats.getMistakes(), kana)) {
             stats = statsDAO.save(stats);
         }
         return toDTOs(stats.getMistakes());
@@ -106,31 +99,9 @@ public class KanaStatsRepository {
     }
 
     private static void updateMistakes(KanaStats stats, List<String> kana, List<Boolean> answers) {
-        List<KanaMistake> mistakes = stats.getMistakes();
         long now = System.currentTimeMillis();
-        for (int i = 0; i < kana.size(); i++) {
-            String character = kana.get(i);
-            KanaMistake mistake = mistakes.stream()
-                    .filter(entry -> entry.getKana().equals(character))
-                    .findFirst()
-                    .orElse(null);
-            if (!answers.get(i)) {
-                if (mistake == null) {
-                    mistake = new KanaMistake(character, now);
-                    mistakes.add(mistake);
-                }
-                mistake.setWrong(mistake.getWrong() + 1);
-                mistake.setRightInRow(0);
-            } else if (mistake != null) {
-                mistake.setRightInRow(mistake.getRightInRow() + 1);
-                if (mistake.getRightInRow() >= RIGHT_TO_LEAVE) {
-                    mistakes.remove(mistake);
-                }
-            }
-        }
-        while (mistakes.size() > MAX_MISTAKES) {
-            mistakes.remove(mistakes.stream().min(Comparator.comparingLong(KanaMistake::getAddedAt)).orElseThrow());
-        }
+        List<KanaMistake> asked = kana.stream().map(character -> new KanaMistake(character, now)).toList();
+        MistakeList.update(stats.getMistakes(), asked, answers, MAX_MISTAKES);
     }
 
     private static void countRound(KanaStats stats, List<String> scripts, List<Boolean> answers) {
@@ -150,7 +121,7 @@ public class KanaStatsRepository {
     }
 
     private static List<KanaMistakeDTO> toDTOs(List<KanaMistake> mistakes) {
-        return mistakes.stream().sorted(MISTAKE_ORDER).map(KanaMistakeDTO::of).toList();
+        return MistakeList.sorted(mistakes).stream().map(KanaMistakeDTO::of).toList();
     }
 
     private static KanaStatsDTO toDTO(KanaStats stats) {
