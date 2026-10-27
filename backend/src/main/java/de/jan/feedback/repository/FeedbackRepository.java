@@ -7,6 +7,7 @@ import de.jan.feedback.FeedbackDAO;
 import de.jan.feedback.FeedbackDTO;
 import de.jan.mail.FeedbackMailService;
 import de.jan.user.User;
+import de.jan.util.TextRules;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -44,12 +45,7 @@ public class FeedbackRepository {
     /** Stores the feedback of the user and mails it to the admin. */
     public FeedbackDTO submit(User user, FeedbackRequest request) {
         String text = cleanText(request.text());
-        if (text.isEmpty()) {
-            throw new EntityStateException("Text must not be empty");
-        }
-        if (text.length() > TEXT_MAX_LENGTH) {
-            throw new EntityStateException("Text must be at most " + TEXT_MAX_LENGTH + " characters long");
-        }
+        TextRules.require(text, "Text", TEXT_MAX_LENGTH);
 
         Date now = new Date();
         long since = now.getTime() - LIMIT_WINDOW.toMillis();

@@ -13,6 +13,7 @@ import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import de.jan.user.UserDataOwner;
+import de.jan.util.TextRules;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -56,9 +57,7 @@ public class UserRepository {
         if (req.email() == null || !EMAIL_PATTERN.matcher(req.email()).matches()) {
             throw new EntityStateException("Invalid email address format");
         }
-        if (req.email().length() > EMAIL_MAX_LENGTH) {
-            throw new EntityStateException("Email must be at most " + EMAIL_MAX_LENGTH + " characters long");
-        }
+        TextRules.requireMaxLength(req.email(), "Email", EMAIL_MAX_LENGTH);
 
         String firstname = validateName(req.firstname());
         String lastname = validateName(req.lastname());
@@ -166,12 +165,7 @@ public class UserRepository {
 
     private static String validateName(String name) {
         String trimmed = name == null ? "" : name.trim();
-        if (trimmed.isEmpty()) {
-            throw new EntityStateException("First- and Surname must not be empty");
-        }
-        if (trimmed.length() > NAME_MAX_LENGTH) {
-            throw new EntityStateException("First- and Surname must be at most " + NAME_MAX_LENGTH + " characters long");
-        }
+        TextRules.require(trimmed, "First- and Surname", NAME_MAX_LENGTH);
         return trimmed;
     }
 

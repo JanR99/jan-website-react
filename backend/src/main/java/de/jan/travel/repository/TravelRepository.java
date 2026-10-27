@@ -19,6 +19,7 @@ import de.jan.travel.TravelSeedMarker;
 import de.jan.travel.TravelSeedMarkerDAO;
 import de.jan.travel.TravelStop;
 import de.jan.util.ListCache;
+import de.jan.util.TextRules;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -126,7 +127,7 @@ public class TravelRepository {
     public TravelFolderDTO setText(Long id, String text) {
         TravelFolder folder = loadFolder(id);
         String cleaned = cleanText(text);
-        requireMaxLength(cleaned, TEXT_MAX_LENGTH, "Text");
+        TextRules.requireMaxLength(cleaned, "Text", TEXT_MAX_LENGTH);
         folder.setText(cleaned);
         folderDAO.save(folder);
         invalidateCache();
@@ -237,7 +238,7 @@ public class TravelRepository {
     public TravelFolderDTO setCaption(Long photoId, String caption) {
         TravelPhoto photo = loadPhoto(photoId);
         String text = collapse(caption);
-        requireMaxLength(text, CAPTION_MAX_LENGTH, "Caption");
+        TextRules.requireMaxLength(text, "Caption", CAPTION_MAX_LENGTH);
         photo.setCaption(text);
         photoDAO.save(photo);
         invalidateCache();
@@ -306,10 +307,7 @@ public class TravelRepository {
 
     private void apply(TravelFolder folder, TravelFolderRequest request) {
         String name = collapse(request.name());
-        if (name.isEmpty()) {
-            throw new EntityStateException("Name must not be empty");
-        }
-        requireMaxLength(name, NAME_MAX_LENGTH, "Name");
+        TextRules.require(name, "Name", NAME_MAX_LENGTH);
         boolean taken = folderDAO.getAll().stream()
                 .anyMatch(other -> !Objects.equals(other.getId(), folder.getId()) && other.getName().equalsIgnoreCase(name));
         if (taken) {
@@ -317,7 +315,7 @@ public class TravelRepository {
         }
 
         String country = collapse(request.country());
-        requireMaxLength(country, NAME_MAX_LENGTH, "Country");
+        TextRules.requireMaxLength(country, "Country", NAME_MAX_LENGTH);
 
         List<TravelStop> stops = stops(request.stops());
         Long previousFolderId = request.previousFolderId();
@@ -335,7 +333,7 @@ public class TravelRepository {
         }
 
         String cuisine = collapse(request.cuisine());
-        requireMaxLength(cuisine, NAME_MAX_LENGTH, "Cuisine");
+        TextRules.requireMaxLength(cuisine, "Cuisine", NAME_MAX_LENGTH);
 
         folder.setName(name);
         folder.setCountry(country);
@@ -362,7 +360,7 @@ public class TravelRepository {
             requireRange(stop.latitude(), 90, "Latitude");
             requireRange(stop.longitude(), 180, "Longitude");
             String name = collapse(stop.name());
-            requireMaxLength(name, NAME_MAX_LENGTH, "Stop name");
+            TextRules.requireMaxLength(name, "Stop name", NAME_MAX_LENGTH);
             stops.add(new TravelStop(name, stop.latitude(), stop.longitude()));
         }
         return stops;
@@ -428,12 +426,6 @@ public class TravelRepository {
     private static void requireRange(double value, int limit, String label) {
         if (!(Math.abs(value) <= limit)) {
             throw new EntityStateException(label + " must be between -" + limit + " and " + limit);
-        }
-    }
-
-    private static void requireMaxLength(String value, int maxLength, String label) {
-        if (value.length() > maxLength) {
-            throw new EntityStateException(label + " must be at most " + maxLength + " characters long");
         }
     }
 }
