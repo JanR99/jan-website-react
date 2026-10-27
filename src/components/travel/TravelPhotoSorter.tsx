@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { ArrowLeft, ArrowRight, GripVertical } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { useApi } from "../../hooks/useApi";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { moveItem, photoDescription } from "../../utils/travel";
 import FormError from "../ui/FormError";
@@ -47,6 +48,7 @@ function place(drag: Drag, grid: HTMLElement) {
  * changes, so the dragged one is never taken out of the page, which would end the dragging.
  */
 export default function TravelPhotoSorter({ folder, onClose }: { folder: TravelFolder; onClose: () => void }) {
+    const apis = useApi();
     const [order, setOrder] = useState<TravelPhoto[]>(folder.photos);
     /** the order shown while a photo is dragged, null otherwise */
     const [preview, setPreview] = useState<TravelPhoto[] | null>(null);
@@ -198,7 +200,7 @@ export default function TravelPhotoSorter({ folder, onClose }: { folder: TravelF
                             onPointerCancel={(event) => release(event, false)}
                         >
                             <img
-                                src={TravelController.photoPreviewUrl(photo.id)}
+                                src={apis ? TravelController.photoUrl(apis, photo.id, true) : undefined}
                                 alt={photoDescription(folder.name, photo, index)}
                                 draggable={false}
                                 loading="lazy"

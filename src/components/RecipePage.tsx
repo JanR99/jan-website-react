@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { renderStepText } from './helper/RecipeHelper';
 import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
+import { useApi } from '../hooks/useApi';
 import { useFavorites } from '../hooks/useFavorites';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { useHistoryOverlay } from '../hooks/useHistoryOverlay';
@@ -82,6 +83,7 @@ const RecipePage: React.FC = () => {
 
 /** A recipe with what the visitor has set on its page: the portions, the ticked ingredients and the cook mode. */
 const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, recipes }) => {
+    const apis = useApi();
     const { folders } = useTravelFolders();
     const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -148,12 +150,12 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
             <section className="recipe-hero">
                 <a
                     className="recipe-hero-image"
-                    href={recipeImage(recipe)}
+                    href={apis ? recipeImage(apis, recipe) : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Bild in voller Größe öffnen"
                 >
-                    <img src={recipeImage(recipe)} alt={recipe.title} />
+                    {apis && <img src={recipeImage(apis, recipe)} alt={recipe.title} />}
                 </a>
 
                 <div className="recipe-hero-info">
@@ -202,7 +204,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                         {/* Bring! liest die Zutaten von der Seite des Backends und rechnet sie auf die Portionen um */}
                         <a
                             className="btn btn-secondary"
-                            href={bringImportUrl(bringPageUrl(recipe.id), defaultPortions, portions)}
+                            href={apis ? bringImportUrl(bringPageUrl(apis, recipe.id), defaultPortions, portions) : undefined}
                             target="_blank"
                             rel="noopener noreferrer"
                         >

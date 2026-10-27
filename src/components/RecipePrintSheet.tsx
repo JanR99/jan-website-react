@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { adjustIngredient, renderIngredients, renderStepText } from "./helper/RecipeHelper";
+import { useApi } from "../hooks/useApi";
 import { recipeImage } from "../utils/recipe";
 import { bringImportUrl, bringPageUrl } from "../utils/bring";
 import DietBadge from "./DietBadge";
@@ -20,6 +21,7 @@ const SCALE_STEP = 0.02;
  * fits on that one page.
  */
 export default function RecipePrintSheet({ recipe, portions }: RecipePrintSheetProps) {
+    const apis = useApi();
     const sheetRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +60,7 @@ export default function RecipePrintSheet({ recipe, portions }: RecipePrintSheetP
 
             <div className="recipe-print-content" ref={contentRef}>
                 <header className="recipe-print-head">
-                    <img className="recipe-print-image" src={recipeImage(recipe)} alt="" />
+                    {apis && <img className="recipe-print-image" src={recipeImage(apis, recipe)} alt="" />}
                     <div className="recipe-print-info">
                         {recipe.cuisine && <span className="eyebrow">{recipe.cuisine}e Küche</span>}
                         <h1>{recipe.title}</h1>
@@ -69,14 +71,16 @@ export default function RecipePrintSheet({ recipe, portions }: RecipePrintSheetP
                         </div>
                     </div>
                     {/* the same link as the Bring! button on the recipe page, for scanning the printed recipe */}
-                    <figure className="recipe-print-bring">
-                        <QRCodeSVG
-                            value={bringImportUrl(bringPageUrl(recipe.id), recipe.defaultPortions ?? 2, portions)}
-                            size={104}
-                            marginSize={0}
-                        />
-                        <figcaption>Scannen für die Bring!-Liste</figcaption>
-                    </figure>
+                    {apis && (
+                        <figure className="recipe-print-bring">
+                            <QRCodeSVG
+                                value={bringImportUrl(bringPageUrl(apis, recipe.id), recipe.defaultPortions ?? 2, portions)}
+                                size={104}
+                                marginSize={0}
+                            />
+                            <figcaption>Scannen für die Bring!-Liste</figcaption>
+                        </figure>
+                    )}
                 </header>
 
                 <div className="recipe-print-body">

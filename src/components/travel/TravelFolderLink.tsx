@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
 import { Images } from "lucide-react";
 import TravelController from "../../controller/TravelController";
+import { useApi } from "../../hooks/useApi";
 import { folderSubtitle, travelFolderPath } from "../../utils/travel";
 import "../../styles/Destination.css";
 
 /** A small tile that leads to a trip: its cover photo, its name and below it country and time. */
 export default function TravelFolderLink({ folder }: { folder: TravelFolder }) {
+    const apis = useApi();
     const subtitle = folderSubtitle(folder);
     return (
         <Link to={travelFolderPath(folder)} className="other-destination">
             {folder.coverPhotoId !== null ? (
-                <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt="" loading="lazy" />
+                <img src={apis ? TravelController.photoUrl(apis, folder.coverPhotoId, true) : undefined} alt="" loading="lazy" />
             ) : (
                 <span className="other-destination-empty" aria-hidden="true"><Images size={22} /></span>
             )}

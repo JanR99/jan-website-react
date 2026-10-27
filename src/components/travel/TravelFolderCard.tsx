@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Images } from "lucide-react";
 import TravelController from "../../controller/TravelController";
+import { useApi } from "../../hooks/useApi";
 import { folderSubtitle, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import "../../styles/Travel.css";
 
 /** A folder of the travel diary as a card with its cover photo, used on the home page and in the diary. */
 export default function TravelFolderCard({ folder }: { folder: TravelFolder }) {
+    const apis = useApi();
     const subtitle = folderSubtitle(folder);
 
     return (
         <Link to={travelFolderPath(folder)} className="destination-card">
             {folder.coverPhotoId !== null ? (
-                <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt={folder.name} loading="lazy" />
+                apis && <img src={TravelController.photoUrl(apis, folder.coverPhotoId, true)} alt={folder.name} loading="lazy" />
             ) : (
                 <span className="destination-card-empty" aria-hidden="true">
                     <Images size={40} />

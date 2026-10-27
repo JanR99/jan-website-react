@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import PermissionGate from "./PermissionGate";
+import { useApi } from "../../hooks/useApi";
 import { reloadRecipes, useRecipes } from "../../hooks/useRecipes";
 import RecipeController from "../../controller/RecipeController";
 import { RECIPE_TAGS } from "../../config/labels";
@@ -18,6 +19,7 @@ export default function RecipeAdminSection() {
 }
 
 function RecipeAdmin() {
+    const apis = useApi();
     const { recipes, loading, error } = useRecipes();
     const [mode, setMode] = useState<Mode>({ kind: "list" });
     const [search, setSearch] = useState("");
@@ -85,7 +87,7 @@ function RecipeAdmin() {
                     <ul>
                         {filtered.map((recipe) => (
                             <li key={recipe.id} className="recipe-admin-row">
-                                <img src={recipeImage(recipe)} alt="" loading="lazy" />
+                                {apis && <img src={recipeImage(apis, recipe)} alt="" loading="lazy" />}
                                 <div className="recipe-admin-row-text">
                                     <strong>{recipe.title}</strong>
                                     <span className="muted">

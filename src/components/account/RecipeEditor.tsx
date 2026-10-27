@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { SubmitEvent } from "react";
 import RecipeController from "../../controller/RecipeController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { useApi } from "../../hooks/useApi";
 import { reloadRecipes } from "../../hooks/useRecipes";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
 import { RECIPE_TAGS } from "../../config/labels";
@@ -21,6 +22,7 @@ const toLines = (text: string) => text.split("\n").map((line) => line.trim()).fi
 const ALL_TAGS = Object.keys(RECIPE_TAGS) as RecipeTag[];
 
 export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: RecipeEditorProps) {
+    const apis = useApi();
     const [title, setTitle] = useState(recipe?.title ?? "");
     const [image, setImage] = useState(recipe?.image ?? "");
     const [portions, setPortions] = useState(String(recipe?.defaultPortions ?? 2));
@@ -29,7 +31,6 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
     const [ingredients, setIngredients] = useState((recipe?.ingredients ?? []).join("\n"));
     const [preparation, setPreparation] = useState((recipe?.preparation ?? []).join("\n"));
     const [related, setRelated] = useState<number[]>(recipe?.relatedRecipeIds ?? []);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(recipe ? recipeImage(recipe) : null);
     const [uploading, setUploading] = useState(false);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -107,12 +108,9 @@ export default function RecipeEditor({ recipe, allRecipes, onCancel, onSaved }: 
             </label>
 
             <RecipeImageDropzone
-                previewUrl={previewUrl}
+                previewUrl={apis && image ? recipeImage(apis, { image }) : null}
                 onBusyChange={setUploading}
-                onUploaded={(name) => {
-                    setImage(name);
-                    setPreviewUrl(recipeImage({ image: name }));
-                }}
+                onUploaded={setImage}
             />
 
             <div className="recipe-editor-row">

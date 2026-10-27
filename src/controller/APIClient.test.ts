@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { apiUrl, storedApi } from "./APIClient";
+import { apiUrl, operationPath, operationUrl, storedApi } from "./APIClient";
 import RecipeController from "./RecipeController";
 
 const description = {
@@ -52,5 +52,36 @@ describe("storedApi", () => {
 
     it("fails in a browser without cache storage", async () => {
         await expect(RecipeController.listRecipes(storedApi)).rejects.toThrow();
+    });
+});
+
+describe("operationPath", () => {
+    const getPhoto = { path: "/api/travel/photos/{id}" };
+
+    it("puts a parameter with a placeholder into the path", () => {
+        expect(operationPath(getPhoto, { id: 12 })).toBe("/api/travel/photos/12");
+    });
+
+    it("puts the other parameters into the query", () => {
+        expect(operationPath(getPhoto, { id: 12, preview: true })).toBe("/api/travel/photos/12?preview=true");
+    });
+
+    it("leaves out a parameter that is undefined", () => {
+        expect(operationPath(getPhoto, { id: 12, preview: undefined })).toBe("/api/travel/photos/12");
+    });
+
+    it("encodes special characters", () => {
+        expect(operationPath({ path: "/api/images/{id}" }, { id: "Char Koay Teow.jpg" })).toBe("/api/images/Char%20Koay%20Teow.jpg");
+        expect(operationPath({ path: "/api/x" }, { q: "a&b" })).toBe("/api/x?q=a%26b");
+    });
+
+    it("gives the path itself without parameters", () => {
+        expect(operationPath({ path: "/api/backup/export" })).toBe("/api/backup/export");
+    });
+});
+
+describe("operationUrl", () => {
+    it("is the absolute URL of the path", () => {
+        expect(operationUrl({ path: "/api/travel/photos/{id}" }, { id: 12 })).toBe(apiUrl("/api/travel/photos/12"));
     });
 });

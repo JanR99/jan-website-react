@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import L from "leaflet";
 import TravelController from "../../controller/TravelController";
+import { useApi } from "../../hooks/useApi";
 import { crowdedFolders, folderStops, folderSubtitle, mapLayout, photoCountLabel, travelFolderPath } from "../../utils/travel";
 import { createMap, pinIcon, toLatLng } from "./leafletMap";
 import { zoomWithModifierWheel } from "./modifierWheelZoom";
@@ -142,13 +143,14 @@ function FolderPin({ count }: { count: number }) {
 
 /** What the popup of a pin shows: the folder with its cover photo and the stop, as a link into the folder. */
 function TravelMapCard({ folder, stopName }: { folder: TravelFolder; stopName: string }) {
+    const apis = useApi();
     const subtitle = folderSubtitle(folder);
     // a folder with a single stop usually has it named like itself
     const showStop = stopName !== "" && stopName !== folder.name;
 
     return (
         <Link to={travelFolderPath(folder)} className="travel-map-card">
-            {folder.coverPhotoId !== null && <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt="" />}
+            {folder.coverPhotoId !== null && apis && <img src={TravelController.photoUrl(apis, folder.coverPhotoId, true)} alt="" />}
             <span className="travel-map-card-body">
                 {subtitle && <span className="travel-map-card-country">{subtitle}</span>}
                 <strong>{folder.name}</strong>

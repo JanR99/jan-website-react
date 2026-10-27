@@ -1,4 +1,4 @@
-import { apiClient, apiUrl } from "./APIClient.ts";
+import { apiClient, operationUrl, type Apis } from "./APIClient.ts";
 
 const UPLOAD_PREFIX = "uploads/";
 
@@ -10,8 +10,8 @@ export default class ImageController {
         return response.body;
     }
 
-    static getImageUrl(image: string): string {
+    static getImageUrl(apis: Apis, image: string): string {
         const id = image.startsWith(UPLOAD_PREFIX) ? image.slice(UPLOAD_PREFIX.length) : image;
-        return apiUrl(`/api/images/${encodeURIComponent(id)}`);
+        return operationUrl(apis.images.getImage, { id });
     }
 }

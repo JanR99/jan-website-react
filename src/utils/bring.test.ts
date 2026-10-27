@@ -23,15 +23,18 @@ describe("bringImportUrl", () => {
 describe("bringPageUrl", () => {
     afterEach(() => vi.unstubAllEnvs());
 
+    // the operation as the API description has it
+    const apis = { recipes: { bringRecipe: { path: "/api/recipes/{id}/bring" } } };
+
     it("points to the page of the recipe in the backend", () => {
         vi.stubEnv("VITE_BRING_BACKEND_URL", "");
 
-        expect(bringPageUrl(7)).toBe(apiUrl("/api/recipes/7/bring"));
+        expect(bringPageUrl(apis, 7)).toBe(apiUrl("/api/recipes/7/bring"));
     });
 
     it("points to the tunnel when one is set for local tests", () => {
         vi.stubEnv("VITE_BRING_BACKEND_URL", "https://abc.trycloudflare.com/");
 
-        expect(bringPageUrl(7)).toBe("https://abc.trycloudflare.com/api/recipes/7/bring");
+        expect(bringPageUrl(apis, 7)).toBe("https://abc.trycloudflare.com/api/recipes/7/bring");
     });
 });
