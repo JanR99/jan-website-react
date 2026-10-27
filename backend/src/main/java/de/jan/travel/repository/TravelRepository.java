@@ -2,7 +2,6 @@ package de.jan.travel.repository;
 
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.image.ImageScaler;
 import de.jan.image.ImageType;
@@ -138,7 +137,7 @@ public class TravelRepository {
     public TravelFolderDTO setCover(Long id, Long photoId) {
         TravelFolder folder = loadFolder(id);
         if (photoId != null) {
-            TravelPhoto photo = photoDAO.getById(photoId);
+            TravelPhoto photo = photoDAO.get(photoId);
             if (photo == null || !id.equals(photo.getFolderId())) {
                 throw new EntityStateException("The photo does not belong to this folder");
             }
@@ -251,7 +250,7 @@ public class TravelRepository {
         previewDAO.delete(id);
         photoDAO.delete(photo);
 
-        TravelFolder folder = folderDAO.getById(photo.getFolderId());
+        TravelFolder folder = folderDAO.get(photo.getFolderId());
         if (folder != null && id.equals(folder.getCoverPhotoId())) {
             folder.setCoverPhotoId(null);
             folderDAO.save(folder);
@@ -261,7 +260,7 @@ public class TravelRepository {
 
     /** The image data of a photo, null if there is none. */
     public TravelPhotoFile getPhotoFile(Long photoId) {
-        return fileDAO.getById(photoId);
+        return fileDAO.get(photoId);
     }
 
     /**
@@ -269,11 +268,11 @@ public class TravelRepository {
      * If the photo is that small already or can't be scaled, the photo itself. Null if there is no photo.
      */
     public StoredImage getPhotoPreview(Long photoId) {
-        TravelPhotoPreview stored = previewDAO.getById(photoId);
+        TravelPhotoPreview stored = previewDAO.get(photoId);
         if (stored != null) {
             return stored;
         }
-        TravelPhotoFile file = fileDAO.getById(photoId);
+        TravelPhotoFile file = fileDAO.get(photoId);
         if (file == null) {
             return null;
         }
@@ -294,19 +293,11 @@ public class TravelRepository {
     }
 
     private TravelFolder loadFolder(Long id) {
-        TravelFolder folder = id == null ? null : folderDAO.getById(id);
-        if (folder == null) {
-            throw new EntityNotFoundException("Folder " + id + " not found");
-        }
-        return folder;
+        return folderDAO.getOrThrow(id);
     }
 
     private TravelPhoto loadPhoto(Long id) {
-        TravelPhoto photo = id == null ? null : photoDAO.getById(id);
-        if (photo == null) {
-            throw new EntityNotFoundException("Photo " + id + " not found");
-        }
-        return photo;
+        return photoDAO.getOrThrow(id);
     }
 
     private static TravelFolderDTO toDTO(TravelFolder folder, Collection<TravelPhoto> photos) {

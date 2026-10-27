@@ -1,7 +1,6 @@
 package de.jan.feedback.repository;
 
 import de.jan.controller.requests.FeedbackRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.feedback.Feedback;
 import de.jan.feedback.FeedbackDAO;
@@ -88,11 +87,7 @@ public class FeedbackRepository {
     }
 
     private Feedback load(Long id) {
-        Feedback feedback = id == null ? null : feedbackDAO.getById(id);
-        if (feedback == null) {
-            throw new EntityNotFoundException("Feedback " + id + " not found");
-        }
-        return feedback;
+        return feedbackDAO.getOrThrow(id);
     }
 
     /** Only a path of this website; anything else is dropped rather than refused. */

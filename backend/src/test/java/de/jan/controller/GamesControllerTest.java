@@ -170,7 +170,7 @@ class GamesControllerTest extends ControllerTest {
                 return null;
             });
 
-            assertNull(inDatastore(() -> new CrosswordStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new CrosswordStatsDAO().get(user.getId())));
         }
     }
 
@@ -312,14 +312,14 @@ class GamesControllerTest extends ControllerTest {
         void deletedAccount_takesItsNumbersWithIt() throws Exception {
             User user = userWith();
             recordKanji(user, kanjiResult("A1", true, true));
-            assertNotNull(inDatastore(() -> new KanjiStatsDAO().getById(user.getId())));
+            assertNotNull(inDatastore(() -> new KanjiStatsDAO().get(user.getId())));
 
             inDatastore(() -> {
                 userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
                 return null;
             });
 
-            assertNull(inDatastore(() -> new KanjiStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new KanjiStatsDAO().get(user.getId())));
         }
     }
 
@@ -628,14 +628,14 @@ class GamesControllerTest extends ControllerTest {
         void deletedAccount_takesItsNumbersWithIt() throws Exception {
             User user = userWith();
             recordKana(user, kanaRound(false, "あ", "!い"));
-            assertNotNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+            assertNotNull(inDatastore(() -> new KanaStatsDAO().get(user.getId())));
 
             inDatastore(() -> {
                 userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
                 return null;
             });
 
-            assertNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new KanaStatsDAO().get(user.getId())));
         }
     }
 

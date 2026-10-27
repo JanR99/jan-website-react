@@ -39,7 +39,7 @@ public class KanaStatsRepository {
     private final KanaStatsDAO statsDAO = new KanaStatsDAO();
 
     public KanaStatsDTO get(User user) {
-        KanaStats stats = statsDAO.getById(user.getId());
+        KanaStats stats = statsDAO.get(user.getId());
         return toDTO(stats != null ? stats : new KanaStats(user.getId()));
     }
 
@@ -60,7 +60,7 @@ public class KanaStatsRepository {
         }
         List<String> scripts = kana.stream().map(KanaStatsRepository::scriptOf).toList();
 
-        KanaStats stats = statsDAO.getById(user.getId());
+        KanaStats stats = statsDAO.get(user.getId());
         if (stats == null) {
             stats = new KanaStats(user.getId());
         }
@@ -73,13 +73,13 @@ public class KanaStatsRepository {
 
     /** The characters read wrong and not yet read right twice in a row since, most often wrong first. */
     public List<KanaMistakeDTO> getMistakes(User user) {
-        KanaStats stats = statsDAO.getById(user.getId());
+        KanaStats stats = statsDAO.get(user.getId());
         return stats == null ? List.of() : toDTOs(stats.getMistakes());
     }
 
     /** Takes a character off the list of mistakes by hand; a character that isn't on it changes nothing. */
     public List<KanaMistakeDTO> deleteMistake(User user, String kana) {
-        KanaStats stats = statsDAO.getById(user.getId());
+        KanaStats stats = statsDAO.get(user.getId());
         if (stats == null) {
             return List.of();
         }

@@ -41,7 +41,7 @@ public class ImageRepository {
     }
 
     public RecipeImage getById(Long id) {
-        return id == null ? null : imageDAO.getById(id);
+        return id == null ? null : imageDAO.get(id);
     }
 
     /** "uploads/<id>" -> id, null for anything else */

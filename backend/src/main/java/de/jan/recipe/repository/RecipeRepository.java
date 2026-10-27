@@ -1,7 +1,6 @@
 package de.jan.recipe.repository;
 
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
@@ -65,11 +64,7 @@ public class RecipeRepository {
     }
 
     public Recipe getById(Long id) {
-        Recipe recipe = id == null ? null : recipeDAO.getById(id);
-        if (recipe == null) {
-            throw new EntityNotFoundException("Recipe " + id + " not found");
-        }
-        return recipe;
+        return recipeDAO.getOrThrow(id);
     }
 
     public boolean exists(Long id) {

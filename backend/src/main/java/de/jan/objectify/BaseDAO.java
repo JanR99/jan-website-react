@@ -3,6 +3,7 @@ package de.jan.objectify;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
+import de.jan.exceptions.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +46,22 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
         ofy().save().entities(entities).now();
     }
 
-    public T getById(ID id) {
+    /** The entity with this id, null if there is none. */
+    public T get(ID id) {
         return id == null ? null : ofy().load().key(key(id)).now();
+    }
+
+    /**
+     * The entity with this id.
+     *
+     * @throws EntityNotFoundException if there is none (also for id null), answered with 404, e.g. "Recipe 5 not found"
+     */
+    public T getOrThrow(ID id) {
+        T entity = get(id);
+        if (entity == null) {
+            throw new EntityNotFoundException(clazz.getSimpleName() + " " + id + " not found");
+        }
+        return entity;
     }
 
     public boolean exists(ID id) {
@@ -89,7 +104,7 @@ public class BaseDAO<T extends DatastoreEntity, ID> {
      */
     public T update(ID id, Supplier<T> create, Consumer<T> change) {
         return ofy().transact(() -> {
-            T entity = getById(id);
+            T entity = get(id);
             if (entity == null) {
                 entity = create.get();
             }

@@ -1,7 +1,6 @@
 package de.jan.role.repository;
 
 import de.jan.controller.requests.RoleRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.role.Permission;
 import de.jan.role.Role;
@@ -42,11 +41,7 @@ public class RoleRepository {
     }
 
     public Role getById(Long id) {
-        Role role = id == null ? null : roleDAO.getById(id);
-        if (role == null) {
-            throw new EntityNotFoundException("Role " + id + " not found");
-        }
-        return role;
+        return roleDAO.getOrThrow(id);
     }
 
     /** Union of the permissions of all roles with these ids. */

@@ -22,7 +22,7 @@ public class CrosswordStatsRepository {
     private final CrosswordStatsDAO statsDAO = new CrosswordStatsDAO();
 
     public CrosswordStatsDTO get(User user) {
-        CrosswordStats stats = statsDAO.getById(user.getId());
+        CrosswordStats stats = statsDAO.get(user.getId());
         return toDTO(stats != null ? stats : new CrosswordStats(user.getId()));
     }
 
@@ -42,7 +42,7 @@ public class CrosswordStatsRepository {
             throw new EntityStateException("Right words must be between 0 and " + MAX_WORDS);
         }
 
-        CrosswordStats stats = statsDAO.getById(user.getId());
+        CrosswordStats stats = statsDAO.get(user.getId());
         if (stats == null) {
             stats = new CrosswordStats(user.getId());
         }

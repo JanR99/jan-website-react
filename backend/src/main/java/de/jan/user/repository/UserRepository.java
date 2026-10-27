@@ -230,7 +230,7 @@ public class UserRepository {
     }
 
     public User getById(Long id) {
-        return id == null ? null : userDAO.getById(id);
+        return id == null ? null : userDAO.get(id);
     }
 
     public User getByEmail(String email) {

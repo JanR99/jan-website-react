@@ -35,7 +35,7 @@ public class KanjiStatsRepository {
     private final KanjiStatsDAO statsDAO = new KanjiStatsDAO();
 
     public KanjiStatsDTO get(User user) {
-        KanjiStats stats = statsDAO.getById(user.getId());
+        KanjiStats stats = statsDAO.get(user.getId());
         return toDTO(stats != null ? stats : new KanjiStats(user.getId()));
     }
 
@@ -58,7 +58,7 @@ public class KanjiStatsRepository {
             validate(words, answers.size());
         }
 
-        KanjiStats stats = statsDAO.getById(user.getId());
+        KanjiStats stats = statsDAO.get(user.getId());
         if (stats == null) {
             stats = new KanjiStats(user.getId());
         }
@@ -73,13 +73,13 @@ public class KanjiStatsRepository {
 
     /** The words read wrong and not yet read right twice in a row since, most often wrong first. */
     public List<KanjiMistakeDTO> getMistakes(User user) {
-        KanjiStats stats = statsDAO.getById(user.getId());
+        KanjiStats stats = statsDAO.get(user.getId());
         return stats == null ? List.of() : toDTOs(stats.getMistakes());
     }
 
     /** Takes a word off the list of mistakes by hand; a word that isn't on it changes nothing. */
     public List<KanjiMistakeDTO> deleteMistake(User user, String word) {
-        KanjiStats stats = statsDAO.getById(user.getId());
+        KanjiStats stats = statsDAO.get(user.getId());
         if (stats == null) {
             return List.of();
         }
