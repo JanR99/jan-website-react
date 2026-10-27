@@ -50,7 +50,7 @@ const Home: React.FC = () => {
                     <span className="eyebrow">Reisen &amp; Kochen</span>
                     <h1>Willkommen auf meiner Website</h1>
                     <p className="page-header-lead">
-                        Hier sammle ich Eindrücke von meinen Reisen und meine liebsten Rezepte –
+                        Hier sammle ich Eindrücke von meinen Reisen und meine liebsten Rezepte -
                         von japanischem Curry bis zum Bananenbrot.
                     </p>
                     <div className="home-hero-actions">
