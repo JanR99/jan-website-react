@@ -1,19 +1,15 @@
 package de.jan.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
-import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,14 +17,10 @@ import java.util.Map;
 
 /**
  * On startup, imports the folders of resources/travel/folders.json with their photos
- * (resources/travel/images) until all of them are in the database; then a TravelSeedMarker
- * is stored and the import never runs again
- * (so an interrupted import continues on the next start, and things deleted later don't come back).
- * <p>
- * Runs in afterSingletonsInstantiated, i.e. before the web server accepts requests, see RecipeBootstrapConfig.
+ * (resources/travel/images) until all of them are in the database, marked by a TravelSeedMarker (see SeedImport).
  */
 @Configuration
-public class TravelBootstrapConfig implements SmartInitializingSingleton {
+public class TravelBootstrapConfig extends SeedImport<TravelBootstrapConfig.SeedFolder> {
 
     private static final String SEED_FILE = "travel/folders.json";
     private static final String SEED_IMAGE_DIR = "travel/images/";
@@ -38,9 +30,6 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
     }
 
     private final TravelRepository travelRepository;
-    private final ObjectMapper objectMapper;
-    private final String seedFile;
-    private final String seedImageDir;
 
     @Autowired
     public TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper) {
@@ -49,38 +38,22 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
 
     /** With other seed data on the classpath, for tests. */
     TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper, String seedFile, String seedImageDir) {
+        super(objectMapper, new TypeReference<>() {}, seedFile, seedImageDir, "travel");
         this.travelRepository = travelRepository;
-        this.objectMapper = objectMapper;
-        this.seedFile = seedFile;
-        this.seedImageDir = seedImageDir;
     }
 
     @Override
-    public void afterSingletonsInstantiated() {
-        ObjectifyService.run(() -> {
-            try {
-                if (!travelRepository.isSeedImported()) {
-                    importSeed();
-                }
-            } catch (Exception e) {
-                System.out.println("Bootstrap: travel import failed: " + e.getMessage());
-            }
-            return null;
-        });
+    protected boolean isImported() {
+        return travelRepository.isSeedImported();
     }
 
-    private void importSeed() throws Exception {
-        ClassPathResource resource = new ClassPathResource(seedFile);
-        if (!resource.exists()) {
-            System.out.println("Bootstrap: no " + seedFile + " found, skipping travel import.");
-            return;
-        }
+    @Override
+    protected void markImported() {
+        travelRepository.markSeedImported();
+    }
 
-        List<SeedFolder> seeds;
-        try (InputStream in = resource.getInputStream()) {
-            seeds = objectMapper.readValue(in, new TypeReference<>() {});
-        }
-
+    @Override
+    protected boolean importSeeds(List<SeedFolder> seeds) throws Exception {
         Map<String, TravelFolderDTO> byName = new HashMap<>();
         for (TravelFolderDTO folder : travelRepository.getFolders()) {
             byName.put(key(folder.name()), folder);
@@ -116,23 +89,8 @@ public class TravelBootstrapConfig implements SmartInitializingSingleton {
         System.out.println("Bootstrap: imported " + imported + " travel photos into " + seeds.size()
                 + " folders, " + failed + " folders failed.");
 
-        // failed folders are continued on the next start; once everything is there, never again
-        if (failed == 0) {
-            travelRepository.markSeedImported();
-        }
-    }
-
-    private byte[] readImage(String fileName) throws Exception {
-        if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("..")) {
-            throw new IllegalArgumentException("invalid file name " + fileName);
-        }
-        ClassPathResource resource = new ClassPathResource(seedImageDir + fileName);
-        if (!resource.exists()) {
-            throw new IllegalArgumentException(seedImageDir + fileName + " not found");
-        }
-        try (InputStream in = resource.getInputStream()) {
-            return in.readAllBytes();
-        }
+        // failed folders are continued on the next start
+        return failed == 0;
     }
 
     private static String key(String name) {
