@@ -11,7 +11,7 @@ const COMBO_STARTS = [..."きしちにひみりぎじびぴ"];
 
 export const KANA_GROUPS: { value: KanaGroup; label: string; chars: string[] }[] = [
     { value: "basic", label: "Grundzeichen", chars: KANA_TABLE.flat().filter(Boolean) },
-    { value: "marked", label: "゛ und ゜", chars: [..."がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ"] },
+    { value: "marked", label: "が / ぱ", chars: [..."がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽ"] },
     { value: "combo", label: "Kombinationen", chars: COMBO_STARTS.flatMap((start) => [..."ゃゅょ"].map((small) => start + small)) },
 ];
 
