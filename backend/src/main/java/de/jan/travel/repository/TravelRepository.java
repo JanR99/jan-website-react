@@ -6,6 +6,7 @@ import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.image.ImageScaler;
 import de.jan.image.ImageType;
+import de.jan.image.StoredImage;
 import de.jan.travel.TravelFolder;
 import de.jan.travel.TravelFolderDAO;
 import de.jan.travel.TravelFolderDTO;
@@ -265,9 +266,9 @@ public class TravelRepository {
 
     /**
      * The small version of a photo for the tiles: made from the photo the first time and stored from then on.
-     * If the photo is that small already or can't be scaled, the photo itself (not stored). Null if there is no photo.
+     * If the photo is that small already or can't be scaled, the photo itself. Null if there is no photo.
      */
-    public TravelPhotoPreview getPhotoPreview(Long photoId) {
+    public StoredImage getPhotoPreview(Long photoId) {
         TravelPhotoPreview stored = previewDAO.getById(photoId);
         if (stored != null) {
             return stored;
@@ -278,7 +279,7 @@ public class TravelRepository {
         }
         byte[] scaled = ImageScaler.scaleDown(file.getData(), PREVIEW_SIZE);
         if (scaled == null) {
-            return new TravelPhotoPreview(photoId, file.getData(), file.getContentType());
+            return file;
         }
         return previewDAO.save(new TravelPhotoPreview(photoId, scaled, ImageType.JPEG.contentType()));
     }
