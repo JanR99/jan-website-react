@@ -25,12 +25,12 @@ const Home: React.FC = () => {
     const teaser = chosenByChance(recipes, TEASER_RECIPES, VISIT_SEED);
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
 
-    const { folders, error: foldersError } = useTravelFolders();
+    const { folders, loading: foldersLoading, error: foldersError } = useTravelFolders();
     const collage = collagePhotos(folders, COLLAGE_PHOTOS, VISIT_SEED);
 
-    // the trips are missing as well when the backend can't be reached, so one try gets both
+    // recipes and trips are usually both missing when the backend can't be reached, so one try gets whatever failed
     const retry = () => {
-        void reloadRecipes();
+        if (recipesError) void reloadRecipes();
         if (foldersError) void reloadTravelFolders();
     };
 
@@ -65,28 +65,30 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                {/* each picture leads to its trip or recipe */}
-                <div className="home-hero-collage">
-                    {collage[0] && (
-                        <Link to={travelFolderPath(collage[0].folder)} aria-label={collage[0].folder.name} title={collage[0].folder.name}>
-                            <img src={TravelController.photoUrl(collage[0].photo.id)} alt="" />
-                        </Link>
-                    )}
-                    {teaser[0] && (
-                        <Link to={recipePath(teaser[0])} state={{ recipe: teaser[0] }} aria-label={teaser[0].title} title={teaser[0].title}>
-                            <img src={recipeImage(teaser[0])} alt="" />
-                        </Link>
-                    )}
-                    {collage[1] && (
-                        <Link to={travelFolderPath(collage[1].folder)} aria-label={collage[1].folder.name} title={collage[1].folder.name}>
-                            <img src={TravelController.photoUrl(collage[1].photo.id)} alt="" />
-                        </Link>
-                    )}
-                </div>
+                {/* each picture leads to its trip or recipe; left out when nothing could be loaded, so no empty space stays */}
+                {(collage.length > 0 || teaser.length > 0 || recipesLoading || foldersLoading) && (
+                    <div className="home-hero-collage">
+                        {collage[0] && (
+                            <Link to={travelFolderPath(collage[0].folder)} aria-label={collage[0].folder.name} title={collage[0].folder.name}>
+                                <img src={TravelController.photoUrl(collage[0].photo.id)} alt="" />
+                            </Link>
+                        )}
+                        {teaser[0] && (
+                            <Link to={recipePath(teaser[0])} state={{ recipe: teaser[0] }} aria-label={teaser[0].title} title={teaser[0].title}>
+                                <img src={recipeImage(teaser[0])} alt="" />
+                            </Link>
+                        )}
+                        {collage[1] && (
+                            <Link to={travelFolderPath(collage[1].folder)} aria-label={collage[1].folder.name} title={collage[1].folder.name}>
+                                <img src={TravelController.photoUrl(collage[1].photo.id)} alt="" />
+                            </Link>
+                        )}
+                    </div>
+                )}
             </section>
 
             {/* Reisen-Teaser */}
-            {folders.length > 0 && (
+            {(folders.length > 0 || foldersLoading || foldersError) && (
                 <section className="section">
                     <div className="section-head">
                         <div>
@@ -98,11 +100,22 @@ const Home: React.FC = () => {
                         </Link>
                     </div>
 
-                    <div className="destination-grid">
-                        {folders.slice(0, TEASER_FOLDERS).map(folder => (
-                            <TravelFolderCard key={folder.id} folder={folder} />
-                        ))}
-                    </div>
+                    {folders.length > 0 ? (
+                        <div className="destination-grid">
+                            {folders.slice(0, TEASER_FOLDERS).map(folder => (
+                                <TravelFolderCard key={folder.id} folder={folder} />
+                            ))}
+                        </div>
+                    ) : foldersError ? (
+                        <p className="muted cookbook-teaser-error" role="alert">
+                            Die Reisen konnten gerade nicht geladen werden.
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={retry}>
+                                Erneut versuchen
+                            </button>
+                        </p>
+                    ) : (
+                        <p className="muted">Reisen werden geladen …</p>
+                    )}
                 </section>
             )}
 
