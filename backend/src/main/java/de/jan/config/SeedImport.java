@@ -1,6 +1,8 @@
 package de.jan.config;
 
 import com.googlecode.objectify.ObjectifyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.io.ClassPathResource;
 import tools.jackson.core.type.TypeReference;
@@ -20,6 +22,8 @@ import java.util.List;
  * @param <T> one entry of the JSON list
  */
 abstract class SeedImport<T> implements SmartInitializingSingleton {
+
+    private static final Logger log = LoggerFactory.getLogger(SeedImport.class);
 
     private final ObjectMapper objectMapper;
     private final TypeReference<List<T>> seedType;
@@ -61,7 +65,7 @@ abstract class SeedImport<T> implements SmartInitializingSingleton {
                     runImport();
                 }
             } catch (Exception e) {
-                System.out.println("Bootstrap: " + what + " import failed: " + e.getMessage());
+                log.error("Bootstrap: {} import failed: {}", what, e.getMessage());
             }
             afterImport();
             return null;
@@ -71,7 +75,7 @@ abstract class SeedImport<T> implements SmartInitializingSingleton {
     private void runImport() throws Exception {
         ClassPathResource resource = new ClassPathResource(seedFile);
         if (!resource.exists()) {
-            System.out.println("Bootstrap: no " + seedFile + " found, skipping " + what + " import.");
+            log.info("Bootstrap: no {} found, skipping {} import.", seedFile, what);
             return;
         }
         List<T> seeds;

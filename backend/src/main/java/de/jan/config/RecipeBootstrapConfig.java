@@ -7,6 +7,8 @@ import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import tools.jackson.core.type.TypeReference;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
  */
 @Configuration
 public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.SeedRecipe> {
+
+    private static final Logger log = LoggerFactory.getLogger(RecipeBootstrapConfig.class);
 
     private static final String SEED_FILE = "recipes/recipes.json";
     private static final String SEED_IMAGE_DIR = "recipes/images/";
@@ -78,12 +82,12 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
         try {
             deleteOrphanImages();
         } catch (Exception e) {
-            System.out.println("Bootstrap: image cleanup failed: " + e.getMessage());
+            log.error("Bootstrap: image cleanup failed: {}", e.getMessage());
         }
     }
 
     @Override
-    protected boolean importSeeds(List<SeedRecipe> seeds) throws Exception {
+    protected boolean importSeeds(List<SeedRecipe> seeds) {
         // loaded once; every created recipe is added, so the title check needs no further reads
         List<Recipe> existing = new ArrayList<>(recipeRepository.getAll());
         Map<String, Recipe> bySlug = new HashMap<>();
@@ -103,7 +107,7 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
             try {
                 image = importSeedImage(seed.image());
             } catch (Exception e) {
-                System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": image " + seed.image() + ": " + e.getMessage());
+                log.warn("Bootstrap: skipped recipe \"{}\": image {}: {}", seed.title(), seed.image(), e.getMessage());
                 failed++;
                 continue;
             }
@@ -119,7 +123,7 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
             } catch (Exception e) {
                 imageRepository.deleteQuietly(image);
                 failed++;
-                System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": " + e.getMessage());
+                log.warn("Bootstrap: skipped recipe \"{}\": {}", seed.title(), e.getMessage());
             }
         }
 
@@ -142,8 +146,8 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
             recipeRepository.saveAllUnchecked(withRelated);
         }
 
-        System.out.println("Bootstrap: imported " + created.size() + " recipes, "
-                + (seeds.size() - created.size() - failed) + " already existed, " + failed + " failed.");
+        log.info("Bootstrap: imported {} recipes, {} already existed, {} failed.",
+                created.size(), seeds.size() - created.size() - failed, failed);
 
         // failed recipes are retried on the next start
         return failed == 0;
@@ -161,7 +165,7 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
                 .collect(Collectors.toSet());
         int deleted = imageRepository.deleteOrphans(referenced);
         if (deleted > 0) {
-            System.out.println("Bootstrap: deleted " + deleted + " unused uploaded images.");
+            log.info("Bootstrap: deleted {} unused uploaded images.", deleted);
         }
     }
 }

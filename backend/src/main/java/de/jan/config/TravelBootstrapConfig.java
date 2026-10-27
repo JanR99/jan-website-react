@@ -5,6 +5,8 @@ import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import tools.jackson.core.type.TypeReference;
@@ -21,6 +23,8 @@ import java.util.Map;
  */
 @Configuration
 public class TravelBootstrapConfig extends SeedImport<TravelBootstrapConfig.SeedFolder> {
+
+    private static final Logger log = LoggerFactory.getLogger(TravelBootstrapConfig.class);
 
     private static final String SEED_FILE = "travel/folders.json";
     private static final String SEED_IMAGE_DIR = "travel/images/";
@@ -82,12 +86,11 @@ public class TravelBootstrapConfig extends SeedImport<TravelBootstrapConfig.Seed
                 }
             } catch (Exception e) {
                 failed++;
-                System.out.println("Bootstrap: travel folder \"" + seed.name() + "\" not fully imported: " + e.getMessage());
+                log.warn("Bootstrap: travel folder \"{}\" not fully imported: {}", seed.name(), e.getMessage());
             }
         }
 
-        System.out.println("Bootstrap: imported " + imported + " travel photos into " + seeds.size()
-                + " folders, " + failed + " folders failed.");
+        log.info("Bootstrap: imported {} travel photos into {} folders, {} folders failed.", imported, seeds.size(), failed);
 
         // failed folders are continued on the next start
         return failed == 0;

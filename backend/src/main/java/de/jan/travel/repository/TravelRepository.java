@@ -20,6 +20,8 @@ import de.jan.travel.TravelSeedMarkerDAO;
 import de.jan.travel.TravelStop;
 import de.jan.util.ListCache;
 import de.jan.util.TextRules;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -46,6 +48,8 @@ import static de.jan.util.TextCleaner.collapse;
  */
 @Component
 public class TravelRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(TravelRepository.class);
 
     public static final int MAX_PHOTOS_PER_FOLDER = 200;
 
@@ -414,7 +418,7 @@ public class TravelRepository {
             fileDAO.delete(photo.getId());
             photoDAO.delete(photo);
         } catch (Exception e) {
-            System.out.println("Could not delete travel photo " + photo.getId() + ": " + e.getMessage());
+            log.warn("Could not delete travel photo {}: {}", photo.getId(), e.getMessage());
         }
     }
 
