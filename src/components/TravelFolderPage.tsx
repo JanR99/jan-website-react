@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowDownUp, Images, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "./auth/AuthContext";
 import TravelController from "../controller/TravelController";
+import { useApi } from "../hooks/useApi";
 import { useHistoryOverlay } from "../hooks/useHistoryOverlay";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useRecipes } from "../hooks/useRecipes";
@@ -32,6 +33,7 @@ type DeleteTarget = { kind: "photo"; photoId: number; number: number } | { kind:
  */
 export default function TravelFolderPage() {
     const { folderId } = useParams();
+    const apis = useApi();
     const { folders, loading, error } = useTravelFolders();
     const { recipes } = useRecipes();
     const { hasPermission } = useAuth();
@@ -140,7 +142,7 @@ export default function TravelFolderPage() {
                                     aria-label={`${folder.name} – Foto ${i + 1} vergrößern`}
                                 >
                                     <img
-                                        src={TravelController.photoUrl(photoId)}
+                                        src={apis ? TravelController.photoUrl(apis, photoId, true) : undefined}
                                         alt={photoDescription(folder.name, photo, i)}
                                         loading={i < 2 ? "eager" : "lazy"}
                                     />
@@ -219,6 +221,7 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
     onClose: () => void;
     onDeleted: (target: DeleteTarget) => void;
 }) {
+    const apis = useApi();
     async function confirm() {
         if (!target) return;
         if (target.kind === "photo") {
@@ -248,7 +251,7 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
                     : `Foto ${target?.kind === "photo" ? target.number : ""} aus „${folder.name}“ wird dauerhaft gelöscht.`}
             </p>
             {target?.kind === "photo" && (
-                <img className="travel-delete-preview" src={TravelController.photoUrl(target.photoId)} alt="" />
+                <img className="travel-delete-preview" src={apis ? TravelController.photoUrl(apis, target.photoId, true) : undefined} alt="" />
             )}
         </ConfirmDeleteDialog>
     );

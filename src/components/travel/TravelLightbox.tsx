@@ -3,6 +3,7 @@ import type { KeyboardEvent as ReactKeyboardEvent, MouseEvent, PointerEvent } fr
 import { Check, ChevronLeft, ChevronRight, LoaderCircle, X } from "lucide-react";
 import TravelController from "../../controller/TravelController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
+import { useApi } from "../../hooks/useApi";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { storeTravelFolder } from "../../hooks/useTravelFolders";
 import { CAPTION_MAX_LENGTH, cleanCaption, photoDescription } from "../../utils/travel";
@@ -51,6 +52,7 @@ function isZoomed(): boolean {
  * (the photo follows the finger), with the buttons or with the arrow keys.
  */
 export default function TravelLightbox({ name, photos, index, canManage, onIndexChange, onClose }: TravelLightboxProps) {
+    const apis = useApi();
     const count = photos.length;
     const photo = photos[index];
 
@@ -195,7 +197,7 @@ export default function TravelLightbox({ name, photos, index, canManage, onIndex
                             aria-hidden={i !== index}
                         >
                             <img
-                                src={TravelController.photoUrl(slide.id)}
+                                src={apis ? TravelController.photoUrl(apis, slide.id) : undefined}
                                 alt={photoDescription(name, slide, i)}
                                 draggable={false}
                             />

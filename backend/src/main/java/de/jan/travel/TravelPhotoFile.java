@@ -1,8 +1,7 @@
 package de.jan.travel;
 
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import de.jan.objectify.DatastoreEntity;
+import de.jan.image.StoredImage;
 
 /**
  * The image data of a TravelPhoto, stored under the same id. There is one version of every photo,
@@ -10,27 +9,13 @@ import de.jan.objectify.DatastoreEntity;
  * see TravelRepository.MAX_PHOTO_BYTES.
  */
 @Entity
-public class TravelPhotoFile implements DatastoreEntity {
-
-    /** id of the TravelPhoto */
-    @Id
-    private Long id;
-
-    private byte[] data;
-
-    private String contentType;
+public class TravelPhotoFile extends StoredImage {
 
     public TravelPhotoFile() {
 
     }
 
     public TravelPhotoFile(Long photoId, byte[] data, String contentType) {
-        this.id = photoId;
-        this.data = data;
-        this.contentType = contentType;
+        super(photoId, data, contentType);
     }
-
-    public Long getId() { return id; }
-    public byte[] getData() { return data; }
-    public String getContentType() { return contentType; }
 }

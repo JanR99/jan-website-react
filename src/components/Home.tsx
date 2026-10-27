@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import TravelController from '../controller/TravelController';
+import { useApi } from '../hooks/useApi';
 import { reloadRecipes, useRecipes } from '../hooks/useRecipes';
 import { reloadTravelFolders, useTravelFolders } from '../hooks/useTravelFolders';
 import { chosenByChance } from '../utils/chance';
@@ -21,6 +22,7 @@ const TEASER_FOLDERS = 4;
 let lastSurpriseId: number | undefined;
 
 const Home: React.FC = () => {
+    const apis = useApi();
     const { recipes, loading: recipesLoading, error: recipesError } = useRecipes();
     const teaser = chosenByChance(recipes, TEASER_RECIPES, VISIT_SEED);
     const cuisineCount = new Set(recipes.map(r => r.cuisine).filter(Boolean)).size;
@@ -70,17 +72,17 @@ const Home: React.FC = () => {
                     <div className="home-hero-collage">
                         {collage[0] && (
                             <Link to={travelFolderPath(collage[0].folder)} aria-label={collage[0].folder.name} title={collage[0].folder.name}>
-                                <img src={TravelController.photoUrl(collage[0].photo.id)} alt="" />
+                                {apis && <img src={TravelController.photoUrl(apis, collage[0].photo.id, true)} alt="" />}
                             </Link>
                         )}
                         {teaser[0] && (
                             <Link to={recipePath(teaser[0])} state={{ recipe: teaser[0] }} aria-label={teaser[0].title} title={teaser[0].title}>
-                                <img src={recipeImage(teaser[0])} alt="" />
+                                {apis && <img src={recipeImage(apis, teaser[0])} alt="" />}
                             </Link>
                         )}
                         {collage[1] && (
                             <Link to={travelFolderPath(collage[1].folder)} aria-label={collage[1].folder.name} title={collage[1].folder.name}>
-                                <img src={TravelController.photoUrl(collage[1].photo.id)} alt="" />
+                                {apis && <img src={TravelController.photoUrl(apis, collage[1].photo.id, true)} alt="" />}
                             </Link>
                         )}
                     </div>
@@ -162,7 +164,7 @@ const Home: React.FC = () => {
                     <div className="cookbook-teaser-images" aria-hidden="true">
                         {teaser.map(recipe => (
                             <Link key={recipe.id} to={recipePath(recipe)} state={{ recipe }} tabIndex={-1} title={recipe.title}>
-                                <img src={recipeImage(recipe)} alt="" loading="lazy" />
+                                {apis && <img src={recipeImage(apis, recipe)} alt="" loading="lazy" />}
                             </Link>
                         ))}
                     </div>

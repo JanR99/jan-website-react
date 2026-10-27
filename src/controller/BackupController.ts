@@ -1,4 +1,4 @@
-import { apiClient, apiUrl } from "./APIClient.ts";
+import { apiClient, operationUrl } from "./APIClient.ts";
 
 /** The same shape as the errors of the API client, so handleApiError finds the message. */
 async function apiError(response: Response, what: string): Promise<Error> {
@@ -21,7 +21,8 @@ export default class BackupController {
      * Loaded with fetch and not through the API client, because the answer is a file and not JSON.
      */
     static async exportBackup(): Promise<Blob> {
-        const response = await fetch(apiUrl("/api/backup/export"), { headers: authorization() });
+        const apis = await apiClient;
+        const response = await fetch(operationUrl(apis.backup.exportBackup), { headers: authorization() });
         if (!response.ok) {
             throw await apiError(response, "Backup export");
         }
@@ -33,7 +34,8 @@ export default class BackupController {
      * on a local machine. Sent with fetch and not through the API client, because the request is a file.
      */
     static async restoreBackup(file: Blob): Promise<RestoreResult> {
-        const response = await fetch(apiUrl("/api/backup/restore"), {
+        const apis = await apiClient;
+        const response = await fetch(operationUrl(apis.backup.restoreBackup), {
             method: "POST",
             headers: { ...authorization(), "Content-Type": "application/zip" },
             body: file,

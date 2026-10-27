@@ -1,4 +1,4 @@
-import { apiUrl } from "../controller/APIClient";
+import { apiUrl, operationPath, type Apis } from "../controller/APIClient";
 
 const BRING_DEEPLINK = "https://api.getbring.com/rest/bringrecipes/deeplink";
 
@@ -21,8 +21,8 @@ export function bringImportUrl(pageUrl: string, basePortions: number, portions: 
  * The page of a recipe that Bring! loads. Bring! fetches it from its own servers, so a local backend can't be
  * reached; for local tests VITE_BRING_BACKEND_URL points to a tunnel to it (start-dev.ps1 -Bring sets it).
  */
-export function bringPageUrl(recipeId: number): string {
-    const path = `/api/recipes/${recipeId}/bring`;
+export function bringPageUrl(apis: Apis, recipeId: number): string {
+    const path = operationPath(apis.recipes.bringRecipe, { id: recipeId });
     const tunnel = import.meta.env.VITE_BRING_BACKEND_URL;
     return tunnel ? `${tunnel.replace(/\/+$/, "")}${path}` : apiUrl(path);
 }

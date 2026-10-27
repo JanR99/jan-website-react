@@ -1,4 +1,4 @@
-import { Api, apiClient, apiUrl } from "./APIClient.ts";
+import { Api, apiClient, operationUrl, type Apis } from "./APIClient.ts";
 
 export default class TravelController {
 
@@ -74,8 +74,12 @@ export default class TravelController {
         await apis.travel.deleteTravelPhoto.execute({ id });
     }
 
-    /** There is one version of every photo, used for the gallery and the large view. */
-    static photoUrl(photoId: number): string {
-        return apiUrl(`/api/travel/photos/${photoId}`);
+    /**
+     * The photo for <img src>: the whole one for the large view, with preview the small version for tiles like
+     * the gallery, folder cards and home page (shorter side 512 px). Without preview the query is left out,
+     * so the whole photo keeps the URL it is cached under.
+     */
+    static photoUrl(apis: Apis, photoId: number, preview = false): string {
+        return operationUrl(apis.travel.getTravelPhoto, { id: photoId, preview: preview || undefined });
     }
 }

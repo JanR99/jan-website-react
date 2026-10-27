@@ -1,9 +1,7 @@
 package de.jan.image;
 
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
-import de.jan.objectify.DatastoreEntity;
 
 import java.util.Date;
 
@@ -12,14 +10,7 @@ import java.util.Date;
  * Datastore entities are limited to 1 MiB, see ImageRepository.MAX_SIZE_BYTES.
  */
 @Entity
-public class RecipeImage implements DatastoreEntity {
-
-    @Id
-    private Long id;
-
-    private byte[] data;
-
-    private String contentType;
+public class RecipeImage extends StoredImage {
 
     /** for cleaning up images that were uploaded but never saved with a recipe */
     @Index
@@ -30,13 +21,9 @@ public class RecipeImage implements DatastoreEntity {
     }
 
     public RecipeImage(byte[] data, String contentType) {
-        this.data = data;
-        this.contentType = contentType;
+        super(null, data, contentType);
         this.createdAt = new Date();
     }
 
-    public Long getId() { return id; }
-    public byte[] getData() { return data; }
-    public String getContentType() { return contentType; }
     public Date getCreatedAt() { return createdAt; }
 }

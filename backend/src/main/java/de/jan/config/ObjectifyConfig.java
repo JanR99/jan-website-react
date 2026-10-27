@@ -18,6 +18,7 @@ import de.jan.stats.VisitDay;
 import de.jan.travel.TravelFolder;
 import de.jan.travel.TravelPhoto;
 import de.jan.travel.TravelPhotoFile;
+import de.jan.travel.TravelPhotoPreview;
 import de.jan.travel.TravelSeedMarker;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
@@ -39,6 +40,7 @@ public class ObjectifyConfig {
         TravelFolder.class,
         TravelPhoto.class,
         TravelPhotoFile.class,
+        TravelPhotoPreview.class,
         TravelSeedMarker.class,
         Feedback.class,
         CrosswordStats.class,

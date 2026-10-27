@@ -4,23 +4,21 @@ import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelFolderTextRequest;
 import de.jan.controller.requests.TravelPhotoCaptionRequest;
 import de.jan.controller.requests.TravelPhotoOrderRequest;
+import de.jan.image.StoredImage;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.TravelPhotoFile;
 import de.jan.travel.repository.TravelRepository;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 
 /**
@@ -159,19 +157,17 @@ public class TravelController {
     }
 
     /**
-     * A photo never changes (a new upload gets a new id), so browsers may cache it for a year.
-     * Loaded directly via <img src>, not through the API client.
+     * See ImageResponse: cached for a year, loaded via <img src>.
+     *
+     * @param preview the small version for the tiles instead of the whole photo, see TravelRepository.getPhotoPreview
      */
     @Operation(operationId = GET_TRAVEL_PHOTO)
     @GetMapping("/photos/{id}")
-    public ResponseEntity<byte[]> getTravelPhoto(@PathVariable Long id) {
-        TravelPhotoFile file = travelRepository.getPhotoFile(id);
-        if (file == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(file.getContentType()))
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic().immutable())
-                .body(file.getData());
+    public ResponseEntity<byte[]> getTravelPhoto(
+            @PathVariable Long id,
+            @RequestParam(value = "preview", defaultValue = "false") boolean preview
+    ) {
+        StoredImage photo = preview ? travelRepository.getPhotoPreview(id) : travelRepository.getPhotoFile(id);
+        return ImageResponse.of(photo);
     }
 }

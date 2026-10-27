@@ -109,16 +109,19 @@ describe('recipeByAddress', () => {
 });
 
 describe('recipeImage', () => {
+    // the operation as the API description has it
+    const apis = { images: { getImage: { path: '/api/images/{id}' } } };
+
     it('points to the image endpoint of the backend', () => {
-        expect(recipeImage({ image: 'curry.jpg' })).toMatch(/\/api\/images\/curry\.jpg$/);
+        expect(recipeImage(apis, { image: 'curry.jpg' })).toMatch(/\/api\/images\/curry\.jpg$/);
     });
 
     it('drops the "uploads/" prefix of uploaded images', () => {
-        expect(recipeImage({ image: 'uploads/12345' })).toMatch(/\/api\/images\/12345$/);
+        expect(recipeImage(apis, { image: 'uploads/12345' })).toMatch(/\/api\/images\/12345$/);
     });
 
     it('encodes special characters in the image name', () => {
-        expect(recipeImage({ image: 'Char Koay Teow.jpg' })).toMatch(/\/api\/images\/Char%20Koay%20Teow\.jpg$/);
+        expect(recipeImage(apis, { image: 'Char Koay Teow.jpg' })).toMatch(/\/api\/images\/Char%20Koay%20Teow\.jpg$/);
     });
 });
 

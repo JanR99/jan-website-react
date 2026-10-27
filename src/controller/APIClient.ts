@@ -164,3 +164,40 @@ async function loadStoredApis() {
 export const storedApi: Api = {
     then: (onfulfilled, onrejected) => loadStoredApis().then(onfulfilled, onrejected),
 };
+/**
+ * The operations as quickly as possible, for building URLs: from the stored API description, or from the
+ * backend while nothing is stored (first visit, dev server). Only GET operations are stored, see storedApi.
+ */
+export const quickApi: Api = {
+    then: (onfulfilled, onrejected) =>
+        Promise.resolve(storedApi).catch(() => Promise.resolve(apiClient)).then(onfulfilled, onrejected),
+};
+
+/** The operations as a controller gets them from awaiting apiClient, storedApi or quickApi. */
+export type Apis = any;
+
+/** The value of a parameter in operationPath; undefined leaves the parameter out. */
+type ParamValue = string | number | boolean | undefined;
+
+/**
+ * Path of an operation with its parameters filled in, for what the API client can't load itself (pictures,
+ * links, files): a parameter with a placeholder like {id} in the path goes there, the others into the query.
+ */
+export function operationPath(operation: any, params: Record<string, ParamValue> = {}): string {
+    let path: string = operation.path;
+    const query = new URLSearchParams();
+    for (const [name, value] of Object.entries(params)) {
+        if (value === undefined) continue;
+        const placeholder = `{${name}}`;
+        if (path.includes(placeholder)) {
+            path = path.replace(placeholder, encodeURIComponent(String(value)));
+        } else {
+            query.set(name, String(value));
+        }
+    }
+    const search = query.toString();
+    return search ? `${path}?${search}` : path;
+}
+
+/** Absolute URL of an operation with its parameters, e.g. for <img src>; see operationPath. */
+export const operationUrl = (operation: any, params?: Record<string, ParamValue>) => apiUrl(operationPath(operation, params));
