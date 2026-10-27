@@ -11,7 +11,7 @@ export default function TravelFolderCard({ folder }: { folder: TravelFolder }) {
     return (
         <Link to={travelFolderPath(folder)} className="destination-card">
             {folder.coverPhotoId !== null ? (
-                <img src={TravelController.photoUrl(folder.coverPhotoId)} alt={folder.name} loading="lazy" />
+                <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt={folder.name} loading="lazy" />
             ) : (
                 <span className="destination-card-empty" aria-hidden="true">
                     <Images size={40} />

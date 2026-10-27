@@ -74,8 +74,13 @@ export default class TravelController {
         await apis.travel.deleteTravelPhoto.execute({ id });
     }
 
-    /** There is one version of every photo, used for the gallery and the large view. */
+    /** The whole photo, for the large view. */
     static photoUrl(photoId: number): string {
         return apiUrl(`/api/travel/photos/${photoId}`);
+    }
+
+    /** The small version of a photo (shorter side 512 px), for tiles like the gallery, folder cards and home page. */
+    static photoPreviewUrl(photoId: number): string {
+        return apiUrl(`/api/travel/photos/${photoId}?preview=true`);
     }
 }

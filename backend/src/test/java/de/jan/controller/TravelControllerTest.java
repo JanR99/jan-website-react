@@ -20,6 +20,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +33,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -1166,6 +1174,19 @@ class TravelControllerTest extends ControllerTest {
         }
 
         @Test
+        void withPermission_deletesTheSmallVersionsOfThePhotosToo() throws Exception {
+            TravelFolderDTO porto = storedFolder("Porto", "");
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(porto.id(), realJpeg(1600, 1200))));
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true")).andExpect(status().isOk());
+
+            mockMvc.perform(post("/api/travel/folders/delete").param("id", porto.id().toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
+                    .andExpect(status().isNoContent());
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true")).andExpect(status().isNotFound());
+        }
+
+        @Test
         void withUnknownId_returns404() throws Exception {
             mockMvc.perform(post("/api/travel/folders/delete").param("id", "999")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
@@ -1432,6 +1453,19 @@ class TravelControllerTest extends ControllerTest {
         }
 
         @Test
+        void withPermission_deletesTheSmallVersionToo() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), realJpeg(1600, 1200))));
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true")).andExpect(status().isOk());
+
+            mockMvc.perform(post("/api/travel/photos/delete").param("id", photo.toString())
+                            .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
+                    .andExpect(status().isNoContent());
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true")).andExpect(status().isNotFound());
+        }
+
+        @Test
         void ofTheChosenCover_makesTheFirstPhotoTheCoverAgain() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
             Long first = storedPhoto(folder.id());
@@ -1499,6 +1533,78 @@ class TravelControllerTest extends ControllerTest {
         void withIdThatIsNoNumber_returns400() throws Exception {
             mockMvc.perform(get("/api/travel/photos/abc"))
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void asPreview_returnsTheShorterSideScaledDownTo512PixelsAsJpeg() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            byte[] original = realJpeg(1600, 1200);
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), original)));
+
+            byte[] preview = mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.IMAGE_JPEG))
+                    .andReturn().getResponse().getContentAsByteArray();
+
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(preview));
+            assertEquals(683, image.getWidth());
+            assertEquals(512, image.getHeight());
+            assertTrue(preview.length < original.length);
+            // the whole photo stays as it was
+            mockMvc.perform(get("/api/travel/photos/" + photo)).andExpect(content().bytes(original));
+        }
+
+        @Test
+        void asPreview_thatWasMadeBefore_returnsTheSameOneAgain() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), realJpeg(1600, 1200))));
+            byte[] first = mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andReturn().getResponse().getContentAsByteArray();
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().bytes(first));
+        }
+
+        @Test
+        void asPreview_ofASmallPhoto_returnsThePhotoItself() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            byte[] original = realJpeg(600, 400);
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), original)));
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.IMAGE_JPEG))
+                    .andExpect(content().bytes(original));
+        }
+
+        @Test
+        void asPreview_ofAPhotoThatCantBeRead_returnsThePhotoItself() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), PNG)));
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.IMAGE_PNG))
+                    .andExpect(content().bytes(PNG));
+        }
+
+        @Test
+        void asPreview_letsTheBrowserCacheItForAYear() throws Exception {
+            TravelFolderDTO folder = storedFolder("Porto", "");
+            Long photo = lastPhoto(inDatastore(() -> travelRepository.addPhoto(folder.id(), realJpeg(1600, 1200))));
+
+            mockMvc.perform(get("/api/travel/photos/" + photo).param("preview", "true"))
+                    .andExpect(header().string(HttpHeaders.CACHE_CONTROL, containsString("max-age=31536000")))
+                    .andExpect(header().string(HttpHeaders.CACHE_CONTROL, containsString("public")))
+                    .andExpect(header().string(HttpHeaders.CACHE_CONTROL, containsString("immutable")));
+        }
+
+        @Test
+        void asPreview_withUnknownId_returns404() throws Exception {
+            mockMvc.perform(get("/api/travel/photos/999").param("preview", "true"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string(""));
         }
     }
 
@@ -1582,6 +1688,17 @@ class TravelControllerTest extends ControllerTest {
             request.header(HttpHeaders.AUTHORIZATION, authorization);
         }
         return request;
+    }
+
+    /** A real, readable JPEG of that size, unlike the few bytes of JPEG that only look like one. */
+    private static byte[] realJpeg(int width, int height) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB), "jpg", out);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return out.toByteArray();
     }
 
     private static byte[] jpegOfSize(long size) {

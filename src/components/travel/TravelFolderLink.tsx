@@ -10,7 +10,7 @@ export default function TravelFolderLink({ folder }: { folder: TravelFolder }) {
     return (
         <Link to={travelFolderPath(folder)} className="other-destination">
             {folder.coverPhotoId !== null ? (
-                <img src={TravelController.photoUrl(folder.coverPhotoId)} alt="" loading="lazy" />
+                <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt="" loading="lazy" />
             ) : (
                 <span className="other-destination-empty" aria-hidden="true"><Images size={22} /></span>
             )}

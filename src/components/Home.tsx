@@ -70,7 +70,7 @@ const Home: React.FC = () => {
                     <div className="home-hero-collage">
                         {collage[0] && (
                             <Link to={travelFolderPath(collage[0].folder)} aria-label={collage[0].folder.name} title={collage[0].folder.name}>
-                                <img src={TravelController.photoUrl(collage[0].photo.id)} alt="" />
+                                <img src={TravelController.photoPreviewUrl(collage[0].photo.id)} alt="" />
                             </Link>
                         )}
                         {teaser[0] && (
@@ -80,7 +80,7 @@ const Home: React.FC = () => {
                         )}
                         {collage[1] && (
                             <Link to={travelFolderPath(collage[1].folder)} aria-label={collage[1].folder.name} title={collage[1].folder.name}>
-                                <img src={TravelController.photoUrl(collage[1].photo.id)} alt="" />
+                                <img src={TravelController.photoPreviewUrl(collage[1].photo.id)} alt="" />
                             </Link>
                         )}
                     </div>

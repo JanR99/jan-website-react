@@ -4,6 +4,7 @@ import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
+import de.jan.image.ImageScaler;
 import de.jan.image.ImageType;
 import de.jan.travel.TravelFolder;
 import de.jan.travel.TravelFolderDAO;
@@ -12,6 +13,8 @@ import de.jan.travel.TravelPhoto;
 import de.jan.travel.TravelPhotoDAO;
 import de.jan.travel.TravelPhotoFile;
 import de.jan.travel.TravelPhotoFileDAO;
+import de.jan.travel.TravelPhotoPreview;
+import de.jan.travel.TravelPhotoPreviewDAO;
 import de.jan.travel.TravelSeedMarker;
 import de.jan.travel.TravelSeedMarkerDAO;
 import de.jan.travel.TravelStop;
@@ -38,7 +41,7 @@ import static de.jan.util.TextCleaner.collapse;
 
 /**
  * The travel diary: folders (one per trip) and their photos. A photo is a TravelPhoto plus
- * a TravelPhotoFile with the image data.
+ * a TravelPhotoFile with the image data, and a TravelPhotoPreview once its small version was asked for.
  */
 @Component
 public class TravelRepository {
@@ -47,6 +50,9 @@ public class TravelRepository {
 
     /** The browser scales photos down to about 400 KB; the entity itself may be at most 1 MiB. */
     public static final long MAX_PHOTO_BYTES = 500L * 1024;
+
+    /** Shorter side of the small version of a photo: fills a 256 px tile on screens with twice the pixel density. */
+    public static final int PREVIEW_SIZE = 512;
 
     private static final int NAME_MAX_LENGTH = 80;
     public static final int CAPTION_MAX_LENGTH = 200;
@@ -62,6 +68,7 @@ public class TravelRepository {
     private final TravelFolderDAO folderDAO;
     private final TravelPhotoDAO photoDAO;
     private final TravelPhotoFileDAO fileDAO;
+    private final TravelPhotoPreviewDAO previewDAO;
     private final TravelSeedMarkerDAO seedMarkerDAO;
 
     private final ListCache<TravelFolderDTO> cache = new ListCache<>(Duration.ofSeconds(60));
@@ -70,6 +77,7 @@ public class TravelRepository {
         this.folderDAO = new TravelFolderDAO();
         this.photoDAO = new TravelPhotoDAO();
         this.fileDAO = new TravelPhotoFileDAO();
+        this.previewDAO = new TravelPhotoPreviewDAO();
         this.seedMarkerDAO = new TravelSeedMarkerDAO();
     }
 
@@ -146,6 +154,7 @@ public class TravelRepository {
         List<TravelPhoto> photos = photoDAO.getByFolderId(id);
         for (TravelPhoto photo : photos) {
             fileDAO.delete(photo.getId());
+            previewDAO.delete(photo.getId());
         }
         if (!photos.isEmpty()) {
             photoDAO.deleteAll(photos);
@@ -238,6 +247,7 @@ public class TravelRepository {
     public void deletePhoto(Long id) {
         TravelPhoto photo = loadPhoto(id);
         fileDAO.delete(id);
+        previewDAO.delete(id);
         photoDAO.delete(photo);
 
         TravelFolder folder = folderDAO.getById(photo.getFolderId());
@@ -251,6 +261,26 @@ public class TravelRepository {
     /** The image data of a photo, null if there is none. */
     public TravelPhotoFile getPhotoFile(Long photoId) {
         return fileDAO.getById(photoId);
+    }
+
+    /**
+     * The small version of a photo for the tiles: made from the photo the first time and stored from then on.
+     * If the photo is that small already or can't be scaled, the photo itself (not stored). Null if there is no photo.
+     */
+    public TravelPhotoPreview getPhotoPreview(Long photoId) {
+        TravelPhotoPreview stored = previewDAO.getById(photoId);
+        if (stored != null) {
+            return stored;
+        }
+        TravelPhotoFile file = fileDAO.getById(photoId);
+        if (file == null) {
+            return null;
+        }
+        byte[] scaled = ImageScaler.scaleDown(file.getData(), PREVIEW_SIZE);
+        if (scaled == null) {
+            return new TravelPhotoPreview(photoId, file.getData(), file.getContentType());
+        }
+        return previewDAO.save(new TravelPhotoPreview(photoId, scaled, ImageType.JPEG.contentType()));
     }
 
     /** Whether the folders of resources/travel/folders.json have all been imported, see TravelSeedMarker. */

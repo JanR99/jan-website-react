@@ -140,7 +140,7 @@ export default function TravelFolderPage() {
                                     aria-label={`${folder.name} – Foto ${i + 1} vergrößern`}
                                 >
                                     <img
-                                        src={TravelController.photoUrl(photoId)}
+                                        src={TravelController.photoPreviewUrl(photoId)}
                                         alt={photoDescription(folder.name, photo, i)}
                                         loading={i < 2 ? "eager" : "lazy"}
                                     />
@@ -248,7 +248,7 @@ function DeleteDialog({ folder, target, onClose, onDeleted }: {
                     : `Foto ${target?.kind === "photo" ? target.number : ""} aus „${folder.name}“ wird dauerhaft gelöscht.`}
             </p>
             {target?.kind === "photo" && (
-                <img className="travel-delete-preview" src={TravelController.photoUrl(target.photoId)} alt="" />
+                <img className="travel-delete-preview" src={TravelController.photoPreviewUrl(target.photoId)} alt="" />
             )}
         </ConfirmDeleteDialog>
     );

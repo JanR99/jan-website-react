@@ -148,7 +148,7 @@ function TravelMapCard({ folder, stopName }: { folder: TravelFolder; stopName: s
 
     return (
         <Link to={travelFolderPath(folder)} className="travel-map-card">
-            {folder.coverPhotoId !== null && <img src={TravelController.photoUrl(folder.coverPhotoId)} alt="" />}
+            {folder.coverPhotoId !== null && <img src={TravelController.photoPreviewUrl(folder.coverPhotoId)} alt="" />}
             <span className="travel-map-card-body">
                 {subtitle && <span className="travel-map-card-country">{subtitle}</span>}
                 <strong>{folder.name}</strong>

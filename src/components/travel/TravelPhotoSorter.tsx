@@ -198,7 +198,7 @@ export default function TravelPhotoSorter({ folder, onClose }: { folder: TravelF
                             onPointerCancel={(event) => release(event, false)}
                         >
                             <img
-                                src={TravelController.photoUrl(photo.id)}
+                                src={TravelController.photoPreviewUrl(photo.id)}
                                 alt={photoDescription(folder.name, photo, index)}
                                 draggable={false}
                                 loading="lazy"

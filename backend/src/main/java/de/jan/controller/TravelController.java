@@ -9,6 +9,7 @@ import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.TravelPhotoFile;
+import de.jan.travel.TravelPhotoPreview;
 import de.jan.travel.repository.TravelRepository;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -161,17 +162,27 @@ public class TravelController {
     /**
      * A photo never changes (a new upload gets a new id), so browsers may cache it for a year.
      * Loaded directly via <img src>, not through the API client.
+     *
+     * @param preview the small version for the tiles instead of the whole photo, see TravelRepository.getPhotoPreview
      */
     @Operation(operationId = GET_TRAVEL_PHOTO)
     @GetMapping("/photos/{id}")
-    public ResponseEntity<byte[]> getTravelPhoto(@PathVariable Long id) {
-        TravelPhotoFile file = travelRepository.getPhotoFile(id);
-        if (file == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<byte[]> getTravelPhoto(
+            @PathVariable Long id,
+            @RequestParam(value = "preview", defaultValue = "false") boolean preview
+    ) {
+        if (preview) {
+            TravelPhotoPreview small = travelRepository.getPhotoPreview(id);
+            return small == null ? ResponseEntity.notFound().build() : photo(small.getContentType(), small.getData());
         }
+        TravelPhotoFile file = travelRepository.getPhotoFile(id);
+        return file == null ? ResponseEntity.notFound().build() : photo(file.getContentType(), file.getData());
+    }
+
+    private static ResponseEntity<byte[]> photo(String contentType, byte[] data) {
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .contentType(MediaType.parseMediaType(contentType))
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic().immutable())
-                .body(file.getData());
+                .body(data);
     }
 }
