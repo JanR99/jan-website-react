@@ -8,6 +8,7 @@ import de.jan.games.KanaStats;
 import de.jan.games.KanaStatsDAO;
 import de.jan.games.KanaStatsDTO;
 import de.jan.user.User;
+import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Component
-public class KanaStatsRepository {
+public class KanaStatsRepository implements UserDataOwner {
 
     public static final String HIRAGANA = "hiragana";
     public static final String KATAKANA = "katakana";
@@ -82,7 +83,8 @@ public class KanaStatsRepository {
     }
 
     /** For deleting an account: its statistics go with it. */
-    public void delete(User user) {
+    @Override
+    public void deleteDataOf(User user) {
         statsDAO.delete(user.getId());
     }
 

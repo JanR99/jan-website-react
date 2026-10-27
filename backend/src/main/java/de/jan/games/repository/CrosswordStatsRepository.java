@@ -6,13 +6,14 @@ import de.jan.games.CrosswordStats;
 import de.jan.games.CrosswordStatsDAO;
 import de.jan.games.CrosswordStatsDTO;
 import de.jan.user.User;
+import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CrosswordStatsRepository {
+public class CrosswordStatsRepository implements UserDataOwner {
 
     public static final List<String> SCRIPTS = List.of("hiragana", "katakana");
     public static final List<String> LEVELS = List.of("A1", "A2", "B1", "B2", "C1", "C2");
@@ -58,7 +59,8 @@ public class CrosswordStatsRepository {
     }
 
     /** For deleting an account: its statistics go with it. */
-    public void delete(User user) {
+    @Override
+    public void deleteDataOf(User user) {
         statsDAO.delete(user.getId());
     }
 

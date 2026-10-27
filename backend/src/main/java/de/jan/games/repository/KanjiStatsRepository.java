@@ -8,13 +8,14 @@ import de.jan.games.KanjiStats;
 import de.jan.games.KanjiStatsDAO;
 import de.jan.games.KanjiStatsDTO;
 import de.jan.user.User;
+import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class KanjiStatsRepository {
+public class KanjiStatsRepository implements UserDataOwner {
 
     public static final List<String> LEVELS = CrosswordStatsRepository.LEVELS;
     /** more words than a round ever has */
@@ -123,7 +124,8 @@ public class KanjiStatsRepository {
     }
 
     /** For deleting an account: its statistics go with it. */
-    public void delete(User user) {
+    @Override
+    public void deleteDataOf(User user) {
         statsDAO.delete(user.getId());
     }
 
