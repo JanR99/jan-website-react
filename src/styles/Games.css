@@ -215,6 +215,7 @@
 
 .crossword-level .segmented button {
     padding: 0 12px;
+    white-space: nowrap;
 }
 
 /*
