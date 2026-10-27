@@ -42,20 +42,19 @@ public class CrosswordStatsRepository {
             throw new EntityStateException("Right words must be between 0 and " + MAX_WORDS);
         }
 
-        CrosswordStats stats = statsDAO.get(user.getId());
-        if (stats == null) {
-            stats = new CrosswordStats(user.getId());
-        }
         String key = key(result.script(), result.level());
-        stats.getWords().merge(key, rightWords, Integer::sum);
-        if (Boolean.TRUE.equals(result.solved())) {
-            stats.getSolved().merge(key, 1, Integer::sum);
-            stats.setCurrentStreak(stats.getCurrentStreak() + 1);
-            stats.setBestStreak(Math.max(stats.getBestStreak(), stats.getCurrentStreak()));
-        } else {
-            stats.setCurrentStreak(0);
-        }
-        return toDTO(statsDAO.save(stats));
+        // in a transaction, so two results sent at the same time don't overwrite each other
+        CrosswordStats saved = statsDAO.update(user.getId(), () -> new CrosswordStats(user.getId()), stats -> {
+            stats.getWords().merge(key, rightWords, Integer::sum);
+            if (Boolean.TRUE.equals(result.solved())) {
+                stats.getSolved().merge(key, 1, Integer::sum);
+                stats.setCurrentStreak(stats.getCurrentStreak() + 1);
+                stats.setBestStreak(Math.max(stats.getBestStreak(), stats.getCurrentStreak()));
+            } else {
+                stats.setCurrentStreak(0);
+            }
+        });
+        return toDTO(saved);
     }
 
     /** For deleting an account: its statistics go with it. */

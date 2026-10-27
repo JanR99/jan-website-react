@@ -51,17 +51,16 @@ public class KanjiStatsRepository {
             validate(words, answers.size());
         }
 
-        KanjiStats stats = statsDAO.get(user.getId());
-        if (stats == null) {
-            stats = new KanjiStats(user.getId());
-        }
-        if (words != null) {
-            updateMistakes(stats, words, answers);
-        }
-        if (!Boolean.TRUE.equals(result.practice())) {
-            countRound(stats, result.level(), answers);
-        }
-        return toDTO(statsDAO.save(stats));
+        // in a transaction, so two rounds sent at the same time don't overwrite each other
+        KanjiStats saved = statsDAO.update(user.getId(), () -> new KanjiStats(user.getId()), stats -> {
+            if (words != null) {
+                updateMistakes(stats, words, answers);
+            }
+            if (!Boolean.TRUE.equals(result.practice())) {
+                countRound(stats, result.level(), answers);
+            }
+        });
+        return toDTO(saved);
     }
 
     /** The words read wrong and not yet read right twice in a row since, most often wrong first. */

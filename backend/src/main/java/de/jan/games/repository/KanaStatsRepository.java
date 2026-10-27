@@ -53,15 +53,14 @@ public class KanaStatsRepository {
         }
         List<String> scripts = kana.stream().map(KanaStatsRepository::scriptOf).toList();
 
-        KanaStats stats = statsDAO.get(user.getId());
-        if (stats == null) {
-            stats = new KanaStats(user.getId());
-        }
-        updateMistakes(stats, kana, answers);
-        if (!Boolean.TRUE.equals(result.practice())) {
-            countRound(stats, scripts, answers);
-        }
-        return toDTO(statsDAO.save(stats));
+        // in a transaction, so two rounds sent at the same time don't overwrite each other
+        KanaStats saved = statsDAO.update(user.getId(), () -> new KanaStats(user.getId()), stats -> {
+            updateMistakes(stats, kana, answers);
+            if (!Boolean.TRUE.equals(result.practice())) {
+                countRound(stats, scripts, answers);
+            }
+        });
+        return toDTO(saved);
     }
 
     /** The characters read wrong and not yet read right twice in a row since, most often wrong first. */
