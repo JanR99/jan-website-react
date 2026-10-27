@@ -2,11 +2,7 @@ package de.jan.games.repository;
 
 import de.jan.controller.requests.KanjiResultRequest;
 import de.jan.exceptions.EntityStateException;
-import de.jan.games.KanjiMistake;
-import de.jan.games.KanjiMistakeDTO;
-import de.jan.games.KanjiStats;
-import de.jan.games.KanjiStatsDAO;
-import de.jan.games.KanjiStatsDTO;
+import de.jan.games.*;
 import de.jan.user.User;
 import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;

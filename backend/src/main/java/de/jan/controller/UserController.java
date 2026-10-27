@@ -1,13 +1,6 @@
 package de.jan.controller;
 
-import de.jan.controller.requests.ChangePasswordRequest;
-import de.jan.controller.requests.DeleteAccountRequest;
-import de.jan.controller.requests.LoginRequest;
-import de.jan.controller.requests.PasswordResetRequest;
-import de.jan.controller.requests.RegisterRequest;
-import de.jan.controller.requests.ResetPasswordRequest;
-import de.jan.controller.requests.SetRolesRequest;
-import de.jan.controller.requests.UpdateProfileRequest;
+import de.jan.controller.requests.*;
 import de.jan.controller.response.LoginResponse;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;

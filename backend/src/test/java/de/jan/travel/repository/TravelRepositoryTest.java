@@ -3,12 +3,7 @@ package de.jan.travel.repository;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.exceptions.EntityStateException;
 import de.jan.testsupport.ControllerTest;
-import de.jan.travel.TravelFolderDAO;
-import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.TravelPhoto;
-import de.jan.travel.TravelPhotoDAO;
-import de.jan.travel.TravelPhotoFile;
-import de.jan.travel.TravelPhotoFileDAO;
+import de.jan.travel.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -17,15 +12,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /** What the travel controller tests don't reach: the cache, a full folder and a photo file that can't be stored. */
 class TravelRepositoryTest extends ControllerTest {

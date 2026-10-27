@@ -10,14 +10,7 @@ import de.jan.user.UserDAO;
 import de.jan.util.TextRules;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class RoleRepository {

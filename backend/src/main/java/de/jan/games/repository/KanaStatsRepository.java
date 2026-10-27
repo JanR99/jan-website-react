@@ -2,11 +2,7 @@ package de.jan.games.repository;
 
 import de.jan.controller.requests.KanaResultRequest;
 import de.jan.exceptions.EntityStateException;
-import de.jan.games.KanaMistake;
-import de.jan.games.KanaMistakeDTO;
-import de.jan.games.KanaStats;
-import de.jan.games.KanaStatsDAO;
-import de.jan.games.KanaStatsDTO;
+import de.jan.games.*;
 import de.jan.user.User;
 import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
