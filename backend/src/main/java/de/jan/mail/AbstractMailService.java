@@ -14,12 +14,17 @@ public abstract class AbstractMailService<T> {
 
     protected abstract String getText(T data);
 
+    /** Who the mail comes from; a mail service can override this, e.g. for news@. */
+    protected Sender sender() {
+        return Sender.NO_REPLY;
+    }
+
     public final void send(T data) {
         String recipient = getRecipient(data);
         if (recipient == null || recipient.isBlank()) {
             return;
         }
-        mailSender.send(recipient, getSubject(data), getText(data));
+        mailSender.send(sender(), recipient, getSubject(data), getText(data));
     }
 
     protected static String clean(String value) {

@@ -21,13 +21,12 @@ public class BrevoMailSender {
 
     private static final Logger log = LoggerFactory.getLogger(BrevoMailSender.class);
     private static final URI BREVO_API = URI.create("https://api.brevo.com/v3/smtp/email");
-    private static final String SENDER_NAME = "jan-website.de";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient;
     private final URI api;
     private final String apiKey;
-    private final String senderEmail;
+    private final String mailDomain;
 
     /**
      * Mails only leave the machine on Cloud Run. Started locally
@@ -38,36 +37,36 @@ public class BrevoMailSender {
     @Autowired
     public BrevoMailSender(
             @Value("${BREVO_API_KEY:}") String apiKey,
-            @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String senderEmail,
+            @Value("${mail.domain:}") String mailDomain,
             CloudRun cloudRun
     ) {
-        this(apiKey, senderEmail, cloudRun.isActive(), BREVO_API,
+        this(apiKey, mailDomain, cloudRun.isActive(), BREVO_API,
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
     }
 
     /** With another address and client, and sending also outside Cloud Run: for tests against a local server. */
-    BrevoMailSender(String apiKey, String senderEmail, boolean onCloudRun, URI api, HttpClient httpClient) {
+    BrevoMailSender(String apiKey, String mailDomain, boolean onCloudRun, URI api, HttpClient httpClient) {
         this.apiKey = apiKey;
-        this.senderEmail = senderEmail;
+        this.mailDomain = mailDomain;
         this.onCloudRun = onCloudRun;
         this.api = api;
         this.httpClient = httpClient;
     }
 
-    public void send(String to, String subject, String text) {
+    public void send(Sender sender, String to, String subject, String text) {
         if (!onCloudRun) {
             // with the text, so e.g. the link of a password reset mail can be used locally
-            log.info("Mail not sent (not running on Cloud Run): \"{}\" to {}\n{}", subject, to, text);
+            log.info("Mail not sent (not running on Cloud Run): \"{}\" from {} to {}\n{}", subject, sender.localPart(), to, text);
             return;
         }
-        if (apiKey.isBlank() || senderEmail.isBlank()) {
-            log.info("Mail skipped (BREVO_API_KEY or BOOTSTRAP_ADMIN_EMAIL not set): \"{}\" to {}", subject, to);
+        if (apiKey.isBlank() || mailDomain.isBlank()) {
+            log.info("Mail skipped (BREVO_API_KEY or mail.domain not set): \"{}\" to {}", subject, to);
             return;
         }
 
         try {
             String body = objectMapper.writeValueAsString(Map.of(
-                    "sender", Map.of("name", SENDER_NAME, "email", senderEmail),
+                    "sender", Map.of("name", sender.displayName(), "email", sender.localPart() + "@" + mailDomain),
                     "to", List.of(Map.of("email", to)),
                     "subject", subject,
                     "textContent", text
