@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Starts the Firestore emulator in Datastore mode (the one start-dev uses) for the controller tests,
  * once per test run, and stops it when all tests are done. Needs the gcloud CLI.
- *
+ * <p>
  * Host and project come from the environment variables Maven sets for the tests (see the surefire
  * plugin in pom.xml): its own port, so the emulator of start-dev is left alone, and a project id
  * ending with "-test", because the tests wipe the database.
@@ -27,10 +27,10 @@ public class DatastoreEmulatorExtension implements BeforeAllCallback {
     public void beforeAll(ExtensionContext context) {
         // the root store lives for the whole test run, so the emulator is started once and closed at the end
         context.getRoot().getStore(ExtensionContext.Namespace.GLOBAL)
-                .getOrComputeIfAbsent(Emulator.class.getName(), key -> new Emulator());
+                .computeIfAbsent(Emulator.class.getName(), _ -> new Emulator());
     }
 
-    private static class Emulator implements ExtensionContext.Store.CloseableResource {
+    private static class Emulator implements AutoCloseable {
 
         private Process process;
 

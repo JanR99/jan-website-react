@@ -26,6 +26,7 @@ public class PasswordResetToken implements DatastoreEntity {
 
     private Date expiresAt;
 
+    @SuppressWarnings("unused")
     public PasswordResetToken() {
 
     }

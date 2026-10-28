@@ -18,8 +18,9 @@ public class VisitDay implements DatastoreEntity {
     private int visits;
 
     /** page like "/cookbook/12" → how often it was opened that day */
-    private Map<String, Integer> pageViews = new HashMap<>();
+    private final Map<String, Integer> pageViews = new HashMap<>();
 
+    @SuppressWarnings("unused")
     public VisitDay() {
     }
 

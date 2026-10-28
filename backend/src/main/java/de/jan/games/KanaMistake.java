@@ -6,6 +6,7 @@ public class KanaMistake extends Mistake {
     /** the character, like "し" or "キャ" */
     private String kana;
 
+    @SuppressWarnings("unused")
     public KanaMistake() {
     }
 

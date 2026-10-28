@@ -27,6 +27,7 @@ public class Role implements DatastoreEntity {
 
     private boolean system;
 
+    @SuppressWarnings("unused")
     public Role() {
 
     }

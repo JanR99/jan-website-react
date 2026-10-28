@@ -36,6 +36,7 @@ public class KanjiStats implements DatastoreEntity {
     /** the words read wrong and not yet read right twice in a row since */
     private List<KanjiMistake> mistakes = new ArrayList<>();
 
+    @SuppressWarnings("unused")
     public KanjiStats() {
     }
 

@@ -57,7 +57,7 @@ public class TravelBootstrapConfig extends SeedImport<TravelBootstrapConfig.Seed
     }
 
     @Override
-    protected boolean importSeeds(List<SeedFolder> seeds) throws Exception {
+    protected boolean importSeeds(List<SeedFolder> seeds) {
         Map<String, TravelFolderDTO> byName = new HashMap<>();
         for (TravelFolderDTO folder : travelRepository.getFolders()) {
             byName.put(key(folder.name()), folder);

@@ -9,6 +9,7 @@ public class KanjiMistake extends Mistake {
     private String reading;
     private String meaning;
 
+    @SuppressWarnings("unused")
     public KanjiMistake() {
     }
 

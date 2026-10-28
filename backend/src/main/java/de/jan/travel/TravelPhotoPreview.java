@@ -11,6 +11,7 @@ import de.jan.image.StoredImage;
 @Entity
 public class TravelPhotoPreview extends StoredImage {
 
+    @SuppressWarnings("unused")
     public TravelPhotoPreview() {
 
     }

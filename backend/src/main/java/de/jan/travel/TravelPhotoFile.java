@@ -11,6 +11,7 @@ import de.jan.image.StoredImage;
 @Entity
 public class TravelPhotoFile extends StoredImage {
 
+    @SuppressWarnings("unused")
     public TravelPhotoFile() {
 
     }

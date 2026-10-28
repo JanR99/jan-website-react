@@ -51,7 +51,7 @@ abstract class SeedImport<T> implements SmartInitializingSingleton {
      *
      * @return whether everything is there now; if not, the import runs again on the next start
      */
-    protected abstract boolean importSeeds(List<T> seeds) throws Exception;
+    protected abstract boolean importSeeds(List<T> seeds);
 
     /** Runs after the import on every start, also when there was nothing to import; nothing by default. */
     protected void afterImport() {

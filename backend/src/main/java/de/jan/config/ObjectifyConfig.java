@@ -26,7 +26,7 @@ import java.util.List;
 @Configuration
 public class ObjectifyConfig {
 
-    List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
+    private final List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
         User.class,
         PasswordResetToken.class,
         Recipe.class,
