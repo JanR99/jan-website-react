@@ -25,6 +25,7 @@ public class CrosswordStats implements DatastoreEntity {
 
     private int bestStreak;
 
+    @SuppressWarnings("unused")
     public CrosswordStats() {
     }
 

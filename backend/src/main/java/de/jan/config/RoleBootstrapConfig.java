@@ -2,6 +2,8 @@ package de.jan.config;
 
 import com.googlecode.objectify.ObjectifyService;
 import de.jan.role.repository.RoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class RoleBootstrapConfig implements SmartInitializingSingleton {
+
+    private static final Logger log = LoggerFactory.getLogger(RoleBootstrapConfig.class);
 
     private final RoleRepository roleRepository;
 
@@ -24,7 +28,7 @@ public class RoleBootstrapConfig implements SmartInitializingSingleton {
             try {
                 roleRepository.ensureAdminRole();
             } catch (Exception e) {
-                System.out.println("Bootstrap: role setup failed: " + e.getMessage());
+                log.error("Bootstrap: role setup failed: {}", e.getMessage());
             }
             return null;
         });

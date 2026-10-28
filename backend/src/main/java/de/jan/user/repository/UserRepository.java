@@ -4,17 +4,12 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
-import de.jan.games.repository.CrosswordStatsRepository;
-import de.jan.games.repository.KanaStatsRepository;
-import de.jan.games.repository.KanjiStatsRepository;
 import de.jan.mail.RegistrationMailService;
 import de.jan.role.Permission;
 import de.jan.role.Role;
 import de.jan.role.repository.RoleRepository;
-import de.jan.user.PasswordResetToken;
-import de.jan.user.PasswordResetTokenDAO;
-import de.jan.user.User;
-import de.jan.user.UserDAO;
+import de.jan.user.*;
+import de.jan.util.TextRules;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -37,21 +32,17 @@ public class UserRepository {
     private final PasswordEncoder passwordEncoder;
     private final RegistrationMailService registrationMailService;
     private final RoleRepository roleRepository;
-    private final CrosswordStatsRepository crosswordStatsRepository;
-    private final KanjiStatsRepository kanjiStatsRepository;
-    private final KanaStatsRepository kanaStatsRepository;
+    /** whatever else keeps data of a user, deleted with the account */
+    private final List<UserDataOwner> userDataOwners;
 
     public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService,
-                          RoleRepository roleRepository, CrosswordStatsRepository crosswordStatsRepository,
-                          KanjiStatsRepository kanjiStatsRepository, KanaStatsRepository kanaStatsRepository) {
+                          RoleRepository roleRepository, List<UserDataOwner> userDataOwners) {
         this.userDAO = new UserDAO();
         this.passwordResetTokenDAO = new PasswordResetTokenDAO();
         this.passwordEncoder = passwordEncoder;
         this.registrationMailService = registrationMailService;
         this.roleRepository = roleRepository;
-        this.crosswordStatsRepository = crosswordStatsRepository;
-        this.kanjiStatsRepository = kanjiStatsRepository;
-        this.kanaStatsRepository = kanaStatsRepository;
+        this.userDataOwners = userDataOwners;
     }
 
     private static String normalizeEmail(String email) {
@@ -62,9 +53,7 @@ public class UserRepository {
         if (req.email() == null || !EMAIL_PATTERN.matcher(req.email()).matches()) {
             throw new EntityStateException("Invalid email address format");
         }
-        if (req.email().length() > EMAIL_MAX_LENGTH) {
-            throw new EntityStateException("Email must be at most " + EMAIL_MAX_LENGTH + " characters long");
-        }
+        TextRules.requireMaxLength(req.email(), "Email", EMAIL_MAX_LENGTH);
 
         String firstname = validateName(req.firstname());
         String lastname = validateName(req.lastname());
@@ -159,9 +148,7 @@ public class UserRepository {
 
     private void delete(User user) {
         deleteResetTokensOf(user);
-        crosswordStatsRepository.delete(user);
-        kanjiStatsRepository.delete(user);
-        kanaStatsRepository.delete(user);
+        userDataOwners.forEach(owner -> owner.deleteDataOf(user));
         userDAO.delete(user);
     }
 
@@ -174,12 +161,7 @@ public class UserRepository {
 
     private static String validateName(String name) {
         String trimmed = name == null ? "" : name.trim();
-        if (trimmed.isEmpty()) {
-            throw new EntityStateException("First- and Surname must not be empty");
-        }
-        if (trimmed.length() > NAME_MAX_LENGTH) {
-            throw new EntityStateException("First- and Surname must be at most " + NAME_MAX_LENGTH + " characters long");
-        }
+        TextRules.require(trimmed, "First- and Surname", NAME_MAX_LENGTH);
         return trimmed;
     }
 
@@ -230,7 +212,7 @@ public class UserRepository {
     }
 
     public User getById(Long id) {
-        return id == null ? null : userDAO.getById(id);
+        return id == null ? null : userDAO.get(id);
     }
 
     public User getByEmail(String email) {

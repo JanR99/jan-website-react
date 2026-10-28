@@ -19,12 +19,8 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class GamesControllerTest extends ControllerTest {
 
@@ -170,7 +166,7 @@ class GamesControllerTest extends ControllerTest {
                 return null;
             });
 
-            assertNull(inDatastore(() -> new CrosswordStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new CrosswordStatsDAO().get(user.getId())));
         }
     }
 
@@ -312,14 +308,14 @@ class GamesControllerTest extends ControllerTest {
         void deletedAccount_takesItsNumbersWithIt() throws Exception {
             User user = userWith();
             recordKanji(user, kanjiResult("A1", true, true));
-            assertNotNull(inDatastore(() -> new KanjiStatsDAO().getById(user.getId())));
+            assertNotNull(inDatastore(() -> new KanjiStatsDAO().get(user.getId())));
 
             inDatastore(() -> {
                 userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
                 return null;
             });
 
-            assertNull(inDatastore(() -> new KanjiStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new KanjiStatsDAO().get(user.getId())));
         }
     }
 
@@ -628,14 +624,14 @@ class GamesControllerTest extends ControllerTest {
         void deletedAccount_takesItsNumbersWithIt() throws Exception {
             User user = userWith();
             recordKana(user, kanaRound(false, "あ", "!い"));
-            assertNotNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+            assertNotNull(inDatastore(() -> new KanaStatsDAO().get(user.getId())));
 
             inDatastore(() -> {
                 userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
                 return null;
             });
 
-            assertNull(inDatastore(() -> new KanaStatsDAO().getById(user.getId())));
+            assertNull(inDatastore(() -> new KanaStatsDAO().get(user.getId())));
         }
     }
 

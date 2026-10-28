@@ -1,7 +1,6 @@
 package de.jan.recipe.repository;
 
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
@@ -10,20 +9,14 @@ import de.jan.recipe.RecipeTag;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
 import de.jan.util.ListCache;
+import de.jan.util.TextRules;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.text.Collator;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static de.jan.util.TextCleaner.collapse;
@@ -65,11 +58,7 @@ public class RecipeRepository {
     }
 
     public Recipe getById(Long id) {
-        Recipe recipe = id == null ? null : recipeDAO.getById(id);
-        if (recipe == null) {
-            throw new EntityNotFoundException("Recipe " + id + " not found");
-        }
-        return recipe;
+        return recipeDAO.getOrThrow(id);
     }
 
     public boolean exists(Long id) {
@@ -171,7 +160,7 @@ public class RecipeRepository {
 
     private void apply(Recipe recipe, RecipeRequest request, Collection<Recipe> existing) {
         String title = collapse(request.title());
-        requireText(title, "Title", TITLE_MAX_LENGTH);
+        TextRules.require(title, "Title", TITLE_MAX_LENGTH);
         String slug = slug(title);
         boolean duplicate = existing.stream()
                 .anyMatch(other -> !Objects.equals(other.getId(), recipe.getId()) && slug(other.getTitle()).equals(slug));
@@ -180,7 +169,7 @@ public class RecipeRepository {
         }
 
         String image = request.image() == null ? "" : request.image().trim();
-        requireText(image, "Image", SHORT_TEXT_MAX_LENGTH);
+        TextRules.require(image, "Image", SHORT_TEXT_MAX_LENGTH);
         // a new upload must exist; keeping the current image needs no check
         if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
             throw new EntityStateException("The uploaded image was not found, please upload it again");
@@ -192,7 +181,7 @@ public class RecipeRepository {
         }
 
         String cuisine = collapse(request.cuisine()).toLowerCase(Locale.GERMAN);
-        requireText(cuisine, "Cuisine", SHORT_TEXT_MAX_LENGTH);
+        TextRules.require(cuisine, "Cuisine", SHORT_TEXT_MAX_LENGTH);
 
         List<String> ingredients = cleanEntries(request.ingredients(), "Ingredients");
         List<String> preparation = cleanEntries(request.preparation(), "Preparation");
@@ -232,7 +221,7 @@ public class RecipeRepository {
             for (String entry : entries) {
                 String value = entry == null ? "" : LINE_BREAKS.matcher(entry.trim()).replaceAll(" ");
                 if (!value.isEmpty()) {
-                    requireText(value, label, ENTRY_MAX_LENGTH);
+                    TextRules.require(value, label, ENTRY_MAX_LENGTH);
                     cleaned.add(value);
                 }
             }
@@ -248,14 +237,5 @@ public class RecipeRepository {
 
     public static String slug(String title) {
         return WHITESPACE.matcher(title.toLowerCase(Locale.ROOT)).replaceAll("-");
-    }
-
-    private static void requireText(String value, String label, int maxLength) {
-        if (value.isEmpty()) {
-            throw new EntityStateException(label + " must not be empty");
-        }
-        if (value.length() > maxLength) {
-            throw new EntityStateException(label + " must be at most " + maxLength + " characters long");
-        }
     }
 }

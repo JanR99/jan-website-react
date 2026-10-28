@@ -36,6 +36,7 @@ public class KanaStats implements DatastoreEntity {
     /** the characters read wrong and not yet read right twice in a row since */
     private List<KanaMistake> mistakes = new ArrayList<>();
 
+    @SuppressWarnings("unused")
     public KanaStats() {
     }
 

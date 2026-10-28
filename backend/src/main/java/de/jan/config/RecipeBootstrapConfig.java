@@ -1,41 +1,32 @@
 package de.jan.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.googlecode.objectify.ObjectifyService;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
-import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * On startup:
  * 1. imports the recipes of resources/recipes/recipes.json whose title is not in the database yet,
- *    until all of them are there; then a RecipeSeedMarker is stored and the import never runs again
- *    (so an interrupted import continues on the next start, and recipes deleted later don't come back),
+ *    until all of them are there, marked by a RecipeSeedMarker (see SeedImport),
  * 2. deletes uploaded images that were never saved with a recipe.
- * <p>
- * Runs in afterSingletonsInstantiated, i.e. before the web server accepts requests: Cloud Run gives
- * the instance full CPU while it starts, but throttles it between requests once it is running.
  */
 @Configuration
-public class RecipeBootstrapConfig implements SmartInitializingSingleton {
+public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.SeedRecipe> {
+
+    private static final Logger log = LoggerFactory.getLogger(RecipeBootstrapConfig.class);
 
     private static final String SEED_FILE = "recipes/recipes.json";
     private static final String SEED_IMAGE_DIR = "recipes/images/";
@@ -55,10 +46,7 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
 
     private final RecipeRepository recipeRepository;
     private final ImageRepository imageRepository;
-    private final ObjectMapper objectMapper;
     private final RecipeSeedMarkerDAO seedMarkerDAO = new RecipeSeedMarkerDAO();
-    private final String seedFile;
-    private final String seedImageDir;
 
     @Autowired
     public RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
@@ -69,44 +57,32 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
     /** With other seed data on the classpath, for tests. */
     RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
                           ObjectMapper objectMapper, String seedFile, String seedImageDir) {
+        super(objectMapper, new TypeReference<>() {}, seedFile, seedImageDir, "recipe");
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
-        this.objectMapper = objectMapper;
-        this.seedFile = seedFile;
-        this.seedImageDir = seedImageDir;
     }
 
     @Override
-    public void afterSingletonsInstantiated() {
-        ObjectifyService.run(() -> {
-            try {
-                if (!seedMarkerDAO.isCompleted()) {
-                    importSeed();
-                }
-            } catch (Exception e) {
-                System.out.println("Bootstrap: recipe import failed: " + e.getMessage());
-            }
-            try {
-                deleteOrphanImages();
-            } catch (Exception e) {
-                System.out.println("Bootstrap: image cleanup failed: " + e.getMessage());
-            }
-            return null;
-        });
+    protected boolean isImported() {
+        return seedMarkerDAO.isCompleted();
     }
 
-    private void importSeed() throws Exception {
-        ClassPathResource resource = new ClassPathResource(seedFile);
-        if (!resource.exists()) {
-            System.out.println("Bootstrap: no " + seedFile + " found, skipping recipe import.");
-            return;
-        }
+    @Override
+    protected void markImported() {
+        seedMarkerDAO.markCompleted();
+    }
 
-        List<SeedRecipe> seeds;
-        try (InputStream in = resource.getInputStream()) {
-            seeds = objectMapper.readValue(in, new TypeReference<>() {});
+    @Override
+    protected void afterImport() {
+        try {
+            deleteOrphanImages();
+        } catch (Exception e) {
+            log.error("Bootstrap: image cleanup failed: {}", e.getMessage());
         }
+    }
 
+    @Override
+    protected boolean importSeeds(List<SeedRecipe> seeds) {
         // loaded once; every created recipe is added, so the title check needs no further reads
         List<Recipe> existing = new ArrayList<>(recipeRepository.getAll());
         Map<String, Recipe> bySlug = new HashMap<>();
@@ -126,7 +102,7 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
             try {
                 image = importSeedImage(seed.image());
             } catch (Exception e) {
-                System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": image " + seed.image() + ": " + e.getMessage());
+                log.warn("Bootstrap: skipped recipe \"{}\": image {}: {}", seed.title(), seed.image(), e.getMessage());
                 failed++;
                 continue;
             }
@@ -142,7 +118,7 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
             } catch (Exception e) {
                 imageRepository.deleteQuietly(image);
                 failed++;
-                System.out.println("Bootstrap: skipped recipe \"" + seed.title() + "\": " + e.getMessage());
+                log.warn("Bootstrap: skipped recipe \"{}\": {}", seed.title(), e.getMessage());
             }
         }
 
@@ -165,27 +141,16 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
             recipeRepository.saveAllUnchecked(withRelated);
         }
 
-        System.out.println("Bootstrap: imported " + created.size() + " recipes, "
-                + (seeds.size() - created.size() - failed) + " already existed, " + failed + " failed.");
+        log.info("Bootstrap: imported {} recipes, {} already existed, {} failed.",
+                created.size(), seeds.size() - created.size() - failed, failed);
 
-        // failed recipes are retried on the next start; once everything is there, never again
-        if (failed == 0) {
-            seedMarkerDAO.markCompleted();
-        }
+        // failed recipes are retried on the next start
+        return failed == 0;
     }
 
     /** Stores resources/recipes/images/<fileName> as RecipeImage and returns "uploads/<id>". */
     private String importSeedImage(String fileName) throws Exception {
-        if (fileName == null || fileName.isBlank() || fileName.contains("/") || fileName.contains("..")) {
-            throw new IllegalArgumentException("invalid file name");
-        }
-        ClassPathResource resource = new ClassPathResource(seedImageDir + fileName);
-        if (!resource.exists()) {
-            throw new IllegalArgumentException("file not found");
-        }
-        try (InputStream in = resource.getInputStream()) {
-            return imageRepository.upload(in.readAllBytes());
-        }
+        return imageRepository.upload(readImage(fileName));
     }
 
     private void deleteOrphanImages() {
@@ -195,7 +160,7 @@ public class RecipeBootstrapConfig implements SmartInitializingSingleton {
                 .collect(Collectors.toSet());
         int deleted = imageRepository.deleteOrphans(referenced);
         if (deleted > 0) {
-            System.out.println("Bootstrap: deleted " + deleted + " unused uploaded images.");
+            log.info("Bootstrap: deleted {} unused uploaded images.", deleted);
         }
     }
 }

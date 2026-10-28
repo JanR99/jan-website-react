@@ -10,6 +10,7 @@ public class TravelStop {
 
     private double longitude;
 
+    @SuppressWarnings("unused")
     public TravelStop() {
 
     }

@@ -35,6 +35,7 @@ public class Feedback implements DatastoreEntity {
     /** marked as done by an admin */
     private boolean done;
 
+    @SuppressWarnings("unused")
     public Feedback() {
 
     }

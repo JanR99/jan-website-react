@@ -39,6 +39,7 @@ public class User implements DatastoreEntity {
      */
     private int tokenVersion;
 
+    @SuppressWarnings("unused")
     public User() {
 
     }

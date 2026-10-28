@@ -16,6 +16,7 @@ public class RecipeImage extends StoredImage {
     @Index
     private Date createdAt;
 
+    @SuppressWarnings("unused")
     public RecipeImage() {
 
     }

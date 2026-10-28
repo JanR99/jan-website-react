@@ -20,6 +20,7 @@ public class TravelSeedMarker implements DatastoreEntity {
 
     private Date completedAt;
 
+    @SuppressWarnings("unused")
     public TravelSeedMarker() {
 
     }

@@ -32,6 +32,7 @@ public class TravelPhoto implements DatastoreEntity {
     /** shown below the photo in the large view; empty if the photo has none */
     private String caption;
 
+    @SuppressWarnings("unused")
     public TravelPhoto() {
 
     }

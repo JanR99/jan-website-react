@@ -1,6 +1,8 @@
 package de.jan.image;
 
 import com.googlecode.objectify.Key;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -16,6 +18,8 @@ import java.util.regex.Pattern;
  */
 @Component
 public class ImageRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(ImageRepository.class);
 
     public static final String UPLOAD_PREFIX = "uploads/";
 
@@ -41,7 +45,7 @@ public class ImageRepository {
     }
 
     public RecipeImage getById(Long id) {
-        return id == null ? null : imageDAO.getById(id);
+        return id == null ? null : imageDAO.get(id);
     }
 
     /** "uploads/<id>" -> id, null for anything else */
@@ -67,7 +71,7 @@ public class ImageRepository {
         try {
             imageDAO.delete(id);
         } catch (Exception e) {
-            System.out.println("Could not delete image " + image + ": " + e.getMessage());
+            log.warn("Could not delete image {}: {}", image, e.getMessage());
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.Map;
 @SpringBootApplication
 public class JanWebsiteBackendApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication app = new SpringApplication(JanWebsiteBackendApplication.class);
         // the Swagger UI is only there for local development
         if (CloudRun.detect()) {

@@ -149,7 +149,7 @@ public abstract class ControllerTest {
         return bearer(userWith(permissions));
     }
 
-    protected String json(Object value) throws Exception {
+    protected String json(Object value) {
         return objectMapper.writeValueAsString(value);
     }
 }

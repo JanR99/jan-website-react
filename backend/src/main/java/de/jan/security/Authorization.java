@@ -51,11 +51,4 @@ public class Authorization {
             throw new UnauthorizedException("Missing permission " + permission);
         }
     }
-
-    /** The user acts on their own data, or may manage users. */
-    public void of(User other) {
-        if (!user.getEmail().equals(other.getEmail()) && !has(Permission.MANAGE_USERS)) {
-            throw new UnauthorizedException(USER_NOT_AUTHORIZED);
-        }
-    }
 }

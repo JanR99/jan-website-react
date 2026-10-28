@@ -1,10 +1,6 @@
 package de.jan.controller;
 
-import de.jan.controller.requests.TravelFolderRequest;
-import de.jan.controller.requests.TravelFolderTextRequest;
-import de.jan.controller.requests.TravelPhotoCaptionRequest;
-import de.jan.controller.requests.TravelPhotoOrderRequest;
-import de.jan.controller.requests.TravelStopRequest;
+import de.jan.controller.requests.*;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolder;
@@ -29,19 +25,11 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class TravelControllerTest extends ControllerTest {
 
@@ -591,7 +579,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(request("Porto", ""))))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -881,7 +869,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(textRequest("Drei Tage am Douro."))))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -959,7 +947,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/folders/setCover").param("id", "999").param("photoId", "1")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -1129,7 +1117,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(orderRequest(1L))))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -1191,7 +1179,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/folders/delete").param("id", "999")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -1285,7 +1273,7 @@ class TravelControllerTest extends ControllerTest {
         void withUnknownFolder_returns404() throws Exception {
             mockMvc.perform(upload(999L, JPEG, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Folder 999 not found"));
+                    .andExpect(content().string("TravelFolder 999 not found"));
         }
     }
 
@@ -1406,7 +1394,7 @@ class TravelControllerTest extends ControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(captionRequest("Blick auf den Douro"))))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Photo 999 not found"));
+                    .andExpect(content().string("TravelPhoto 999 not found"));
         }
     }
 
@@ -1484,7 +1472,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/photos/delete").param("id", "999")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("Photo 999 not found"));
+                    .andExpect(content().string("TravelPhoto 999 not found"));
         }
     }
 

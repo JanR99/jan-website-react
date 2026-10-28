@@ -16,6 +16,8 @@ import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.repository.RecipeRepository;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -43,6 +45,8 @@ import java.util.zip.ZipFile;
  */
 @Component
 public class RestoreRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(RestoreRepository.class);
 
     public static final String ONLY_LOCAL = "A backup can only be restored on a local machine";
 
@@ -113,8 +117,8 @@ public class RestoreRepository {
                 Progress progress = new Progress();
                 restoreRecipes(zip, recipes, progress);
                 restoreFolders(zip, folders, progress);
-                System.out.println("Restore: " + progress.recipes + " recipes, " + progress.folders
-                        + " travel folders and " + progress.photos + " travel photos restored.");
+                log.info("Restore: {} recipes, {} travel folders and {} travel photos restored.",
+                        progress.recipes, progress.folders, progress.photos);
                 return progress.toResponse();
             }
         } finally {
@@ -141,7 +145,7 @@ public class RestoreRepository {
             } catch (EntityStateException e) {
                 imageRepository.deleteQuietly(image);
                 progress.skippedRecipes.add(String.valueOf(backup.title()));
-                System.out.println("Restore: skipped recipe \"" + backup.title() + "\": " + e.getMessage());
+                log.warn("Restore: skipped recipe \"{}\": {}", backup.title(), e.getMessage());
             }
             // otherwise every image read so far stays in memory until the end of the request
             BaseDAO.clearSession();
@@ -189,7 +193,7 @@ public class RestoreRepository {
                 restorePhotos(zip, backup, folder, progress);
             } catch (EntityStateException e) {
                 progress.skippedFolders.add(String.valueOf(backup.name()));
-                System.out.println("Restore: travel folder \"" + backup.name() + "\" not fully restored: " + e.getMessage());
+                log.warn("Restore: travel folder \"{}\" not fully restored: {}", backup.name(), e.getMessage());
             }
         }
 
@@ -202,8 +206,8 @@ public class RestoreRepository {
             try {
                 travelRepository.updateFolder(entry.id(), entry.request().withPreviousFolderId(previousId));
             } catch (EntityStateException e) {
-                System.out.println("Restore: travel folder \"" + entry.request().name()
-                        + "\" stays without its previous folder: " + e.getMessage());
+                log.warn("Restore: travel folder \"{}\" stays without its previous folder: {}",
+                        entry.request().name(), e.getMessage());
             }
         }
     }
@@ -231,8 +235,7 @@ public class RestoreRepository {
                 }
             } catch (EntityStateException e) {
                 progress.skippedPhotos++;
-                System.out.println("Restore: skipped photo " + fileName + " of travel folder \"" + backup.name()
-                        + "\": " + e.getMessage());
+                log.warn("Restore: skipped photo {} of travel folder \"{}\": {}", fileName, backup.name(), e.getMessage());
             }
             // otherwise every photo read so far stays in memory until the end of the request
             BaseDAO.clearSession();

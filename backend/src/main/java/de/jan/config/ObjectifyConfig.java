@@ -15,11 +15,7 @@ import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarker;
 import de.jan.role.Role;
 import de.jan.stats.VisitDay;
-import de.jan.travel.TravelFolder;
-import de.jan.travel.TravelPhoto;
-import de.jan.travel.TravelPhotoFile;
-import de.jan.travel.TravelPhotoPreview;
-import de.jan.travel.TravelSeedMarker;
+import de.jan.travel.*;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
@@ -30,7 +26,7 @@ import java.util.List;
 @Configuration
 public class ObjectifyConfig {
 
-    List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
+    private final List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
         User.class,
         PasswordResetToken.class,
         Recipe.class,

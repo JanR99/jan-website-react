@@ -20,6 +20,7 @@ public class RecipeSeedMarker implements DatastoreEntity {
 
     private Date completedAt;
 
+    @SuppressWarnings("unused")
     public RecipeSeedMarker() {
 
     }

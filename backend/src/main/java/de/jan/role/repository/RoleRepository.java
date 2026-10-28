@@ -1,23 +1,16 @@
 package de.jan.role.repository;
 
 import de.jan.controller.requests.RoleRequest;
-import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
 import de.jan.role.Permission;
 import de.jan.role.Role;
 import de.jan.role.RoleDAO;
 import de.jan.user.User;
 import de.jan.user.UserDAO;
+import de.jan.util.TextRules;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class RoleRepository {
@@ -42,11 +35,7 @@ public class RoleRepository {
     }
 
     public Role getById(Long id) {
-        Role role = id == null ? null : roleDAO.getById(id);
-        if (role == null) {
-            throw new EntityNotFoundException("Role " + id + " not found");
-        }
-        return role;
+        return roleDAO.getOrThrow(id);
     }
 
     /** Union of the permissions of all roles with these ids. */
@@ -143,12 +132,7 @@ public class RoleRepository {
 
     private String validateName(String name, Long ownId) {
         String trimmed = name == null ? "" : name.trim().replaceAll("\\s+", " ");
-        if (trimmed.isEmpty()) {
-            throw new EntityStateException("Role name must not be empty");
-        }
-        if (trimmed.length() > NAME_MAX_LENGTH) {
-            throw new EntityStateException("Role name must be at most " + NAME_MAX_LENGTH + " characters long");
-        }
+        TextRules.require(trimmed, "Role name", NAME_MAX_LENGTH);
         boolean taken = roleDAO.getAll().stream()
                 .anyMatch(other -> !Objects.equals(other.getId(), ownId) && other.getName().equalsIgnoreCase(trimmed));
         if (taken) {

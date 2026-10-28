@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<String> handleTooLarge(MaxUploadSizeExceededException ex) {
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("The image is too large");
+    public ResponseEntity<String> handleTooLarge(MaxUploadSizeExceededException ignored) {
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body("The image is too large");
     }
 
     @ExceptionHandler(UnauthenticatedException.class)
