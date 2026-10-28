@@ -27,7 +27,7 @@ class MailServicesTest {
         }
 
         @Override
-        public void send(String to, String subject, String text) {
+        public void send(Sender sender, String to, String subject, String text) {
             mails.add(new Mail(to, subject, text));
         }
     }

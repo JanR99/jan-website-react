@@ -68,7 +68,7 @@ On Cloud Run the Swagger UI is switched off (the backend checks `K_SERVICE`, whi
 | `GCP_SA_KEY` | JSON key of a service account with deploy rights, created once via `gcloud iam service-accounts keys create key.json --iam-account=<sa-email>` |
 | `JWT_SECRET` | Any long random string, e.g. `openssl rand -base64 48` |
 | `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` | Chosen by you — the backend creates (or promotes) this account to admin on every startup |
-| `BREVO_API_KEY` | API key from [Brevo](https://app.brevo.com/settings/keys/api) (free plan) used to email `BOOTSTRAP_ADMIN_EMAIL` about new registrations. That address must be a verified sender in Brevo. Optional — without it no email is sent. Mails are only sent on Cloud Run; started locally or in tests, the backend writes them to its log instead |
+| `BREVO_API_KEY` | API key from [Brevo](https://app.brevo.com/settings/keys/api) (free plan) used to email `BOOTSTRAP_ADMIN_EMAIL` about new registrations and to send password reset mails. Mails come from `noreply@` the domain set as `mail.domain` in `backend/src/main/resources/application.properties`; that domain must be authenticated in Brevo. Optional — without it no email is sent. Mails are only sent on Cloud Run; started locally or in tests, the backend writes them to its log instead |
 | `VITE_API_BASE_URL` | The deployed backend's URL (Cloud Run service URL, or a custom domain mapped to it) |
 
 The same `JWT_SECRET`, `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` also go into your local `.env` file.
