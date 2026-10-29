@@ -2,7 +2,6 @@ package de.jan.user.repository;
 
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
-import de.jan.exceptions.EntityStateException;
 import de.jan.mail.ConfirmationMailService;
 import de.jan.mail.RegistrationMailService;
 import de.jan.user.EmailConfirmationToken;
@@ -24,14 +23,15 @@ public class EmailConfirmationRepository {
     public static final Duration VALIDITY = Duration.ofDays(7);
     public static final String INVALID_LINK = "This confirmation link is invalid or has expired";
 
-    private final EmailConfirmationTokenDAO tokenDAO;
+    private final MailLinks<EmailConfirmationToken> links;
     private final UserRepository userRepository;
     private final ConfirmationMailService confirmationMailService;
     private final RegistrationMailService registrationMailService;
 
     public EmailConfirmationRepository(UserRepository userRepository, ConfirmationMailService confirmationMailService,
                                        RegistrationMailService registrationMailService) {
-        this.tokenDAO = new EmailConfirmationTokenDAO();
+        this.links = new MailLinks<>(new EmailConfirmationTokenDAO(), EmailConfirmationToken::new, VALIDITY, INVALID_LINK,
+                userRepository);
         this.userRepository = userRepository;
         this.confirmationMailService = confirmationMailService;
         this.registrationMailService = registrationMailService;
@@ -52,22 +52,8 @@ public class EmailConfirmationRepository {
     }
 
     public User confirm(String token) {
-        if (token == null || token.isBlank()) {
-            throw new EntityStateException(INVALID_LINK);
-        }
-        List<EmailConfirmationToken> matches = tokenDAO.getByTokenHash(new OneTimeToken(token).hash());
-        if (matches.isEmpty()) {
-            throw new EntityStateException(INVALID_LINK);
-        }
-        EmailConfirmationToken confirmationToken = matches.getFirst();
-        User user = userRepository.getById(confirmationToken.getUserId());
-        if (confirmationToken.isExpired() || user == null) {
-            tokenDAO.delete(confirmationToken);
-            throw new EntityStateException(INVALID_LINK);
-        }
-
-        User confirmed = userRepository.confirmEmail(user);
-        deleteTokensOf(confirmed);
+        User confirmed = userRepository.confirmEmail(links.redeem(token));
+        links.deleteOf(confirmed);
         registrationMailService.send(confirmed);
         return confirmed;
     }
@@ -80,17 +66,7 @@ public class EmailConfirmationRepository {
     }
 
     private void sendLink(User user) {
-        deleteTokensOf(user);
-        OneTimeToken token = new OneTimeToken();
-        Date expiresAt = new Date(System.currentTimeMillis() + VALIDITY.toMillis());
-        tokenDAO.save(new EmailConfirmationToken(token.hash(), user.getId(), expiresAt));
-        confirmationMailService.send(new ConfirmationMailService.ConfirmationMail(user, token.token(), VALIDITY.toDays()));
-    }
-
-    private void deleteTokensOf(User user) {
-        List<EmailConfirmationToken> existing = tokenDAO.getByUserId(user.getId());
-        if (!existing.isEmpty()) {
-            tokenDAO.deleteAll(existing);
-        }
+        String token = links.issue(user);
+        confirmationMailService.send(new ConfirmationMailService.ConfirmationMail(user, token, VALIDITY.toDays()));
     }
 }

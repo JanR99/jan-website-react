@@ -129,7 +129,7 @@ public class UserRepository {
             throw new EntityStateException("Invalid password");
         }
         User updated = changePassword(user, newPassword);
-        deleteResetTokensOf(user);
+        passwordResetTokenDAO.deleteByUserId(user.getId());
         return updated;
     }
 
@@ -174,20 +174,10 @@ public class UserRepository {
     }
 
     private void delete(User user) {
-        deleteResetTokensOf(user);
-        List<EmailConfirmationToken> confirmationTokens = confirmationTokenDAO.getByUserId(user.getId());
-        if (!confirmationTokens.isEmpty()) {
-            confirmationTokenDAO.deleteAll(confirmationTokens);
-        }
+        passwordResetTokenDAO.deleteByUserId(user.getId());
+        confirmationTokenDAO.deleteByUserId(user.getId());
         userDataOwners.forEach(owner -> owner.deleteDataOf(user));
         userDAO.delete(user);
-    }
-
-    private void deleteResetTokensOf(User user) {
-        List<PasswordResetToken> resetTokens = passwordResetTokenDAO.getByUserId(user.getId());
-        if (!resetTokens.isEmpty()) {
-            passwordResetTokenDAO.deleteAll(resetTokens);
-        }
     }
 
     private static String validateName(String name) {
