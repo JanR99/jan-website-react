@@ -4,30 +4,22 @@ import de.jan.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.util.Map;
 
 @Service
-public class RegistrationMailService extends AbstractMailService<User> {
+public class RegistrationMailService extends AdminMailService<User> {
 
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm 'Uhr'");
-    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
-
-    private final String adminEmail;
-
-    public RegistrationMailService(BrevoMailSender mailSender, @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String adminEmail) {
-        super(mailSender);
-        this.adminEmail = adminEmail;
+    public RegistrationMailService(BrevoMailSender mailSender, MailTemplates templates,
+                                   @Value("${BOOTSTRAP_ADMIN_EMAIL:}") String adminEmail) {
+        super(mailSender, templates, adminEmail);
     }
 
     @Override
     protected String getRecipient(User user) {
         // no notification when the admin registers themselves (e.g. the bootstrap admin)
-        if (adminEmail.equalsIgnoreCase(user.getEmail())) {
-            return null;
-        }
-        return adminEmail;
+        String adminEmail = super.getRecipient(user);
+        return adminEmail.equalsIgnoreCase(user.getEmail()) ? null : adminEmail;
     }
 
     @Override
@@ -36,16 +28,13 @@ public class RegistrationMailService extends AbstractMailService<User> {
     }
 
     @Override
-    protected String getText(User user) {
-        return """
-                Hallo Jan,
+    protected MailTemplate getTemplate() {
+        return MailTemplate.REGISTRATION;
+    }
 
-                es hat sich gerade jemand neu registriert:
-
-                Name:    %s
-                E-Mail:  %s
-                Zeit:    %s
-                """.formatted(name(user), user.getEmail(), ZonedDateTime.now(ZONE).format(TIME_FORMAT));
+    @Override
+    protected Map<String, Object> getVariables(User user) {
+        return Map.of("name", name(user), "email", user.getEmail(), "time", time(Instant.now()));
     }
 
     private static String name(User user) {

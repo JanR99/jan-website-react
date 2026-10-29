@@ -1,5 +1,6 @@
 package de.jan.user.repository;
 
+import de.jan.mail.LinkMailService;
 import de.jan.mail.PasswordResetMailService;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.PasswordResetTokenDAO;
@@ -35,7 +36,7 @@ public class PasswordResetRepository {
         }
 
         String token = links.issue(user);
-        mailService.send(new PasswordResetMailService.ResetMail(user, token, VALIDITY.toMinutes()));
+        mailService.send(new LinkMailService.LinkMail(user, token, VALIDITY.toMinutes()));
     }
 
     public User resetPassword(String token, String newPassword) {

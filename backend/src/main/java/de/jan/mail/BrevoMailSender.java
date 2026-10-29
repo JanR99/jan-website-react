@@ -53,7 +53,7 @@ public class BrevoMailSender {
         this.httpClient = httpClient;
     }
 
-    public void send(Sender sender, String to, String subject, String text) {
+    public void send(Sender sender, String to, String subject, String text, String html) {
         if (!onCloudRun) {
             // with the text, so e.g. the link of a password reset mail can be used locally
             log.info("Mail not sent (not running on Cloud Run): \"{}\" from {} to {}\n{}", subject, sender.localPart(), to, text);
@@ -69,7 +69,8 @@ public class BrevoMailSender {
                     "sender", Map.of("name", sender.displayName(), "email", sender.localPart() + "@" + mailDomain),
                     "to", List.of(Map.of("email", to)),
                     "subject", subject,
-                    "textContent", text
+                    "textContent", text,
+                    "htmlContent", html
             ));
 
             HttpRequest request = HttpRequest.newBuilder(api)

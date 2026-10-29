@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>E-Mail-Adresse bestätigen</title>
+    </head>
+    <body style="font-family: sans-serif; font-size: 15px; line-height: 1.5; color: #222;">
+        <p th:text="${#strings.isEmpty(firstname)} ? 'Hallo,' : 'Hallo ' + ${firstname} + ','"></p>
+        <p>schön, dass du dich auf jan-website.de registriert hast.<br>
+            Bitte bestätige deine E-Mail-Adresse über diesen Link, danach kannst du dich anmelden:</p>
+        <p><a th:href="${link}" th:text="${link}"></a></p>
+        <p>Der Link ist <span th:text="${valid}"></span> Tage gültig. Wird das Konto bis dahin nicht bestätigt, wird es wieder gelöscht.<br>
+            Falls du dich nicht registriert hast, kannst du diese Mail einfach ignorieren.</p>
+    </body>
+</html>
