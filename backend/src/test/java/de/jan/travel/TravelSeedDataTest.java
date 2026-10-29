@@ -2,7 +2,7 @@ package de.jan.travel;
 
 import de.jan.config.TravelBootstrapConfig.SeedFolder;
 import de.jan.image.ImageType;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelPhotoRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
@@ -103,7 +103,7 @@ class TravelSeedDataTest {
                     continue;
                 }
                 byte[] data = Files.readAllBytes(SEED_IMAGE_DIR.resolve(photo));
-                if (data.length > TravelRepository.MAX_PHOTO_BYTES) {
+                if (data.length > TravelPhotoRepository.MAX_PHOTO_BYTES) {
                     problems.add(name + " is too large (" + data.length / 1024 + " KB)");
                 }
                 try {

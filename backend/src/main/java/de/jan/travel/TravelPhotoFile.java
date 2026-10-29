@@ -6,7 +6,7 @@ import de.jan.image.StoredImage;
 /**
  * The image data of a TravelPhoto, stored under the same id. There is one version of every photo,
  * used for the gallery and when the photo is opened. Datastore entities are limited to 1 MiB,
- * see TravelRepository.MAX_PHOTO_BYTES.
+ * see TravelPhotoRepository.MAX_PHOTO_BYTES.
  */
 @Entity
 public class TravelPhotoFile extends StoredImage {

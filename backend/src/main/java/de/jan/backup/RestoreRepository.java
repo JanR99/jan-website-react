@@ -15,7 +15,9 @@ import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.repository.RecipeRepository;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelPhotoRepository;
+import de.jan.travel.repository.TravelSeedMarkerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,16 +77,19 @@ public class RestoreRepository {
 
     private final RecipeRepository recipeRepository;
     private final ImageRepository imageRepository;
-    private final TravelRepository travelRepository;
+    private final TravelFolderRepository travelRepository;
+    private final TravelSeedMarkerRepository travelSeedMarkerRepository;
     private final ObjectMapper objectMapper;
     private final CloudRun cloudRun;
     private final RecipeSeedMarkerDAO recipeSeedMarkerDAO = new RecipeSeedMarkerDAO();
 
     public RestoreRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
-                             TravelRepository travelRepository, ObjectMapper objectMapper, CloudRun cloudRun) {
+                             TravelFolderRepository travelRepository, TravelSeedMarkerRepository travelSeedMarkerRepository,
+                             ObjectMapper objectMapper, CloudRun cloudRun) {
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
         this.travelRepository = travelRepository;
+        this.travelSeedMarkerRepository = travelSeedMarkerRepository;
         this.objectMapper = objectMapper;
         this.cloudRun = cloudRun;
     }
@@ -112,7 +117,7 @@ public class RestoreRepository {
                 travelRepository.deleteAllFolders();
                 // what is restored takes the place of the seed data, also if that was never fully imported
                 recipeSeedMarkerDAO.markCompleted();
-                travelRepository.markSeedImported();
+                travelSeedMarkerRepository.markImported();
 
                 Progress progress = new Progress();
                 restoreRecipes(zip, recipes, progress);
@@ -221,7 +226,7 @@ public class RestoreRepository {
         for (int i = 0; i < photos.size(); i++) {
             String fileName = photos.get(i);
             try {
-                byte[] data = readImage(zip, BackupRepository.TRAVEL_IMAGE_DIR, fileName, TravelRepository.MAX_PHOTO_BYTES);
+                byte[] data = readImage(zip, BackupRepository.TRAVEL_IMAGE_DIR, fileName, TravelPhotoRepository.MAX_PHOTO_BYTES);
                 Long photoId = travelRepository.addPhoto(folder.id(), data).photos().getLast().id();
                 progress.photos++;
 

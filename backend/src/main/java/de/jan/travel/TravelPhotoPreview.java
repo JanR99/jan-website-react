@@ -5,7 +5,7 @@ import de.jan.image.StoredImage;
 
 /**
  * A small version of a TravelPhoto for the tiles (gallery, folder cards, home page), stored under the id
- * of the photo. Made from the TravelPhotoFile the first time it is asked for, see TravelRepository.getPhotoPreview;
+ * of the photo. Made from the TravelPhotoFile the first time it is asked for, see TravelPhotoPreviewRepository.get;
  * not part of a backup, since it can always be made again.
  */
 @Entity

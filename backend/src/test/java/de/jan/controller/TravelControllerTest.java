@@ -6,7 +6,8 @@ import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolder;
 import de.jan.travel.TravelFolderDAO;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelPhotoRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ class TravelControllerTest extends ControllerTest {
     private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3};
 
     @Autowired
-    private TravelRepository travelRepository;
+    private TravelFolderRepository travelRepository;
 
     @Nested
     class ListTravelFolders {
@@ -612,9 +613,9 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(withStops(request("Spanien", ""), stops(TravelRepository.MAX_STOPS)))))
+                            .content(json(withStops(request("Spanien", ""), stops(TravelFolderRepository.MAX_STOPS)))))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.stops", hasSize(TravelRepository.MAX_STOPS)));
+                    .andExpect(jsonPath("$.stops", hasSize(TravelFolderRepository.MAX_STOPS)));
         }
 
         @Test
@@ -622,7 +623,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/folders/create")
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(withStops(request("Spanien", ""), stops(TravelRepository.MAX_STOPS + 1)))))
+                            .content(json(withStops(request("Spanien", ""), stops(TravelFolderRepository.MAX_STOPS + 1)))))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("A folder can have at most 30 stops"));
 
@@ -837,7 +838,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withLongestText_isAllowed() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
-            String text = "x".repeat(TravelRepository.TEXT_MAX_LENGTH);
+            String text = "x".repeat(TravelFolderRepository.TEXT_MAX_LENGTH);
 
             mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -855,7 +856,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/folders/setText").param("id", folder.id().toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(textRequest("x".repeat(TravelRepository.TEXT_MAX_LENGTH + 1)))))
+                            .content(json(textRequest("x".repeat(TravelFolderRepository.TEXT_MAX_LENGTH + 1)))))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Text must be at most 10000 characters long"));
 
@@ -1244,7 +1245,7 @@ class TravelControllerTest extends ControllerTest {
         void withTooLargeImage_returns400() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelPhotoRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("The image must be at most 500 KB"));
         }
@@ -1253,7 +1254,7 @@ class TravelControllerTest extends ControllerTest {
         void withTooLargeImage_storesNothing() throws Exception {
             TravelFolderDTO folder = storedFolder("Porto", "");
 
-            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
+            mockMvc.perform(upload(folder.id(), jpegOfSize(TravelPhotoRepository.MAX_PHOTO_BYTES + 1), bearerWith(Permission.MANAGE_TRAVEL)))
                     .andExpect(status().isBadRequest());
 
             mockMvc.perform(get("/api/travel/folders/list")).andExpect(jsonPath("$[0].photos", hasSize(0)));
@@ -1361,7 +1362,7 @@ class TravelControllerTest extends ControllerTest {
         @Test
         void withLongestCaption_isAllowed() throws Exception {
             Long photo = storedPhoto(storedFolder("Porto", "").id());
-            String caption = "x".repeat(TravelRepository.CAPTION_MAX_LENGTH);
+            String caption = "x".repeat(TravelPhotoRepository.CAPTION_MAX_LENGTH);
 
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
@@ -1379,7 +1380,7 @@ class TravelControllerTest extends ControllerTest {
             mockMvc.perform(post("/api/travel/photos/setCaption").param("id", photo.toString())
                             .header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.MANAGE_TRAVEL))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(captionRequest("x".repeat(TravelRepository.CAPTION_MAX_LENGTH + 1)))))
+                            .content(json(captionRequest("x".repeat(TravelPhotoRepository.CAPTION_MAX_LENGTH + 1)))))
                     .andExpect(status().isBadRequest())
                     .andExpect(content().string("Caption must be at most 200 characters long"));
 

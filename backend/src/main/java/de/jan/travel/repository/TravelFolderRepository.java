@@ -3,67 +3,42 @@ package de.jan.travel.repository;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.exceptions.EntityStateException;
-import de.jan.image.ImageScaler;
-import de.jan.image.ImageType;
-import de.jan.image.StoredImage;
-import de.jan.travel.*;
+import de.jan.travel.TravelFolder;
+import de.jan.travel.TravelFolderDAO;
+import de.jan.travel.TravelFolderDTO;
+import de.jan.travel.TravelPhoto;
+import de.jan.travel.TravelStop;
 import de.jan.util.ListCache;
 import de.jan.util.TextRules;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
 import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static de.jan.util.TextCleaner.cleanText;
 import static de.jan.util.TextCleaner.collapse;
 
 /**
- * The travel diary: folders (one per trip) and their photos. A photo is a TravelPhoto plus
- * a TravelPhotoFile with the image data, and a TravelPhotoPreview once its small version was asked for.
+ * The folders of the travel diary, one per trip. The folder is the way in for everything that belongs to it:
+ * changes to its photos go through here, so the cover and the cached list stay right.
  */
 @Component
-public class TravelRepository {
-
-    private static final Logger log = LoggerFactory.getLogger(TravelRepository.class);
-
-    public static final int MAX_PHOTOS_PER_FOLDER = 200;
-
-    /** The browser scales photos down to about 400 KB; the entity itself may be at most 1 MiB. */
-    public static final long MAX_PHOTO_BYTES = 500L * 1024;
-
-    /** Shorter side of the small version of a photo: fills a 256 px tile on screens with twice the pixel density. */
-    public static final int PREVIEW_SIZE = 512;
+public class TravelFolderRepository {
 
     private static final int NAME_MAX_LENGTH = 80;
-    public static final int CAPTION_MAX_LENGTH = 200;
     public static final int TEXT_MAX_LENGTH = 10_000;
     public static final int MAX_STOPS = 30;
     private static final Pattern MONTH = Pattern.compile("\\d{4}-(0[1-9]|1[0-2])");
-    /** The sorted photos by their position, then the ones added since in the order they were added. */
-    private static final Comparator<TravelPhoto> PHOTO_ORDER = Comparator
-            .comparing(TravelPhoto::getPosition, Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(TravelPhoto::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder()))
-            .thenComparing(TravelPhoto::getId);
 
-    private final TravelFolderDAO folderDAO;
-    private final TravelPhotoDAO photoDAO;
-    private final TravelPhotoFileDAO fileDAO;
-    private final TravelPhotoPreviewDAO previewDAO;
-    private final TravelSeedMarkerDAO seedMarkerDAO;
+    private final TravelFolderDAO folderDAO = new TravelFolderDAO();
+    private final TravelPhotoRepository photoRepository;
 
     private final ListCache<TravelFolderDTO> cache = new ListCache<>(Duration.ofSeconds(60));
 
-    public TravelRepository() {
-        this.folderDAO = new TravelFolderDAO();
-        this.photoDAO = new TravelPhotoDAO();
-        this.fileDAO = new TravelPhotoFileDAO();
-        this.previewDAO = new TravelPhotoPreviewDAO();
-        this.seedMarkerDAO = new TravelSeedMarkerDAO();
+    public TravelFolderRepository(TravelPhotoRepository photoRepository) {
+        this.photoRepository = photoRepository;
     }
 
     /** All folders with their photos: the newest trip first, the ones without a date after them by name. */
@@ -72,21 +47,20 @@ public class TravelRepository {
     }
 
     private List<TravelFolderDTO> loadFolders() {
-        Map<Long, List<TravelPhoto>> photosByFolder = photoDAO.getAll().stream()
-                .collect(Collectors.groupingBy(TravelPhoto::getFolderId));
+        Map<Long, List<TravelPhoto>> photosByFolder = photoRepository.getAllByFolder();
         Collator collator = Collator.getInstance(Locale.GERMAN);
         Comparator<TravelFolder> newestFirst = Comparator.comparing(
                 TravelFolder::getStartMonth, Comparator.nullsLast(Comparator.reverseOrder()));
         return folderDAO.getAll().stream()
                 .sorted(newestFirst.thenComparing(TravelFolder::getName, collator))
-                .map(folder -> toDTO(folder, photosByFolder.getOrDefault(folder.getId(), List.of())))
+                .map(folder -> TravelFolderDTO.from(folder, photosByFolder.getOrDefault(folder.getId(), List.of())))
                 .toList();
     }
 
     /** One folder, read from the database and not from the cache. */
     public TravelFolderDTO getFolder(Long id) {
         TravelFolder folder = loadFolder(id);
-        return toDTO(folder, photoDAO.getByFolderId(folder.getId()));
+        return TravelFolderDTO.from(folder, photoRepository.getByFolder(folder.getId()));
     }
 
     public TravelFolderDTO createFolder(TravelFolderRequest request) {
@@ -95,7 +69,7 @@ public class TravelRepository {
         apply(folder, request);
         TravelFolder saved = folderDAO.save(folder);
         invalidateCache();
-        return toDTO(saved, List.of());
+        return TravelFolderDTO.from(saved, List.of());
     }
 
     /** Changes name, country, the months of the trip, the stops, the previous folder and the cuisine; the text stays. */
@@ -122,7 +96,7 @@ public class TravelRepository {
     public TravelFolderDTO setCover(Long id, Long photoId) {
         TravelFolder folder = loadFolder(id);
         if (photoId != null) {
-            TravelPhoto photo = photoDAO.get(photoId);
+            TravelPhoto photo = photoRepository.get(photoId);
             if (photo == null || !id.equals(photo.getFolderId())) {
                 throw new EntityStateException("The photo does not belong to this folder");
             }
@@ -136,14 +110,7 @@ public class TravelRepository {
     /** Deletes the folder together with all of its photos. */
     public void deleteFolder(Long id) {
         TravelFolder folder = loadFolder(id);
-        List<TravelPhoto> photos = photoDAO.getByFolderId(id);
-        for (TravelPhoto photo : photos) {
-            fileDAO.delete(photo.getId());
-            previewDAO.delete(photo.getId());
-        }
-        if (!photos.isEmpty()) {
-            photoDAO.deleteAll(photos);
-        }
+        photoRepository.deleteAllOf(id);
         folderDAO.delete(folder);
 
         // the trip no longer comes from here
@@ -164,52 +131,21 @@ public class TravelRepository {
         }
     }
 
-    /** Adds a photo at the end of the folder. The browser has scaled it down already. */
+    /** Adds a photo at the end of the folder. */
     public TravelFolderDTO addPhoto(Long folderId, byte[] data) {
-        TravelFolder folder = loadFolder(folderId);
-        String contentType = ImageType.check(data, MAX_PHOTO_BYTES).contentType();
-        List<TravelPhoto> existing = photoDAO.getByFolderId(folderId);
-        if (existing.size() >= MAX_PHOTOS_PER_FOLDER) {
-            throw new EntityStateException("A folder can have at most " + MAX_PHOTOS_PER_FOLDER + " photos");
-        }
-        // always later than the last photo, so the order also holds for uploads within the same millisecond
-        long latest = existing.stream().map(TravelPhoto::getCreatedAt).filter(Objects::nonNull)
-                .mapToLong(Date::getTime).max().orElse(0);
-        Date createdAt = new Date(Math.max(System.currentTimeMillis(), latest + 1));
-
-        // the file is stored under the id of the photo, so the photo has to be saved first
-        TravelPhoto photo = photoDAO.save(new TravelPhoto(folder.getId(), createdAt));
+        loadFolder(folderId);
         try {
-            fileDAO.save(new TravelPhotoFile(photo.getId(), data, contentType));
-        } catch (RuntimeException e) {
-            deleteQuietly(photo);
-            throw e;
+            photoRepository.add(folderId, data);
         } finally {
             invalidateCache();
         }
         return getFolder(folderId);
     }
 
-    /**
-     * Puts the photos of a folder into a new order. The first one is then the photo shown on the folder,
-     * so an earlier choice of another one ends.
-     *
-     * @param photoIds the ids of all photos of the folder, each one once
-     */
+    /** Puts the photos into a new order. The first one is then the cover, so an earlier choice of another one ends. */
     public TravelFolderDTO setPhotoOrder(Long folderId, List<Long> photoIds) {
         TravelFolder folder = loadFolder(folderId);
-        List<TravelPhoto> photos = photoDAO.getByFolderId(folderId);
-        Map<Long, TravelPhoto> byId = photos.stream()
-                .collect(Collectors.toMap(TravelPhoto::getId, photo -> photo));
-        if (photoIds == null || photoIds.size() != photos.size() || !new HashSet<>(photoIds).equals(byId.keySet())) {
-            throw new EntityStateException("The order must name every photo of the folder exactly once");
-        }
-        for (int i = 0; i < photoIds.size(); i++) {
-            byId.get(photoIds.get(i)).setPosition(i);
-        }
-        if (!photos.isEmpty()) {
-            photoDAO.saveAll(photos);
-        }
+        photoRepository.setOrder(folderId, photoIds);
         if (folder.getCoverPhotoId() != null) {
             folder.setCoverPhotoId(null);
             folderDAO.save(folder);
@@ -218,23 +154,15 @@ public class TravelRepository {
         return getFolder(folderId);
     }
 
-    /** Sets the text shown below a photo; an empty one removes it. Returns the folder of the photo. */
+    /** Returns the folder of the photo. */
     public TravelFolderDTO setCaption(Long photoId, String caption) {
-        TravelPhoto photo = loadPhoto(photoId);
-        String text = collapse(caption);
-        TextRules.requireMaxLength(text, "Caption", CAPTION_MAX_LENGTH);
-        photo.setCaption(text);
-        photoDAO.save(photo);
+        TravelPhoto photo = photoRepository.setCaption(photoId, caption);
         invalidateCache();
         return getFolder(photo.getFolderId());
     }
 
     public void deletePhoto(Long id) {
-        TravelPhoto photo = loadPhoto(id);
-        fileDAO.delete(id);
-        previewDAO.delete(id);
-        photoDAO.delete(photo);
-
+        TravelPhoto photo = photoRepository.delete(id);
         TravelFolder folder = folderDAO.get(photo.getFolderId());
         if (folder != null && id.equals(folder.getCoverPhotoId())) {
             folder.setCoverPhotoId(null);
@@ -243,50 +171,8 @@ public class TravelRepository {
         invalidateCache();
     }
 
-    /** The image data of a photo, null if there is none. */
-    public TravelPhotoFile getPhotoFile(Long photoId) {
-        return fileDAO.get(photoId);
-    }
-
-    /**
-     * The small version of a photo for the tiles: made from the photo the first time and stored from then on.
-     * If the photo is that small already or can't be scaled, the photo itself. Null if there is no photo.
-     */
-    public StoredImage getPhotoPreview(Long photoId) {
-        TravelPhotoPreview stored = previewDAO.get(photoId);
-        if (stored != null) {
-            return stored;
-        }
-        TravelPhotoFile file = fileDAO.get(photoId);
-        if (file == null) {
-            return null;
-        }
-        byte[] scaled = ImageScaler.scaleDown(file.getData(), PREVIEW_SIZE);
-        if (scaled == null) {
-            return file;
-        }
-        return previewDAO.save(new TravelPhotoPreview(photoId, scaled, ImageType.JPEG.contentType()));
-    }
-
-    /** Whether the folders of resources/travel/folders.json have all been imported, see TravelSeedMarker. */
-    public boolean isSeedImported() {
-        return seedMarkerDAO.exists(TravelSeedMarker.ID);
-    }
-
-    public void markSeedImported() {
-        seedMarkerDAO.save(new TravelSeedMarker(new Date()));
-    }
-
     private TravelFolder loadFolder(Long id) {
         return folderDAO.getOrThrow(id);
-    }
-
-    private TravelPhoto loadPhoto(Long id) {
-        return photoDAO.getOrThrow(id);
-    }
-
-    private static TravelFolderDTO toDTO(TravelFolder folder, Collection<TravelPhoto> photos) {
-        return TravelFolderDTO.from(folder, photos.stream().sorted(PHOTO_ORDER).toList());
     }
 
     private void apply(TravelFolder folder, TravelFolderRequest request) {
@@ -390,16 +276,6 @@ public class TravelRepository {
             throw new EntityStateException(label + " must be a year and a month like 2024-05");
         }
         return month;
-    }
-
-    /** Best effort: removes a photo whose file could not be stored. */
-    private void deleteQuietly(TravelPhoto photo) {
-        try {
-            fileDAO.delete(photo.getId());
-            photoDAO.delete(photo);
-        } catch (Exception e) {
-            log.warn("Could not delete travel photo {}: {}", photo.getId(), e.getMessage());
-        }
     }
 
     private void invalidateCache() {

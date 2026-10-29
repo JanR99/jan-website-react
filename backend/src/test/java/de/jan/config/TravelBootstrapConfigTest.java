@@ -3,7 +3,8 @@ package de.jan.config;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelSeedMarkerRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,10 +20,13 @@ class TravelBootstrapConfigTest extends ControllerTest {
     private static final String IMAGES = "travel/images/";
 
     @Autowired
-    private TravelRepository travelRepository;
+    private TravelFolderRepository travelRepository;
+
+    @Autowired
+    private TravelSeedMarkerRepository seedMarkerRepository;
 
     private void bootstrap(String seedFile) {
-        new TravelBootstrapConfig(travelRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
+        new TravelBootstrapConfig(travelRepository, seedMarkerRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
     }
 
     private Map<String, TravelFolderDTO> foldersByName() {
@@ -31,7 +35,7 @@ class TravelBootstrapConfigTest extends ControllerTest {
     }
 
     private boolean imported() {
-        return inDatastore(() -> travelRepository.isSeedImported());
+        return inDatastore(() -> seedMarkerRepository.isImported());
     }
 
     @Test

@@ -9,7 +9,9 @@ import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelPhotoFileRepository;
+import de.jan.travel.repository.TravelPhotoPreviewRepository;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +31,9 @@ import java.util.List;
 @RequestMapping("/api/travel")
 public class TravelController {
 
-    private final TravelRepository travelRepository;
+    private final TravelFolderRepository travelRepository;
+    private final TravelPhotoFileRepository photoFileRepository;
+    private final TravelPhotoPreviewRepository photoPreviewRepository;
 
     private static final String LIST_TRAVEL_FOLDERS = "listTravelFolders";
     private static final String CREATE_TRAVEL_FOLDER = "createTravelFolder";
@@ -43,8 +47,11 @@ public class TravelController {
     private static final String DELETE_TRAVEL_PHOTO = "deleteTravelPhoto";
     private static final String GET_TRAVEL_PHOTO = "getTravelPhoto";
 
-    public TravelController(TravelRepository travelRepository) {
+    public TravelController(TravelFolderRepository travelRepository, TravelPhotoFileRepository photoFileRepository,
+                            TravelPhotoPreviewRepository photoPreviewRepository) {
         this.travelRepository = travelRepository;
+        this.photoFileRepository = photoFileRepository;
+        this.photoPreviewRepository = photoPreviewRepository;
     }
 
     @Operation(operationId = LIST_TRAVEL_FOLDERS)
@@ -159,7 +166,7 @@ public class TravelController {
     /**
      * See ImageResponse: cached for a year, loaded via <img src>.
      *
-     * @param preview the small version for the tiles instead of the whole photo, see TravelRepository.getPhotoPreview
+     * @param preview the small version for the tiles instead of the whole photo, see TravelPhotoPreviewRepository.get
      */
     @Operation(operationId = GET_TRAVEL_PHOTO)
     @GetMapping("/photos/{id}")
@@ -167,7 +174,7 @@ public class TravelController {
             @PathVariable Long id,
             @RequestParam(value = "preview", defaultValue = "false") boolean preview
     ) {
-        StoredImage photo = preview ? travelRepository.getPhotoPreview(id) : travelRepository.getPhotoFile(id);
+        StoredImage photo = preview ? photoPreviewRepository.get(id) : photoFileRepository.get(id);
         return ImageResponse.of(photo);
     }
 }

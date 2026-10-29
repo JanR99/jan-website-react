@@ -10,7 +10,8 @@ import de.jan.recipe.repository.RecipeRepository;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.TravelPhotoDTO;
 import de.jan.travel.TravelPhotoFile;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelPhotoFileRepository;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -84,14 +85,17 @@ public class BackupRepository {
 
     private final RecipeRepository recipeRepository;
     private final ImageRepository imageRepository;
-    private final TravelRepository travelRepository;
+    private final TravelFolderRepository travelRepository;
+    private final TravelPhotoFileRepository photoFileRepository;
     private final ObjectMapper objectMapper;
 
     public BackupRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
-                            TravelRepository travelRepository, ObjectMapper objectMapper) {
+                            TravelFolderRepository travelRepository, TravelPhotoFileRepository photoFileRepository,
+                            ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
         this.travelRepository = travelRepository;
+        this.photoFileRepository = photoFileRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -155,7 +159,7 @@ public class BackupRepository {
             Map<String, String> captions = new LinkedHashMap<>();
             String cover = null;
             for (TravelPhotoDTO photo : folder.photos()) {
-                TravelPhotoFile file = travelRepository.getPhotoFile(photo.id());
+                TravelPhotoFile file = photoFileRepository.get(photo.id());
                 if (file == null) {
                     continue;
                 }
