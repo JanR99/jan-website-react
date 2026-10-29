@@ -4,7 +4,6 @@ import de.jan.controller.requests.KanaResultRequest;
 import de.jan.exceptions.EntityStateException;
 import de.jan.games.*;
 import de.jan.user.User;
-import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 @Component
-public class KanaStatsRepository implements UserDataOwner {
+public class KanaStatsRepository extends MistakeStatsRepository<KanaStats, KanaMistake, KanaMistakeDTO> {
 
     public static final String HIRAGANA = "hiragana";
     public static final String KATAKANA = "katakana";
@@ -26,7 +25,9 @@ public class KanaStatsRepository implements UserDataOwner {
     private static final Pattern HIRAGANA_KANA = Pattern.compile("[\\u3041-\\u3096][ゃゅょ]?");
     private static final Pattern KATAKANA_KANA = Pattern.compile("[\\u30a1-\\u30fa][ャュョ]?");
 
-    private final KanaStatsDAO statsDAO = new KanaStatsDAO();
+    public KanaStatsRepository() {
+        super(new KanaStatsDAO(), MAX_MISTAKES, KanaMistakeDTO::of);
+    }
 
     public KanaStatsDTO get(User user) {
         KanaStats stats = statsDAO.get(user.getId());
@@ -52,36 +53,12 @@ public class KanaStatsRepository implements UserDataOwner {
 
         // in a transaction, so two rounds sent at the same time don't overwrite each other
         KanaStats saved = statsDAO.update(user.getId(), () -> new KanaStats(user.getId()), stats -> {
-            updateMistakes(stats, kana, answers);
+            recordMistakes(stats, kana, answers);
             if (!Boolean.TRUE.equals(result.practice())) {
                 countRound(stats, scripts, answers);
             }
         });
         return toDTO(saved);
-    }
-
-    /** The characters read wrong and not yet read right twice in a row since, most often wrong first. */
-    public List<KanaMistakeDTO> getMistakes(User user) {
-        KanaStats stats = statsDAO.get(user.getId());
-        return stats == null ? List.of() : toDTOs(stats.getMistakes());
-    }
-
-    /** Takes a character off the list of mistakes by hand; a character that isn't on it changes nothing. */
-    public List<KanaMistakeDTO> deleteMistake(User user, String kana) {
-        KanaStats stats = statsDAO.get(user.getId());
-        if (stats == null) {
-            return List.of();
-        }
-        if (MistakeList.remove(stats.getMistakes(), kana)) {
-            stats = statsDAO.save(stats);
-        }
-        return toDTOs(stats.getMistakes());
-    }
-
-    /** For deleting an account: its statistics go with it. */
-    @Override
-    public void deleteDataOf(User user) {
-        statsDAO.delete(user.getId());
     }
 
     /** The script of a character the game asks; anything else is rejected. */
@@ -95,10 +72,9 @@ public class KanaStatsRepository implements UserDataOwner {
         throw new EntityStateException("Every character must be one hiragana or katakana, maybe with a small ya, yu or yo");
     }
 
-    private static void updateMistakes(KanaStats stats, List<String> kana, List<Boolean> answers) {
+    private void recordMistakes(KanaStats stats, List<String> kana, List<Boolean> answers) {
         long now = System.currentTimeMillis();
-        List<KanaMistake> asked = kana.stream().map(character -> new KanaMistake(character, now)).toList();
-        MistakeList.update(stats.getMistakes(), asked, answers, MAX_MISTAKES);
+        updateMistakes(stats, kana.stream().map(character -> new KanaMistake(character, now)).toList(), answers);
     }
 
     private static void countRound(KanaStats stats, List<String> scripts, List<Boolean> answers) {
@@ -115,10 +91,6 @@ public class KanaStatsRepository implements UserDataOwner {
             stats.setCurrentStreak(answer ? stats.getCurrentStreak() + 1 : 0);
             stats.setBestStreak(Math.max(stats.getBestStreak(), stats.getCurrentStreak()));
         }
-    }
-
-    private static List<KanaMistakeDTO> toDTOs(List<KanaMistake> mistakes) {
-        return MistakeList.sorted(mistakes).stream().map(KanaMistakeDTO::of).toList();
     }
 
     private static KanaStatsDTO toDTO(KanaStats stats) {
