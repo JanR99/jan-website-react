@@ -1,0 +1,13 @@
+Hallo Jan,
+
+im Backend ist ein unerwarteter Fehler aufgetreten:
+
+Zeit:     [(${time})]
+Anfrage:  [(${request})]
+Fehler:   [(${error})]
+
+[(${stackTrace})]
+[# th:if="${notMailed > 0}"]
+Seit der letzten Fehler-Mail gab es noch [(${notMailed})] weitere Fehler ohne Mail.
+[/]
+Alles Weitere steht im Log von Cloud Run.

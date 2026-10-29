@@ -4,6 +4,9 @@ import de.jan.feedback.Feedback;
 import de.jan.user.User;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -11,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** What the mails say: the notifications to the admin and the reset link; sending itself is in BrevoMailSenderTest. */
@@ -92,6 +96,54 @@ class MailServicesTest {
         new RegistrationMailService(sender, TEMPLATES, "jan@example.com").send(new User("JAN@example.com", "hash", "Jan", "R"));
 
         assertTrue(sender.mails.isEmpty());
+    }
+
+    /** A clock that only moves when told to. */
+    private static class TestClock extends Clock {
+        Instant now = CREATED.toInstant();
+
+        @Override
+        public ZoneId getZone() { return ZoneId.of("UTC"); }
+
+        @Override
+        public Clock withZone(ZoneId zone) { return this; }
+
+        @Override
+        public Instant instant() { return now; }
+    }
+
+    @Test
+    void serverError_tellsTheAdminWhatFailedWhere() {
+        RecordingSender sender = new RecordingSender();
+        new ErrorMailService(sender, TEMPLATES, "jan@example.com", new TestClock())
+                .report("GET", "/api/recipes/list", new IllegalStateException("kaputt"));
+
+        Mail mail = sender.mails.getFirst();
+        assertEquals("jan@example.com", mail.to());
+        assertEquals("Fehler im Backend von jan-website.de: IllegalStateException", mail.subject());
+        assertTrue(mail.text().contains("Anfrage:  GET /api/recipes/list"));
+        assertTrue(mail.text().contains("Fehler:   java.lang.IllegalStateException: kaputt"));
+        assertTrue(mail.text().contains("    at de.jan.mail.MailServicesTest"));
+        assertTrue(mail.text().contains("Zeit:     16.10.2026 13:05 Uhr"));
+    }
+
+    @Test
+    void serverErrors_areMailedAtMostOnceAnHour() {
+        RecordingSender sender = new RecordingSender();
+        TestClock clock = new TestClock();
+        ErrorMailService service = new ErrorMailService(sender, TEMPLATES, "jan@example.com", clock);
+
+        service.report("GET", "/a", new RuntimeException());
+        clock.now = clock.now.plus(Duration.ofMinutes(30));
+        service.report("GET", "/b", new RuntimeException());
+        service.report("GET", "/c", new RuntimeException());
+        assertEquals(1, sender.mails.size());
+        assertFalse(sender.mails.getFirst().text().contains("weitere Fehler"));
+
+        clock.now = clock.now.plus(ErrorMailService.INTERVAL);
+        service.report("GET", "/d", new RuntimeException());
+        assertEquals(2, sender.mails.size());
+        assertTrue(sender.mails.get(1).text().contains("noch 2 weitere Fehler ohne Mail"));
     }
 
     @Test

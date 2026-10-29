@@ -6,7 +6,8 @@ public enum MailTemplate {
     CONFIRMATION("confirmation"),
     PASSWORD_RESET("password-reset"),
     FEEDBACK("feedback"),
-    REGISTRATION("registration");
+    REGISTRATION("registration"),
+    SERVER_ERROR("server-error");
 
     private final String fileName;
 
