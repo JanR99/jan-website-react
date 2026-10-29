@@ -46,7 +46,8 @@ public class EmailConfirmationRepository {
     public void resend(LoginRequest request) {
         User user = userRepository.checkCredentials(request);
         if (!user.isEmailConfirmed()) {
-            sendLink(user);
+            user.setUnconfirmedSince(new Date());
+            sendLink(userRepository.save(user));
         }
     }
 

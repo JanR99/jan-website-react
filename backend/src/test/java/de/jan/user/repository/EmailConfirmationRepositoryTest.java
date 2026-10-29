@@ -1,5 +1,6 @@
 package de.jan.user.repository;
 
+import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityStateException;
 import de.jan.testsupport.ControllerTest;
@@ -33,6 +34,21 @@ class EmailConfirmationRepositoryTest extends ControllerTest {
         assertNotNull(inDatastore(() -> userRepository.getById(recent.getId())));
         assertNotNull(inDatastore(() -> userRepository.getById(confirmed.getId())));
         assertTrue(inDatastore(() -> new EmailConfirmationTokenDAO().getByUserId(old.getId())).isEmpty());
+    }
+
+    @Test
+    void resend_givesTheAccountTheFullSevenDaysAgain() {
+        User user = unconfirmedSince("late@example.com", 8);
+
+        inDatastore(() -> {
+            emailConfirmationRepository.resend(new LoginRequest("late@example.com", "password-123", null));
+            return null;
+        });
+        int deleted = inDatastore(emailConfirmationRepository::deleteExpiredAccounts);
+
+        assertEquals(0, deleted);
+        assertFalse(inDatastore(() -> userRepository.getById(user.getId())).isEmailConfirmed());
+        assertEquals(1, inDatastore(() -> new EmailConfirmationTokenDAO().getByUserId(user.getId())).size());
     }
 
     @Test
