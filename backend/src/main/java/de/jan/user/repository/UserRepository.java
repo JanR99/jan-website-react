@@ -4,7 +4,7 @@ import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.exceptions.EntityNotFoundException;
 import de.jan.exceptions.EntityStateException;
-import de.jan.mail.RegistrationMailService;
+import de.jan.exceptions.UnauthorizedException;
 import de.jan.role.Permission;
 import de.jan.role.Role;
 import de.jan.role.repository.RoleRepository;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -26,21 +27,22 @@ public class UserRepository {
     private static final int PASSWORD_MIN_LENGTH = 8;
     private static final int NAME_MAX_LENGTH = 100;
     private static final int EMAIL_MAX_LENGTH = 254;
+    public static final String NOT_CONFIRMED = "Email address not confirmed";
 
     private final UserDAO userDAO;
     private final PasswordResetTokenDAO passwordResetTokenDAO;
+    private final EmailConfirmationTokenDAO confirmationTokenDAO;
     private final PasswordEncoder passwordEncoder;
-    private final RegistrationMailService registrationMailService;
     private final RoleRepository roleRepository;
     /** whatever else keeps data of a user, deleted with the account */
     private final List<UserDataOwner> userDataOwners;
 
-    public UserRepository(PasswordEncoder passwordEncoder, RegistrationMailService registrationMailService,
-                          RoleRepository roleRepository, List<UserDataOwner> userDataOwners) {
+    public UserRepository(PasswordEncoder passwordEncoder, RoleRepository roleRepository,
+                          List<UserDataOwner> userDataOwners) {
         this.userDAO = new UserDAO();
         this.passwordResetTokenDAO = new PasswordResetTokenDAO();
+        this.confirmationTokenDAO = new EmailConfirmationTokenDAO();
         this.passwordEncoder = passwordEncoder;
-        this.registrationMailService = registrationMailService;
         this.roleRepository = roleRepository;
         this.userDataOwners = userDataOwners;
     }
@@ -62,27 +64,52 @@ public class UserRepository {
 
         String email = normalizeEmail(req.email());
 
-        if (!userDAO.getByEmail(email).isEmpty()) {
+        String hashedPassword = passwordEncoder.encode(req.password());
+        User existing = getByEmail(email);
+        if (existing != null && existing.isEmailConfirmed()) {
             throw new EntityStateException("User with this email already exists");
         }
-
-        String hashedPassword = passwordEncoder.encode(req.password());
-        User user = new User(email, hashedPassword, firstname, lastname);
-        User savedUser = save(user);
-        registrationMailService.send(savedUser);
-        return savedUser;
+        // an account that was never confirmed doesn't keep the address: registering again starts it anew
+        User user = existing != null ? existing : new User(email, hashedPassword, firstname, lastname);
+        user.setFirstname(firstname);
+        user.setLastname(lastname);
+        user.setHashedPassword(hashedPassword);
+        user.setUnconfirmedSince(new Date());
+        return save(user);
     }
 
-    public User login(LoginRequest request) {
-        String credentialsMessage = "Invalid credentials";
+    public User checkCredentials(LoginRequest request) {
         if (request.email() == null || request.password() == null) {
             throw new EntityStateException("Email or password is null");
         }
         User user = getByEmail(request.email());
         if (user == null || !passwordEncoder.matches(request.password(), user.getHashedPassword())) {
-            throw new EntityStateException(credentialsMessage);
+            throw new EntityStateException("Invalid credentials");
         }
         return user;
+    }
+
+    public User login(LoginRequest request) {
+        User user = checkCredentials(request);
+        if (!user.isEmailConfirmed()) {
+            throw new UnauthorizedException(NOT_CONFIRMED);
+        }
+        return user;
+    }
+
+    public User confirmEmail(User user) {
+        user.setUnconfirmedSince(null);
+        return save(user);
+    }
+
+    public List<User> getUnconfirmedSince(Date before) {
+        return userDAO.getUnconfirmedSince(before).stream().filter(user -> !user.isEmailConfirmed()).toList();
+    }
+
+    public void deleteUnconfirmed(User user) {
+        if (!user.isEmailConfirmed()) {
+            delete(user);
+        }
     }
 
     public User changePassword(User user, String newPassword) {
@@ -148,6 +175,10 @@ public class UserRepository {
 
     private void delete(User user) {
         deleteResetTokensOf(user);
+        List<EmailConfirmationToken> confirmationTokens = confirmationTokenDAO.getByUserId(user.getId());
+        if (!confirmationTokens.isEmpty()) {
+            confirmationTokenDAO.deleteAll(confirmationTokens);
+        }
         userDataOwners.forEach(owner -> owner.deleteDataOf(user));
         userDAO.delete(user);
     }

@@ -107,6 +107,20 @@ class MailServicesTest {
     }
 
     @Test
+    void confirmation_sendsTheLinkToTheNewAccount() {
+        RecordingSender sender = new RecordingSender();
+        new ConfirmationMailService(sender, "https://jan-website.de/")
+                .send(new ConfirmationMailService.ConfirmationMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 7));
+
+        Mail mail = sender.mails.getFirst();
+        assertEquals("anna@example.com", mail.to());
+        assertEquals("Bestätige deine E-Mail-Adresse für jan-website.de", mail.subject());
+        assertTrue(mail.text().startsWith("Hallo Anna,"));
+        assertTrue(mail.text().contains("https://jan-website.de/#/email-bestaetigen?token=a%2Bb%2Fc%3D\n"));
+        assertTrue(mail.text().contains("7 Tage gültig"));
+    }
+
+    @Test
     void passwordResetWithoutFirstName_greetsWithoutName() {
         RecordingSender sender = new RecordingSender();
         new PasswordResetMailService(sender, "http://localhost:5173")

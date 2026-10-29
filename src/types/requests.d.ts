@@ -51,6 +51,10 @@ interface ResetPasswordRequest {
     password: string;
 }
 
+interface ConfirmEmailRequest {
+    token: string;
+}
+
 interface UpdateProfileRequest {
     firstname: string;
     lastname: string;

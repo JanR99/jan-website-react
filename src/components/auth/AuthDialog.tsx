@@ -13,6 +13,9 @@ export default function AuthDialog() {
     const [busy, setBusy] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [resetSent, setResetSent] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+    const [unconfirmed, setUnconfirmed] = useState(false);
+    const [confirmationResent, setConfirmationResent] = useState(false);
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,6 +31,9 @@ export default function AuthDialog() {
             setMode(authDialog);
             setMessage(null);
             setResetSent(false);
+            setRegisteredEmail(null);
+            setUnconfirmed(false);
+            setConfirmationResent(false);
         }
     }
 
@@ -36,11 +42,29 @@ export default function AuthDialog() {
         setPassword("");
         setMessage(null);
         setResetSent(false);
+        setRegisteredEmail(null);
+        setUnconfirmed(false);
+        setConfirmationResent(false);
+    }
+
+    async function resendConfirmation() {
+        setBusy(true);
+        setMessage(null);
+        try {
+            await UserController.resendConfirmation({ email, password });
+            setConfirmationResent(true);
+        } catch (error) {
+            setMessage(handleApiError(error));
+        } finally {
+            setBusy(false);
+        }
     }
 
     async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
         setMessage(null);
+        setUnconfirmed(false);
+        setConfirmationResent(false);
 
         if (mode === "forgot") {
             setBusy(true);
@@ -72,7 +96,10 @@ export default function AuthDialog() {
                 : await register({ email, password, firstname: firstname.trim(), lastname: lastname.trim() });
         setBusy(false);
 
-        if (result.ok) {
+        if (result.ok && mode === "register") {
+            // the password stays, so the mail can be sent again from here
+            setRegisteredEmail(email);
+        } else if (result.ok) {
             setEmail("");
             setPassword("");
             setRememberMe(false);
@@ -81,16 +108,19 @@ export default function AuthDialog() {
             closeAuthDialog();
         } else {
             setMessage(result.error || "Anmeldung fehlgeschlagen.");
+            setUnconfirmed(result.unconfirmed === true);
         }
     }
 
     const isLogin = mode === "login";
     const isForgot = mode === "forgot";
 
-    const title = isForgot ? "Passwort vergessen" : isLogin ? "Willkommen zurück" : "Konto erstellen";
-    const intro = isForgot
-        ? "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link, mit dem du ein neues Passwort festlegen kannst."
-        : "Melde dich an, um auf dein Konto zuzugreifen."
+    const title = registeredEmail ? "Fast geschafft" : isForgot ? "Passwort vergessen" : isLogin ? "Willkommen zurück" : "Konto erstellen";
+    const intro = registeredEmail
+        ? "Bestätige noch deine E-Mail-Adresse, dann kannst du dich anmelden."
+        : isForgot
+            ? "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link, mit dem du ein neues Passwort festlegen kannst."
+            : "Melde dich an, um auf dein Konto zuzugreifen.";
     const submitLabel = isForgot ? "Link senden" : isLogin ? "Anmelden" : "Konto erstellen";
 
     return (
@@ -98,7 +128,7 @@ export default function AuthDialog() {
             <h2 id="auth-dialog-title">{title}</h2>
             <p className="muted">{intro}</p>
 
-            {!isForgot && (
+            {!isForgot && !registeredEmail && (
                 <div className="auth-tabs" role="tablist">
                     <button type="button" role="tab" aria-selected={isLogin} onClick={() => switchMode("login")}>
                         Anmelden
@@ -109,7 +139,25 @@ export default function AuthDialog() {
                 </div>
             )}
 
-            {isForgot && resetSent ? (
+            {registeredEmail ? (
+                <div className="auth-form">
+                    <p className="form-message form-message--success" role="status">
+                        Wir haben dir eine Mail an {registeredEmail} geschickt. Klicke auf den Link darin, um dein Konto
+                        zu bestätigen. Schau auch im Spam-Ordner nach.
+                    </p>
+                    <FormError message={message} />
+                    {confirmationResent ? (
+                        <p className="muted" role="status">Eine neue Mail ist unterwegs.</p>
+                    ) : (
+                        <button type="button" className="auth-text-link" onClick={resendConfirmation} disabled={busy}>
+                            Keine Mail bekommen? Erneut senden
+                        </button>
+                    )}
+                    <button type="button" className="auth-text-link" onClick={() => switchMode("login")}>
+                        Zur Anmeldung
+                    </button>
+                </div>
+            ) : isForgot && resetSent ? (
                 <div className="auth-form">
                     <p className="form-message form-message--success" role="status">
                         Falls es ein Konto mit dieser Adresse gibt, ist jetzt eine Mail mit dem Link unterwegs.
@@ -193,6 +241,13 @@ export default function AuthDialog() {
                     )}
 
                     <FormError message={message} />
+                    {unconfirmed && (confirmationResent ? (
+                        <p className="muted" role="status">Eine neue Mail ist unterwegs.</p>
+                    ) : (
+                        <button type="button" className="auth-text-link" onClick={resendConfirmation} disabled={busy}>
+                            Bestätigungsmail erneut senden
+                        </button>
+                    ))}
 
                     <button type="submit" className="btn btn-block" disabled={busy}>
                         {busy ? "Bitte warten …" : submitLabel}

@@ -4,12 +4,16 @@ import de.jan.controller.requests.RegisterRequest;
 import de.jan.role.Permission;
 import de.jan.role.Role;
 import de.jan.testsupport.ControllerTest;
+import de.jan.user.repository.EmailConfirmationRepository;
+import de.jan.user.EmailConfirmationToken;
+import de.jan.user.EmailConfirmationTokenDAO;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -32,12 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class UserControllerTest extends ControllerTest {
 
+    @Autowired
+    private EmailConfirmationRepository emailConfirmationRepository;
+
     private static final String EMAIL = "anna@example.com";
     private static final String PASSWORD = "correct-password";
 
     private static final String MISSING_PERMISSION = "Missing permission MANAGE_USERS";
     private static final String INVALID_CREDENTIALS = "Invalid credentials";
     private static final String INVALID_LINK = "This reset link is invalid or has expired";
+    private static final String INVALID_CONFIRMATION_LINK = "This confirmation link is invalid or has expired";
+    private static final String NOT_CONFIRMED = "Email address not confirmed";
     // the same message for first and last name
     private static final String NAME_EMPTY = "First- and Surname must not be empty";
     private static final String NAME_TOO_LONG = "First- and Surname must be at most 100 characters long";
@@ -65,6 +74,36 @@ class UserControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.password").doesNotExist())
                     .andExpect(jsonPath("$.hashedPassword").doesNotExist())
                     .andExpect(jsonPath("$.roleIds").doesNotExist());
+        }
+
+        @Test
+        void storesTheAccountUnconfirmedWithALinkToConfirmIt() throws Exception {
+            register(EMAIL, PASSWORD).andExpect(status().isOk());
+
+            User user = inDatastore(() -> userRepository.getByEmail(EMAIL));
+            assertFalse(user.isEmailConfirmed());
+            assertEquals(1, confirmationTokensOf(user).size());
+        }
+
+        @Test
+        void withEmailOfAnAccountThatIsNotConfirmed_startsItAnew() throws Exception {
+            User before = unconfirmed(EMAIL);
+            String firstHash = confirmationTokensOf(before).getFirst().getTokenHash();
+
+            mockMvc.perform(post("/api/users/register")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(Map.of("email", EMAIL, "password", "another-password",
+                                    "firstname", "Anne", "lastname", "Neu"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(before.getId()))
+                    .andExpect(jsonPath("$.firstname").value("Anne"));
+
+            // only the newest link is valid, and the new password counts once the account is confirmed
+            List<EmailConfirmationToken> tokens = confirmationTokensOf(before);
+            assertEquals(1, tokens.size());
+            assertNotEquals(firstHash, tokens.getFirst().getTokenHash());
+            inDatastore(() -> userRepository.confirmEmail(userRepository.getByEmail(EMAIL)));
+            login(EMAIL, "another-password").andExpect(status().isOk());
         }
 
         @Test
@@ -168,8 +207,8 @@ class UserControllerTest extends ControllerTest {
                     .andExpect(status().isTooManyRequests())
                     .andExpect(jsonPath("$.message").value("Too many registrations, please try again later."));
 
-            // logging in is counted separately
-            login("user1@example.com", PASSWORD).andExpect(status().isOk());
+            // logging in is counted separately: refused only because the account isn't confirmed yet
+            login("user1@example.com", PASSWORD).andExpect(status().isForbidden());
         }
 
         @Test
@@ -211,6 +250,24 @@ class UserControllerTest extends ControllerTest {
         @Test
         void withWrongPassword_returns400() throws Exception {
             registered(EMAIL);
+
+            login(EMAIL, "wrong-password")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CREDENTIALS));
+        }
+
+        @Test
+        void withAccountThatIsNotConfirmed_returns403() throws Exception {
+            unconfirmed(EMAIL);
+
+            login(EMAIL, PASSWORD)
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().string(NOT_CONFIRMED));
+        }
+
+        @Test
+        void withAccountThatIsNotConfirmedAndWrongPassword_doesNotTellThatItExists() throws Exception {
+            unconfirmed(EMAIL);
 
             login(EMAIL, "wrong-password")
                     .andExpect(status().isBadRequest())
@@ -368,6 +425,111 @@ class UserControllerTest extends ControllerTest {
             renewToken(expired(user))
                     .andExpect(status().isUnauthorized())
                     .andExpect(content().string(NOT_LOGGED_IN));
+        }
+    }
+
+    @Nested
+    class ConfirmEmail {
+
+        @Test
+        void withValidToken_returns204AndTheAccountCanLogIn() throws Exception {
+            User user = unconfirmed(EMAIL);
+            storeConfirmationToken(user, "valid-token", daysFromNow(7));
+
+            confirmEmail("valid-token")
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(""));
+
+            assertTrue(inDatastore(() -> userRepository.getById(user.getId())).isEmailConfirmed());
+            assertTrue(confirmationTokensOf(user).isEmpty());
+            login(EMAIL, PASSWORD).andExpect(status().isOk());
+        }
+
+        @Test
+        void usingTheTokenASecondTime_returns400() throws Exception {
+            User user = unconfirmed(EMAIL);
+            storeConfirmationToken(user, "valid-token", daysFromNow(7));
+            confirmEmail("valid-token").andExpect(status().isNoContent());
+
+            confirmEmail("valid-token")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CONFIRMATION_LINK));
+        }
+
+        @Test
+        void withUnknownToken_returns400() throws Exception {
+            confirmEmail("unknown-token")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CONFIRMATION_LINK));
+        }
+
+        @Test
+        void withExpiredToken_returns400AndLeavesTheAccountUnconfirmed() throws Exception {
+            User user = unconfirmed(EMAIL);
+            storeConfirmationToken(user, "old-token", daysFromNow(-1));
+
+            confirmEmail("old-token")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CONFIRMATION_LINK));
+
+            assertFalse(inDatastore(() -> userRepository.getById(user.getId())).isEmailConfirmed());
+        }
+
+        @Test
+        void withoutToken_returns400() throws Exception {
+            mockMvc.perform(post("/api/users/confirmEmail")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CONFIRMATION_LINK));
+        }
+
+        @Test
+        void afterFiveAttemptsInAMinute_returns429() throws Exception {
+            for (int attempt = 1; attempt <= 5; attempt++) {
+                confirmEmail("guess-" + attempt).andExpect(status().isBadRequest());
+            }
+
+            confirmEmail("guess-6").andExpect(status().isTooManyRequests());
+        }
+    }
+
+    @Nested
+    class ResendConfirmation {
+
+        @Test
+        void withTheRightPassword_returns204AndSendsANewLink() throws Exception {
+            User user = unconfirmed(EMAIL);
+            String firstHash = confirmationTokensOf(user).getFirst().getTokenHash();
+
+            resendConfirmation(EMAIL, PASSWORD)
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(""));
+
+            List<EmailConfirmationToken> tokens = confirmationTokensOf(user);
+            assertEquals(1, tokens.size());
+            assertNotEquals(firstHash, tokens.getFirst().getTokenHash());
+        }
+
+        @Test
+        void withWrongPassword_returns400AndKeepsTheLink() throws Exception {
+            User user = unconfirmed(EMAIL);
+            String firstHash = confirmationTokensOf(user).getFirst().getTokenHash();
+
+            resendConfirmation(EMAIL, "wrong-password")
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(INVALID_CREDENTIALS));
+
+            assertEquals(firstHash, confirmationTokensOf(user).getFirst().getTokenHash());
+        }
+
+        @Test
+        void forAConfirmedAccount_returns204AndSendsNothing() throws Exception {
+            User user = registered(EMAIL);
+
+            resendConfirmation(EMAIL, PASSWORD).andExpect(status().isNoContent());
+
+            assertTrue(confirmationTokensOf(user).isEmpty());
         }
     }
 
@@ -1074,7 +1236,12 @@ class UserControllerTest extends ControllerTest {
 
     private User registered(String email) {
         RegisterRequest request = new RegisterRequest(email, UserControllerTest.PASSWORD, "Anna", "Test");
-        return inDatastore(() -> userRepository.register(request));
+        return inDatastore(() -> userRepository.confirmEmail(userRepository.register(request)));
+    }
+
+    private User unconfirmed(String email) {
+        RegisterRequest request = new RegisterRequest(email, UserControllerTest.PASSWORD, "Anna", "Test");
+        return inDatastore(() -> emailConfirmationRepository.register(request));
     }
 
     private void giveRoles(User user, Long... roleIds) {
@@ -1194,6 +1361,33 @@ class UserControllerTest extends ControllerTest {
         return mockMvc.perform(post("/api/users/resetPassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of("token", token, "password", password))));
+    }
+
+    private ResultActions confirmEmail(String token) throws Exception {
+        return mockMvc.perform(post("/api/users/confirmEmail")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("token", token))));
+    }
+
+    private ResultActions resendConfirmation(String email, String password) throws Exception {
+        return mockMvc.perform(post("/api/users/resendConfirmation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("email", email, "password", password))));
+    }
+
+    private List<EmailConfirmationToken> confirmationTokensOf(User user) {
+        return inDatastore(() -> new EmailConfirmationTokenDAO().getByUserId(user.getId()));
+    }
+
+    /** Like storeResetToken: the database holds the hash of a token the test knows. */
+    private void storeConfirmationToken(User user, String token, Date expiresAt) throws Exception {
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
+        String hash = HexFormat.of().formatHex(digest);
+        inDatastore(() -> new EmailConfirmationTokenDAO().save(new EmailConfirmationToken(hash, user.getId(), expiresAt)));
+    }
+
+    private static Date daysFromNow(int days) {
+        return new Date(System.currentTimeMillis() + days * 24 * 60 * 60_000L);
     }
 
     private List<PasswordResetToken> resetTokensOf(User user) {

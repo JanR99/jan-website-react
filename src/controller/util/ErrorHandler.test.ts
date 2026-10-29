@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { handleApiError, isUnauthenticated } from './ErrorHandler';
+import { handleApiError, isForbidden, isUnauthenticated } from './ErrorHandler';
 
 const FALLBACK = 'Gerade nicht verfügbar. Bitte später erneut versuchen.';
 
@@ -90,5 +90,18 @@ describe('isUnauthenticated', () => {
         expect(isUnauthenticated({})).toBe(false);
         expect(isUnauthenticated(undefined)).toBe(false);
         expect(isUnauthenticated('boom')).toBe(false);
+    });
+});
+
+describe('isForbidden', () => {
+    it('is true for a 403 answer', () => {
+        expect(isForbidden({ response: { status: 403 } })).toBe(true);
+        expect(isForbidden({ status: 403 })).toBe(true);
+    });
+
+    it('is false for other answers and for no answer at all', () => {
+        expect(isForbidden({ response: { status: 400 } })).toBe(false);
+        expect(isForbidden({ response: { status: 401 } })).toBe(false);
+        expect(isForbidden(null)).toBe(false);
     });
 });

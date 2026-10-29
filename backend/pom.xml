@@ -56,6 +56,12 @@
             <artifactId>google-cloud-datastore</artifactId>
         </dependency>
 
+        <!-- Guava, e.g. for the SHA-256 hash of the mail link tokens; the version comes from the libraries-bom -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- Templates for HTML pages, like the recipe page for Bring! -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

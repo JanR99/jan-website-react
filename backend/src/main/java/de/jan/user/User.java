@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.condition.IfNotNull;
 import de.jan.objectify.DatastoreEntity;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,14 @@ public class User implements DatastoreEntity {
      * so every login from before a password change stops working.
      */
     private int tokenVersion;
+
+    /**
+     * When the account was registered, as long as its email address is not confirmed; null once it is,
+     * and for all accounts from before the confirmation existed. Only indexed when set, so the search
+     * for old unconfirmed accounts never finds a confirmed one.
+     */
+    @Index(IfNotNull.class)
+    private Date unconfirmedSince;
 
     @SuppressWarnings("unused")
     public User() {
@@ -122,5 +132,17 @@ public class User implements DatastoreEntity {
 
     public void setTokenVersion(int tokenVersion) {
         this.tokenVersion = tokenVersion;
+    }
+
+    public boolean isEmailConfirmed() {
+        return unconfirmedSince == null;
+    }
+
+    public Date getUnconfirmedSince() {
+        return unconfirmedSince;
+    }
+
+    public void setUnconfirmedSince(Date unconfirmedSince) {
+        this.unconfirmedSince = unconfirmedSince;
     }
 }

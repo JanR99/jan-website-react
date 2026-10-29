@@ -40,6 +40,7 @@ class AdminBootstrapConfigTest extends ControllerTest {
         assertNotNull(admin);
         assertEquals("Admin", admin.getFirstname());
         assertTrue(isAdmin(admin));
+        assertTrue(admin.isEmailConfirmed());
     }
 
     @Test

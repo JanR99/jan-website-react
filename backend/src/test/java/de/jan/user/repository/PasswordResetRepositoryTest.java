@@ -20,20 +20,12 @@ class PasswordResetRepositoryTest extends ControllerTest {
     void linkOfADeletedAccount_isInvalidAndIsDeleted() {
         // a valid link whose user isn't there any more
         inDatastore(() -> new PasswordResetTokenDAO().save(new PasswordResetToken(
-                PasswordResetRepository.hash("the-token"), 999_999L, new Date(System.currentTimeMillis() + 60_000))));
+                new OneTimeToken("the-token").hash(), 999_999L, new Date(System.currentTimeMillis() + 60_000))));
 
         EntityStateException e = assertThrows(EntityStateException.class,
                 () -> inDatastore(() -> passwordResetRepository.resetPassword("the-token", "password-123")));
 
         assertEquals("This reset link is invalid or has expired", e.getMessage());
         assertTrue(inDatastore(() -> new PasswordResetTokenDAO().getAll()).isEmpty());
-    }
-
-    @Test
-    void hash_withAnUnknownAlgorithm_fails() {
-        IllegalStateException e = assertThrows(IllegalStateException.class,
-                () -> PasswordResetRepository.hash("the-token", "NO-SUCH-HASH"));
-
-        assertEquals("NO-SUCH-HASH not available", e.getMessage());
     }
 }

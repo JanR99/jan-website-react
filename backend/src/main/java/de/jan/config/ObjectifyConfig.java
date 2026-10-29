@@ -16,6 +16,7 @@ import de.jan.recipe.RecipeSeedMarker;
 import de.jan.role.Role;
 import de.jan.stats.VisitDay;
 import de.jan.travel.*;
+import de.jan.user.EmailConfirmationToken;
 import de.jan.user.PasswordResetToken;
 import de.jan.user.User;
 import jakarta.annotation.PostConstruct;
@@ -29,6 +30,7 @@ public class ObjectifyConfig {
     private final List<Class<? extends DatastoreEntity>> datastoreEntities = List.of(
         User.class,
         PasswordResetToken.class,
+        EmailConfirmationToken.class,
         Recipe.class,
         RecipeImage.class,
         RecipeSeedMarker.class,

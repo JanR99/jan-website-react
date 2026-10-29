@@ -106,13 +106,14 @@ public abstract class ControllerTest {
         return ObjectifyService.run(work::get);
     }
 
-    /** Registers a new user who has exactly these permissions (through a role of their own). */
+    /** Registers a new, confirmed user who has exactly these permissions (through a role of their own). */
     protected User userWith(Permission... permissions) {
         return inDatastore(() -> {
             int number = COUNTER.incrementAndGet();
             RegisterRequest register = new RegisterRequest("user" + number + "@example.com", "password-" + number,
                     "User", "Number " + number);
-            User user = userRepository.register(register);
+            // confirmed right away, as if the link in the mail had been clicked
+            User user = userRepository.confirmEmail(userRepository.register(register));
 
             if (permissions.length > 0) {
                 RoleRequest roleRequest = new RoleRequest("role-" + number, List.of(permissions));

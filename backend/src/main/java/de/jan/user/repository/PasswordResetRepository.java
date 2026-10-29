@@ -7,24 +7,16 @@ import de.jan.user.PasswordResetTokenDAO;
 import de.jan.user.User;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.Date;
-import java.util.HexFormat;
 import java.util.List;
 
 @Component
 public class PasswordResetRepository {
 
     private static final Duration VALIDITY = Duration.ofMinutes(30);
-    private static final int TOKEN_BYTES = 32;
     private static final String INVALID_LINK = "This reset link is invalid or has expired";
 
-    private final SecureRandom random = new SecureRandom();
     private final PasswordResetTokenDAO tokenDAO;
     private final UserRepository userRepository;
     private final PasswordResetMailService mailService;
@@ -47,17 +39,17 @@ public class PasswordResetRepository {
         // only the newest link stays valid
         deleteTokensOf(user);
 
-        String token = newToken();
+        OneTimeToken token = new OneTimeToken();
         Date expiresAt = new Date(System.currentTimeMillis() + VALIDITY.toMillis());
-        tokenDAO.save(new PasswordResetToken(hash(token), user.getId(), expiresAt));
-        mailService.send(new PasswordResetMailService.ResetMail(user, token, VALIDITY.toMinutes()));
+        tokenDAO.save(new PasswordResetToken(token.hash(), user.getId(), expiresAt));
+        mailService.send(new PasswordResetMailService.ResetMail(user, token.token(), VALIDITY.toMinutes()));
     }
 
     public User resetPassword(String token, String newPassword) {
         if (token == null || token.isBlank()) {
             throw new EntityStateException(INVALID_LINK);
         }
-        List<PasswordResetToken> matches = tokenDAO.getByTokenHash(hash(token));
+        List<PasswordResetToken> matches = tokenDAO.getByTokenHash(new OneTimeToken(token).hash());
         if (matches.isEmpty()) {
             throw new EntityStateException(INVALID_LINK);
         }
@@ -82,27 +74,6 @@ public class PasswordResetRepository {
         List<PasswordResetToken> existing = tokenDAO.getByUserId(user.getId());
         if (!existing.isEmpty()) {
             tokenDAO.deleteAll(existing);
-        }
-    }
-
-    private String newToken() {
-        byte[] bytes = new byte[TOKEN_BYTES];
-        random.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-
-    /** Only the hash of a token is stored, so a copy of the database holds no usable links. */
-    static String hash(String token) {
-        return hash(token, "SHA-256");
-    }
-
-    /** With the algorithm passed, so a test can try one that doesn't exist. */
-    static String hash(String token, String algorithm) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance(algorithm);
-            return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(algorithm + " not available", e);
         }
     }
 }
