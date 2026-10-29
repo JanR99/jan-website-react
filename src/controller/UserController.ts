@@ -31,6 +31,16 @@ export default class UserController {
         await apis.user.resetPassword.execute({}, { requestBody: req });
     }
 
+    static async confirmEmail(req: ConfirmEmailRequest): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.confirmEmail.execute({}, { requestBody: req });
+    }
+
+    static async resendConfirmation(req: LoginRequest): Promise<void> {
+        const apis = await apiClient;
+        await apis.user.resendConfirmation.execute({}, { requestBody: req });
+    }
+
     static async updateProfile(req: UpdateProfileRequest): Promise<UserDTO> {
         const apis = await apiClient;
         const response: { body: UserDTO } = await apis.user.updateProfile.execute({}, { requestBody: req });

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from "react";
 import { apiClient } from "../../controller/APIClient.ts";
 import UserController from "../../controller/UserController.ts";
-import { handleApiError, isUnauthenticated } from "../../controller/util/ErrorHandler.ts";
+import { handleApiError, isForbidden, isUnauthenticated } from "../../controller/util/ErrorHandler.ts";
 import {
     getExpiryWarningTime, getTokenExpiry, loadSession, needsRenewal, saveSession, Session,
 } from "./sessionStore.ts";
@@ -31,7 +31,7 @@ function runAt(time: number, action: () => void): () => void {
 
 export type LoginResult =
     | { ok: true }
-    | { ok: false; error: string };
+    | { ok: false; error: string; unconfirmed?: boolean };
 
 export type AuthDialogMode = "login" | "register" | "forgot";
 
@@ -177,6 +177,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             startSession(await UserController.login(request));
             return { ok: true };
         } catch (error) {
+            if (isForbidden(error)) {
+                return { ok: false, error: "Bitte bestätige zuerst deine E-Mail-Adresse über den Link in unserer Mail.", unconfirmed: true };
+            }
             return { ok: false, error: handleApiError(error) };
         }
     }, [startSession]);
@@ -184,14 +187,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const register = useCallback(async (request: RegisterRequest): Promise<LoginResult> => {
         try {
             await UserController.register(request);
+            return { ok: true };
         } catch (error) {
             return { ok: false, error: handleApiError(error) };
         }
-
-        // The register endpoint only returns the created user, not a token,
-        // so log in right away with the same credentials.
-        return login({ email: request.email, password: request.password });
-    }, [login]);
+    }, []);
 
     const updateProfile = useCallback(async (request: UpdateProfileRequest): Promise<LoginResult> => {
         try {

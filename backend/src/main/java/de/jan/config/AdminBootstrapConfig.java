@@ -34,6 +34,10 @@ public class AdminBootstrapConfig {
                 try {
                     User existing = userRepository.getByEmail(email);
                     if (existing != null) {
+                        // the address comes from the configuration, so it counts as confirmed
+                        if (!existing.isEmailConfirmed()) {
+                            existing = userRepository.confirmEmail(existing);
+                        }
                         userRepository.grantAdminRole(existing);
                         log.info("Bootstrap: {} is now admin (existing user).", email);
                         return null;
@@ -47,7 +51,7 @@ public class AdminBootstrapConfig {
                     RegisterRequest request = new RegisterRequest(email, password, "Admin", "Admin");
 
                     try {
-                        User newUser = userRepository.register(request);
+                        User newUser = userRepository.confirmEmail(userRepository.register(request));
                         userRepository.grantAdminRole(newUser);
                         log.info("Bootstrap: {} was newly created and is now admin.", email);
                     } catch (Exception inner) {

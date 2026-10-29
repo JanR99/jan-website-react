@@ -9,6 +9,7 @@ import de.jan.security.JwtService;
 import de.jan.user.User;
 import de.jan.user.UserAdminDTO;
 import de.jan.user.UserDTO;
+import de.jan.user.repository.EmailConfirmationRepository;
 import de.jan.user.repository.PasswordResetRepository;
 import de.jan.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordResetRepository passwordResetRepository;
+    private final EmailConfirmationRepository emailConfirmationRepository;
 
     private static final String REGISTER = "register";
     private static final String LOGIN = "login";
@@ -35,6 +37,8 @@ public class UserController {
     private static final String SET_ROLES = "setRoles";
     private static final String REQUEST_PASSWORD_RESET = "requestPasswordReset";
     private static final String RESET_PASSWORD = "resetPassword";
+    private static final String CONFIRM_EMAIL = "confirmEmail";
+    private static final String RESEND_CONFIRMATION = "resendConfirmation";
     private static final String UPDATE_PROFILE = "updateProfile";
     private static final String CHANGE_PASSWORD = "changePassword";
     private static final String DELETE_ACCOUNT = "deleteAccount";
@@ -42,10 +46,12 @@ public class UserController {
     private static final String LIST_USERS = "listUsers";
     private static final String DELETE_USER = "deleteUser";
 
-    public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository) {
+    public UserController(UserRepository userRepository, JwtService jwtService, PasswordResetRepository passwordResetRepository,
+                          EmailConfirmationRepository emailConfirmationRepository) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordResetRepository = passwordResetRepository;
+        this.emailConfirmationRepository = emailConfirmationRepository;
     }
 
     @Operation(operationId = REGISTER)
@@ -53,8 +59,26 @@ public class UserController {
     public ResponseEntity<UserDTO> register(
             @RequestBody RegisterRequest request
     ) {
-        User savedUser = userRepository.register(request);
+        User savedUser = emailConfirmationRepository.register(request);
         return ResponseEntity.ok(UserDTO.from(savedUser));
+    }
+
+    @Operation(operationId = CONFIRM_EMAIL)
+    @PostMapping("/confirmEmail")
+    public ResponseEntity<Void> confirmEmail(
+            @RequestBody ConfirmEmailRequest request
+    ) {
+        emailConfirmationRepository.confirm(request.token());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(operationId = RESEND_CONFIRMATION)
+    @PostMapping("/resendConfirmation")
+    public ResponseEntity<Void> resendConfirmation(
+            @RequestBody LoginRequest request
+    ) {
+        emailConfirmationRepository.resend(request);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(operationId = LOGIN)
