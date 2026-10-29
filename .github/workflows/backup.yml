@@ -1,0 +1,39 @@
+name: Backup
+
+# Once a month: downloads the export of all recipes, travel folders and images and keeps it as an artifact.
+on:
+  schedule:
+    - cron: '17 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Download export
+        env:
+          API: ${{ secrets.VITE_API_BASE_URL }}
+          EMAIL: ${{ secrets.BOOTSTRAP_ADMIN_EMAIL }}
+          PASSWORD: ${{ secrets.BOOTSTRAP_ADMIN_PASSWORD }}
+        run: |
+          set -o pipefail
+          API="${API%/}"
+          TOKEN=$(jq -n --arg email "$EMAIL" --arg password "$PASSWORD" '{email: $email, password: $password}' \
+            | curl -sS --fail-with-body -H 'Content-Type: application/json' -d @- "$API/api/users/login" \
+            | jq -r .token)
+          echo "::add-mask::$TOKEN"
+          curl -sS --fail-with-body -H "Authorization: Bearer $TOKEN" -o backup.zip "$API/api/backup/export"
+          unzip -tq backup.zip
+
+      - name: Keep as artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: backup-${{ github.run_number }}
+          path: backup.zip
+          retention-days: 90
+          compression-level: 0
