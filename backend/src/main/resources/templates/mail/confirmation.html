@@ -5,7 +5,7 @@
         <title>E-Mail-Adresse bestätigen</title>
     </head>
     <body style="font-family: sans-serif; font-size: 15px; line-height: 1.5; color: #222;">
-        <p>Hallo<span th:unless="${#strings.isEmpty(firstname)}" th:text="' ' + ${firstname}"></span>,</p>
+        <p th:text="${#strings.isEmpty(firstname)} ? 'Hallo,' : 'Hallo ' + ${firstname} + ','"></p>
         <p>schön, dass du dich auf jan-website.de registriert hast.<br>
             Bitte bestätige deine E-Mail-Adresse über diesen Link, danach kannst du dich anmelden:</p>
         <p><a th:href="${link}" th:text="${link}"></a></p>

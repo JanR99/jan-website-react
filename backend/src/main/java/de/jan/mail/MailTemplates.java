@@ -1,8 +1,8 @@
 package de.jan.mail;
 
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Locale;
@@ -12,7 +12,7 @@ import java.util.Set;
 @Component
 public class MailTemplates {
 
-    private final TemplateEngine engine = new TemplateEngine();
+    private final SpringTemplateEngine engine = new SpringTemplateEngine();
 
     public MailTemplates() {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
