@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import type { SubmitEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import PageHeader from "../layout/PageHeader";
 import UserController from "../../controller/UserController.ts";
+import { handleApiError } from "../../controller/util/ErrorHandler.ts";
 import { useAuth } from "./AuthContext.tsx";
 import FormError from "../ui/FormError";
 import Spinner from "../ui/Spinner";
@@ -47,12 +49,7 @@ export default function EmailConfirmPage() {
                 ) : !done ? (
                     <Spinner />
                 ) : done.failed ? (
-                    <div className="auth-form">
-                        <FormError message="Dieser Link ist ungültig oder abgelaufen. Melde dich mit deinem Passwort an, dann kannst du dir eine neue Mail schicken lassen." />
-                        <button type="button" className="btn btn-block" onClick={() => openAuthDialog("login")}>
-                            Anmelden
-                        </button>
-                    </div>
+                    <ResendForm />
                 ) : (
                     <div className="auth-form">
                         <p className="form-message form-message--success" role="status">
@@ -65,5 +62,71 @@ export default function EmailConfirmPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+function ResendForm() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [busy, setBusy] = useState(false);
+    const [sent, setSent] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+
+    async function handleSubmit(event: SubmitEvent) {
+        event.preventDefault();
+        setBusy(true);
+        setMessage(null);
+        try {
+            await UserController.resendConfirmation({ email, password });
+            setSent(true);
+        } catch (error) {
+            setMessage(handleApiError(error));
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    if (sent) {
+        return (
+            <p className="form-message form-message--success" role="status">
+                Falls dein Konto noch nicht bestätigt ist, ist jetzt eine neue Mail unterwegs. Schau auch im Spam-Ordner nach.
+            </p>
+        );
+    }
+
+    return (
+        <form className="auth-form" onSubmit={handleSubmit}>
+            <FormError message="Dieser Link ist ungültig oder abgelaufen. Gib deine E-Mail-Adresse und dein Passwort ein, dann schicken wir dir eine neue Mail." />
+            <label className="field">
+                E-Mail
+                <input
+                    className="input"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="username"
+                    maxLength={254}
+                    required
+                />
+            </label>
+            <label className="field">
+                Passwort
+                <input
+                    className="input"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                />
+            </label>
+            <FormError message={message} />
+            <p className="muted">
+                Konten, die 7 Tage lang nicht bestätigt werden, werden gelöscht. Dann musst du dich neu registrieren.
+            </p>
+            <button type="submit" className="btn btn-block" disabled={busy}>
+                {busy ? "Bitte warten …" : "Neue Mail senden"}
+            </button>
+        </form>
     );
 }
