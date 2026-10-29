@@ -3,6 +3,7 @@ package de.jan.user.repository;
 import de.jan.controller.requests.LoginRequest;
 import de.jan.controller.requests.RegisterRequest;
 import de.jan.mail.ConfirmationMailService;
+import de.jan.mail.LinkMailService;
 import de.jan.mail.RegistrationMailService;
 import de.jan.user.EmailConfirmationToken;
 import de.jan.user.EmailConfirmationTokenDAO;
@@ -67,6 +68,6 @@ public class EmailConfirmationRepository {
 
     private void sendLink(User user) {
         String token = links.issue(user);
-        confirmationMailService.send(new ConfirmationMailService.ConfirmationMail(user, token, VALIDITY.toDays()));
+        confirmationMailService.send(new LinkMailService.LinkMail(user, token, VALIDITY.toDays()));
     }
 }

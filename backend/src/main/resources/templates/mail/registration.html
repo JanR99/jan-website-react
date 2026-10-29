@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <title>Neue Registrierung</title>
+    </head>
+    <body style="font-family: sans-serif; font-size: 15px; line-height: 1.5; color: #222;">
+        <p>Hallo Jan,</p>
+        <p>es hat sich gerade jemand neu registriert:</p>
+        <table>
+            <tr><td>Name:</td><td th:text="${name}"></td></tr>
+            <tr><td>E-Mail:</td><td th:text="${email}"></td></tr>
+            <tr><td>Zeit:</td><td th:text="${time}"></td></tr>
+        </table>
+    </body>
+</html>

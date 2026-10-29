@@ -63,7 +63,7 @@ class BrevoMailSenderTest {
 
     @Test
     void onCloudRun_postsTheMailToBrevo() {
-        sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Wie geht's?");
+        sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Wie geht's?", "<p>Wie geht's?</p>");
 
         assertEquals(1, received.size());
         assertEquals("secret-key", received.getFirst().apiKey());
@@ -73,19 +73,20 @@ class BrevoMailSenderTest {
         assertEquals("anna@example.com", body.get("to").get(0).get("email").asString());
         assertEquals("Hallo", body.get("subject").asString());
         assertEquals("Wie geht's?", body.get("textContent").asString());
+        assertEquals("<p>Wie geht's?</p>", body.get("htmlContent").asString());
     }
 
     @Test
     void outsideCloudRun_onlyLogsTheMail() {
-        sender("secret-key", "example.com", false, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text");
+        sender("secret-key", "example.com", false, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>");
 
         assertTrue(received.isEmpty());
     }
 
     @Test
     void withoutApiKeyOrMailDomain_sendsNothing() {
-        sender("", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text");
-        sender("secret-key", " ", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text");
+        sender("", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>");
+        sender("secret-key", " ", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>");
 
         assertTrue(received.isEmpty());
     }
@@ -94,7 +95,7 @@ class BrevoMailSenderTest {
     void refusedMail_isOnlyLogged() {
         status = 400;
 
-        assertDoesNotThrow(() -> sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text"));
+        assertDoesNotThrow(() -> sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>"));
         assertEquals(1, received.size());
     }
 
@@ -106,14 +107,14 @@ class BrevoMailSenderTest {
         }
         URI nobody = URI.create("http://localhost:" + closedPort + "/v3/smtp/email");
 
-        assertDoesNotThrow(() -> sender("secret-key", "example.com", true, nobody).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text"));
+        assertDoesNotThrow(() -> sender("secret-key", "example.com", true, nobody).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>"));
     }
 
     @Test
     void interruptedWhileSending_keepsTheThreadInterrupted() {
         Thread.currentThread().interrupt();
         try {
-            sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text");
+            sender("secret-key", "example.com", true, api()).send(Sender.NO_REPLY, "anna@example.com", "Hallo", "Text", "<p>Text</p>");
             assertTrue(Thread.currentThread().isInterrupted());
         } finally {
             // clears the flag again for the next tests

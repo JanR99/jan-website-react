@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** What the mails say: the notifications to the admin and the reset link; sending itself is in BrevoMailSenderTest. */
 class MailServicesTest {
 
-    private record Mail(String to, String subject, String text) { }
+    private record Mail(String to, String subject, String text, String html) { }
 
     /** Keeps the mails instead of sending them. */
     private static class RecordingSender extends BrevoMailSender {
@@ -27,17 +27,19 @@ class MailServicesTest {
         }
 
         @Override
-        public void send(Sender sender, String to, String subject, String text) {
-            mails.add(new Mail(to, subject, text));
+        public void send(Sender sender, String to, String subject, String text, String html) {
+            mails.add(new Mail(to, subject, text, html));
         }
     }
+
+    private static final MailTemplates TEMPLATES = new MailTemplates();
 
     private static final Date CREATED = Date.from(ZonedDateTime.of(2026, 10, 16, 13, 5, 0, 0, ZoneId.of("Europe/Berlin")).toInstant());
 
     @Test
     void feedback_tellsTheAdminWhoWroteWhatOnWhichPage() {
         RecordingSender sender = new RecordingSender();
-        new FeedbackMailService(sender, "jan@example.com")
+        new FeedbackMailService(sender, TEMPLATES, "jan@example.com")
                 .send(new Feedback(1L, "Anna\nBerg", "anna@example.com", "Tolle Seite!", "/cookbook", CREATED));
 
         Mail mail = sender.mails.getFirst();
@@ -48,12 +50,13 @@ class MailServicesTest {
         assertTrue(mail.text().contains("Seite:  /cookbook"));
         assertTrue(mail.text().contains("Zeit:   16.10.2026 13:05 Uhr"));
         assertTrue(mail.text().contains("Tolle Seite!"));
+        assertTrue(mail.html().contains("Anna Berg (anna@example.com)"));
     }
 
     @Test
     void feedbackWithoutPage_saysUnknown() {
         RecordingSender sender = new RecordingSender();
-        new FeedbackMailService(sender, "jan@example.com")
+        new FeedbackMailService(sender, TEMPLATES, "jan@example.com")
                 .send(new Feedback(1L, null, null, "Hallo", null, CREATED));
 
         Mail mail = sender.mails.getFirst();
@@ -64,8 +67,8 @@ class MailServicesTest {
     @Test
     void withoutAdminAddress_sendsNothing() {
         RecordingSender sender = new RecordingSender();
-        new FeedbackMailService(sender, "").send(new Feedback(1L, "Anna", "anna@example.com", "Hallo", "/", CREATED));
-        new RegistrationMailService(sender, "").send(new User("anna@example.com", "hash", "Anna", "Berg"));
+        new FeedbackMailService(sender, TEMPLATES, "").send(new Feedback(1L, "Anna", "anna@example.com", "Hallo", "/", CREATED));
+        new RegistrationMailService(sender, TEMPLATES, "").send(new User("anna@example.com", "hash", "Anna", "Berg"));
 
         assertTrue(sender.mails.isEmpty());
     }
@@ -73,7 +76,7 @@ class MailServicesTest {
     @Test
     void registration_tellsTheAdminWhoRegistered() {
         RecordingSender sender = new RecordingSender();
-        new RegistrationMailService(sender, "jan@example.com").send(new User("anna@example.com", "hash", " Anna ", "Berg"));
+        new RegistrationMailService(sender, TEMPLATES, "jan@example.com").send(new User("anna@example.com", "hash", " Anna ", "Berg"));
 
         Mail mail = sender.mails.getFirst();
         assertEquals("jan@example.com", mail.to());
@@ -86,7 +89,7 @@ class MailServicesTest {
     @Test
     void adminRegisteringThemselves_getsNoMail() {
         RecordingSender sender = new RecordingSender();
-        new RegistrationMailService(sender, "jan@example.com").send(new User("JAN@example.com", "hash", "Jan", "R"));
+        new RegistrationMailService(sender, TEMPLATES, "jan@example.com").send(new User("JAN@example.com", "hash", "Jan", "R"));
 
         assertTrue(sender.mails.isEmpty());
     }
@@ -94,8 +97,8 @@ class MailServicesTest {
     @Test
     void passwordReset_sendsTheLinkToTheAccount() {
         RecordingSender sender = new RecordingSender();
-        new PasswordResetMailService(sender, "https://jan-website.de/")
-                .send(new PasswordResetMailService.ResetMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 30));
+        new PasswordResetMailService(sender, TEMPLATES, "https://jan-website.de/")
+                .send(new LinkMailService.LinkMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 30));
 
         Mail mail = sender.mails.getFirst();
         assertEquals("anna@example.com", mail.to());
@@ -104,13 +107,15 @@ class MailServicesTest {
         // no double slash from the trailing one, and the token is encoded for the address
         assertTrue(mail.text().contains("https://jan-website.de/#/passwort-zuruecksetzen?token=a%2Bb%2Fc%3D\n"));
         assertTrue(mail.text().contains("30 Minuten gültig"));
+        assertTrue(mail.html().contains("<p>Hallo Anna,</p>"));
+        assertTrue(mail.html().contains("href=\"https://jan-website.de/#/passwort-zuruecksetzen?token=a%2Bb%2Fc%3D\""));
     }
 
     @Test
     void confirmation_sendsTheLinkToTheNewAccount() {
         RecordingSender sender = new RecordingSender();
-        new ConfirmationMailService(sender, "https://jan-website.de/")
-                .send(new ConfirmationMailService.ConfirmationMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 7));
+        new ConfirmationMailService(sender, TEMPLATES, "https://jan-website.de/")
+                .send(new LinkMailService.LinkMail(new User("anna@example.com", "hash", "Anna", "Berg"), "a+b/c=", 7));
 
         Mail mail = sender.mails.getFirst();
         assertEquals("anna@example.com", mail.to());
@@ -123,10 +128,11 @@ class MailServicesTest {
     @Test
     void passwordResetWithoutFirstName_greetsWithoutName() {
         RecordingSender sender = new RecordingSender();
-        new PasswordResetMailService(sender, "http://localhost:5173")
-                .send(new PasswordResetMailService.ResetMail(new User("anna@example.com", "hash", " ", "Berg"), "token", 30));
+        new PasswordResetMailService(sender, TEMPLATES, "http://localhost:5173")
+                .send(new LinkMailService.LinkMail(new User("anna@example.com", "hash", " ", "Berg"), "token", 30));
 
         Mail mail = sender.mails.getFirst();
         assertTrue(mail.text().startsWith("Hallo,"));
+        assertTrue(mail.html().contains("<p>Hallo,</p>"));
     }
 }

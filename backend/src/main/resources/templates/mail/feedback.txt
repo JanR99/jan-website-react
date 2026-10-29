@@ -1,0 +1,11 @@
+Hallo Jan,
+
+es gibt neues Feedback:
+
+Von:    [(${name})] ([(${email})])
+Seite:  [(${page})]
+Zeit:   [(${time})]
+
+[(${text})]
+
+Alles Feedback findest du unter /konto/feedback.

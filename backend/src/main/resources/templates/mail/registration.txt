@@ -1,0 +1,7 @@
+Hallo Jan,
+
+es hat sich gerade jemand neu registriert:
+
+Name:    [(${name})]
+E-Mail:  [(${email})]
+Zeit:    [(${time})]
