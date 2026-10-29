@@ -16,7 +16,9 @@ import de.jan.testsupport.ControllerTest;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.TravelPhotoDTO;
 import de.jan.travel.TravelPhotoFileDAO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelPhotoFileRepository;
+import de.jan.travel.repository.TravelSeedMarkerRepository;
 import de.jan.user.User;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -56,7 +58,13 @@ class BackupControllerTest extends ControllerTest {
     private ImageRepository imageRepository;
 
     @Autowired
-    private TravelRepository travelRepository;
+    private TravelFolderRepository travelRepository;
+
+    @Autowired
+    private TravelPhotoFileRepository photoFileRepository;
+
+    @Autowired
+    private TravelSeedMarkerRepository travelSeedMarkerRepository;
 
     @Autowired
     private FavoritesRepository favoritesRepository;
@@ -345,7 +353,7 @@ class BackupControllerTest extends ControllerTest {
             // what was there before is gone, the favorites with it
             assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(old.getImage()))));
             assertEquals(List.of(), inDatastore(() -> userRepository.getByEmail(fan.getEmail())).getFavoriteRecipeIds());
-            assertNull(inDatastore(() -> travelRepository.getPhotoFile(oldPhoto)));
+            assertNull(inDatastore(() -> photoFileRepository.get(oldPhoto)));
 
             // the newest trip first, like the travel diary
             List<TravelFolderDTO> folders = inDatastore(() -> travelRepository.getFolders());
@@ -366,8 +374,8 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(2, tokio.photos().size());
             TravelPhotoDTO first = tokio.photos().get(0);
             TravelPhotoDTO second = tokio.photos().get(1);
-            assertArrayEquals(JPEG, inDatastore(() -> travelRepository.getPhotoFile(first.id())).getData());
-            assertArrayEquals(PNG, inDatastore(() -> travelRepository.getPhotoFile(second.id())).getData());
+            assertArrayEquals(JPEG, inDatastore(() -> photoFileRepository.get(first.id())).getData());
+            assertArrayEquals(PNG, inDatastore(() -> photoFileRepository.get(second.id())).getData());
             assertEquals("", first.caption());
             assertEquals("Fuji", second.caption());
             assertEquals(second.id(), tokio.coverPhotoId());
@@ -380,7 +388,7 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(0, seoul.photos().size());
 
             // the seed data must not come on top of it on the next start
-            boolean seedImported = inDatastore(() -> travelRepository.isSeedImported());
+            boolean seedImported = inDatastore(() -> travelSeedMarkerRepository.isImported());
             assertTrue(seedImported);
         }
 

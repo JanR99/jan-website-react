@@ -6,7 +6,6 @@ import de.jan.testsupport.ControllerTest;
 import de.jan.travel.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,18 +14,22 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /** What the travel controller tests don't reach: the cache, a full folder and a photo file that can't be stored. */
-class TravelRepositoryTest extends ControllerTest {
+class TravelFolderRepositoryTest extends ControllerTest {
 
     // the first bytes are enough for the type check
     private static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 1, 2, 3};
 
     @Autowired
-    private TravelRepository travelRepository;
+    private TravelFolderRepository travelRepository;
 
-    private TravelFolderDTO folder(TravelRepository repository, String name) {
+    @Autowired
+    private TravelPhotoPreviewRepository previewRepository;
+
+    private TravelFolderDTO folder(TravelFolderRepository repository, String name) {
         TravelFolderRequest request = new TravelFolderRequest(name, "Japan");
         return inDatastore(() -> repository.createFolder(request));
     }
@@ -49,7 +52,7 @@ class TravelRepositoryTest extends ControllerTest {
     void fullFolder_takesNoMorePhotos() {
         TravelFolderDTO tokio = folder(travelRepository, "Tokio");
         List<TravelPhoto> photos = new ArrayList<>();
-        for (int i = 0; i < TravelRepository.MAX_PHOTOS_PER_FOLDER; i++) {
+        for (int i = 0; i < TravelPhotoRepository.MAX_PHOTOS_PER_FOLDER; i++) {
             photos.add(new TravelPhoto(tokio.id(), new Date(i)));
         }
         inDatastore(() -> {
@@ -64,11 +67,10 @@ class TravelRepositoryTest extends ControllerTest {
 
     @Test
     void photoFileThatCannotBeStored_takesThePhotoOutAgain() {
-        TravelRepository repository = new TravelRepository();
-        TravelPhotoFileDAO files = mock(TravelPhotoFileDAO.class);
+        TravelPhotoFileRepository files = mock(TravelPhotoFileRepository.class);
         RuntimeException failure = new IllegalStateException("entity too large");
-        when(files.save(any(TravelPhotoFile.class))).thenThrow(failure);
-        ReflectionTestUtils.setField(repository, "fileDAO", files);
+        doThrow(failure).when(files).save(anyLong(), any(), anyString());
+        TravelFolderRepository repository = withFiles(files);
         TravelFolderDTO tokio = folder(repository, "Tokio");
 
         RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.id(), JPEG)));
@@ -79,16 +81,20 @@ class TravelRepositoryTest extends ControllerTest {
 
     @Test
     void failingCleanUp_stillReportsTheFirstError() {
-        TravelRepository repository = new TravelRepository();
-        TravelPhotoFileDAO files = mock(TravelPhotoFileDAO.class);
+        TravelPhotoFileRepository files = mock(TravelPhotoFileRepository.class);
         RuntimeException failure = new IllegalStateException("entity too large");
-        when(files.save(any(TravelPhotoFile.class))).thenThrow(failure);
+        doThrow(failure).when(files).save(anyLong(), any(), anyString());
         doThrow(new IllegalStateException("database down")).when(files).delete(anyLong());
-        ReflectionTestUtils.setField(repository, "fileDAO", files);
+        TravelFolderRepository repository = withFiles(files);
         TravelFolderDTO tokio = folder(repository, "Tokio");
 
         RuntimeException e = assertThrows(RuntimeException.class, () -> inDatastore(() -> repository.addPhoto(tokio.id(), JPEG)));
 
         assertSame(failure, e);
+    }
+
+    /** The repositories as Spring builds them, but with these photo files. */
+    private TravelFolderRepository withFiles(TravelPhotoFileRepository files) {
+        return new TravelFolderRepository(new TravelPhotoRepository(files, previewRepository));
     }
 }

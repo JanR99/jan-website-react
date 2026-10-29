@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
 import de.jan.travel.TravelFolderDTO;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
+import de.jan.travel.repository.TravelSeedMarkerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,27 +34,31 @@ public class TravelBootstrapConfig extends SeedImport<TravelBootstrapConfig.Seed
     public record SeedFolder(String name, String country, Double latitude, Double longitude, List<String> photos) {
     }
 
-    private final TravelRepository travelRepository;
+    private final TravelFolderRepository travelRepository;
+    private final TravelSeedMarkerRepository seedMarkerRepository;
 
     @Autowired
-    public TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper) {
-        this(travelRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
+    public TravelBootstrapConfig(TravelFolderRepository travelRepository, TravelSeedMarkerRepository seedMarkerRepository,
+                                 ObjectMapper objectMapper) {
+        this(travelRepository, seedMarkerRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
     }
 
     /** With other seed data on the classpath, for tests. */
-    TravelBootstrapConfig(TravelRepository travelRepository, ObjectMapper objectMapper, String seedFile, String seedImageDir) {
+    TravelBootstrapConfig(TravelFolderRepository travelRepository, TravelSeedMarkerRepository seedMarkerRepository,
+                          ObjectMapper objectMapper, String seedFile, String seedImageDir) {
         super(objectMapper, new TypeReference<>() {}, seedFile, seedImageDir, "travel");
         this.travelRepository = travelRepository;
+        this.seedMarkerRepository = seedMarkerRepository;
     }
 
     @Override
     protected boolean isImported() {
-        return travelRepository.isSeedImported();
+        return seedMarkerRepository.isImported();
     }
 
     @Override
     protected void markImported() {
-        travelRepository.markSeedImported();
+        seedMarkerRepository.markImported();
     }
 
     @Override

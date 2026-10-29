@@ -14,7 +14,7 @@ import de.jan.role.Role;
 import de.jan.role.repository.RoleRepository;
 import de.jan.security.JwtService;
 import de.jan.security.RateLimiter;
-import de.jan.travel.repository.TravelRepository;
+import de.jan.travel.repository.TravelFolderRepository;
 import de.jan.user.User;
 import de.jan.user.repository.UserRepository;
 import de.jan.util.ListCache;
@@ -68,7 +68,7 @@ public abstract class ControllerTest {
     private RecipeRepository recipeRepositoryForCacheReset;
 
     @Autowired
-    private TravelRepository travelRepositoryForCacheReset;
+    private TravelFolderRepository travelRepositoryForCacheReset;
 
     @Autowired
     private RateLimiter rateLimiter;
