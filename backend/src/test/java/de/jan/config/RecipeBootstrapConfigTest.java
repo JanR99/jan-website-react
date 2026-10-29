@@ -1,7 +1,7 @@
 package de.jan.config;
 
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.image.RecipeImage;
 import de.jan.image.RecipeImageDAO;
 import de.jan.recipe.Recipe;
@@ -34,13 +34,13 @@ class RecipeBootstrapConfigTest extends ControllerTest {
     private RecipeRepository recipeRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Autowired
     private RecipeSeedMarkerRepository seedMarkerRepository;
 
     private void bootstrap(String seedFile) {
-        new RecipeBootstrapConfig(recipeRepository, imageRepository, seedMarkerRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
+        new RecipeBootstrapConfig(recipeRepository, recipeImageRepository, seedMarkerRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
     }
 
     private static byte[] image() throws IOException {
@@ -62,7 +62,7 @@ class RecipeBootstrapConfigTest extends ControllerTest {
     void importsTheMissingRecipes_andTriesTheFailedOnesAgainLater() throws IOException {
         byte[] image = image();
         inDatastore(() -> recipeRepository.create(new RecipeRequest(
-                imageRepository.upload(image), "Schon da", 2, "italienisch", List.of(), List.of("Salz"), List.of("Salzen."))));
+                recipeImageRepository.upload(image), "Schon da", 2, "italienisch", List.of(), List.of("Salz"), List.of("Salzen."))));
 
         bootstrap("bootstrap/recipes.json");
 
@@ -112,11 +112,11 @@ class RecipeBootstrapConfigTest extends ControllerTest {
         RecipeImage old = new RecipeImage(image(), "image/jpeg");
         ReflectionTestUtils.setField(old, "createdAt", new Date(System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000));
         Long id = inDatastore(() -> new RecipeImageDAO().save(old)).getId();
-        assertNotNull(inDatastore(() -> imageRepository.getById(id)).getCreatedAt());
+        assertNotNull(inDatastore(() -> recipeImageRepository.getById(id)).getCreatedAt());
 
         bootstrap("bootstrap/missing.json");
 
-        assertNull(inDatastore(() -> imageRepository.getById(id)));
+        assertNull(inDatastore(() -> recipeImageRepository.getById(id)));
     }
 
     @Test
@@ -124,7 +124,7 @@ class RecipeBootstrapConfigTest extends ControllerTest {
         RecipeRepository failing = mock(RecipeRepository.class);
         when(failing.getAll()).thenThrow(new IllegalStateException("database down"));
 
-        assertDoesNotThrow(() -> new RecipeBootstrapConfig(failing, imageRepository, seedMarkerRepository, objectMapper, "bootstrap/missing.json", IMAGES)
+        assertDoesNotThrow(() -> new RecipeBootstrapConfig(failing, recipeImageRepository, seedMarkerRepository, objectMapper, "bootstrap/missing.json", IMAGES)
                 .afterSingletonsInstantiated());
     }
 }

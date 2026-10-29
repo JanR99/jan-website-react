@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * An uploaded recipe image, kept in its own entity so loading the recipe list doesn't load the images.
- * Datastore entities are limited to 1 MiB, see ImageRepository.MAX_SIZE_BYTES.
+ * Datastore entities are limited to 1 MiB, see RecipeImageRepository.MAX_SIZE_BYTES.
  */
 @Entity
 public class RecipeImage extends StoredImage {

@@ -1,7 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.favorites.FavoritesRepository;
 import de.jan.recipe.repository.RecipeRepository;
@@ -27,7 +27,7 @@ class FavoritesControllerTest extends ControllerTest {
     private RecipeRepository recipeRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Autowired
     private FavoritesRepository favoritesRepository;
@@ -217,7 +217,7 @@ class FavoritesControllerTest extends ControllerTest {
         byte[] jpeg = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0};
         return inDatastore(() -> {
             RecipeRequest request = new RecipeRequest(
-                    imageRepository.upload(jpeg), title, 2, "deutsch", List.of(),
+                    recipeImageRepository.upload(jpeg), title, 2, "deutsch", List.of(),
                     List.of("200 g Mehl"), List.of("Backen.")
             );
             return recipeRepository.create(request);

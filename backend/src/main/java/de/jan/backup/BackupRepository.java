@@ -1,6 +1,6 @@
 package de.jan.backup;
 
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.image.ImageType;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.BaseDAO;
@@ -84,16 +84,16 @@ public class BackupRepository {
     }
 
     private final RecipeRepository recipeRepository;
-    private final ImageRepository imageRepository;
+    private final RecipeImageRepository recipeImageRepository;
     private final TravelFolderRepository travelRepository;
     private final TravelPhotoFileRepository photoFileRepository;
     private final ObjectMapper objectMapper;
 
-    public BackupRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
+    public BackupRepository(RecipeRepository recipeRepository, RecipeImageRepository recipeImageRepository,
                             TravelFolderRepository travelRepository, TravelPhotoFileRepository photoFileRepository,
                             ObjectMapper objectMapper) {
         this.recipeRepository = recipeRepository;
-        this.imageRepository = imageRepository;
+        this.recipeImageRepository = recipeImageRepository;
         this.travelRepository = travelRepository;
         this.photoFileRepository = photoFileRepository;
         this.objectMapper = objectMapper;
@@ -127,10 +127,10 @@ public class BackupRepository {
         Map<Long, String> written = new HashMap<>();
         List<RecipeBackup> result = new ArrayList<>();
         for (Recipe recipe : recipes) {
-            Long imageId = ImageRepository.idOf(recipe.getImage());
+            Long imageId = RecipeImageRepository.idOf(recipe.getImage());
             String fileName = written.get(imageId);
             if (fileName == null) {
-                RecipeImage image = imageRepository.getById(imageId);
+                RecipeImage image = recipeImageRepository.getById(imageId);
                 if (image != null) {
                     fileName = writeImage(zip, RECIPE_IMAGE_DIR, imageId, image.getData());
                     written.put(imageId, fileName);

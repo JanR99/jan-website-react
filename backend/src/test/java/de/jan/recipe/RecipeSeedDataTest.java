@@ -1,7 +1,7 @@
 package de.jan.recipe;
 
 import de.jan.config.RecipeBootstrapConfig.SeedRecipe;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.image.ImageType;
 import de.jan.recipe.repository.RecipeRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -87,7 +87,7 @@ class RecipeSeedDataTest {
                     continue;
                 }
                 byte[] data = in.readAllBytes();
-                if (data.length > ImageRepository.MAX_SIZE_BYTES) {
+                if (data.length > RecipeImageRepository.MAX_SIZE_BYTES) {
                     problems.add(name + " is too large (" + data.length / 1024 + " KB)");
                 }
                 try {

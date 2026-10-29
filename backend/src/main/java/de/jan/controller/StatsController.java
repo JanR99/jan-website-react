@@ -5,7 +5,7 @@ import de.jan.controller.response.StatsResponse;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
-import de.jan.stats.repository.StatsRepository;
+import de.jan.stats.repository.VisitDayRepository;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,19 +20,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/stats")
 public class StatsController {
 
-    private final StatsRepository statsRepository;
+    private final VisitDayRepository visitDayRepository;
 
     private static final String RECORD_VISIT = "recordVisit";
     private static final String GET_STATS = "getStats";
 
-    public StatsController(StatsRepository statsRepository) {
-        this.statsRepository = statsRepository;
+    public StatsController(VisitDayRepository visitDayRepository) {
+        this.visitDayRepository = visitDayRepository;
     }
 
     @Operation(operationId = RECORD_VISIT)
     @PostMapping("/visit")
     public ResponseEntity<Void> recordVisit(@RequestBody VisitRequest body) {
-        statsRepository.record(body);
+        visitDayRepository.record(body);
         return ResponseEntity.noContent().build();
     }
 
@@ -40,6 +40,6 @@ public class StatsController {
     @GetMapping
     public ResponseEntity<StatsResponse> getStats(@CurrentUser User user) {
         Authorization.with(user).require(Permission.VIEW_STATS);
-        return ResponseEntity.ok(statsRepository.get());
+        return ResponseEntity.ok(visitDayRepository.get());
     }
 }

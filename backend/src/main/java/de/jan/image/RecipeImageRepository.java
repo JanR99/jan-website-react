@@ -17,9 +17,9 @@ import java.util.regex.Pattern;
  * with image = "uploads/<id>".
  */
 @Component
-public class ImageRepository {
+public class RecipeImageRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(ImageRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(RecipeImageRepository.class);
 
     public static final String UPLOAD_PREFIX = "uploads/";
 
@@ -33,7 +33,7 @@ public class ImageRepository {
 
     private final RecipeImageDAO imageDAO;
 
-    public ImageRepository() {
+    public RecipeImageRepository() {
         this.imageDAO = new RecipeImageDAO();
     }
 

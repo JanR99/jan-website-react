@@ -2,7 +2,7 @@ package de.jan.controller;
 
 import de.jan.controller.requests.VisitRequest;
 import de.jan.role.Permission;
-import de.jan.stats.repository.StatsRepository;
+import de.jan.stats.repository.VisitDayRepository;
 import de.jan.testsupport.ControllerTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class StatsControllerTest extends ControllerTest {
 
-    private static final String TODAY = LocalDate.now(StatsRepository.ZONE).toString();
-    private static final String LAST_DAY = "$.days[" + (StatsRepository.DAYS - 1) + "]";
+    private static final String TODAY = LocalDate.now(VisitDayRepository.ZONE).toString();
+    private static final String LAST_DAY = "$.days[" + (VisitDayRepository.DAYS - 1) + "]";
 
     private void visit(String page, boolean newVisit) throws Exception {
         mockMvc.perform(post("/api/stats/visit")
@@ -78,7 +78,7 @@ class StatsControllerTest extends ControllerTest {
 
             mockMvc.perform(get("/api/stats").header(HttpHeaders.AUTHORIZATION, bearerWith(Permission.VIEW_STATS)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.days", hasSize(StatsRepository.DAYS)))
+                    .andExpect(jsonPath("$.days", hasSize(VisitDayRepository.DAYS)))
                     .andExpect(jsonPath("$.days[0].visits").value(0))
                     .andExpect(jsonPath("$.pages", hasSize(2)))
                     .andExpect(jsonPath("$.pages[0].page").value("/reisen/5"))
