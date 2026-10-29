@@ -119,3 +119,25 @@ jobs:
             --region=europe-west1 \
             --allow-unauthenticated \
             --env-vars-file="$RUNNER_TEMP/env.yaml"
+
+  smoke-test:
+    needs: [frontend, backend]
+    # runs when one of the two was skipped, but not when one failed
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Home page, recipes and travel folders answer with 200
+        env:
+          API: ${{ secrets.VITE_API_BASE_URL }}
+        run: |
+          API="${API%/}"
+          FRONTEND="https://$(tr -d '[:space:]' < public/CNAME)"
+          for url in "$FRONTEND/" "$API/api/recipes/list" "$API/api/travel/folders/list"; do
+            # a few tries, as a new Cloud Run revision can take a moment to start
+            curl -sS -o /dev/null --fail --retry 5 --retry-delay 10 --retry-all-errors -w "%{http_code} $url\n" "$url"
+          done
