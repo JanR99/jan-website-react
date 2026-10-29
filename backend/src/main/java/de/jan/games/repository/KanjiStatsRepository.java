@@ -4,14 +4,13 @@ import de.jan.controller.requests.KanjiResultRequest;
 import de.jan.exceptions.EntityStateException;
 import de.jan.games.*;
 import de.jan.user.User;
-import de.jan.user.UserDataOwner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class KanjiStatsRepository implements UserDataOwner {
+public class KanjiStatsRepository extends MistakeStatsRepository<KanjiStats, KanjiMistake, KanjiMistakeDTO> {
 
     public static final List<String> LEVELS = CrosswordStatsRepository.LEVELS;
     /** more words than a round ever has */
@@ -22,7 +21,9 @@ public class KanjiStatsRepository implements UserDataOwner {
     public static final int MAX_READING_LENGTH = 60;
     public static final int MAX_MEANING_LENGTH = 200;
 
-    private final KanjiStatsDAO statsDAO = new KanjiStatsDAO();
+    public KanjiStatsRepository() {
+        super(new KanjiStatsDAO(), MAX_MISTAKES, KanjiMistakeDTO::of);
+    }
 
     public KanjiStatsDTO get(User user) {
         KanjiStats stats = statsDAO.get(user.getId());
@@ -51,31 +52,13 @@ public class KanjiStatsRepository implements UserDataOwner {
         // in a transaction, so two rounds sent at the same time don't overwrite each other
         KanjiStats saved = statsDAO.update(user.getId(), () -> new KanjiStats(user.getId()), stats -> {
             if (words != null) {
-                updateMistakes(stats, words, answers);
+                recordMistakes(stats, words, answers);
             }
             if (!Boolean.TRUE.equals(result.practice())) {
                 countRound(stats, result.level(), answers);
             }
         });
         return toDTO(saved);
-    }
-
-    /** The words read wrong and not yet read right twice in a row since, most often wrong first. */
-    public List<KanjiMistakeDTO> getMistakes(User user) {
-        KanjiStats stats = statsDAO.get(user.getId());
-        return stats == null ? List.of() : toDTOs(stats.getMistakes());
-    }
-
-    /** Takes a word off the list of mistakes by hand; a word that isn't on it changes nothing. */
-    public List<KanjiMistakeDTO> deleteMistake(User user, String word) {
-        KanjiStats stats = statsDAO.get(user.getId());
-        if (stats == null) {
-            return List.of();
-        }
-        if (MistakeList.remove(stats.getMistakes(), word)) {
-            stats = statsDAO.save(stats);
-        }
-        return toDTOs(stats.getMistakes());
     }
 
     private static void validate(List<KanjiResultRequest.Word> words, int answers) {
@@ -93,12 +76,12 @@ public class KanjiStatsRepository implements UserDataOwner {
         }
     }
 
-    private static void updateMistakes(KanjiStats stats, List<KanjiResultRequest.Word> words, List<Boolean> answers) {
+    private void recordMistakes(KanjiStats stats, List<KanjiResultRequest.Word> words, List<Boolean> answers) {
         long now = System.currentTimeMillis();
         List<KanjiMistake> asked = words.stream()
                 .map(word -> new KanjiMistake(word.word(), word.reading(), word.meaning(), now))
                 .toList();
-        MistakeList.update(stats.getMistakes(), asked, answers, MAX_MISTAKES);
+        updateMistakes(stats, asked, answers);
     }
 
     private static void countRound(KanjiStats stats, String level, List<Boolean> answers) {
@@ -115,15 +98,6 @@ public class KanjiStatsRepository implements UserDataOwner {
         }
     }
 
-    private static List<KanjiMistakeDTO> toDTOs(List<KanjiMistake> mistakes) {
-        return MistakeList.sorted(mistakes).stream().map(KanjiMistakeDTO::of).toList();
-    }
-
-    /** For deleting an account: its statistics go with it. */
-    @Override
-    public void deleteDataOf(User user) {
-        statsDAO.delete(user.getId());
-    }
 
     private static KanjiStatsDTO toDTO(KanjiStats stats) {
         List<KanjiStatsDTO.LevelStats> levels = new ArrayList<>();

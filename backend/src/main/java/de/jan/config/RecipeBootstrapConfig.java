@@ -2,7 +2,7 @@ package de.jan.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
@@ -45,22 +45,22 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
     }
 
     private final RecipeRepository recipeRepository;
-    private final ImageRepository imageRepository;
+    private final RecipeImageRepository recipeImageRepository;
     private final RecipeSeedMarkerRepository seedMarkerRepository;
 
     @Autowired
-    public RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
+    public RecipeBootstrapConfig(RecipeRepository recipeRepository, RecipeImageRepository recipeImageRepository,
                                  RecipeSeedMarkerRepository seedMarkerRepository, ObjectMapper objectMapper) {
-        this(recipeRepository, imageRepository, seedMarkerRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
+        this(recipeRepository, recipeImageRepository, seedMarkerRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
     }
 
     /** With other seed data on the classpath, for tests. */
-    RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
+    RecipeBootstrapConfig(RecipeRepository recipeRepository, RecipeImageRepository recipeImageRepository,
                           RecipeSeedMarkerRepository seedMarkerRepository, ObjectMapper objectMapper,
                           String seedFile, String seedImageDir) {
         super(objectMapper, new TypeReference<>() {}, seedFile, seedImageDir, "recipe");
         this.recipeRepository = recipeRepository;
-        this.imageRepository = imageRepository;
+        this.recipeImageRepository = recipeImageRepository;
         this.seedMarkerRepository = seedMarkerRepository;
     }
 
@@ -118,7 +118,7 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
                 bySlug.put(RecipeRepository.slug(recipe.getTitle()), recipe);
                 created.add(seed);
             } catch (Exception e) {
-                imageRepository.deleteQuietly(image);
+                recipeImageRepository.deleteQuietly(image);
                 failed++;
                 log.warn("Bootstrap: skipped recipe \"{}\": {}", seed.title(), e.getMessage());
             }
@@ -152,15 +152,15 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
 
     /** Stores resources/recipes/images/<fileName> as RecipeImage and returns "uploads/<id>". */
     private String importSeedImage(String fileName) throws Exception {
-        return imageRepository.upload(readImage(fileName));
+        return recipeImageRepository.upload(readImage(fileName));
     }
 
     private void deleteOrphanImages() {
         Set<Long> referenced = recipeRepository.getAll().stream()
-                .map(recipe -> ImageRepository.idOf(recipe.getImage()))
+                .map(recipe -> RecipeImageRepository.idOf(recipe.getImage()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        int deleted = imageRepository.deleteOrphans(referenced);
+        int deleted = recipeImageRepository.deleteOrphans(referenced);
         if (deleted > 0) {
             log.info("Bootstrap: deleted {} unused uploaded images.", deleted);
         }

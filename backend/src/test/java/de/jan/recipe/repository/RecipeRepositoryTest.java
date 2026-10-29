@@ -2,7 +2,7 @@ package de.jan.recipe.repository;
 
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.exceptions.EntityStateException;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeDAO;
 import de.jan.recipe.RecipeTag;
@@ -29,13 +29,13 @@ class RecipeRepositoryTest extends ControllerTest {
     private RecipeRepository recipeRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Autowired
     private FavoritesRepository favoritesRepository;
 
     private String uploadedImage() {
-        return inDatastore(() -> imageRepository.upload(JPEG));
+        return inDatastore(() -> recipeImageRepository.upload(JPEG));
     }
 
     private RecipeRequest request(String title) {
@@ -78,8 +78,8 @@ class RecipeRepositoryTest extends ControllerTest {
         Recipe updated = inDatastore(() -> recipeRepository.update(pesto.getId(), update));
 
         assertEquals(update.image(), updated.getImage());
-        assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pesto.getImage()))));
-        assertNotNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(updated.getImage()))));
+        assertNull(inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(pesto.getImage()))));
+        assertNotNull(inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(updated.getImage()))));
     }
 
     @Test
@@ -97,8 +97,8 @@ class RecipeRepositoryTest extends ControllerTest {
 
         assertEquals(List.of(), inDatastore(() -> recipeRepository.getById(pasta.getId())).getRelatedRecipeIds());
         assertEquals(List.of(), inDatastore(() -> userRepository.getByEmail(fan.getEmail())).getFavoriteRecipeIds());
-        assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pesto.getImage()))));
-        assertNotNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(pasta.getImage()))));
+        assertNull(inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(pesto.getImage()))));
+        assertNotNull(inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(pasta.getImage()))));
     }
 
     @Test

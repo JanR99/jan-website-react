@@ -6,7 +6,7 @@ import de.jan.backup.BackupRepository.StopBackup;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.controller.requests.TravelFolderRequest;
 import de.jan.controller.requests.TravelStopRequest;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.favorites.FavoritesRepository;
@@ -55,7 +55,7 @@ class BackupControllerTest extends ControllerTest {
     private RecipeRepository recipeRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Autowired
     private TravelFolderRepository travelRepository;
@@ -116,8 +116,8 @@ class BackupControllerTest extends ControllerTest {
         void containsTheRecipesWithTheirImages() throws Exception {
             Recipe pesto = storedRecipe("Pesto", JPEG, List.of());
             Recipe pasta = storedRecipe("Pasta", PNG, List.of(pesto.getId()));
-            String pestoImage = ImageRepository.idOf(pesto.getImage()) + ".jpg";
-            String pastaImage = ImageRepository.idOf(pasta.getImage()) + ".png";
+            String pestoImage = RecipeImageRepository.idOf(pesto.getImage()) + ".jpg";
+            String pastaImage = RecipeImageRepository.idOf(pasta.getImage()) + ".png";
 
             Map<String, byte[]> files = export();
 
@@ -351,7 +351,7 @@ class BackupControllerTest extends ControllerTest {
             assertEquals(List.of(), pesto.getRelatedRecipeIds());
 
             // what was there before is gone, the favorites with it
-            assertNull(inDatastore(() -> imageRepository.getById(ImageRepository.idOf(old.getImage()))));
+            assertNull(inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(old.getImage()))));
             assertEquals(List.of(), inDatastore(() -> userRepository.getByEmail(fan.getEmail())).getFavoriteRecipeIds());
             assertNull(inDatastore(() -> photoFileRepository.get(oldPhoto)));
 
@@ -507,7 +507,7 @@ class BackupControllerTest extends ControllerTest {
 
     private Recipe storedRecipe(String title, byte[] image, List<Long> relatedRecipeIds) {
         RecipeRequest request = new RecipeRequest(
-                inDatastore(() -> imageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
+                inDatastore(() -> recipeImageRepository.upload(image)), title, 2, "deutsch", List.of(RecipeTag.VEGETARIAN),
                 List.of("Teig:", "200 g Mehl"), List.of("Alles mischen.", "Backen."), relatedRecipeIds
         );
         return inDatastore(() -> recipeRepository.create(request));
@@ -608,6 +608,6 @@ class BackupControllerTest extends ControllerTest {
     }
 
     private byte[] recipeImage(Recipe recipe) {
-        return inDatastore(() -> imageRepository.getById(ImageRepository.idOf(recipe.getImage()))).getData();
+        return inDatastore(() -> recipeImageRepository.getById(RecipeImageRepository.idOf(recipe.getImage()))).getData();
     }
 }

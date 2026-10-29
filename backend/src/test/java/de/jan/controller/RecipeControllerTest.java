@@ -1,7 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.requests.RecipeRequest;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
@@ -28,7 +28,7 @@ class RecipeControllerTest extends ControllerTest {
     private RecipeRepository recipeRepository;
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Nested
     class ListRecipes {
@@ -316,7 +316,7 @@ class RecipeControllerTest extends ControllerTest {
         @Test
         void withoutLogin_returnsThePageWithTheSchemaOrgMarkup() throws Exception {
             Recipe recipe = storedRecipe("Apfelkuchen");
-            Long imageId = ImageRepository.idOf(recipe.getImage());
+            Long imageId = RecipeImageRepository.idOf(recipe.getImage());
 
             mockMvc.perform(get("/api/recipes/{id}/bring", recipe.getId()))
                     .andExpect(status().isOk())
@@ -382,7 +382,7 @@ class RecipeControllerTest extends ControllerTest {
     private String uploadedImage() {
         // the first bytes of a JPEG are enough for the type check
         byte[] jpeg = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0};
-        return inDatastore(() -> imageRepository.upload(jpeg));
+        return inDatastore(() -> recipeImageRepository.upload(jpeg));
     }
 
     private Recipe storedRecipe(String title) {

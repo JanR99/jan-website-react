@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Admins with VIEW_STATS aren't counted; the frontend leaves them out.
  */
 @Component
-public class StatsRepository {
+public class VisitDayRepository {
 
     /** the days are German days */
     public static final ZoneId ZONE = ZoneId.of("Europe/Berlin");

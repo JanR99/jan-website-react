@@ -9,7 +9,7 @@ import de.jan.controller.requests.TravelStopRequest;
 import de.jan.controller.response.RestoreResponse;
 import de.jan.exceptions.EntityStateException;
 import de.jan.exceptions.UnauthorizedException;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.objectify.BaseDAO;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.repository.RecipeRepository;
@@ -76,19 +76,19 @@ public class RestoreRepository {
     }
 
     private final RecipeRepository recipeRepository;
-    private final ImageRepository imageRepository;
+    private final RecipeImageRepository recipeImageRepository;
     private final TravelFolderRepository travelRepository;
     private final TravelSeedMarkerRepository travelSeedMarkerRepository;
     private final ObjectMapper objectMapper;
     private final CloudRun cloudRun;
     private final RecipeSeedMarkerRepository recipeSeedMarkerRepository;
 
-    public RestoreRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
+    public RestoreRepository(RecipeRepository recipeRepository, RecipeImageRepository recipeImageRepository,
                              RecipeSeedMarkerRepository recipeSeedMarkerRepository,
                              TravelFolderRepository travelRepository, TravelSeedMarkerRepository travelSeedMarkerRepository,
                              ObjectMapper objectMapper, CloudRun cloudRun) {
         this.recipeRepository = recipeRepository;
-        this.imageRepository = imageRepository;
+        this.recipeImageRepository = recipeImageRepository;
         this.recipeSeedMarkerRepository = recipeSeedMarkerRepository;
         this.travelRepository = travelRepository;
         this.travelSeedMarkerRepository = travelSeedMarkerRepository;
@@ -140,8 +140,8 @@ public class RestoreRepository {
         for (RecipeBackup backup : backups) {
             String image = null;
             try {
-                image = imageRepository.upload(
-                        readImage(zip, BackupRepository.RECIPE_IMAGE_DIR, backup.image(), ImageRepository.MAX_SIZE_BYTES));
+                image = recipeImageRepository.upload(
+                        readImage(zip, BackupRepository.RECIPE_IMAGE_DIR, backup.image(), RecipeImageRepository.MAX_SIZE_BYTES));
                 RecipeRequest request = new RecipeRequest(
                         image, backup.title(), backup.defaultPortions(), backup.cuisine(), backup.tags(),
                         backup.ingredients(), backup.preparation()
@@ -150,7 +150,7 @@ public class RestoreRepository {
                 existing.add(recipe);
                 restored.add(new RestoredRecipe(recipe, backup.relatedRecipes() == null ? List.of() : backup.relatedRecipes()));
             } catch (EntityStateException e) {
-                imageRepository.deleteQuietly(image);
+                recipeImageRepository.deleteQuietly(image);
                 progress.skippedRecipes.add(String.valueOf(backup.title()));
                 log.warn("Restore: skipped recipe \"{}\": {}", backup.title(), e.getMessage());
             }

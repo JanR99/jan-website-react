@@ -11,7 +11,7 @@ import java.util.Map;
 
 /** What a user has achieved in "Kana lesen"; one per user, with the user's id as its id. */
 @Entity
-public class KanaStats implements DatastoreEntity {
+public class KanaStats implements DatastoreEntity, MistakeStats<KanaMistake> {
 
     @Id
     private Long userId;
@@ -62,6 +62,7 @@ public class KanaStats implements DatastoreEntity {
         return askedKana;
     }
 
+    @Override
     public List<KanaMistake> getMistakes() {
         if (mistakes == null) mistakes = new ArrayList<>();
         return mistakes;

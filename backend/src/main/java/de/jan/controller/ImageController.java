@@ -1,7 +1,7 @@
 package de.jan.controller;
 
 import de.jan.controller.response.ImageUploadResponse;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.role.Permission;
 import de.jan.security.Authorization;
 import de.jan.security.CurrentUser;
@@ -23,13 +23,13 @@ import java.io.IOException;
 @RequestMapping("/api/images")
 public class ImageController {
 
-    private final ImageRepository imageRepository;
+    private final RecipeImageRepository recipeImageRepository;
 
     private static final String UPLOAD_IMAGE = "uploadImage";
     private static final String GET_IMAGE = "getImage";
 
-    public ImageController(ImageRepository imageRepository) {
-        this.imageRepository = imageRepository;
+    public ImageController(RecipeImageRepository recipeImageRepository) {
+        this.recipeImageRepository = recipeImageRepository;
     }
 
     /** The browser scales the image down first; the returned value is then saved as the recipe's image. */
@@ -40,13 +40,13 @@ public class ImageController {
             @RequestPart("file") MultipartFile file
     ) throws IOException {
         Authorization.with(user).require(Permission.MANAGE_RECIPES);
-        return ResponseEntity.ok(new ImageUploadResponse(imageRepository.upload(file.getBytes())));
+        return ResponseEntity.ok(new ImageUploadResponse(recipeImageRepository.upload(file.getBytes())));
     }
 
     /** See ImageResponse: cached for a year, loaded via <img src>. */
     @Operation(operationId = GET_IMAGE)
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
-        return ImageResponse.of(imageRepository.getById(id));
+        return ImageResponse.of(recipeImageRepository.getById(id));
     }
 }

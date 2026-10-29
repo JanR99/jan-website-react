@@ -2,7 +2,7 @@ package de.jan.recipe.repository;
 
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.exceptions.EntityStateException;
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.recipe.Recipe;
 import de.jan.recipe.RecipeDAO;
 import de.jan.recipe.RecipeTag;
@@ -34,15 +34,15 @@ public class RecipeRepository {
 
     private final RecipeDAO recipeDAO;
     private final UserDAO userDAO;
-    private final ImageRepository imageRepository;
+    private final RecipeImageRepository recipeImageRepository;
     private final ITemplateEngine templateEngine;
 
     private final ListCache<Recipe> cache = new ListCache<>(Duration.ofSeconds(60));
 
-    public RecipeRepository(ImageRepository imageRepository, ITemplateEngine templateEngine) {
+    public RecipeRepository(RecipeImageRepository recipeImageRepository, ITemplateEngine templateEngine) {
         this.recipeDAO = new RecipeDAO();
         this.userDAO = new UserDAO();
-        this.imageRepository = imageRepository;
+        this.recipeImageRepository = recipeImageRepository;
         this.templateEngine = templateEngine;
     }
 
@@ -74,7 +74,7 @@ public class RecipeRepository {
      */
     public String bringPage(Long id, String baseUrl) {
         Recipe recipe = getById(id);
-        Long imageId = ImageRepository.idOf(recipe.getImage());
+        Long imageId = RecipeImageRepository.idOf(recipe.getImage());
         Context page = new Context(Locale.GERMAN);
         page.setVariable("title", recipe.getTitle());
         page.setVariable("image", imageId == null ? null : baseUrl + "/api/images/" + imageId);
@@ -109,7 +109,7 @@ public class RecipeRepository {
         Recipe saved = recipeDAO.save(recipe);
         invalidateCache();
         if (!Objects.equals(previousImage, saved.getImage())) {
-            imageRepository.deleteQuietly(previousImage);
+            recipeImageRepository.deleteQuietly(previousImage);
         }
         return saved;
     }
@@ -131,7 +131,7 @@ public class RecipeRepository {
 
         recipeDAO.delete(recipe);
         invalidateCache();
-        imageRepository.deleteQuietly(recipe.getImage());
+        recipeImageRepository.deleteQuietly(recipe.getImage());
     }
 
     /** Deletes every recipe with its image, for restoring a backup. The favorites of all users go with them. */
@@ -144,7 +144,7 @@ public class RecipeRepository {
         }
         for (Recipe recipe : recipeDAO.getAll()) {
             recipeDAO.delete(recipe);
-            imageRepository.deleteQuietly(recipe.getImage());
+            recipeImageRepository.deleteQuietly(recipe.getImage());
         }
         invalidateCache();
     }
@@ -171,7 +171,7 @@ public class RecipeRepository {
         String image = request.image() == null ? "" : request.image().trim();
         TextRules.require(image, "Image", SHORT_TEXT_MAX_LENGTH);
         // a new upload must exist; keeping the current image needs no check
-        if (!image.equals(recipe.getImage()) && !imageRepository.isValidUpload(image)) {
+        if (!image.equals(recipe.getImage()) && !recipeImageRepository.isValidUpload(image)) {
             throw new EntityStateException("The uploaded image was not found, please upload it again");
         }
 

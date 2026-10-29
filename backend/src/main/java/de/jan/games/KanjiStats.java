@@ -11,7 +11,7 @@ import java.util.Map;
 
 /** What a user has achieved in "Kanji lesen"; one per user, with the user's id as its id. */
 @Entity
-public class KanjiStats implements DatastoreEntity {
+public class KanjiStats implements DatastoreEntity, MistakeStats<KanjiMistake> {
 
     @Id
     private Long userId;
@@ -66,6 +66,7 @@ public class KanjiStats implements DatastoreEntity {
         return askedWords;
     }
 
+    @Override
     public List<KanjiMistake> getMistakes() {
         if (mistakes == null) mistakes = new ArrayList<>();
         return mistakes;

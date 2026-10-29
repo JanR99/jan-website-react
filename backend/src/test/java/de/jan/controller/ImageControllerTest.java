@@ -1,6 +1,6 @@
 package de.jan.controller;
 
-import de.jan.image.ImageRepository;
+import de.jan.image.RecipeImageRepository;
 import de.jan.role.Permission;
 import de.jan.testsupport.ControllerTest;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +22,7 @@ class ImageControllerTest extends ControllerTest {
     private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3};
 
     @Autowired
-    private ImageRepository imageRepository;
+    private RecipeImageRepository recipeImageRepository;
 
     @Nested
     class UploadImage {
@@ -69,7 +69,7 @@ class ImageControllerTest extends ControllerTest {
 
         @Test
         void withTooLargeImage_returns400() throws Exception {
-            byte[] tooLarge = new byte[(int) ImageRepository.MAX_SIZE_BYTES + 1];
+            byte[] tooLarge = new byte[(int) RecipeImageRepository.MAX_SIZE_BYTES + 1];
             System.arraycopy(JPEG, 0, tooLarge, 0, JPEG.length);
 
             mockMvc.perform(multipart("/api/images/upload").file(file(tooLarge))
@@ -139,7 +139,7 @@ class ImageControllerTest extends ControllerTest {
 
     /** Stores an image and returns its id, the part after "uploads/". */
     private String stored(byte[] data) {
-        String image = inDatastore(() -> imageRepository.upload(data));
-        return String.valueOf(ImageRepository.idOf(image));
+        String image = inDatastore(() -> recipeImageRepository.upload(data));
+        return String.valueOf(RecipeImageRepository.idOf(image));
     }
 }
