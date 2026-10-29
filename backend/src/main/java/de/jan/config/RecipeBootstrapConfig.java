@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.jan.controller.requests.RecipeRequest;
 import de.jan.image.ImageRepository;
 import de.jan.recipe.Recipe;
-import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.RecipeTag;
 import de.jan.recipe.repository.RecipeRepository;
+import de.jan.recipe.repository.RecipeSeedMarkerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,30 +46,32 @@ public class RecipeBootstrapConfig extends SeedImport<RecipeBootstrapConfig.Seed
 
     private final RecipeRepository recipeRepository;
     private final ImageRepository imageRepository;
-    private final RecipeSeedMarkerDAO seedMarkerDAO = new RecipeSeedMarkerDAO();
+    private final RecipeSeedMarkerRepository seedMarkerRepository;
 
     @Autowired
     public RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
-                                 ObjectMapper objectMapper) {
-        this(recipeRepository, imageRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
+                                 RecipeSeedMarkerRepository seedMarkerRepository, ObjectMapper objectMapper) {
+        this(recipeRepository, imageRepository, seedMarkerRepository, objectMapper, SEED_FILE, SEED_IMAGE_DIR);
     }
 
     /** With other seed data on the classpath, for tests. */
     RecipeBootstrapConfig(RecipeRepository recipeRepository, ImageRepository imageRepository,
-                          ObjectMapper objectMapper, String seedFile, String seedImageDir) {
+                          RecipeSeedMarkerRepository seedMarkerRepository, ObjectMapper objectMapper,
+                          String seedFile, String seedImageDir) {
         super(objectMapper, new TypeReference<>() {}, seedFile, seedImageDir, "recipe");
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
+        this.seedMarkerRepository = seedMarkerRepository;
     }
 
     @Override
     protected boolean isImported() {
-        return seedMarkerDAO.isCompleted();
+        return seedMarkerRepository.isImported();
     }
 
     @Override
     protected void markImported() {
-        seedMarkerDAO.markCompleted();
+        seedMarkerRepository.markImported();
     }
 
     @Override
