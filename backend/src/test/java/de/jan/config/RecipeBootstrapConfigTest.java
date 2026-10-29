@@ -5,8 +5,8 @@ import de.jan.image.ImageRepository;
 import de.jan.image.RecipeImage;
 import de.jan.image.RecipeImageDAO;
 import de.jan.recipe.Recipe;
-import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.repository.RecipeRepository;
+import de.jan.recipe.repository.RecipeSeedMarkerRepository;
 import de.jan.testsupport.ControllerTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,11 @@ class RecipeBootstrapConfigTest extends ControllerTest {
     @Autowired
     private ImageRepository imageRepository;
 
+    @Autowired
+    private RecipeSeedMarkerRepository seedMarkerRepository;
+
     private void bootstrap(String seedFile) {
-        new RecipeBootstrapConfig(recipeRepository, imageRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
+        new RecipeBootstrapConfig(recipeRepository, imageRepository, seedMarkerRepository, objectMapper, seedFile, IMAGES).afterSingletonsInstantiated();
     }
 
     private static byte[] image() throws IOException {
@@ -52,7 +55,7 @@ class RecipeBootstrapConfigTest extends ControllerTest {
     }
 
     private boolean completed() {
-        return inDatastore(() -> new RecipeSeedMarkerDAO().isCompleted());
+        return inDatastore(() -> seedMarkerRepository.isImported());
     }
 
     @Test
@@ -121,7 +124,7 @@ class RecipeBootstrapConfigTest extends ControllerTest {
         RecipeRepository failing = mock(RecipeRepository.class);
         when(failing.getAll()).thenThrow(new IllegalStateException("database down"));
 
-        assertDoesNotThrow(() -> new RecipeBootstrapConfig(failing, imageRepository, objectMapper, "bootstrap/missing.json", IMAGES)
+        assertDoesNotThrow(() -> new RecipeBootstrapConfig(failing, imageRepository, seedMarkerRepository, objectMapper, "bootstrap/missing.json", IMAGES)
                 .afterSingletonsInstantiated());
     }
 }

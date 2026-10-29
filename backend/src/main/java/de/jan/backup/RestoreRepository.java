@@ -12,8 +12,8 @@ import de.jan.exceptions.UnauthorizedException;
 import de.jan.image.ImageRepository;
 import de.jan.objectify.BaseDAO;
 import de.jan.recipe.Recipe;
-import de.jan.recipe.RecipeSeedMarkerDAO;
 import de.jan.recipe.repository.RecipeRepository;
+import de.jan.recipe.repository.RecipeSeedMarkerRepository;
 import de.jan.travel.TravelFolderDTO;
 import de.jan.travel.repository.TravelFolderRepository;
 import de.jan.travel.repository.TravelPhotoRepository;
@@ -81,13 +81,15 @@ public class RestoreRepository {
     private final TravelSeedMarkerRepository travelSeedMarkerRepository;
     private final ObjectMapper objectMapper;
     private final CloudRun cloudRun;
-    private final RecipeSeedMarkerDAO recipeSeedMarkerDAO = new RecipeSeedMarkerDAO();
+    private final RecipeSeedMarkerRepository recipeSeedMarkerRepository;
 
     public RestoreRepository(RecipeRepository recipeRepository, ImageRepository imageRepository,
+                             RecipeSeedMarkerRepository recipeSeedMarkerRepository,
                              TravelFolderRepository travelRepository, TravelSeedMarkerRepository travelSeedMarkerRepository,
                              ObjectMapper objectMapper, CloudRun cloudRun) {
         this.recipeRepository = recipeRepository;
         this.imageRepository = imageRepository;
+        this.recipeSeedMarkerRepository = recipeSeedMarkerRepository;
         this.travelRepository = travelRepository;
         this.travelSeedMarkerRepository = travelSeedMarkerRepository;
         this.objectMapper = objectMapper;
@@ -116,7 +118,7 @@ public class RestoreRepository {
                 recipeRepository.deleteAll();
                 travelRepository.deleteAllFolders();
                 // what is restored takes the place of the seed data, also if that was never fully imported
-                recipeSeedMarkerDAO.markCompleted();
+                recipeSeedMarkerRepository.markImported();
                 travelSeedMarkerRepository.markImported();
 
                 Progress progress = new Progress();
