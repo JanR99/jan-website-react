@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pageLabel, shortDay, visitsOfLastDays } from "./stats";
+import { pageLabel, shortDay, visitsOfLastDays, weeklyTicks } from "./stats";
 
 const recipes = [{ id: 12, title: "Ramen" }];
 const folders = [{ id: 5, name: "Japan" }];
@@ -31,4 +31,11 @@ describe("visitsOfLastDays", () => {
 
 describe("shortDay", () => {
     it("is day and month", () => expect(shortDay("2026-10-06")).toBe("06.10."));
+});
+
+describe("weeklyTicks", () => {
+    it("labels every seventh day back from the newest", () => {
+        const days = Array.from({ length: 15 }, (_, i) => ({ day: `day${i}`, visits: 0, pageViews: 0 }));
+        expect(weeklyTicks(days)).toEqual(["day0", "day7", "day14"]);
+    });
 });

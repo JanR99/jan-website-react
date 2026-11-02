@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import StatsController from "../../controller/StatsController";
 import { handleApiError } from "../../controller/util/ErrorHandler";
@@ -9,6 +9,8 @@ import { OTHER_PAGE } from "../../utils/visits";
 import LoadError from "../ui/LoadError";
 import Spinner from "../ui/Spinner";
 import PermissionGate from "./PermissionGate";
+
+const VisitsChart = lazy(() => import("./VisitsChart"));
 
 /** How many visits the website had in the last 30 days and which pages were opened most. */
 export default function StatsSection() {
@@ -46,7 +48,7 @@ function Stats() {
                 <StatTile label="Besuche in 7 Tagen" value={visitsOfLastDays(stats.days, 7)} />
                 <StatTile label="Besuche in 30 Tagen" value={visitsOfLastDays(stats.days, 30)} />
             </div>
-            <VisitsChart days={stats.days} />
+            <VisitsSection days={stats.days} />
             <TopPages pages={stats.pages} />
             <p className="muted stats-note">
                 Gezählt wird ein Besuch einmal pro Browser-Tab und jede aufgerufene Seite, ohne Cookies und ohne IP-Adressen.
@@ -65,27 +67,14 @@ function StatTile({ label, value }: { label: string; value: number }) {
     );
 }
 
-/** One bar per day, the newest on the right; hovering or focusing a bar shows its numbers. */
-function VisitsChart({ days }: { days: StatsResponse["days"] }) {
-    const max = Math.max(1, ...days.map((day) => day.visits));
-    const describe = (day: StatsResponse["days"][number]) =>
-        `${shortDay(day.day)}: ${day.visits} ${day.visits === 1 ? "Besuch" : "Besuche"}, ${day.pageViews} Seitenaufrufe`;
-
+/** The chart of the last 30 days, with the numbers as a table to open. */
+function VisitsSection({ days }: { days: StatsResponse["days"] }) {
     return (
         <section className="card card-pad">
             <h2 className="account-card-title">Besuche pro Tag</h2>
-            <ol className="stats-bars" aria-label="Besuche der letzten 30 Tage">
-                {days.map((day) => (
-                    <li key={day.day} tabIndex={0} data-tip={describe(day)} aria-label={describe(day)}>
-                        <span className="stats-bar" style={{ height: `${(day.visits / max) * 100}%` }} />
-                    </li>
-                ))}
-            </ol>
-            <div className="stats-axis muted" aria-hidden="true">
-                <span>{shortDay(days[0].day)}</span>
-                <span>höchstens {max}</span>
-                <span>{shortDay(days[days.length - 1].day)}</span>
-            </div>
+            <Suspense fallback={<div className="stats-chart" />}>
+                <VisitsChart days={days} />
+            </Suspense>
             <details className="stats-table">
                 <summary>Als Tabelle</summary>
                 <table>
