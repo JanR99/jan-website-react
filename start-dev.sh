@@ -5,19 +5,15 @@
 set -euo pipefail
 
 # --- Config ---
+# ports and containers as in compose.yaml
 EMULATOR_PORT="8081"
-DATASTORE_UI_PORT="8083"       # 8080 is the backend, 8082 the emulator of the tests
+DATASTORE_UI_PORT="8083"
+EMULATOR_CONTAINER="jan-website-datastore"
 PROJECT_ID="jan-website-dev"   # any placeholder name works for the emulator
 BACKEND_DIR="backend"
 
-DOCKER_NETWORK="jan-website-dev"
-EMULATOR_CONTAINER="jan-website-datastore"
-DATASTORE_UI_CONTAINER="jan-website-datastore-ui"
-EMULATOR_IMAGE="gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators"
-DATASTORE_UI_IMAGE="ghcr.io/drehelis/gcp-emulator-ui:main"
-
 remove_dev_containers() {
-    docker rm -f "${EMULATOR_CONTAINER}" "${DATASTORE_UI_CONTAINER}" > /dev/null 2>&1 || true
+    docker compose down > /dev/null 2>&1 || true
 }
 
 # --- Load .env file (if present) ---
@@ -44,14 +40,13 @@ else
     echo "No .env file found (${ENV_FILE}) - skipping. See .env.example."
 fi
 
-# --- Docker: both containers share a network, so the UI reaches the emulator by its container name ---
+# --- Docker: the emulator and the Datastore UI from compose.yaml, shown as one group in Docker Desktop ---
 if ! docker info > /dev/null 2>&1; then
     echo "ERROR: Docker is not running." >&2
     exit 1
 fi
 # Remove containers left over from a previous run, otherwise their names and ports are still taken
 remove_dev_containers
-docker network create "${DOCKER_NETWORK}" > /dev/null 2>&1 || true
 
 # Clean up when the script exits (also on Ctrl+C)
 cleanup() {
@@ -61,25 +56,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# --- Start Firestore emulator (Datastore mode) as a Docker container in the background ---
-echo "Starting Firestore emulator (Datastore mode) on port ${EMULATOR_PORT} ..."
+# (the first start downloads the Docker images, which takes a while)
+echo "Starting Firestore emulator (Datastore mode) on port ${EMULATOR_PORT} and Datastore UI on http://localhost:${DATASTORE_UI_PORT} ..."
+docker compose up -d
 
-docker run -d --rm --name "${EMULATOR_CONTAINER}" --network "${DOCKER_NETWORK}" \
-    -p "127.0.0.1:${EMULATOR_PORT}:8081" \
-    "${EMULATOR_IMAGE}" \
-    gcloud emulators firestore start --database-mode=datastore-mode --host-port=0.0.0.0:8081 --quiet \
-    > /dev/null
-
-# --- Start the Datastore UI (gcp-emulator-ui) as a Docker container in the background ---
-echo "Starting Datastore UI on http://localhost:${DATASTORE_UI_PORT} ..."
-
-docker run -d --rm --name "${DATASTORE_UI_CONTAINER}" --network "${DOCKER_NETWORK}" \
-    -p "127.0.0.1:${DATASTORE_UI_PORT}:80" \
-    -e "DATASTORE_EMULATOR_URL=${EMULATOR_CONTAINER}:8081" \
-    "${DATASTORE_UI_IMAGE}" \
-    > /dev/null
-
-echo "Logs: docker logs -f ${EMULATOR_CONTAINER}   /   docker logs -f ${DATASTORE_UI_CONTAINER}"
+echo "Logs: docker compose logs -f"
 
 # Wait until the emulator answers instead of a fixed time
 echo "Waiting for the emulator to start up ..."

@@ -1,0 +1,21 @@
+# The Datastore emulator and its UI for local development; started and stopped by start-dev.ps1 / start-dev.sh.
+name: jan-website
+
+services:
+  datastore:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    container_name: jan-website-datastore
+    command: gcloud emulators firestore start --database-mode=datastore-mode --host-port=0.0.0.0:8081 --quiet
+    ports:
+      - "127.0.0.1:8081:8081"
+
+  datastore-ui:
+    image: ghcr.io/drehelis/gcp-emulator-ui:main
+    container_name: jan-website-datastore-ui
+    environment:
+      DATASTORE_EMULATOR_URL: datastore:8081
+    ports:
+      # 8080 is the backend, 8082 the emulator of the tests
+      - "127.0.0.1:8083:80"
+    depends_on:
+      - datastore
