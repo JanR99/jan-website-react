@@ -9,6 +9,11 @@ export function visitsOfLastDays(days: Day[], count: number): number {
     return days.slice(-count).reduce((sum, day) => sum + day.visits, 0);
 }
 
+/** Every seventh day, counted back from the newest, so the last label is always today. */
+export function weeklyTicks(days: Day[]): string[] {
+    return days.filter((_, i) => (days.length - 1 - i) % 7 === 0).map((day) => day.day);
+}
+
 /** "26.10." for a day like "2026-10-26". */
 export function shortDay(day: string): string {
     const [, month, date] = day.split("-");
