@@ -9,20 +9,16 @@ param(
 $ErrorActionPreference = "Stop"
 
 # --- Config ---
-$EmulatorPort    = "8081"
-$DatastoreUiPort = "8083"   # 8080 is the backend, 8082 the emulator of the tests
-$ProjectId       = "jan-website"
-$BackendDir      = "backend"
-
-$DockerNetwork        = "jan-website-dev"
-$EmulatorContainer    = "jan-website-datastore"
-$DatastoreUiContainer = "jan-website-datastore-ui"
-$EmulatorImage        = "gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators"
-$DatastoreUiImage     = "ghcr.io/drehelis/gcp-emulator-ui:main"
+# ports and containers as in compose.yaml
+$EmulatorPort      = "8081"
+$DatastoreUiPort   = "8083"
+$EmulatorContainer = "jan-website-datastore"
+$ProjectId         = "jan-website"
+$BackendDir        = "backend"
 
 function Remove-DevContainers {
     # via cmd, because PowerShell would turn Docker's stderr output into an error
-    cmd /c "docker rm -f $EmulatorContainer $DatastoreUiContainer >nul 2>&1"
+    cmd /c "docker compose down >nul 2>&1"
 }
 
 # --- Load .env file (if present) ---
@@ -46,7 +42,7 @@ if (Test-Path $EnvFile) {
     Write-Host "No .env file found ($EnvFile) - skipping. See .env.example." -ForegroundColor Yellow
 }
 
-# --- Docker: both containers share a network, so the UI reaches the emulator by its container name ---
+# --- Docker: the emulator and the Datastore UI from compose.yaml, shown as one group in Docker Desktop ---
 cmd /c "docker info >nul 2>&1"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Docker is not running. Start Docker Desktop first." -ForegroundColor Red
@@ -54,34 +50,17 @@ if ($LASTEXITCODE -ne 0) {
 }
 # Remove containers left over from a previous run, otherwise their names and ports are still taken
 Remove-DevContainers
-cmd /c "docker network create $DockerNetwork >nul 2>&1"
 
-# --- Start Firestore emulator (Datastore mode) as a Docker container in the background ---
 # (the first start downloads the Docker images, which takes a while)
-Write-Host "Starting Firestore emulator (Datastore mode) on port $EmulatorPort ..." -ForegroundColor Cyan
-
-docker run -d --rm --name $EmulatorContainer --network $DockerNetwork -p "127.0.0.1:${EmulatorPort}:8081" `
-    $EmulatorImage `
-    gcloud emulators firestore start --database-mode=datastore-mode --host-port=0.0.0.0:8081 --quiet | Out-Null
+Write-Host "Starting Firestore emulator (Datastore mode) on port $EmulatorPort and Datastore UI on http://localhost:$DatastoreUiPort ..." -ForegroundColor Cyan
+cmd /c "docker compose up -d"
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: Could not start the emulator container." -ForegroundColor Red
+    Write-Host "ERROR: Could not start the containers." -ForegroundColor Red
     Remove-DevContainers
     exit 1
 }
 
-# --- Start the Datastore UI (gcp-emulator-ui) as a Docker container in the background ---
-Write-Host "Starting Datastore UI on http://localhost:$DatastoreUiPort ..." -ForegroundColor Cyan
-
-docker run -d --rm --name $DatastoreUiContainer --network $DockerNetwork -p "127.0.0.1:${DatastoreUiPort}:80" `
-    -e "DATASTORE_EMULATOR_URL=${EmulatorContainer}:8081" `
-    $DatastoreUiImage | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: Could not start the Datastore UI container." -ForegroundColor Red
-    Remove-DevContainers
-    exit 1
-}
-
-Write-Host "Logs: Docker Desktop, or 'docker logs -f $EmulatorContainer' / 'docker logs -f $DatastoreUiContainer'" -ForegroundColor DarkGray
+Write-Host "Logs: Docker Desktop, or 'docker compose logs -f'" -ForegroundColor DarkGray
 
 # Wait until the emulator answers instead of a fixed time
 Write-Host "Waiting for the emulator to start up ..." -ForegroundColor Cyan
