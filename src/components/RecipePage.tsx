@@ -19,6 +19,7 @@ import IngredientChecklist from './IngredientChecklist';
 import LoadError from './ui/LoadError';
 import Spinner from './ui/Spinner';
 import RecipePrintSheet from './RecipePrintSheet';
+import ShareButton from './ShareButton';
 import { bringImportUrl, bringPageUrl } from '../utils/bring';
 import { ArrowLeft, CookingPot, Heart, Minus, Plus, Printer, ShoppingCart } from "lucide-react";
 import '../styles/Recipe.css';
@@ -201,6 +202,7 @@ const RecipeView: React.FC<{ recipe: Recipe; recipes: Recipe[] }> = ({ recipe, r
                             <Printer size={18} />
                             Drucken / PDF
                         </button>
+                        <ShareButton title={recipe.title} path={recipePath(recipe)} />
                         {/* Bring! liest die Zutaten von der Seite des Backends und rechnet sie auf die Portionen um */}
                         <a
                             className="btn btn-secondary"
