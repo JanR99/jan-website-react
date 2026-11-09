@@ -9,6 +9,8 @@ import de.jan.feedback.Feedback;
 import de.jan.games.CrosswordStats;
 import de.jan.games.KanaStats;
 import de.jan.games.KanjiStats;
+import de.jan.games.VocabProgress;
+import de.jan.games.VocabStats;
 import de.jan.image.RecipeImage;
 import de.jan.objectify.DatastoreEntity;
 import de.jan.recipe.Recipe;
@@ -44,6 +46,8 @@ public class ObjectifyConfig {
         CrosswordStats.class,
         KanjiStats.class,
         KanaStats.class,
+        VocabStats.class,
+        VocabProgress.class,
         VisitDay.class
     );
 

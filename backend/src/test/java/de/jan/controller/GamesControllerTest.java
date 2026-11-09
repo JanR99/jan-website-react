@@ -3,9 +3,14 @@ package de.jan.controller;
 import de.jan.controller.requests.CrosswordResultRequest;
 import de.jan.controller.requests.KanaResultRequest;
 import de.jan.controller.requests.KanjiResultRequest;
+import de.jan.controller.requests.VocabResultRequest;
 import de.jan.games.CrosswordStatsDAO;
 import de.jan.games.KanaStatsDAO;
 import de.jan.games.KanjiStatsDAO;
+import de.jan.games.VocabProgress;
+import de.jan.games.VocabProgressDAO;
+import de.jan.games.VocabStatsDAO;
+import de.jan.games.repository.VocabStatsRepository;
 import de.jan.testsupport.ControllerTest;
 import de.jan.user.User;
 import org.junit.jupiter.api.Nested;
@@ -13,10 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -765,6 +773,182 @@ class GamesControllerTest extends ControllerTest {
                             .header(HttpHeaders.AUTHORIZATION, bearer(other)))
                     .andExpect(jsonPath("$", hasSize(1)))
                     .andExpect(jsonPath("$[0].kana").value("し"));
+        }
+    }
+
+    /** A round of "Vokabeln"; a word starting with "!" was answered wrong, like "!本". */
+    private static VocabResultRequest vocabRound(String level, boolean practice, String... words) {
+        return new VocabResultRequest(level,
+                Arrays.stream(words).map(word -> !word.startsWith("!")).toList(),
+                Arrays.stream(words).map(word -> word.replace("!", ""))
+                        .map(word -> new VocabResultRequest.Word(word, "reading of " + word, "meaning of " + word))
+                        .toList(),
+                practice);
+    }
+
+    private void recordVocab(User user, VocabResultRequest result) throws Exception {
+        mockMvc.perform(post("/api/games/vocab/result")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(user))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(result)))
+                .andExpect(status().isOk());
+    }
+
+    @Nested
+    class Vocab {
+
+        private static final long DAY = Duration.ofDays(1).toMillis();
+
+        @Test
+        void withoutLogin_returns401() throws Exception {
+            mockMvc.perform(get("/api/games/vocab/stats"))
+                    .andExpect(status().isUnauthorized());
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A1"))
+                    .andExpect(status().isUnauthorized());
+            mockMvc.perform(post("/api/games/vocab/result")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(vocabRound("A1", false, "本"))))
+                    .andExpect(status().isUnauthorized());
+            mockMvc.perform(get("/api/games/vocab/mistakes"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void withoutRounds_returnsZerosAndNoCards() throws Exception {
+            String bearer = bearerWith();
+            mockMvc.perform(get("/api/games/vocab/stats").header(HttpHeaders.AUTHORIZATION, bearer))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(0))
+                    .andExpect(jsonPath("$.levels", hasSize(0)));
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A1").header(HttpHeaders.AUTHORIZATION, bearer))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void rightWords_goUpABox_wrongOnesBackToTheStart() throws Exception {
+            User user = userWith();
+            long before = System.currentTimeMillis();
+            recordVocab(user, vocabRound("A1", false, "本", "日", "!月"));
+            recordVocab(user, vocabRound("A1", false, "本", "!日"));
+
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A1").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(3)))
+                    .andExpect(jsonPath("$[0].word").value("本"))
+                    .andExpect(jsonPath("$[0].box").value(2))
+                    .andExpect(jsonPath("$[0].dueAt").value(greaterThanOrEqualTo(before + 2 * DAY)))
+                    .andExpect(jsonPath("$[0].dueAt").value(lessThan(before + 3 * DAY)))
+                    .andExpect(jsonPath("$[1].word").value("日"))
+                    .andExpect(jsonPath("$[1].box").value(0))
+                    .andExpect(jsonPath("$[1].dueAt").value(lessThan(before + 2 * DAY)))
+                    .andExpect(jsonPath("$[2].word").value("月"))
+                    .andExpect(jsonPath("$[2].box").value(0));
+
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A2").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void aWordStaysInTheLastBox() throws Exception {
+            User user = userWith();
+            for (int i = 0; i <= VocabStatsRepository.MAX_BOX; i++) {
+                recordVocab(user, vocabRound("A1", false, "本"));
+            }
+
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A1").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$[0].box").value(VocabStatsRepository.MAX_BOX));
+        }
+
+        @Test
+        void stats_countRoundsAndLearnedWordsPerLevel() throws Exception {
+            User user = userWith();
+            for (int i = 0; i < VocabStatsRepository.LEARNED_BOX; i++) {
+                recordVocab(user, vocabRound("B1", false, "本"));
+            }
+            recordVocab(user, vocabRound("B1", false, "!日"));
+
+            mockMvc.perform(get("/api/games/vocab/stats").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.rounds").value(VocabStatsRepository.LEARNED_BOX + 1))
+                    .andExpect(jsonPath("$.perfectRounds").value(VocabStatsRepository.LEARNED_BOX))
+                    .andExpect(jsonPath("$.rightWords").value(VocabStatsRepository.LEARNED_BOX))
+                    .andExpect(jsonPath("$.askedWords").value(VocabStatsRepository.LEARNED_BOX + 1))
+                    .andExpect(jsonPath("$.currentStreak").value(0))
+                    .andExpect(jsonPath("$.bestStreak").value(VocabStatsRepository.LEARNED_BOX))
+                    .andExpect(jsonPath("$.levels", hasSize(1)))
+                    .andExpect(jsonPath("$.levels[0].level").value("B1"))
+                    .andExpect(jsonPath("$.levels[0].words").value(2))
+                    .andExpect(jsonPath("$.levels[0].learned").value(1));
+        }
+
+        @Test
+        void wrongWords_goOnTheListOfMistakes_andCanBeTakenOff() throws Exception {
+            User user = userWith();
+            recordVocab(user, vocabRound("A1", false, "本", "!日", "!月"));
+            recordVocab(user, vocabRound("A1", false, "!月"));
+
+            mockMvc.perform(get("/api/games/vocab/mistakes").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].word").value("月"))
+                    .andExpect(jsonPath("$[0].wrong").value(2))
+                    .andExpect(jsonPath("$[0].reading").value("reading of 月"))
+                    .andExpect(jsonPath("$[0].meaning").value("meaning of 月"));
+
+            mockMvc.perform(delete("/api/games/vocab/mistakes").param("word", "月").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].word").value("日"));
+        }
+
+        @Test
+        void practiceRound_changesOnlyTheListOfMistakes() throws Exception {
+            User user = userWith();
+            recordVocab(user, vocabRound("A1", false, "!日"));
+            recordVocab(user, vocabRound(null, true, "日", "!月"));
+
+            mockMvc.perform(get("/api/games/vocab/stats").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$.rounds").value(1))
+                    .andExpect(jsonPath("$.askedWords").value(1));
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "A1").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(1)))
+                    .andExpect(jsonPath("$[0].box").value(0));
+            mockMvc.perform(get("/api/games/vocab/mistakes").header(HttpHeaders.AUTHORIZATION, bearer(user)))
+                    .andExpect(jsonPath("$", hasSize(2)));
+        }
+
+        @Test
+        void unknownLevelOrMissingWords_returns400() throws Exception {
+            String bearer = bearerWith();
+            mockMvc.perform(post("/api/games/vocab/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(vocabRound("D1", false, "本"))))
+                    .andExpect(status().isBadRequest());
+            mockMvc.perform(post("/api/games/vocab/result")
+                            .header(HttpHeaders.AUTHORIZATION, bearer)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(new VocabResultRequest("A1", List.of(true), null, false))))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string("A round must have as many words as answers"));
+            mockMvc.perform(get("/api/games/vocab/cards").param("level", "D1").header(HttpHeaders.AUTHORIZATION, bearer))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void deletedAccount_takesItsBoxesWithIt() throws Exception {
+            User user = userWith();
+            recordVocab(user, vocabRound("A1", false, "本"));
+            recordVocab(user, vocabRound("C1", false, "!日"));
+
+            inDatastore(() -> {
+                userRepository.deleteAccount(userRepository.getByEmail(user.getEmail()), passwordOf(user));
+                return null;
+            });
+
+            assertNull(inDatastore(() -> new VocabStatsDAO().get(user.getId())));
+            assertNull(inDatastore(() -> new VocabProgressDAO().get(VocabProgress.idOf(user.getId(), "A1"))));
+            assertNull(inDatastore(() -> new VocabProgressDAO().get(VocabProgress.idOf(user.getId(), "C1"))));
         }
     }
 
