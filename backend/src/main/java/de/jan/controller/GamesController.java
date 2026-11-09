@@ -3,10 +3,12 @@ package de.jan.controller;
 import de.jan.controller.requests.CrosswordResultRequest;
 import de.jan.controller.requests.KanaResultRequest;
 import de.jan.controller.requests.KanjiResultRequest;
+import de.jan.controller.requests.VocabResultRequest;
 import de.jan.games.*;
 import de.jan.games.repository.CrosswordStatsRepository;
 import de.jan.games.repository.KanaStatsRepository;
 import de.jan.games.repository.KanjiStatsRepository;
+import de.jan.games.repository.VocabStatsRepository;
 import de.jan.security.CurrentUser;
 import de.jan.user.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,16 +34,23 @@ public class GamesController {
     private static final String RECORD_KANA_RESULT = "recordKanaResult";
     private static final String GET_KANA_MISTAKES = "getKanaMistakes";
     private static final String DELETE_KANA_MISTAKE = "deleteKanaMistake";
+    private static final String GET_VOCAB_STATS = "getVocabStats";
+    private static final String GET_VOCAB_CARDS = "getVocabCards";
+    private static final String RECORD_VOCAB_RESULT = "recordVocabResult";
+    private static final String GET_VOCAB_MISTAKES = "getVocabMistakes";
+    private static final String DELETE_VOCAB_MISTAKE = "deleteVocabMistake";
 
     private final CrosswordStatsRepository crosswordStatsRepository;
     private final KanjiStatsRepository kanjiStatsRepository;
     private final KanaStatsRepository kanaStatsRepository;
+    private final VocabStatsRepository vocabStatsRepository;
 
     public GamesController(CrosswordStatsRepository crosswordStatsRepository, KanjiStatsRepository kanjiStatsRepository,
-                           KanaStatsRepository kanaStatsRepository) {
+                           KanaStatsRepository kanaStatsRepository, VocabStatsRepository vocabStatsRepository) {
         this.crosswordStatsRepository = crosswordStatsRepository;
         this.kanjiStatsRepository = kanjiStatsRepository;
         this.kanaStatsRepository = kanaStatsRepository;
+        this.vocabStatsRepository = vocabStatsRepository;
     }
 
     @Operation(operationId = GET_CROSSWORD_STATS)
@@ -117,5 +126,44 @@ public class GamesController {
             @RequestParam("kana") String kana
     ) {
         return ResponseEntity.ok(kanaStatsRepository.deleteMistake(user, kana));
+    }
+
+    @Operation(operationId = GET_VOCAB_STATS)
+    @GetMapping("/vocab/stats")
+    public ResponseEntity<VocabStatsDTO> getVocabStats(@CurrentUser User user) {
+        return ResponseEntity.ok(vocabStatsRepository.get(user));
+    }
+
+    @Operation(operationId = GET_VOCAB_CARDS)
+    @GetMapping("/vocab/cards")
+    public ResponseEntity<List<VocabCardDTO>> getVocabCards(
+            @CurrentUser User user,
+            @RequestParam("level") String level
+    ) {
+        return ResponseEntity.ok(vocabStatsRepository.getCards(user, level));
+    }
+
+    @Operation(operationId = RECORD_VOCAB_RESULT)
+    @PostMapping("/vocab/result")
+    public ResponseEntity<VocabStatsDTO> recordVocabResult(
+            @CurrentUser User user,
+            @RequestBody VocabResultRequest result
+    ) {
+        return ResponseEntity.ok(vocabStatsRepository.record(user, result));
+    }
+
+    @Operation(operationId = GET_VOCAB_MISTAKES)
+    @GetMapping("/vocab/mistakes")
+    public ResponseEntity<List<VocabMistakeDTO>> getVocabMistakes(@CurrentUser User user) {
+        return ResponseEntity.ok(vocabStatsRepository.getMistakes(user));
+    }
+
+    @Operation(operationId = DELETE_VOCAB_MISTAKE)
+    @DeleteMapping("/vocab/mistakes")
+    public ResponseEntity<List<VocabMistakeDTO>> deleteVocabMistake(
+            @CurrentUser User user,
+            @RequestParam("word") String word
+    ) {
+        return ResponseEntity.ok(vocabStatsRepository.deleteMistake(user, word));
     }
 }

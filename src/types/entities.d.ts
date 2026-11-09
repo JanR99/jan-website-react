@@ -148,3 +148,36 @@ interface KanaMistake {
     wrong: number;
     rightInRow: number;
 }
+
+interface VocabLevelStats {
+    level: string;
+    /** words had at this level */
+    words: number;
+    /** of them, the ones in box 5 or higher */
+    learned: number;
+}
+
+interface VocabStats {
+    rounds: number;
+    perfectRounds: number;
+    rightWords: number;
+    askedWords: number;
+    currentStreak: number;
+    bestStreak: number;
+    levels: VocabLevelStats[];
+}
+
+/** A word the user has had at a level: its box and when it is asked again (milliseconds since 1970). */
+interface VocabCard {
+    word: string;
+    box: number;
+    dueAt: number;
+}
+
+interface VocabMistake {
+    word: string;
+    reading: string;
+    meaning: string;
+    wrong: number;
+    rightInRow: number;
+}

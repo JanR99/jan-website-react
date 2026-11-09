@@ -53,6 +53,10 @@ export const useCrosswordStats = () =>
 export const useKanjiStats = () =>
     useGameStats<KanjiStats, KanjiResult>(GamesController.getKanjiStats, GamesController.recordKanjiResult, "kanji");
 
+/** The "Vokabeln" numbers of the logged-in user. */
+export const useVocabStats = () =>
+    useGameStats<VocabStats, VocabResult>(GamesController.getVocabStats, GamesController.recordVocabResult, "vocab");
+
 /** The "Kana lesen" numbers of the logged-in user. */
 export const useKanaStats = () =>
     useGameStats<KanaStats, KanaResult>(GamesController.getKanaStats, GamesController.recordKanaResult, "kana");

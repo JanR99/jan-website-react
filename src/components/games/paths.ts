@@ -2,7 +2,9 @@ export const GAMES_BASE = "/spiele";
 export const CROSSWORD_PATH = `${GAMES_BASE}/kreuzwortraetsel`;
 export const KANJI_PATH = `${GAMES_BASE}/kanji`;
 export const KANA_PATH = `${GAMES_BASE}/kana`;
+export const VOCAB_PATH = `${GAMES_BASE}/vokabeln`;
 /** with this parameter the kanji game starts with a round of the own mistakes */
 export const PRACTICE_PARAM = "fehler";
 export const KANJI_PRACTICE_PATH = `${KANJI_PATH}?${PRACTICE_PARAM}`;
 export const KANA_PRACTICE_PATH = `${KANA_PATH}?${PRACTICE_PARAM}`;
+export const VOCAB_PRACTICE_PATH = `${VOCAB_PATH}?${PRACTICE_PARAM}`;

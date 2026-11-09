@@ -48,3 +48,7 @@ export const useKanaMistakes = () =>
 /** The "Kanji lesen" mistakes of the logged-in user; `remove` takes a word off the list. */
 export const useKanjiMistakes = () =>
     useGameMistakes<KanjiMistake>(GamesController.getKanjiMistakes, GamesController.deleteKanjiMistake, "kanji");
+
+/** The "Vokabeln" mistakes of the logged-in user; `remove` takes a word off the list. */
+export const useVocabMistakes = () =>
+    useGameMistakes<VocabMistake>(GamesController.getVocabMistakes, GamesController.deleteVocabMistake, "vocab");

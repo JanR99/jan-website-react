@@ -108,6 +108,13 @@ interface KanjiResult {
     practice?: boolean;
 }
 
+interface VocabResult {
+    level?: string;
+    answers: boolean[];
+    words: KanjiResultWord[];
+    practice?: boolean;
+}
+
 interface KanaResult {
     answers: boolean[];
     kana: string[];
