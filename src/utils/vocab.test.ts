@@ -66,6 +66,7 @@ describe("isRightMeaning", () => {
         expect(isRightMeaning("to be sold", "to sell (well); to be sold")).toBe(true);
         expect(isRightMeaning("the house", "house; home (polite)")).toBe(true);
         expect(isRightMeaning("  oolong-tea ", "oolong tea")).toBe(true);
+        expect(isRightMeaning("caffe latte", "caffè latte")).toBe(true);
     });
 
     it("allows one typo in longer words only", () => {

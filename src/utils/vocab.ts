@@ -43,10 +43,12 @@ export function vocabRound(words: VocabWord[], cards: VocabCard[], now: number, 
     return shuffle(picked, random);
 }
 
-/** "To sell (well)" → "sell": lower case, without brackets, "to", "a", "an", "the" and punctuation. */
+/** "To sell (well)" → "sell": lower case, without accents, brackets, "to", "a", "an", "the" and punctuation. */
 function normalize(meaning: string): string {
     return meaning
         .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
         .replace(/\([^)]*\)/g, " ")
         .replace(/[^a-z0-9]+/g, " ")
         .trim()

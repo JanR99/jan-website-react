@@ -17,7 +17,8 @@ import GamesPage from './components/games/GamesPage';
 import CrosswordGame from './components/games/CrosswordGame';
 import KanjiGame from './components/games/KanjiGame';
 import KanaGame from './components/games/KanaGame';
-import { CROSSWORD_PATH, GAMES_BASE, KANA_PATH, KANJI_PATH } from './components/games/paths';
+import VocabGame from './components/games/VocabGame';
+import { CROSSWORD_PATH, GAMES_BASE, KANA_PATH, KANJI_PATH, VOCAB_PATH } from './components/games/paths';
 import { ACCOUNT_BASE, ACCOUNT_SECTIONS } from './config/navigation';
 import { TRAVEL_BASE } from './utils/travel';
 
@@ -51,6 +52,7 @@ const App: React.FC = () => {
                     <Route path={CROSSWORD_PATH} element={<CrosswordGame />} />
                     <Route path={KANJI_PATH} element={<KanjiGame />} />
                     <Route path={KANA_PATH} element={<KanaGame />} />
+                    <Route path={VOCAB_PATH} element={<VocabGame />} />
 
                     {/* paths for logged-in users */}
                     <Route

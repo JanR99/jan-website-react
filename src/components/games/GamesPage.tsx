@@ -1,20 +1,21 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Grid3x3, Languages, Trophy, Type } from "lucide-react";
+import { ArrowRight, GraduationCap, Grid3x3, Languages, Trophy, Type } from "lucide-react";
 import type { ReactNode } from "react";
 import { ACCOUNT_BASE } from "../../config/navigation";
-import { useCrosswordStats, useKanaStats, useKanjiStats } from "../../hooks/useGameStats";
+import { useCrosswordStats, useKanaStats, useKanjiStats, useVocabStats } from "../../hooks/useGameStats";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import { hitRate, roundCount } from "../../utils/gameStats";
-import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH } from "./paths";
+import { CROSSWORD_PATH, KANA_PATH, KANJI_PATH, VOCAB_PATH } from "./paths";
 import "../../styles/Games.css";
 
-/** The overview of the small games: the Japanese crossword, the kana and the kanji readings, with the own numbers in short. */
+/** The overview of the small games: the Japanese crossword, the kana and the kanji readings and the vocabulary, with the own numbers in short. */
 export default function GamesPage() {
     usePageTitle("Spiele");
     const { stats: crossword, loggedIn } = useCrosswordStats();
     const { stats: kanji } = useKanjiStats();
     const { stats: kana } = useKanaStats();
+    const { stats: vocab } = useVocabStats();
 
     const crosswordLine = crossword && (
         crossword.solved > 0 || crossword.words > 0
@@ -24,6 +25,12 @@ export default function GamesPage() {
     const kanjiLine = kanji && (
         kanji.rounds > 0
             ? `${roundCount(kanji.rounds)} · ${hitRate(kanji.rightWords, kanji.askedWords)} richtig · Serie ${kanji.currentStreak}`
+            : "Noch nicht gespielt"
+    );
+
+    const vocabLine = vocab && (
+        vocab.rounds > 0
+            ? `${roundCount(vocab.rounds)} · ${hitRate(vocab.rightWords, vocab.askedWords)} richtig · Serie ${vocab.currentStreak}`
             : "Noch nicht gespielt"
     );
 
@@ -58,6 +65,13 @@ export default function GamesPage() {
                     title="Kanji lesen"
                     text="Wörter in Kanji mit ihrer englischen Bedeutung: Tippe die Lesung in Romaji."
                     stats={loggedIn ? kanjiLine : null}
+                />
+                <GameCard
+                    to={VOCAB_PATH}
+                    icon={<GraduationCap size={26} />}
+                    title="Vokabeln"
+                    text="Japanische Wörter mit Wiederholung: Tippe die englische Bedeutung."
+                    stats={loggedIn ? vocabLine : null}
                 />
             </div>
 

@@ -71,4 +71,39 @@ export default class GamesController {
         const response: { body: KanaMistake[] } = await apis.games.deleteKanaMistake.execute({ kana });
         return response.body;
     }
+
+    /** Needs a login; the "Vokabeln" numbers of the logged-in user. */
+    static async getVocabStats(): Promise<VocabStats> {
+        const apis = await apiClient;
+        const response: { body: VocabStats } = await apis.games.getVocabStats.execute({});
+        return response.body;
+    }
+
+    /** Needs a login; the words the user has had at the level, with their boxes. */
+    static async getVocabCards(level: string): Promise<VocabCard[]> {
+        const apis = await apiClient;
+        const response: { body: VocabCard[] } = await apis.games.getVocabCards.execute({ level });
+        return response.body;
+    }
+
+    /** Needs a login; moves the words of the round to their new boxes and returns the numbers including it. */
+    static async recordVocabResult(result: VocabResult): Promise<VocabStats> {
+        const apis = await apiClient;
+        const response: { body: VocabStats } = await apis.games.recordVocabResult.execute({}, { requestBody: result });
+        return response.body;
+    }
+
+    /** Needs a login; the "Vokabeln" mistakes of the logged-in user, most often wrong first. */
+    static async getVocabMistakes(): Promise<VocabMistake[]> {
+        const apis = await apiClient;
+        const response: { body: VocabMistake[] } = await apis.games.getVocabMistakes.execute({});
+        return response.body;
+    }
+
+    /** Needs a login; takes a word off the list of mistakes and returns the rest. */
+    static async deleteVocabMistake(word: string): Promise<VocabMistake[]> {
+        const apis = await apiClient;
+        const response: { body: VocabMistake[] } = await apis.games.deleteVocabMistake.execute({ word });
+        return response.body;
+    }
 }
