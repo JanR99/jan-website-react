@@ -12,9 +12,29 @@ export interface VocabWord {
     level: string;
 }
 
-/** The kanji words and the kana words of one level; a word in both lists is taken once, as the kanji word. */
-export function vocabWords(kanji: KanjiWord[], kana: JapaneseWord[], level: string): VocabWord[] {
+/**
+ * A word added by hand in public/games/vocab-extra.json, like
+ * { "word": "犬", "reading": "いぬ", "meaning": "dog", "level": "A1" }.
+ * The reading is in kana and left out for words written in kana; several meanings are separated by ";".
+ */
+export interface ExtraWord {
+    word: string;
+    reading?: string;
+    meaning: string;
+    level: string;
+}
+
+/**
+ * The words of one level: the ones added by hand, the kanji words and the kana words. A word in several lists is
+ * taken once, the one added by hand first, so it can correct a word of the lists.
+ */
+export function vocabWords(kanji: KanjiWord[], kana: JapaneseWord[], extra: ExtraWord[], level: string): VocabWord[] {
     const words = new Map<string, VocabWord>();
+    for (const word of extra) {
+        if (word.level === level && !words.has(word.word)) {
+            words.set(word.word, { word: word.word, reading: word.reading ?? "", meaning: word.meaning, level });
+        }
+    }
     for (const word of kanji) {
         if (word.l === level && !words.has(word.k)) {
             words.set(word.k, { word: word.k, reading: readingAsKana(word.r), meaning: word.en, level });

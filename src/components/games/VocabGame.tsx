@@ -1,4 +1,4 @@
-import { useJapaneseKanji, useJapaneseWords } from "../../hooks/useJapaneseWords";
+import { useJapaneseKanji, useJapaneseWords, useVocabExtra } from "../../hooks/useJapaneseWords";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import PageHeader from "../layout/PageHeader";
 import LoadError from "../ui/LoadError";
@@ -13,20 +13,22 @@ export default function VocabGame() {
     usePageTitle("Vokabeln");
     const kanji = useJapaneseKanji();
     const kana = useJapaneseWords();
+    const extra = useVocabExtra();
     const retry = () => {
         if (kanji.failed) kanji.retry();
         if (kana.failed) kana.retry();
+        if (extra.failed) extra.retry();
     };
 
     return (
         <div className="container kanji-page">
             <PageHeader back={{ to: GAMES_BASE, label: "Alle Spiele" }} title="Vokabeln" />
-            {kanji.failed || kana.failed ? (
+            {kanji.failed || kana.failed || extra.failed ? (
                 <LoadError message="Die Wörter konnten nicht geladen werden." onRetry={retry} />
-            ) : kanji.words === null || kana.words === null ? (
+            ) : kanji.words === null || kana.words === null || extra.words === null ? (
                 <Spinner />
             ) : (
-                <VocabSetup kanji={kanji.words} kana={kana.words} />
+                <VocabSetup kanji={kanji.words} kana={kana.words} extra={extra.words} />
             )}
         </div>
     );

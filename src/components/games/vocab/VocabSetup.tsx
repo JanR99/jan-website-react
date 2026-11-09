@@ -7,7 +7,7 @@ import { useVocabMistakes } from "../../../hooks/useGameMistakes";
 import type { JapaneseWord } from "../../../utils/crossword";
 import { hitRate, roundCount } from "../../../utils/gameStats";
 import type { KanjiWord } from "../../../utils/kanjiReading";
-import { vocabWords } from "../../../utils/vocab";
+import { vocabWords, type ExtraWord } from "../../../utils/vocab";
 import GameStatsLine from "../GameStatsLine";
 import Spinner from "../../ui/Spinner";
 import { LEVELS } from "../kanji/rounds";
@@ -16,7 +16,7 @@ import { newRound, practiceRound, type Round } from "./rounds";
 import VocabRound from "./VocabRound";
 
 /** The level, the own numbers and the current round; logged in, the round takes the due words first. */
-export default function VocabSetup({ kanji, kana }: { kanji: KanjiWord[]; kana: JapaneseWord[] }) {
+export default function VocabSetup({ kanji, kana, extra }: { kanji: KanjiWord[]; kana: JapaneseWord[]; extra: ExtraWord[] }) {
     const [level, setLevel] = useState("A1");
     const [round, setRound] = useState<Round | null>(null);
     const { stats, loggedIn, record } = useVocabStats();
@@ -33,7 +33,7 @@ export default function VocabSetup({ kanji, kana }: { kanji: KanjiWord[]; kana: 
     const start = (l: string) => {
         setLevel(l);
         setRound(null);
-        void loadCards(l).then((cards) => setRound(newRound(vocabWords(kanji, kana, l), cards, l)));
+        void loadCards(l).then((cards) => setRound(newRound(vocabWords(kanji, kana, extra, l), cards, l)));
     };
 
     const practice = () => {
@@ -44,8 +44,8 @@ export default function VocabSetup({ kanji, kana }: { kanji: KanjiWord[]; kana: 
     // the first round; later ones start with a click
     useEffect(() => {
         const cards = loggedIn ? GamesController.getVocabCards("A1").catch(() => []) : Promise.resolve([]);
-        void cards.then((loaded) => setRound((current) => current ?? newRound(vocabWords(kanji, kana, "A1"), loaded, "A1")));
-    }, [loggedIn, kanji, kana]);
+        void cards.then((loaded) => setRound((current) => current ?? newRound(vocabWords(kanji, kana, extra, "A1"), loaded, "A1")));
+    }, [loggedIn, kanji, kana, extra]);
 
     if (wantsPractice && mistakes !== null) {
         setWantsPractice(false);

@@ -2,6 +2,24 @@ import { describe, expect, it } from "vitest";
 import { isRightMeaning, ROUND_LENGTH, vocabRound, vocabWords, type VocabWord } from "./vocab";
 
 describe("vocabWords", () => {
+    it("takes the words added by hand first, so they can correct a word of the lists", () => {
+        const words = vocabWords(
+            [{ k: "犬", r: "inu", en: "dog", l: "A1" }],
+            [],
+            [
+                { word: "犬", reading: "いぬ", meaning: "dog; hound", level: "A1" },
+                { word: "ねこ", meaning: "cat", level: "A1" },
+                { word: "猿", reading: "さる", meaning: "monkey", level: "B1" },
+            ],
+            "A1",
+        );
+
+        expect(words).toEqual([
+            { word: "犬", reading: "いぬ", meaning: "dog; hound", level: "A1" },
+            { word: "ねこ", reading: "", meaning: "cat", level: "A1" },
+        ]);
+    });
+
     it("takes the kanji and kana words of the level, each word once", () => {
         const words = vocabWords(
             [
@@ -14,6 +32,7 @@ describe("vocabWords", () => {
                 { w: "外", en: "outside", l: "A1" },
                 { w: "あう", en: "to meet", l: "A2" },
             ],
+            [],
             "A1",
         );
 

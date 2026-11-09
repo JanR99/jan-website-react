@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { JapaneseWord } from "../utils/crossword";
 import type { KanjiWord } from "../utils/kanjiReading";
+import type { ExtraWord } from "../utils/vocab";
 
 /**
  * The word lists of https://github.com/vbvss199/Language-Learning-decks (see data/japanese-practice), prepared by `npm run words`
@@ -8,6 +9,8 @@ import type { KanjiWord } from "../utils/kanjiReading";
  */
 const WORDS_URL = "/games/japanese-words.json";
 const KANJI_URL = "/games/japanese-kanji.json";
+/** words added by hand for "Vokabeln", see ExtraWord */
+const EXTRA_URL = "/games/vocab-extra.json";
 
 const loading = new Map<string, Promise<unknown>>();
 
@@ -59,3 +62,6 @@ export const useJapaneseWords = () => useGameList<JapaneseWord>(WORDS_URL);
 
 /** The kanji words with their readings for the kanji game. */
 export const useJapaneseKanji = () => useGameList<KanjiWord>(KANJI_URL);
+
+/** The words added by hand for "Vokabeln". */
+export const useVocabExtra = () => useGameList<ExtraWord>(EXTRA_URL);
